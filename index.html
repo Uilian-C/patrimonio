@@ -1356,6 +1356,12 @@ nav.tabs .fab:active{transform:translateY(-50%) scale(.94)}
 .sxp>span{display:grid;min-width:0}.sxp small{font-size:11.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.sxp b{font-size:14.5px;font-weight:600;letter-spacing:-.02em}
 .sxp .bk,.sxp .bkb,.sxp>:first-child{transform:scale(.82);transform-origin:left center;margin-right:-6px}
 .sxok{position:absolute;top:6px;right:7px;color:var(--good)}.sxok svg{width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2.8}
+
+.rnd{display:grid;gap:10px;padding:14px;border-radius:var(--r-md);background:var(--sunk)}
+.rndh{font-size:12.5px;font-weight:600;color:var(--accent);display:flex;align-items:center;gap:6px}.rndh svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.8;vertical-align:-2px}
+.rndv{display:grid;grid-template-columns:1fr 1fr;gap:10px}.rndv div{display:grid}.rndv small{font-size:11.5px;color:var(--muted)}.rndv b{font-size:19px;font-weight:600;letter-spacing:-.03em}
+.rnd .btn{justify-self:start}
+.cxm small .pos{color:var(--good)}
 </style>
 </head>
 <body>
@@ -3067,6 +3073,7 @@ function openContaDet(a){
       <div class="dsal"><span class="k">Saldo atual</span><div class="big n ${v<0?'neg':''}">${brl(v)}</div>
         ${ce?`<div class="dsub"><span>Cheque especial <b class="n">${brl0(ce)}</b></span><span>Disponível <b class="n ${v+ce<0?'neg':''}">${brl0(v+ce)}</b></span></div><div class="dtr"><i style="width:${Math.max(Math.min((v+ce)/(Math.max(v,0)+ce||1),1),0)*100}%"></i></div>`:''}
         ${m?`<div class="dsub"><span>Meta <b class="n">${brl0(m)}</b></span><span><b class="n">${pctf(v/m)}</b> atingido</span></div><div class="dtr"><i style="width:${Math.min(v/m,1)*100}%;background:var(--good)"></i></div>`:''}</div>
+      ${rendBox(a)}
       <div class="dper"><button class="navb" type="button" data-pm="-1" aria-label="Mês anterior"></button><b>${MESL[+ym.slice(5)-1]} ${ym.slice(0,4)}</b><button class="navb" type="button" data-pm="1" aria-label="Próximo mês"></button></div>
       <div class="dst">
         <span>Saldo inicial</span><b class="n">${brl(R.ini)}</b>
@@ -3078,6 +3085,7 @@ function openContaDet(a){
       ${cats.length?`<div class="dlist"><span class="k">Despesas por categoria</span>${cats.map(([c,v])=>`<div class="dcat"><span>${esc(c)}</span><b class="n">${brl(v)}</b><span class="dtr"><i style="width:${v/cmx*100}%"></i></span></div>`).join('')}</div>`:''}
       <div class="dlist"><span class="k">Movimentos do mês · ${R.L.length}</span>${R.L.length?R.L.slice(0,30).map(l=>{const inn=l.destino===a.id||l.tipo==='receita'||(l.tipo==='ajuste'&&l.valor>0);return `<button class="dli b" type="button" data-l="${esc(l.id)}"><span class="n">${fdate(l.data).slice(0,5)}</span><span>${esc(l.desc||({transf:'Transferência',pagfat:'Pagamento de fatura',ajuste:'Ajuste'})[l.tipo]||'')}<small>${esc(l.categoria||({transf:'Transferência',pagfat:'Fatura',ajuste:'Ajuste'})[l.tipo]||'')}</small></span><b class="n ${inn?'pos':''}">${inn?'+':'−'}${brl(Math.abs(l.valor))}</b></button>`}).join(''):'<p class="note">Nenhum movimento neste mês.</p>'}</div>`;
     sh.querySelectorAll('[data-pm]').forEach(b=>b.onclick=()=>{ym=ymAdd(ym,+b.dataset.pm);draw(sh)});
+    sh.querySelectorAll('[data-rreg]').forEach(b=>b.onclick=async()=>{b.disabled=true;await rendReg(conta(b.dataset.rreg)||a);setTimeout(()=>draw(sh),400)});
     sh.querySelectorAll('[data-l]').forEach(b=>b.onclick=()=>openLanc(S.lanc.find(l=>l.id===b.dataset.l)));
   };
   openSheet(`<h2>${esc(a.nome)}</h2><div id="cdx" class="det"></div>
@@ -3610,7 +3618,7 @@ function vCart(){
       <button class="cxh" type="button" aria-expanded="${cxOpen(k)}"><span class="cxi ${tone||''}">${icon}</span><span class="cxm"><strong>${title}</strong><small>${sub}</small></span><b class="n cxv ${total<0?'neg':''}">${typeof total==='number'?brl0(total):total}</b>${ic('down','chev')}</button>
       <div class="cxb" ${cxOpen(k)?'':'hidden'}>${body}${add?`<button class="cxadd" type="button" ${add}>${ic('plus')}<span>Adicionar</span></button>`:''}</div></section>`;
   const I=p=>`<svg viewBox="0 0 24 24">${p}</svg>`;
-  const rowA=a=>{const v=saldoConta(a),m=+a.meta||0;return `<button class="cxr" type="button" data-ct="${esc(a.id)}">${bankBadge(a,a.tipo)}<span class="cxm"><strong>${esc(a.nome)}${a.dono!==me?' '+whoChip(a.dono):''}</strong><small>${m?`${pctf(v/m)} de ${brl0(m)}`:esc(a.instituicao||TCONTA[a.tipo||'corrente'])}${a.chequeEspecial?' · cheque especial '+brl0(a.chequeEspecial):''}</small>${m?`<span class="cxt"><i style="width:${Math.min(v/m,1)*100}%;background:${a.tipo==='reserva'?'var(--good)':'var(--inv)'}"></i></span>`:''}</span><b class="n ${v<0?'neg':''}">${brl(v)}</b></button>`};
+  const rowA=a=>{const v=saldoConta(a),m=+a.meta||0,E=rendEst(a);return `<button class="cxr" type="button" data-ct="${esc(a.id)}">${bankBadge(a,a.tipo)}<span class="cxm"><strong>${esc(a.nome)}${a.dono!==me?' '+whoChip(a.dono):''}</strong><small>${E?`${rendLabel(a)} · <span class="pos">≈ ${brl(E.hoje)} hoje</span>${m?' · '+pctf(E.hoje/m)+' da meta':''}`:m?`${pctf(v/m)} de ${brl0(m)}`:esc(a.instituicao||TCONTA[a.tipo||'corrente'])}${a.chequeEspecial?' · cheque especial '+brl0(a.chequeEspecial):''}</small>${m?`<span class="cxt"><i style="width:${Math.min(v/m,1)*100}%;background:${a.tipo==='reserva'?'var(--good)':'var(--inv)'}"></i></span>`:''}</span><b class="n ${v<0?'neg':''}">${brl(v)}</b></button>`};
   const empty=t=>`<p class="note cxe">${t}</p>`;
   const Pt=patrimonio(me);
   let h=saldoContas(me)+`<div class="card cxs pat">${patHead(Pt,me)}${patComp(Pt,me)}</div>`;
@@ -3688,6 +3696,38 @@ const corPick=(cur)=>`<div class="field"><span class="flab">Cor</span><div class
 const wireCor=(sh,o)=>sh.querySelectorAll('[data-cor]').forEach(b=>b.onclick=()=>{o.cor=b.dataset.cor;sh.querySelectorAll('[data-cor]').forEach(x=>x.style.borderColor=x===b?'var(--ink)':'transparent')});
 
 /* ---------- sheets: cadastros ---------- */
+/* ---------- rendimento automático (estimado) de investimentos e reservas ---------- */
+const RTIPOS=[['','Não calcular'],['cdi','% do CDI'],['cdimais','CDI + % a.a.'],['pre','Prefixado % a.a.']];
+let CDI=(()=>{try{return JSON.parse(localStorage.getItem('pt-cdi')||'null')}catch(e){return null}})()||{dias:{},em:''};
+const cdiAA=()=>+((S.cfg||{}).cdiAA)||14.15; /* reserva, em % a.a., editável no cadastro do investimento */
+let CDITRY=false;
+async function cdiLoad(){
+  if(CDI.em===today()||CDITRY)return;CDITRY=true;const ini=addD(today(),-400),f=d=>d.slice(8)+'/'+d.slice(5,7)+'/'+d.slice(0,4);
+  try{const r=await fetch(`https://api.bcb.gov.br/dados/serie/bcdata.sgs.12/dados?formato=json&dataInicial=${f(ini)}&dataFinal=${f(today())}`);if(!r.ok)throw 0;const js=await r.json();
+    const dias={};js.forEach(x=>{const [d,m,y]=x.data.split('/');dias[`${y}-${m}-${d}`]=+x.valor});if(Object.keys(dias).length){CDI={dias,em:today()};try{localStorage.setItem('pt-cdi',JSON.stringify(CDI))}catch(e){}re()}}catch(e){}
+}
+const isUtil=d=>{const w=new Date(d+'T12:00:00').getDay();return w>0&&w<6};
+function rendDia(a,d){const R=a.rend||{},tx=+R.taxa||0;if(!R.tipo||!tx)return 0;
+  const dias=CDI.dias||{},ks=Object.keys(dias).sort(),last=ks.at(-1);let cdi;
+  if(dias[d]!=null)cdi=dias[d]/100;               /* dia útil com taxa publicada */
+  else if(last&&d<=last)return 0;                  /* fim de semana ou feriado */
+  else if(!isUtil(d))return 0;
+  else cdi=last&&diffD(last,d)<=15?dias[last]/100:Math.pow(1+cdiAA()/100,1/252)-1;
+  if(R.tipo==='cdi')return cdi*tx/100;
+  if(R.tipo==='cdimais')return (1+cdi)*Math.pow(1+tx/100,1/252)-1;
+  if(R.tipo==='pre')return Math.pow(1+tx/100,1/252)-1;return 0}
+function rendBase(a){/* começa no último rendimento/ajuste registrado, ou na data do saldo inicial */
+  const L=S.lanc.filter(l=>l.conta===a.id&&l.tipo==='ajuste'&&l.data&&l.data<=today()).map(l=>l.data).sort();return L.length?L.at(-1):(a.dataIni||today())}
+function rendEst(a){const R=a.rend||{};if(!R.tipo||!+R.taxa)return null;if(CDI.em!==today())cdiLoad();const b=rendBase(a),t=today();let est=0,n=0;
+  for(let d=addD(b,1);d<=t&&n<800;d=addD(d,1),n++){const base=saldoConta(a,addD(d,-1))+est;if(base>0)est+=base*rendDia(a,d)}
+  const fonte=Object.keys(CDI.dias||{}).length?'CDI do Banco Central':'CDI de '+cdiAA().toLocaleString('pt-BR')+'% a.a. (informado)';
+  return {desde:b,v:r2(est),hoje:r2(saldoConta(a)+est),fonte:R.tipo==='pre'?'taxa prefixada':fonte}}
+const rendLabel=a=>{const R=a.rend||{},t=(+R.taxa||0).toLocaleString('pt-BR');return R.tipo==='cdi'?`${t}% do CDI`:R.tipo==='cdimais'?`CDI + ${t}% a.a.`:R.tipo==='pre'?`${t}% a.a. prefixado`:''};
+function rendBox(a){const E=rendEst(a);if(!E)return '';return `<div class="rnd"><div class="rndh"><span>${ic('spark')} Rendimento estimado · ${rendLabel(a)}</span></div>
+  <div class="rndv"><div><small>Desde ${fdate(E.desde).slice(0,5)}</small><b class="n pos">+${brl(E.v)}</b></div><div><small>Saldo estimado hoje</small><b class="n">${brl(E.hoje)}</b></div></div>
+  <p class="note">Bruto, sem IR, pelo ${E.fonte}. É uma estimativa: não entra no saldo até você registrar.</p>
+  ${E.v>=.01?`<button class="btn sm primary" type="button" data-rreg="${esc(a.id)}">Registrar ${brl(E.v)} de rendimento</button>`:''}</div>`}
+async function rendReg(a){const E=rendEst(a);if(!E||E.v<.01)return;try{await S.db.collection('lanc').add({tipo:'ajuste',conta:a.id,data:today(),valor:E.v,desc:'Rendimento ('+rendLabel(a)+')',categoria:'Rendimentos',auto:true,criadoEm:new Date().toISOString()});toast(`+${brl(E.v)} de rendimento registrado`)}catch(e){toast(writeErr(e))}}
 function openConta(a){
   const isNew=!a||!a.id;a=Object.assign({tipo:'corrente',dono:ME(),saldoIni:0,dataIni:today(),cor:'#17708F',ativo:true},a||{});const o={cor:a.cor};
   openSheet(`<h2>${isNew?({beneficio:'Novo benefício',reserva:'Nova reserva',investimento:'Novo investimento',dinheiro:'Nova carteira'}[a.tipo]||'Nova conta'):a.tipo==='beneficio'?'Editar benefício':'Editar conta'}</h2>
@@ -3700,14 +3740,19 @@ function openConta(a){
     <div class="f2"><div class="field"><label for="a-fn">Final do cartão</label><input id="a-fn" inputmode="numeric" maxlength="4" value="${esc(a.final||'')}" placeholder="4 dígitos"></div><div></div></div>
     <p class="note">Use Instituição para a operadora (Alelo, Pluxee, VR, Ticket, Caju, Flash…).</p></div>
     <div class="f2" id="a-cm" ${a.tipo==='beneficio'?'hidden':''}><div class="field"><label for="a-ce">Cheque especial (R$)</label><input id="a-ce" type="number" inputmode="decimal" step="0.01" value="${a.chequeEspecial||''}" placeholder="Opcional"></div><div class="field" id="a-mw"><label for="a-m">Meta (R$)</label><input id="a-m" type="number" inputmode="decimal" step="0.01" value="${a.meta||''}" placeholder="Opcional"></div></div>
+    <div id="a-rd2" ${a.tipo==='investimento'||a.tipo==='reserva'?'':'hidden'}><div class="f2"><div class="field"><label for="a-rt">Rendimento automático</label><select id="a-rt">${opts(RTIPOS,(a.rend||{}).tipo||'')}</select></div><div class="field"><label for="a-rx">Taxa (%)</label><input id="a-rx" type="text" inputmode="decimal" value="${(a.rend||{}).taxa?String(a.rend.taxa).replace('.',','):''}" placeholder="Ex.: 120"></div></div>
+    <div class="f2"><div class="field"><label for="a-cdi">CDI de reserva (% a.a.)</label><input id="a-cdi" type="text" inputmode="decimal" value="${String(cdiAA()).replace('.',',')}"></div><p class="note" style="align-self:end">Usado só se o app não conseguir buscar o CDI no Banco Central.</p></div></div>
     ${corPick(a.cor)}
     <label class="chk"><input type="checkbox" id="a-a" ${a.ativo!==false?'checked':''}> Ativa</label>
     <div class="btnrow"><button class="btn primary" type="submit">Salvar</button>${isNew?'':'<button class="btn danger" type="button" id="adel">Excluir</button>'}</div></form>`,sh=>{
     wireCor(sh,o);
-    const tsel=sh.querySelector('#a-t');tsel.onchange=()=>{const b=tsel.value==='beneficio';sh.querySelector('#a-ben').hidden=!b;sh.querySelector('#a-cm').hidden=b};
+    const tsel=sh.querySelector('#a-t');tsel.onchange=()=>{const b=tsel.value==='beneficio';sh.querySelector('#a-ben').hidden=!b;sh.querySelector('#a-cm').hidden=b;sh.querySelector('#a-rd2').hidden=!['investimento','reserva'].includes(tsel.value)};
     sh.querySelector('#fa').onsubmit=async e=>{e.preventDefault();const nome=sh.querySelector('#a-n').value.trim();if(!nome){toast('Dê um nome');return}
-      const d={nome,tipo:sh.querySelector('#a-t').value,instituicao:sh.querySelector('#a-i').value.trim(),dono:sh.querySelector('#a-d').value,dataIni:sh.querySelector('#a-dt').value,saldoIni:r2(parseFloat(sh.querySelector('#a-s').value)||0),meta:r2(parseFloat(sh.querySelector('#a-m').value)||0),chequeEspecial:r2(parseFloat(sh.querySelector('#a-ce').value)||0),cor:o.cor,ativo:sh.querySelector('#a-a').checked};
+      let d={nome,tipo:sh.querySelector('#a-t').value,instituicao:sh.querySelector('#a-i').value.trim(),dono:sh.querySelector('#a-d').value,dataIni:sh.querySelector('#a-dt').value,saldoIni:r2(parseFloat(sh.querySelector('#a-s').value)||0),meta:r2(parseFloat(sh.querySelector('#a-m').value)||0),chequeEspecial:r2(parseFloat(sh.querySelector('#a-ce').value)||0),cor:o.cor,ativo:sh.querySelector('#a-a').checked};
       if(d.tipo==='beneficio'){Object.assign(d,{modalidade:sh.querySelector('#a-mo').value,recarga:r2(parseFloat(sh.querySelector('#a-rv').value)||0),diaRecarga:Math.min(Math.max(parseInt(sh.querySelector('#a-rd').value)||1,1),31),auto:sh.querySelector('#a-au').checked,final:(sh.querySelector('#a-fn').value.match(/\d/g)||[]).join('').slice(-4),chequeEspecial:0,meta:0})}
+      if(d.tipo==='investimento'||d.tipo==='reserva'){const rt=sh.querySelector('#a-rt').value,rx=brNum(sh.querySelector('#a-rx').value);d.rend=rt&&rx>0?{tipo:rt,taxa:rx}:null;
+        const cv=brNum(sh.querySelector('#a-cdi').value);if(cv>0&&Math.abs(cv-cdiAA())>.001){try{await S.db.doc('config/app').set(Object.assign({},S.cfg||{},{cdiAA:cv}))}catch(e){}}}
+      if(!isNew){const cur=S.contas.find(x=>x.id===a.id);if(cur){const keep=Object.assign({},cur);delete keep.id;d=Object.assign(keep,d)}}
       try{await save('contas',isNew?null:a.id,d);closeSheet();toast('Salvo')}catch(err){toast(writeErr(err))}};
     const aj=sh.querySelector('#aj');if(aj)aj.onclick=()=>openAjuste(a);const tr=sh.querySelector('#tr');if(tr)tr.onclick=()=>openLanc({tipo:'transf',conta:a.id,data:today()});
     const del=sh.querySelector('#adel');if(del)confirmBtn(del,S.lanc.some(l=>l.conta===a.id||l.destino===a.id)?'Tem lançamentos. Toque de novo para excluir':'Toque de novo para excluir',()=>delDoc('contas',a.id));
@@ -4599,6 +4644,7 @@ const tm=setTimeout(()=>{if(!ready())live('Sem conexão')},10000);
   db.doc('config/app').onSnapshot(s=>{S.cfg=s.exists?s.data():null;applyCats();S.ok.c=1;mark();re()},err);
   col('cartoes','cards','k');col('contas','contas','n');col('lanc','lanc','l');col('dividas','dividas','d');col('recorrentes','recs','r');col('acertos','acertos','a');col('relatorios','reps','x');
   C.use('assets').then(a=>{S.assets=a});
+  setTimeout(()=>{if(S.contas.some(a=>a.rend&&a.rend.tipo))cdiLoad()},1500);
   C.use('downloads').then(d=>{S.downloads=d;re()});
   C.use('sample').then(async s=>{if(!s)return;S.sample=s;try{const lim=await s.limits();S.canImg=!!lim.images;S.maxImgs=(lim.images&&lim.images.maxCount)||4}catch(e){}re()});
 })();
