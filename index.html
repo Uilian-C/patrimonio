@@ -1388,6 +1388,38 @@ html:has(#overlay:not([hidden])),html:has(#overlay:not([hidden])) body{overflow:
 .sheet input[type=date],.sheet input[type=month],.sheet input[type=time]{-webkit-appearance:none;appearance:none;display:block;width:100%;min-height:46px;line-height:1.2;text-align:left}
 .sheet input[type=date]::-webkit-date-and-time-value{text-align:left;margin:0}
 .sheet .lmon{width:auto;max-width:150px}
+
+/* balanço patrimonial */
+.pth{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.pseg.sm button{padding:5px 9px;font-size:12px}
+.blk{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:1px solid var(--hair);margin-top:12px}
+.blk div{display:grid;gap:1px;padding:10px 8px 2px 0}.blk div+div{border-left:1px solid var(--hair);padding-left:12px}.blk small{font-size:11.5px;color:var(--muted)}.blk b{font-size:16px;font-weight:600;letter-spacing:-.03em}
+.bal{display:grid;gap:14px;margin-top:16px}
+.blc{display:grid;gap:6px}.blch{display:flex;justify-content:space-between;align-items:baseline;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding-bottom:6px;border-bottom:1px solid var(--line)}.blch b{font-size:15px;letter-spacing:-.02em;text-transform:none}
+.blg{display:grid}.blgh{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:6px 0}.blgh span{display:grid}.blgh span b{font-size:14.5px;font-weight:600}.blgh small{font-size:11.5px;color:var(--faint)}.blgh>b{font-size:15px;font-weight:600}
+.blg.nc{border-top:1px dashed var(--hair);padding-top:4px}
+.bls{border-radius:10px}.bls>summary{display:grid;grid-template-columns:minmax(0,1fr) auto 16px;gap:8px;align-items:center;padding:7px 0 7px 12px;cursor:pointer;list-style:none;font-size:13.5px;color:var(--muted)}.bls>summary::-webkit-details-marker{display:none}
+.bls>summary b{color:var(--ink);font-weight:550}.bls>summary .chev{width:14px;height:14px;stroke:var(--faint);fill:none;stroke-width:2;transition:transform .2s}.bls[open]>summary .chev{transform:rotate(180deg)}
+.blb{display:grid;gap:2px;padding:0 0 8px 24px}.bli{display:flex;justify-content:space-between;gap:10px;font-size:12.5px;color:var(--muted);padding:3px 0}.bli span{display:grid;min-width:0}.bli small{font-size:11px;color:var(--faint)}.bli b{font-weight:500;color:var(--ink)}
+.blpl{display:flex;justify-content:space-between;align-items:baseline;padding-top:10px;border-top:2px solid var(--ink)}.blpl span{display:grid;font-weight:650;font-size:15px}.blpl small{font-size:11.5px;font-weight:400;color:var(--faint)}.blpl b{font-size:19px;font-weight:650;letter-spacing:-.03em}
+.pat .psub,.pat .ptd{display:none}
+
+/* plano do mês */
+.plx{display:grid;gap:16px}
+.plh{display:grid;gap:2px;padding:16px;border-radius:var(--r-md);background:var(--sunk);text-align:center;justify-items:center}
+.plh .big{font-size:34px;font-weight:600;letter-spacing:-.045em}.plh small{font-size:12.5px;color:var(--muted)}
+.plh.acc .big{color:var(--accent)}.plh.crit .big{color:var(--crit)}.plh.ok{background:var(--good-soft)}.plh.ok .big{color:var(--good)}.plh.ok .big svg{width:34px;height:34px;stroke:currentColor;fill:none;stroke-width:2.4}
+.pll{display:grid}.pll>div{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--hair);font-size:14px}.pll>div:first-child{border-top:0}.pll span{display:grid}.pll small{font-size:11.5px;color:var(--faint)}.pll b{font-weight:600}
+.plg span{display:flex!important;flex-direction:column}.plg svg{width:13px;height:13px;stroke:var(--accent);fill:none;stroke-width:1.8;vertical-align:-2px;display:inline}
+.pll input,.plv input{width:104px;text-align:right;padding:8px 10px;border-radius:10px;border:1px solid var(--line);background:var(--surface);font-weight:600;font-variant-numeric:tabular-nums}
+.plt{display:flex;justify-content:space-between;align-items:baseline}.plt h3{font-size:15px;font-weight:600}.plb{display:flex;gap:12px}
+.plc{display:grid}.ple{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;padding:10px 0;border-top:1px solid var(--hair)}.plc .ple:first-child{border-top:0}
+.plm{display:grid;gap:3px;min-width:0}.plm strong{font-size:14px;font-weight:550}.plm small{font-size:11.5px;color:var(--muted)}
+.plbar{display:block;height:5px;border-radius:5px;background:var(--sunk);overflow:hidden}.plbar i{display:block;height:100%;background:var(--good);border-radius:5px}.ple.over .plbar i{background:var(--crit)}.ple.hi .plbar i{background:var(--warn)}
+.plv{display:grid;justify-items:end;gap:2px}.plv small{font-size:11px}.plv small.pos{color:var(--good)}.plv small.neg,.plv .neg{color:var(--crit)}.plv b{font-size:15px;font-weight:600}
+.pla>summary{list-style:none;display:flex;align-items:center;gap:6px;color:var(--accent);font-size:13.5px;font-weight:550;cursor:pointer}.pla>summary::-webkit-details-marker{display:none}.pla svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2}.pla .chips{margin-top:10px}
+.plk{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin-bottom:6px}.plk div{display:grid;gap:1px;padding-right:8px}.plk div+div{border-left:1px solid var(--hair);padding-left:12px}.plk small{font-size:11.5px;color:var(--muted)}.plk b{font-size:17px;font-weight:600;letter-spacing:-.03em}.plk b small{font-size:11px;font-weight:400}
+.plc.plmini .ple{padding:8px 0}
 </style>
 </head>
 <body>
@@ -1691,29 +1723,44 @@ function patrimonio(pid,ate){
 }
 document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-patm]');if(!b)return;PATM=b.dataset.patm;try{localStorage.setItem('pt-patm',PATM)}catch(_){}renderView()});
 /* bloco "o que compõe" — mesmo cálculo na Carteira e em Relatórios */
+/* ---------- balanço patrimonial: ativo e passivo, circulante (até 12 meses) e não circulante ---------- */
+function balanco(Pt){
+  const lim=today(),ym=lim.slice(0,7),y12=ymAdd(ym,11),d12=addD(lim,364);
+  const fatC=sum(Pt.fatCards,x=>sum(Object.entries(x.byYm).filter(([k])=>k<=y12),([,v])=>v)),fatL=r2(Pt.fat-fatC);
+  const parcIt=Pt.parc.map(x=>{const n=x.sch.length||1,c=x.sch.filter(k=>k<=y12).length;return {x,c:r2(x.v*c/n),l:r2(x.v*(n-c)/n)}});
+  const divIt=Pt.divs.filter(x=>x.v>0).map(x=>{const s=sched(x.d),pt=x.v/Math.max(sum(s.rows.filter(r=>!r.pg),r=>r.amort),1e-9);const c=Math.min(r2(sum(s.rows.filter(r=>!r.pg&&r.date&&r.date<=d12),r=>r.amort)*pt),x.v);return {x,c,l:r2(x.v-c)}});
+  const inc=Pt.comp;
+  const pc={fat:r2(fatC),parc:inc?r2(sum(parcIt,i=>i.c)):0,div:r2(sum(divIt,i=>i.c))},pl={fat:fatL,parc:inc?r2(sum(parcIt,i=>i.l)):0,div:r2(sum(divIt,i=>i.l))};
+  const at={disp:r2(Pt.corr+Pt.ben),apl:r2(Pt.res+Pt.inv)};
+  return {at,pc,pl,AT:r2(at.disp+at.apl),PC:r2(pc.fat+pc.parc+pc.div),PL:r2(pl.fat+pl.parc+pl.div),parcIt,divIt};
+}
 function patComp(Pt,me){
-  const L=(sg,t,sub,v,cls,det)=>`<${det?'details':'div'} class="pcr ${cls||''}">${det?'<summary>':''}<span class="pcs">${sg}</span><span class="pcm"><b>${t}</b>${sub?`<small>${sub}</small>`:''}</span><b class="n pcv">${sg==='−'?'−':''}${brl(Math.abs(v))}</b>${det?`${ic('down','chev')}</summary><div class="pcd">${det}</div>`:''}</${det?'details':'div'}>`;
-  const D=(n,s,v)=>`<div><span>${n}${s?`<small>${s}</small>`:''}</span><b class="n">${brl(v)}</b></div>`;
-  const ct=t=>Pt.contas.filter(x=>(x.a.tipo||'corrente')===t||(t==='corrente'&&x.a.tipo==='dinheiro')).filter(x=>Math.abs(x.v)>.005);
-  let h='';
-  const cc=ct('corrente');h+=L('+','Contas',`${cc.length} com saldo`,Pt.corr,'',cc.map(x=>D(esc(x.a.nome),'',x.v)).join(''));
-  if(Pt.ben)h+=L('+','Benefícios','VR/VA · uso restrito a alimentação',Pt.ben,'',ct('beneficio').map(x=>D(esc(x.a.nome),'',x.v)).join(''));
-  if(Pt.res)h+=L('+','Reservas','',Pt.res,'',ct('reserva').map(x=>D(esc(x.a.nome),'',x.v)).join(''));
-  if(Pt.inv)h+=L('+','Investimentos','',Pt.inv,'',ct('investimento').map(x=>D(esc(x.a.nome),'',x.v)).join(''));
-  if(Pt.fat)h+=L('−','Faturas em aberto','sua parte · inclui parcelas futuras já compradas',Pt.fat,'pneg',Pt.fatCards.map(x=>D(esc(x.c.nome),x.yms.length>1?`${MES[+x.yms[0].slice(5)-1]} ${brl0(x.atual)} + ${x.yms.length-1} fatura${x.yms.length>2?'s':''} seguinte${x.yms.length>2?'s':''}`:`fatura de ${MES[+x.yms[0].slice(5)-1]}`,x.v)).join(''));
-  if(Pt.div)h+=L('−','Dívidas','saldo devedor, sua parte',Pt.div,'pneg',Pt.divs.filter(x=>x.v>0).map(x=>D(esc(x.d.nome),'',x.v)).join(''));
-  if(Pt.parcT)h+=L('−','Parcelas fora do cartão',Pt.comp?(Pt.parc.some(x=>x.tx)?'saldo devedor; sem juros, o que falta pagar':'o que ainda falta pagar, mês a mês'):'não entra em “Só hoje”',Pt.parcT,Pt.comp?'pneg':'off',Pt.parc.map(x=>D(esc(x.nome),x.pend?'pendente':`${x.n} × ${brl(x.val)} · de ${x.de}/${x.tot} a ${x.tot}/${x.tot}${x.tx?` · saldo devedor a ${(x.tx*100).toLocaleString('pt-BR',{maximumFractionDigits:2})}% a.m. (nominal ${brl0(x.vn)})`:''}${x.para?' · pago a '+esc(P(x.para).nome.split(' ')[0]):''}`,x.v)).join(''));
-  h+=`<div class="pcr tot"><span class="pcs">=</span><span class="pcm"><b>Patrimônio líquido</b></span><b class="n pcv ${Pt.liq<0?'neg':''}">${brl(Pt.liq)}</b></div>`;
-  if(Pt.ag)h+=`<p class="pcn">${ic('info')}<span>Empréstimo a liberar (${brl0(Pt.ag)}) não entra: quando liberar, entram o dinheiro e a dívida juntos, e um anula o outro.</span></p>`;
-  return `<div class="pcl">${h}</div>`;
+  const B=balanco(Pt),PAS=r2(B.PC+B.PL);
+  const it=(n,v,s)=>Math.abs(v)<.005?'':`<div class="bli"><span>${n}${s?`<small>${s}</small>`:''}</span><b class="n">${brl(v)}</b></div>`;
+  const sub=(n,v,body)=>Math.abs(v)<.005?'':`<details class="bls"><summary><span>${n}</span><b class="n">${brl(v)}</b>${ic('down','chev')}</summary><div class="blb">${body}</div></details>`;
+  const ct=t=>Pt.contas.filter(x=>t.includes(x.a.tipo||'corrente')).filter(x=>Math.abs(x.v)>.005);
+  const fatBy=(circ)=>Pt.fatCards.map(x=>{const v=sum(Object.entries(x.byYm).filter(([k])=>circ?k<=ymAdd(today().slice(0,7),11):k>ymAdd(today().slice(0,7),11)),([,v])=>v);return it(esc(x.c.nome),v)}).join('');
+  const grp=(t,s,v,body,cls)=>`<div class="blg ${cls||''}"><div class="blgh"><span><b>${t}</b><small>${s}</small></span><b class="n">${brl(v)}</b></div>${body}</div>`;
+  let h=`<div class="bal">`;
+  h+=`<div class="blc"><div class="blch"><span>Ativo</span><b class="n pos">${brl(B.AT)}</b></div>
+    ${grp('Circulante','disponível e aplicações com resgate',B.AT,
+      sub('Disponível',B.at.disp,ct(['corrente','dinheiro','beneficio']).map(x=>it(esc(x.a.nome),x.v,x.a.tipo==='beneficio'?'benefício':'')).join(''))+
+      sub('Aplicações',B.at.apl,ct(['reserva','investimento']).map(x=>it(esc(x.a.nome),x.v,x.a.tipo==='reserva'?'reserva':'')).join('')))}</div>`;
+  h+=`<div class="blc"><div class="blch"><span>Passivo</span><b class="n neg">${brl(PAS)}</b></div>
+    ${grp('Circulante','vence em até 12 meses',B.PC,
+      sub('Cartões',B.pc.fat,fatBy(true))+sub('Parcelas',B.pc.parc,B.parcIt.map(i=>it(esc(i.x.nome),i.c,i.x.pend?'pendente':`${i.x.sch.filter(k=>k<=ymAdd(today().slice(0,7),11)).length} × ${brl(i.x.val)}`)).join(''))+sub('Empréstimos e financiamentos',B.pc.div,B.divIt.map(i=>it(esc(i.x.d.nome),i.c)).join('')))}
+    ${B.PL>.005?grp('Não circulante','vence depois de 12 meses',B.PL,
+      sub('Cartões',B.pl.fat,fatBy(false))+sub('Parcelas',B.pl.parc,B.parcIt.map(i=>it(esc(i.x.nome),i.l)).join(''))+sub('Empréstimos e financiamentos',B.pl.div,B.divIt.map(i=>it(esc(i.x.d.nome),i.l)).join('')),'nc'):''}</div>`;
+  h+=`<div class="blpl"><span>Patrimônio líquido<small>ativo − passivo</small></span><b class="n ${Pt.liq<0?'neg':'pos'}">${brl(Pt.liq)}</b></div>`;
+  if(!Pt.comp&&Pt.parcT)h+=`<p class="pcn">${ic('info')}<span>Em “Só hoje”, as parcelas fora do cartão (${brl0(Pt.parcT)}) ficam de fora.</span></p>`;
+  if(Pt.ag)h+=`<p class="pcn">${ic('info')}<span>Empréstimo a liberar (${brl0(Pt.ag)}) não entra: quando liberar, entram o dinheiro e a dívida juntos.</span></p>`;
+  return h+`</div>`;
 }
 function patHead(Pt,me){
-  const tem=Pt.ativos,deve=Pt.passivos,mx=Math.max(tem,deve,1);
-  return `<div class="pth"><span class="k">Patrimônio líquido de ${esc(P(me).nome)}</span></div>
-    <div class="seg pseg" role="tablist"><button type="button" data-patm="comp" aria-pressed="${Pt.comp}">Com compromissos</button><button type="button" data-patm="hoje" aria-pressed="${!Pt.comp}">Só hoje</button></div>
+  const B=balanco(Pt),PAS=r2(B.PC+B.PL),liqC=r2(B.AT-B.PC);
+  return `<div class="pth"><span class="k">Patrimônio líquido de ${esc(P(me).nome)}</span><div class="seg pseg sm" role="tablist"><button type="button" data-patm="comp" aria-pressed="${Pt.comp}">Com compromissos</button><button type="button" data-patm="hoje" aria-pressed="${!Pt.comp}">Só hoje</button></div></div>
     <div class="big n ${Pt.liq<0?'neg':''}">${Pt.liq<0?'−':''}${brl0(Math.abs(Pt.liq))}</div>
-    <p class="psub">${Pt.comp?'Tudo o que você tem menos tudo o que já deve, inclusive as parcelas que ainda vão vencer.':`Tudo o que você tem menos as faturas e dívidas em aberto. Parcelas fora do cartão (${brl0(Pt.parcT)}) ficam de fora.`}</p>
-    <div class="ptd"><div><span>Você tem</span><b class="n pos">${brl0(tem)}</b><i style="width:${tem/mx*100}%;background:var(--good)"></i></div><div><span>Você deve</span><b class="n neg">${brl0(deve)}</b><i style="width:${deve/mx*100}%;background:var(--crit)"></i></div></div>`;
+    <div class="blk"><div><small>Ativo</small><b class="n">${brl0(B.AT)}</b></div><div><small>Passivo</small><b class="n">${brl0(PAS)}</b></div><div><small>Liquidez corrente</small><b class="n ${B.PC&&B.AT/B.PC<1?'neg':''}">${B.PC?(B.AT/B.PC).toLocaleString('pt-BR',{maximumFractionDigits:2})+'x':'—'}</b></div></div>`;
 }
 
 /* ---------- BALANÇO PROJETADO: caixa, patrimônio e resultado mês a mês até a última parcela ---------- */
@@ -1983,8 +2030,8 @@ function openRecarga(a){
 }
 
 /* ---------- INÍCIO: painel montável ---------- */
-const SECS=[['hero','Em caixa hoje'],['acoes','Ações rápidas'],['fecha','Fechamento do mês'],['alertas','Para resolver'],['saude','Saúde financeira'],['kpis','Indicadores do mês'],['orcamento','Orçamento'],['contas','Contas'],['beneficios','Benefícios'],['dre','Resultado do mês'],['agenda','Próximos 15 dias'],['credito','Crédito'],['gastos','Gastos por categoria'],['planejado','Pagamentos planejados'],['fluxo6','Evolução'],['quinzenas','Quinzenas e acerto'],['patrimonio','Patrimônio']];
-let LAY=(()=>{try{return JSON.parse(localStorage.getItem('pt-ini3')||'null')}catch(e){return null}})()||{order:[],off:['acoes','kpis','contas','mes','dre','agenda','credito','planejado','fluxo6','quinzenas','patrimonio']};
+const SECS=[['hero','Em caixa hoje'],['acoes','Ações rápidas'],['fecha','Fechamento do mês'],['alertas','Para resolver'],['saude','Saúde financeira'],['kpis','Indicadores do mês'],['plano','Plano do mês (envelopes)'],['orcamento','Teto de gastos'],['contas','Contas'],['beneficios','Benefícios'],['dre','Resultado do mês'],['agenda','Próximos 15 dias'],['credito','Crédito'],['gastos','Gastos por categoria'],['planejado','Pagamentos planejados'],['fluxo6','Evolução'],['quinzenas','Quinzenas e acerto'],['patrimonio','Patrimônio']];
+let LAY=(()=>{try{return JSON.parse(localStorage.getItem('pt-ini3')||'null')}catch(e){return null}})()||{order:[],off:['acoes','orcamento','kpis','contas','mes','dre','agenda','credito','planejado','fluxo6','quinzenas','patrimonio']};
 const layOrder=()=>{const o=(LAY.order||[]).filter(k=>SECS.some(s=>s[0]===k));SECS.forEach((s,i)=>{if(!o.includes(s[0]))o.splice(Math.min(i,o.length),0,s[0])});return o};
 const laySave=()=>{try{localStorage.setItem('pt-ini3',JSON.stringify(LAY))}catch(e){}};
 let HV=LS('pt-hv','')==='1';document.documentElement.classList.toggle('hv',HV);
@@ -2199,7 +2246,7 @@ function vInicio(){
   const ok=setup.filter(s=>s[0]).length,nx=setup.find(s=>!s[0]);
   if(nx&&!SETUPX)h+=`<div class="setup"><span class="sp">${setup.map(s=>`<i class="${s[0]?'on':''}"></i>`).join('')}</span><button class="lk" type="button" data-setup="${nx[2]}">${ok}/${setup.length} · ${nx[1]} ›</button><button class="sx2" type="button" id="stx" aria-label="Ocultar">×</button></div>`;
   const X={me,t,ym,saldo:realBal(me,t),M:mesCalc(ym,me),F:mesFluxo(ym,me)};
-  const B={hero:iniHero,acoes:iniAcoes,alertas:iniResolver,contas:iniContas,beneficios:iniBen,mes:()=>mesCard(me),agenda:iniAgenda,credito:()=>creditoDash(true),gastos:iniGastos2,planejado:iniPlan,fluxo6:iniEvo,kpis:iniKpis,orcamento:iniOrc,dre:iniDre,saude:iniSaude,fecha:iniFecha,quinzenas:iniQuin,patrimonio:iniPat};
+  const B={hero:iniHero,acoes:iniAcoes,alertas:iniResolver,contas:iniContas,beneficios:iniBen,mes:()=>mesCard(me),agenda:iniAgenda,credito:()=>creditoDash(true),gastos:iniGastos2,planejado:iniPlan,fluxo6:iniEvo,kpis:iniKpis,orcamento:iniOrc,plano:iniPlano,dre:iniDre,saude:iniSaude,fecha:iniFecha,quinzenas:iniQuin,patrimonio:iniPat};
   layOrder().forEach(k=>{if((LAY.off||[]).includes(k))return;try{h+=B[k](X)||''}catch(e){console.error('início/'+k,e)}});
   h+=`<button class="custom" type="button" id="pers">${ic('edit')}<span>Personalizar início</span></button>`;
   el.innerHTML=h;wireIni(el);wireIni4(el);
@@ -2209,6 +2256,7 @@ function vInicio(){
   el.querySelectorAll('[data-ag]').forEach(b=>b.onclick=()=>{const [k,v]=b.dataset.ag.split(/:(.*)/s);if(k==='fat'){const [c,y]=v.split('|');LF={ym:y,card:c,div:'todos',tag:'',q:''};go('lanc')}else if(k==='dv')openDividaDet(S.dividas.find(d=>d.id===v));else if(k==='ac')openAcerto(v);else if(k==='gab'){GWSEL=v;RP='salvos';go('relatorios')}else if(k==='rec'){const [id]=v.split('|');openRec(S.recs.find(r=>r.id===id))}else if(k==='l'){const l=S.lanc.find(l=>l.id===v);l&&l.pend?openPagar(l):openLanc(l)}});
   el.querySelectorAll('[data-ct]').forEach(b=>b.onclick=()=>openContaDet(conta(b.dataset.ct)));
   el.querySelectorAll('[data-pends]').forEach(b=>b.onclick=openPendentes);
+  el.querySelectorAll('[data-plano]').forEach(b=>b.onclick=()=>openPlano());
   el.querySelectorAll('[data-gab]').forEach(b=>b.onclick=()=>{RP='salvos';go('relatorios')});
   el.querySelectorAll('[data-addc]').forEach(b=>b.onclick=()=>openConta({tipo:b.dataset.addc}));
   const ey=$('#eye');if(ey)ey.onclick=()=>{HV=!HV;LSset('pt-hv',HV?'1':'');document.documentElement.classList.toggle('hv',HV);ey.innerHTML=HV?ICN.eyeoff:ICN.eye;ey.setAttribute('aria-label',(HV?'Mostrar':'Ocultar')+' valores')};
@@ -2270,6 +2318,61 @@ function iniOrc(X){
     ${B.proj!=null&&B.proj>tot&&rest>0?`<p class="note warn">No ritmo atual o mês fecha ${brl0(B.proj-tot)} acima do teto. Para caber, o limite é ${brl0(Math.max(rest,0)/Math.max(B.nd-B.dPass,1))} por dia até o fim do mês.</p>`:''}
     ${rows.length?`<div class="orc">${rows.map(r=>{const p=r.g/r.l,cl=p>1?'crit':p>B.tPct+.15?'warn':'ok';return `<div class="orr">${catBubble(r.c,'sm')}<span class="gcn">${esc(r.c)}<small>${p>1?`passou ${brl0(r.g-r.l)}`:`restam ${brl0(r.l-r.g)}`}</small></span><b class="n">${brl0(r.g)}<small> / ${brl0(r.l)}</small></b><span class="gtr"><i class="${cl}" style="width:${Math.min(p,1)*100}%"></i></span></div>`}).join('')}</div>`:''}
   </div>`;
+}
+/* ---------- plano do mês (envelopes, inspirado no YNAB): cada real da renda ganha um destino ---------- */
+const planoOf=ym=>((cfg().plano||{})[ym])||null;
+function planoCalc(ym,me){
+  const O=orcCalc(ym,me),M=mesCalc(ym,me),vc={};
+  movs().filter(i=>i.tipo==='despesa'&&i.cym===ym&&!(i.l.ign&&i.l.ign.orc)&&!i.l.rec&&i.N<=1&&!i.l.divida).forEach(i=>{const v=share(i,me);if(v>0){const c=i.l.categoria||'Outros';vc[c]=(vc[c]||0)+v}});
+  const varT=sum(Object.values(vc),v=>v),fixo=r2(Math.max(O.prev-varT,0));
+  const pl=planoOf(ym)||{cats:{},guardar:0},pv=planoOf(ymAdd(ym,-1));
+  let pvc={};if(pv){const P2=planoCalc0(ymAdd(ym,-1),me);Object.entries(pv.cats||{}).forEach(([c,v])=>{pvc[c]=r2((+v||0)-(P2[c]||0))})}
+  const IA=invContas(me),guardFeito=IA.length?invMes(IA,ym).ap:0;
+  const cats=[...new Set([...Object.keys(pl.cats||{}),...Object.keys(vc)])].map(c=>{const d=+((pl.cats||{})[c])||0,g=r2(vc[c]||0),ro=pv&&pvc[c]!=null?pvc[c]:0;return {c,d,g,ro,disp:r2(d+ro-g)}}).sort((a,b)=>(b.d||b.g)-(a.d||a.g));
+  const dest=sum(cats,x=>x.d),guard=+pl.guardar||0,rest=r2(M.rec-fixo-dest-guard);
+  return {ym,renda:r2(M.rec),fixo,cats,dest:r2(dest),guard,guardFeito:r2(guardFeito),rest,varT:r2(varT),tem:!!planoOf(ym)};
+}
+function planoCalc0(ym,me){const o={};movs().filter(i=>i.tipo==='despesa'&&i.cym===ym&&!(i.l.ign&&i.l.ign.orc)&&!i.l.rec&&i.N<=1&&!i.l.divida).forEach(i=>{const v=share(i,me);if(v>0){const c=i.l.categoria||'Outros';o[c]=(o[c]||0)+v}});return o}
+function openPlano(ym0){
+  let ym=ym0||today().slice(0,7),draft=null;
+  const load=()=>{const p=planoOf(ym);draft={cats:Object.assign({},(p||{}).cats||{}),guardar:+(p||{}).guardar||0}};load();
+  const fmt=v=>v?String(r2(v)).replace('.',','):'';
+  const draw=sh=>{const me=ME(),base=planoCalc(ym,me);
+    const cats=[...new Set([...Object.keys(draft.cats),...base.cats.map(x=>x.c)])].map(c=>{const b=base.cats.find(x=>x.c===c)||{g:0,ro:0};const d=+draft.cats[c]||0;return {c,d,g:b.g,ro:b.ro,disp:r2(d+b.ro-b.g)}}).sort((a,b)=>(b.d||b.g)-(a.d||a.g));
+    const dest=sum(cats,x=>x.d),rest=r2(base.renda-base.fixo-dest-draft.guardar),lvl=Math.abs(rest)<1?'ok':rest>0?'acc':'crit';
+    const outras=CATS.filter(c=>!cats.some(x=>x.c===c));
+    sh.querySelector('#plx').innerHTML=`
+      <div class="mnav"><button class="navb" type="button" data-pm="-1" aria-label="Mês anterior">‹</button><b>${MESL[+ym.slice(5)-1]} ${ym.slice(0,4)}</b><button class="navb" type="button" data-pm="1" aria-label="Próximo mês">›</button></div>
+      <div class="plh ${lvl}"><span class="k">${lvl==='ok'?'Cada real tem um destino':rest>0?'A destinar':'Destinou a mais'}</span><div class="big n">${lvl==='ok'?ic('check'):brl(Math.abs(rest))}</div>
+        <small>${lvl==='ok'?'Renda do mês toda planejada.':rest>0?'Distribua entre os envelopes ou mande para “Guardar”.':'Os envelopes passam da renda do mês. Reduza algum.'}</small></div>
+      <div class="pll"><div><span>Renda do mês</span><b class="n pos">${brl(base.renda)}</b></div>
+        <div><span>Compromissos fixos<small>contas fixas, parcelas e dívidas: já têm destino</small></span><b class="n">−${brl(base.fixo)}</b></div>
+        <div class="plg"><span>${ic('spark')} Guardar e investir<small>${base.guardFeito?`aportado no mês: ${brl(base.guardFeito)}`:'transferências para investimentos e reservas'}</small></span><input type="text" inputmode="decimal" data-pg="1" value="${fmt(draft.guardar)}" placeholder="0,00" aria-label="Guardar no mês"></div>
+        <div><span>Envelopes do dia a dia</span><b class="n">−${brl(dest)}</b></div></div>
+      <div class="plt"><h3>Envelopes</h3><div class="plb"><button class="lk" type="button" id="pl-sug">Sugerir pela média</button>${planoOf(ymAdd(ym,-1))?'<button class="lk" type="button" id="pl-cp">Copiar do mês anterior</button>':''}</div></div>
+      <div class="plc">${cats.map(x=>{const pc=x.d+x.ro>0?Math.min(x.g/(x.d+x.ro),1.2):x.g>0?1.2:0;return `<div class="ple ${x.disp<0?'over':x.g>=.9*((x.d+x.ro)||1e9)?'hi':''}">${catBubble(x.c,'sm')}<span class="plm"><strong>${esc(x.c)}</strong><small>gasto ${brl0(x.g)}${x.ro?` · ${x.ro>0?'sobra':'falta'} de ${MES[+ymAdd(ym,-1).slice(5)-1]} ${brl0(Math.abs(x.ro))}`:''}</small><span class="plbar"><i style="width:${Math.min(pc,1)*100}%"></i></span></span>
+        <span class="plv"><input type="text" inputmode="decimal" data-pc="${esc(x.c)}" value="${fmt(x.d)}" placeholder="0" aria-label="Destinar para ${esc(x.c)}"><small class="${x.disp<0?'neg':'pos'}">${x.disp<0?'passou ':'livre '}${brl0(Math.abs(x.disp))}</small></span></div>`}).join('')}</div>
+      ${outras.length?`<details class="pla"><summary>${ic('plus')} Adicionar envelope</summary><div class="chips rfe">${outras.map(c=>`<button class="chip" type="button" data-pa="${esc(c)}">${esc(c)}</button>`).join('')}</div></details>`:''}
+      <div class="btnrow stick"><button class="btn primary" type="button" id="pl-sv">Salvar plano de ${MES[+ym.slice(5)-1]}</button></div>
+      <p class="note">Como funciona: a renda do mês menos o que já está comprometido é o que você pode planejar. Dê um valor a cada envelope até “A destinar” chegar a zero. O que sobra ou falta num envelope passa para o mês seguinte.</p>`;
+    const rd=()=>{sh.querySelectorAll('[data-pc]').forEach(i=>{const v=brNum(i.value);draft.cats[i.dataset.pc]=isNaN(v)?0:r2(v)});const g=brNum(sh.querySelector('[data-pg]').value);draft.guardar=isNaN(g)?0:r2(g)};
+    sh.querySelectorAll('[data-pc],[data-pg]').forEach(i=>i.onchange=()=>{rd();draw(sh)});
+    sh.querySelectorAll('[data-pm]').forEach(b=>b.onclick=()=>{ym=ymAdd(ym,+b.dataset.pm);load();draw(sh)});
+    sh.querySelectorAll('[data-pa]').forEach(b=>b.onclick=()=>{rd();draft.cats[b.dataset.pa]=0;draw(sh)});
+    sh.querySelector('#pl-sug').onclick=()=>{rd();const ms=mesesOk(ym,3),av={};ms.forEach(m=>{const o=planoCalc0(m,me);Object.entries(o).forEach(([c,v])=>av[c]=(av[c]||0)+v/ms.length)});const cur=planoCalc0(ym,me);Object.entries(cur).forEach(([c,v])=>av[c]=Math.max(av[c]||0,v));Object.entries(av).forEach(([c,v])=>{if(!(+draft.cats[c]>0)&&v>=1)draft.cats[c]=Math.ceil(v/10)*10});draw(sh);toast(ms.length?`Sugestão pela média de ${ms.length} ${ms.length===1?'mês':'meses'} (e o que já foi gasto)`:'Sugestão pelo que já foi gasto no mês')};
+    const cp=sh.querySelector('#pl-cp');if(cp)cp.onclick=()=>{const p=planoOf(ymAdd(ym,-1));draft={cats:Object.assign({},p.cats||{}),guardar:+p.guardar||0};draw(sh)};
+    sh.querySelector('#pl-sv').onclick=async()=>{rd();const cats={};Object.entries(draft.cats).forEach(([c,v])=>{if(+v>0)cats[c]=r2(+v)});const plano=Object.assign({},cfg().plano||{});plano[ym]={cats,guardar:r2(draft.guardar)};
+      try{await S.db.doc('config/app').set(Object.assign({},S.cfg||{},{plano}));toast('Plano salvo')}catch(e){toast(writeErr(e))}};
+  };
+  openSheet(`<h2>Plano do mês</h2><div id="plx" class="plx"></div>`,sh=>draw(sh));
+}
+function iniPlano(X){
+  const {me,ym}=X,B=planoCalc(ym,me),mn=MES[+ym.slice(5)-1];
+  if(!B.tem)return `<button type="button" class="setup bcta" data-plano="1" style="--c:var(--accent)"><span class="ali">${ICN.cal}</span><span><b>Planeje ${mn}: dê um destino a cada real</b><small>renda ${brl0(B.renda)} · compromissos ${brl0(B.fixo)} · sobram ${brl0(B.renda-B.fixo)} para distribuir</small></span><span class="go">›</span></button>`;
+  const top=B.cats.filter(x=>x.d>0).sort((a,b)=>a.disp/(a.d||1)-b.disp/(b.d||1)).slice(0,4),livre=sum(B.cats,x=>x.disp);
+  return `<div class="card"><div class="ch"><h2>Plano de ${mn}</h2><button class="lk" type="button" data-plano="1">Abrir ›</button></div>
+    <div class="plk"><div><small>Livre nos envelopes</small><b class="n ${livre<0?'neg':''}">${brl0(livre)}</b></div><div><small>${Math.abs(B.rest)<1?'Sem destino':B.rest>0?'A destinar':'A mais'}</small><b class="n ${B.rest<-1?'neg':''}">${brl0(Math.abs(B.rest))}</b></div><div><small>Guardar</small><b class="n">${brl0(B.guardFeito)}<small> de ${brl0(B.guard)}</small></b></div></div>
+    <div class="plc plmini">${top.map(x=>`<div class="ple ${x.disp<0?'over':x.g>=.9*((x.d+x.ro)||1e9)?'hi':''}">${catBubble(x.c,'sm')}<span class="plm"><strong>${esc(x.c)}</strong><span class="plbar"><i style="width:${Math.min(x.g/((x.d+x.ro)||1),1)*100}%"></i></span></span><span class="plv"><b class="n ${x.disp<0?'neg':''}">${x.disp<0?'−':''}${brl0(Math.abs(x.disp))}</b><small>de ${brl0(x.d+x.ro)}</small></span></div>`).join('')}</div></div>`;
 }
 function openOrc(){
   const me=ME(),ym=today().slice(0,7),O=cfg().orc||{},avg={};const OKo=mesesOk(ym,3);OKo.forEach(m=>{const B=orcCalc(m,me);Object.entries(B.cats).forEach(([c,v])=>avg[c]=(avg[c]||0)+v/OKo.length)});
