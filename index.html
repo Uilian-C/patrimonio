@@ -1482,6 +1482,36 @@ html:has(#overlay:not([hidden])),html:has(#overlay:not([hidden])) body{overflow:
 .cdi{padding:9px 0;border-top:1px solid var(--hair)}.cddh+.cdi{border-top:0}
 .rkr{grid-template-columns:minmax(0,38%) minmax(0,1fr) 40px}.rkb{height:6px;border-radius:3px}.rkb i{border-radius:3px}
 #cd-an .cc3.sm{border-top:1px solid var(--hair);padding-top:10px}
+
+/* ===== v6.4: ícone de cartão leve e aba Cartões minimalista ===== */
+.cg,.grp .cg,.ccr .nm .cg,.frv .cg{position:relative;width:28px;height:19px;border-radius:5px;background:var(--cgb);box-shadow:inset 0 0 0 1px rgba(255,255,255,.12);flex:0 0 auto}
+.cg>i{position:absolute;left:4px;bottom:4px;width:9px;height:2px;border-radius:2px;background:var(--cgf);opacity:.75}
+.cg>i::after{content:"";position:absolute;left:12px;top:0;width:4px;height:2px;border-radius:2px;background:inherit;opacity:.6}
+.dh1 .cg,.hxs .cg,.fhh .cg,.cfh .cg{width:36px;height:24px;border-radius:6px}.hxs .cg>i,.fhh .cg>i{left:5px;bottom:5px;width:11px}
+.cg .chip,.cg b,.cg .mc{display:none}
+/* lista de cartões */
+.ccr .nm{gap:10px}.cst{display:inline-flex;align-items:center;gap:4px;font-size:11.5px;font-weight:550;color:var(--muted);margin-left:2px}.cst::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}.cst.acc{color:var(--accent)}.cst.warn{color:var(--warn)}
+.ccr .lb{height:3px!important;border-radius:3px}.ccr .lb i{border-radius:3px}.ccr .v b{font-weight:600;letter-spacing:-.02em}.ccr .sub{font-size:12px;color:var(--faint)}
+.ccd .kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair)}
+.ccd .kpis div{background:none!important;border:0!important;border-radius:0!important;padding:10px 6px 10px 0!important;display:grid;gap:1px}.ccd .kpis div+div{border-left:1px solid var(--hair)!important;padding-left:10px!important}
+.ccd .kpis span{font-size:11px;color:var(--muted)}.ccd .kpis b{font-size:15px;font-weight:600}.ccd .kpis small{font-size:10.5px}
+.ccbar{height:6px;gap:2px}
+.cqa{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.cqa .qab{display:inline-flex!important;flex-direction:row!important;align-items:center;justify-content:center;gap:6px;padding:10px 6px;border-radius:99px;border:1px solid var(--hair);background:transparent}
+.cqa .qab>span{width:auto!important;height:auto!important;background:none!important;border:0!important;box-shadow:none!important}.cqa .qab svg{width:16px;height:16px;stroke:var(--muted)}
+.cqa .qab small{font-size:12px;font-weight:550;color:var(--ink)}
+.agd{background:transparent!important;border:1px solid var(--hair)!important}.agd.soon{border-color:color-mix(in srgb,var(--warn) 50%,transparent)!important}
+.ftr .pill{background:none!important;padding:0;font-size:11.5px}
+/* histórico de faturas */
+.fhy{font-size:11px;color:var(--faint);font-weight:500;margin-left:4px}
+.fhv b.fut{color:var(--ink)}.fhv small.fut{color:var(--muted)}
+.fhyn{display:flex;align-items:center;gap:10px}.fhyn b{font-size:13px;font-weight:600}.fhyn .navb{width:26px;height:26px;border:0;background:var(--sunk)}
+.fhtot{display:flex;justify-content:space-between;align-items:baseline;border-top:1px solid var(--line);padding-top:10px;font-size:13px;color:var(--muted)}.fhtot b{color:var(--ink);font-size:15px;font-weight:600}
+
+.cc .best{border:0!important;background:var(--tile)!important;border-radius:16px}
+.cc .best .bi{background:none!important;color:var(--accent)}
+.agd{border-radius:14px!important}
+.ccd .kpis{border-left:0!important;border-right:0!important;border-radius:0!important;background:none!important;overflow:visible}
 </style>
 </head>
 <body>
@@ -2795,7 +2825,7 @@ function creditoDash(compact){
       <div class="ccbar" aria-hidden="true">${ord.filter(x=>x.usado>0).map(x=>`<i style="flex:${x.usado/(lim||1)};background:${esc(x.c.cor||'var(--accent)')}" title="${esc(x.c.nome)}"></i>`).join('')}<i style="flex:${Math.max(disp,0)/(lim||1)};background:var(--sunk)"></i></div>
       <div class="kpis"><div><span>Usado</span><b class="n">${brl0(us)}</b></div><div><span>Faturas atuais</span><b class="n">${brl0(atual)}</b></div><div><span>Parcelas futuras</span><b class="n">${brl0(fut)}</b></div><div><span>Sua parte</span><b class="n">${brl0(parte)}</b><small class="tg">sem a metade do Comum</small></div></div>
       <div class="cclist">${ord.map(x=>`<button class="ccr" type="button" data-cd="${esc(x.c.id)}">
-        <span class="nm">${cardGlyph(x.c)}${esc(x.c.nome)}${x.ym?` <span class="pill ${x.fechada?'crit':'acc'}">${x.fechada?'Fechada':'Aberta'}</span>`:''}</span>
+        <span class="nm">${cardGlyph(x.c)}${esc(x.c.nome)}${x.ym?` <span class="cst ${x.fechada?'warn':'acc'}">${x.fechada?'fechada':'aberta'}</span>`:''}</span>
         <span class="v"><b class="n">${brl0(x.disp)}</b><small>livre de ${brl0(x.lim)}</small></span>
         ${x.lim?`<span class="lb"><i class="${lvl(x.pct)}" style="width:${Math.min(x.pct,1)*100}%;background:${lvl(x.pct)?'':esc(x.c.cor||'var(--accent)')}"></i></span><span class="pc n ${lvl(x.pct)}">${pctf(x.pct)}</span>`:''}
         <span class="sub">fecha ${x.c.fechamento} · vence ${x.c.vencimento}${x.ym?` · fatura ${brl0(x.atual)}`:''}${x.fut>0?` · futuras ${brl0(x.fut)}`:''}</span></button>`).join('')}</div>
@@ -3234,8 +3264,7 @@ function bankBadge(a,kind){if(kind==='beneficio'){const b=bankOf(a.instituicao||
   const glyph=kind==='beneficio'?'<svg viewBox="0 0 24 24"><path d="M7 3v8M5 3v4a2 2 0 0 0 4 0V3M7 11v10M16 3c-2 0-3 2.5-3 6h3v12"/></svg>':kind==='dinheiro'?'<svg viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="11" rx="2"/><circle cx="12" cy="12.5" r="2.2"/></svg>':kind==='reserva'?'<svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.4-3 8.2-7 10-4-1.8-7-5.6-7-10V6z"/></svg>':kind==='investimento'?'<svg viewBox="0 0 24 24"><path d="M4 16l5-5 4 4 7-7M15 8h5v5"/></svg>':'';
   return glyph&&!bankOf(a.instituicao,a.nome)?`<span class="bk bk-g" style="--bkb:${kind==='beneficio'?'color-mix(in srgb,#7C5CD6 15%,transparent)':kind==='reserva'?'var(--good-soft)':kind==='investimento'?'color-mix(in srgb,var(--inv) 14%,transparent)':'var(--tile)'};--bkf:${kind==='beneficio'?'#7C5CD6':kind==='reserva'?'var(--good)':kind==='investimento'?'var(--inv)':'var(--muted)'}">${glyph}</span>`
     :`<span class="bk" style="--bkb:${b.bg};--bkf:${b.fg}">${esc(b.t)}</span>`}
-function cardGlyph(c){const b=bankOf(c.banco,c.nome)||{bg:c.cor||'var(--accent)',fg:'#fff'};const band=(c.bandeira||'').toLowerCase();
-  return `<span class="cg" style="--cgb:${b.bg};--cgf:${b.fg}"><i class="chip"></i><b>${band.startsWith('visa')?'VISA':band.startsWith('master')?'<i class="mc"></i>':band?esc(c.bandeira.slice(0,4).toUpperCase()):''}</b></span>`}
+function cardGlyph(c){const b=bankOf(c.banco,c.nome)||{bg:c.cor||'var(--accent)',fg:'#fff'};return `<span class="cg" style="--cgb:${b.bg};--cgf:${b.fg}" aria-hidden="true"><i></i></span>`}
 
 
 /* ---------- detalhe de conta e de cartão (resumo; edição separada) ---------- */
@@ -3322,17 +3351,22 @@ function openContaDet(a){
 function fatTot(c,ym){return r2(sum(movs().filter(i=>i.src==='card'&&i.c===c&&i.ym===ym),i=>i.tipo==='receita'?-i.valor:i.valor))}
 function fatDatas(c,ym){const due=dayIn(ym,c.vencimento),closeYm=+c.vencimento>+c.fechamento?ym:ymAdd(ym,-1);return {due,close:dayIn(closeYm,c.fechamento)}}
 function openFatHist(c,onPick){
-  let y=today().slice(0,4);
-  const draw=sh=>{const rows=[...Array(12)].map((_,k)=>{const ym=`${y}-${String(12-k).padStart(2,'0')}`,tot=fatTot(c,ym),pg=fatPaga(c.id,ym),{due,close}=fatDatas(c,ym),compras=r2(sum(movs().filter(i=>i.src==='card'&&i.c===c&&i.tipo==='despesa'&&(i.l.data||'').slice(0,7)===ym),i=>i.N>1?(i.j===1?i.valor*i.N:0):i.valor)),st=pg?'ok':today()>=close?(today()>due?'crit':'warn'):'acc';return {ym,tot,pg,compras,st,due}});
-    const ano=sum(rows,r=>r.tot);
-    sh.querySelector('#fhx').innerHTML=`<div class="mnav"><button class="navb" type="button" data-fy="-1" aria-label="Ano anterior">‹</button><b>${y}</b><button class="navb" type="button" data-fy="1" aria-label="Próximo ano">›</button></div>
-      <div class="fhh">${cardGlyph(c)}<span class="fht"><strong>${esc(c.nome)}</strong><small>faturas de ${y}</small></span><b class="n">${brl(ano)}</b></div>
-      <div class="fhl">${rows.map(r=>`<button class="fhr" type="button" data-fym="${r.ym}"><span><strong>${MESL[+r.ym.slice(5)-1]}</strong>${r.compras>.005?`<small>compras no mês ${brl(r.compras)}</small>`:''}</span><span class="fhv"><b class="n ${r.tot<.005?'z':''}">${brl(r.tot)}</b>${r.tot>.005?`<small class="${r.st}">${r.pg?ic('check')+' paga':r.st==='crit'?'vencida':r.st==='warn'?'fechada':'aberta'}</small>`:''}</span></button>`).join('')}</div>
-      <p class="note">Valor de cada fatura pelo mês de vencimento. “Compras no mês” é o que foi comprado naquele mês (parcelado pelo valor total).</p>`;
+  let y=today().slice(0,4);const t=today(),cm=t.slice(0,7);
+  const info=ym=>{const tot=fatTot(c,ym),pg=fatPaga(c.id,ym),{due,close}=fatDatas(c,ym),st=pg?['ok','paga']:t>due?['crit','vencida']:t>=close?['warn','fechada']:t>=fatDatas(c,ymAdd(ym,-1)).close?['acc','aberta']:['fut','prevista'];return {ym,tot,pg,due,st}};
+  const row=r=>`<button class="fhr" type="button" data-fym="${r.ym}"><span><strong>${MESL[+r.ym.slice(5)-1]}${r.ym.slice(0,4)!==y||r.st[0]==='fut'?` <small class="fhy">${r.ym.slice(0,4)}</small>`:''}</strong><small>vence ${fdate(r.due).slice(0,5)}</small></span><span class="fhv"><b class="n ${r.tot<.005?'z':''} ${r.st[0]==='fut'?'fut':''}">${brl(r.tot)}</b>${r.tot>.005?`<small class="${r.st[0]}">${r.pg?ic('check'):''}${r.st[1]}</small>`:''}</span></button>`;
+  const draw=sh=>{
+    const nx=[];for(let k=0;k<18;k++){const ym=ymAdd(cm,k),r=info(ym);if(!r.pg&&r.tot>.005)nx.push(r)}
+    const yr=[...Array(12)].map((_,k)=>info(`${y}-${String(12-k).padStart(2,'0')}`)).filter(r=>r.ym<=cm||r.pg),ano=sum(yr,r=>r.tot);
+    sh.querySelector('#fhx').innerHTML=`
+      <div class="fhh">${cardGlyph(c)}<span class="fht"><strong>${esc(c.nome)}</strong><small>${nx.length?`${nx.length} fatura${nx.length>1?'s':''} a pagar · ${brl(sum(nx,r=>r.tot))}`:'nada a pagar'}</small></span></div>
+      ${nx.length?`<section class="cds"><div class="cdsh"><h3>A pagar</h3><small>inclui parcelas já compradas</small></div><div class="fhl">${nx.map(row).join('')}</div></section>`:''}
+      <section class="cds"><div class="cdsh"><h3>Histórico</h3><span class="fhyn"><button class="navb" type="button" data-fy="-1" aria-label="Ano anterior"></button><b>${y}</b><button class="navb" type="button" data-fy="1" aria-label="Próximo ano"></button></span></div>
+        <div class="fhl">${yr.length?yr.map(row).join(''):'<p class="note">Sem faturas neste ano.</p>'}</div>
+        <div class="fhtot"><span>Total de ${y}</span><b class="n">${brl(ano)}</b></div></section>`;
     sh.querySelectorAll('[data-fy]').forEach(b=>b.onclick=()=>{y=String(+y+ +b.dataset.fy);draw(sh)});
     sh.querySelectorAll('[data-fym]').forEach(b=>b.onclick=()=>{onPick(b.dataset.fym);backSheet()});
   };
-  openSheet(`<h2>Histórico de faturas</h2><div id="fhx" class="fhx"></div>`,sh=>draw(sh));
+  openSheet(`<h2>Faturas</h2><div id="fhx" class="fhx"></div>`,sh=>draw(sh));
 }
 function openConfFat(c,ym){
   let real=null;const draw=sh=>{const tot=fatTot(c,ym),diff=real==null?null:r2(real-tot);
@@ -3711,7 +3745,7 @@ function vCards(){
   const cs=S.cards.filter(c=>c.ativo!==false),t=today(),cm=t.slice(0,7);CYM=CYM||cm;
   if(!cs.length){el.innerHTML=`<div class="card empty"><strong>Nenhum cartão</strong>Cadastre seus cartões para acompanhar faturas, limites e parcelas.<div class="btnrow"><button class="btn primary" type="button" id="cAdd">${ic('plus')} Adicionar cartão</button></div></div>`;$('#cAdd').onclick=()=>openCard(null);return}
   const cx=CCX;CCX=true;let h=creditoDash(false);CCX=cx;
-  h+=`<div class="cqa"><button type="button" class="qab" id="cq-buy" style="--qc:var(--crit)"><span>${ic('card')}</span><small>Compra no cartão</small></button><button type="button" class="qab" id="cq-imp" style="--qc:var(--inv)"><span>${ic('doc')}</span><small>Importar fatura</small></button><button type="button" class="qab" id="cq-new" style="--qc:var(--accent)"><span>${ic('plus')}</span><small>Novo cartão</small></button></div>`;
+  h+=`<div class="cqa"><button type="button" class="qab" id="cq-buy" style="--qc:var(--crit)"><span>${ic('card')}</span><small>Comprar</small></button><button type="button" class="qab" id="cq-imp" style="--qc:var(--inv)"><span>${ic('doc')}</span><small>Importar</small></button><button type="button" class="qab" id="cq-new" style="--qc:var(--accent)"><span>${ic('plus')}</span><small>Novo cartão</small></button></div>`;
   const F=cs.map(c=>fatInfo(c,CYM)).filter(x=>x.tot>.005||x.st!=='vazia'),stL={paga:['ok','Paga'],vencida:['crit','Vencida'],fechada:['warn','Fechada'],aberta:['acc','Aberta'],vazia:['','—']};
   h+=`<div class="card"><div class="mnav"><button class="navb" type="button" data-cm="-1" aria-label="Mês anterior">‹</button><div style="text-align:center"><b>Faturas de ${MESL[+CYM.slice(5)-1]} ${CYM.slice(0,4)}</b><div class="sub">pelo mês de vencimento</div></div><button class="navb" type="button" data-cm="1" aria-label="Próximo mês">›</button></div>
     ${F.length?`<div class="fts">${F.sort((a,b)=>a.due.localeCompare(b.due)).map(x=>`<div class="ftr ${x.st}"><button type="button" class="ftm" data-fat="${esc(x.c.id)}|${x.ym}">${cardGlyph(x.c)}<span class="cxm"><strong>${esc(x.c.nome)}</strong><small>vence ${fdate(x.due).slice(0,5)} · fecha ${fdate(x.fecha).slice(0,5)}${x.com>.005?` · sua parte ${brl0(x.parte)}`:''}</small></span><span class="ftv"><b class="n">${brl(x.tot)}</b><span class="pill ${stL[x.st][0]}">${stL[x.st][1]}</span></span></button>${!x.paga&&x.tot>.005&&x.st!=='aberta'?`<button class="lk ftp" type="button" data-pf="${esc(x.c.id)}|${x.ym}">Pagar fatura ›</button>`:''}</div>`).join('')}</div>
