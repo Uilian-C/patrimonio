@@ -1415,7 +1415,7 @@ html:has(#overlay:not([hidden])),html:has(#overlay:not([hidden])) body{overflow:
 .plt{display:flex;justify-content:space-between;align-items:baseline}.plt h3{font-size:15px;font-weight:600}.plb{display:flex;gap:12px}
 .plc{display:grid}.ple{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;padding:10px 0;border-top:1px solid var(--hair)}.plc .ple:first-child{border-top:0}
 .plm{display:grid;gap:3px;min-width:0}.plm strong{font-size:14px;font-weight:550}.plm small{font-size:11.5px;color:var(--muted)}
-.plbar{display:block;height:5px;border-radius:5px;background:var(--sunk);overflow:hidden}.plbar i{display:block;height:100%;background:var(--good);border-radius:5px}.ple.over .plbar i{background:var(--crit)}.ple.hi .plbar i{background:var(--warn)}
+.plbar{display:block;height:5px;border-radius:5px;background:var(--sunk);overflow:hidden}.plbar i{display:block;height:100%;background:var(--good);border-radius:5px}.ple.over .plbar i{background:var(--crit)}.ple.quase .plbar i{background:var(--warn)}
 .plv{display:grid;justify-items:end;gap:2px}.plv small{font-size:11px}.plv small.pos{color:var(--good)}.plv small.neg,.plv .neg{color:var(--crit)}.plv b{font-size:15px;font-weight:600}
 .pla>summary{list-style:none;display:flex;align-items:center;gap:6px;color:var(--accent);font-size:13.5px;font-weight:550;cursor:pointer}.pla>summary::-webkit-details-marker{display:none}.pla svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2}.pla .chips{margin-top:10px}
 .plk{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin-bottom:6px}.plk div{display:grid;gap:1px;padding-right:8px}.plk div+div{border-left:1px solid var(--hair);padding-left:12px}.plk small{font-size:11.5px;color:var(--muted)}.plk b{font-size:17px;font-weight:600;letter-spacing:-.03em}.plk b small{font-size:11px;font-weight:400}
@@ -1588,6 +1588,19 @@ html:has(#overlay:not([hidden])),html:has(#overlay:not([hidden])) body{overflow:
 .card.colp>*:not(.ch){display:none!important}.card.colp>.ch{margin-bottom:0}.card.colp>.ch>*:not(h2):not(.aside):not(b):not(.score):not(.sxtot){display:none!important}
 .cds.colp>*:not(.cdsh),.ivs.colp>*:not(.ivsh),.blc.colp>*:not(.blch),.dps.colp>*:not(h3),.colsec.colp>*:not(.colhd){display:none!important}
 .cds.colp .cdsh small,.ivs.colp .ivsh small{display:none}
+
+/* etiquetas na lista */
+.ltg{display:inline-block;margin-left:4px;padding:0 6px;border-radius:6px;font-size:10.5px;font-weight:600;line-height:16px;color:var(--tc);background:color-mix(in srgb,var(--tc) 14%,transparent);vertical-align:1px}
+/* ritmo do plano */
+.pace{display:grid;gap:6px;margin:10px 0 6px}
+.pcbar{position:relative;height:8px;border-radius:8px;background:var(--sunk)}.pcbar i{display:block;height:100%;border-radius:8px;background:var(--good)}.pcbar i.quase{background:var(--warn)}.pcbar i.over{background:var(--crit)}
+.pcbar em{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--ink);border-radius:2px;transform:translateX(-1px)}
+.pcbar em span{position:absolute;bottom:calc(100% + 3px);left:50%;transform:translateX(-50%);font-size:10px;font-style:normal;font-weight:600;color:var(--bg);background:var(--ink);padding:1px 6px;border-radius:6px;white-space:nowrap}
+.pace{padding-top:14px}.pcl{display:flex;justify-content:space-between;font-size:11.5px;color:var(--faint)}.pcl b{color:var(--ink);font-weight:600}
+.pace .note b{color:var(--ink)}
+/* histórico do plano */
+.plh2{display:grid}.plhr{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-top:1px solid var(--hair)}.plh2 .plhr:first-child{border-top:0}
+.plhr>span:first-child{display:grid}.plhr strong{font-size:14px;font-weight:550}.plhr small{font-size:11.5px;color:var(--muted)}
 </style>
 </head>
 <body>
@@ -2518,10 +2531,12 @@ function openPlano(ym0){
         <div class="plg"><span>${ic('spark')} Guardar e investir<small>${base.guardFeito?`aportado no mês: ${brl(base.guardFeito)}`:'transferências para investimentos e reservas'}</small></span><input type="text" inputmode="decimal" data-pg="1" value="${fmt(draft.guardar)}" placeholder="0,00" aria-label="Guardar no mês"></div>
         <div><span>Envelopes do dia a dia</span><b class="n">−${brl(dest)}</b></div></div>
       <div class="plt"><h3>Envelopes</h3><div class="plb"><button class="lk" type="button" id="pl-sug">Sugerir pela média</button>${planoOf(ymAdd(ym,-1))?'<button class="lk" type="button" id="pl-cp">Copiar do mês anterior</button>':''}</div></div>
-      <div class="plc">${cats.map(x=>{const pc=x.d+x.ro>0?Math.min(x.g/(x.d+x.ro),1.2):x.g>0?1.2:0;return `<div class="ple ${x.disp<0?'over':x.g>=.9*((x.d+x.ro)||1e9)?'hi':''}">${catBubble(x.c,'sm')}<span class="plm"><strong>${esc(x.c)}</strong><small>gasto ${brl0(x.g)}${x.ro?` · ${x.ro>0?'sobra':'falta'} de ${MES[+ymAdd(ym,-1).slice(5)-1]} ${brl0(Math.abs(x.ro))}`:''}</small><span class="plbar"><i style="width:${Math.min(pc,1)*100}%"></i></span></span>
+      <div class="plc">${cats.map(x=>{const pc=x.d+x.ro>0?Math.min(x.g/(x.d+x.ro),1.2):x.g>0?1.2:0;return `<div class="ple ${x.disp<0?'over':x.g>=.9*((x.d+x.ro)||1e9)?'quase':''}">${catBubble(x.c,'sm')}<span class="plm"><strong>${esc(x.c)}</strong><small>gasto ${brl0(x.g)}${x.ro?` · ${x.ro>0?'sobra':'falta'} de ${MES[+ymAdd(ym,-1).slice(5)-1]} ${brl0(Math.abs(x.ro))}`:''}</small><span class="plbar"><i style="width:${Math.min(pc,1)*100}%"></i></span></span>
         <span class="plv"><input type="text" inputmode="decimal" data-pc="${esc(x.c)}" value="${fmt(x.d)}" placeholder="0" aria-label="Destinar para ${esc(x.c)}"><small class="${x.disp<0?'neg':'pos'}">${x.disp<0?'passou ':'livre '}${brl0(Math.abs(x.disp))}</small></span></div>`}).join('')}</div>
       ${outras.length?`<details class="pla"><summary>${ic('plus')} Adicionar envelope</summary><div class="chips rfe">${outras.map(c=>`<button class="chip" type="button" data-pa="${esc(c)}">${esc(c)}</button>`).join('')}</div></details>`:''}
       <div class="btnrow stick"><button class="btn primary" type="button" id="pl-sv">Salvar plano de ${MES[+ym.slice(5)-1]}</button></div>
+      ${(()=>{const hs=[1,2,3,4,5,6].map(k=>ymAdd(ym,-k)).filter(m=>planoOf(m)).map(m=>{const p=planoOf(m),d=sum(Object.values(p.cats||{}),v=>+v||0),gc=planoCalc0(m,me),g=sum(Object.keys(p.cats||{}),c=>gc[c]||0);return {m,d,g,pu:d?g/d:0}});
+        return hs.length?`<section class="cds"><div class="cdsh"><h3>Meses anteriores</h3></div><div class="plh2">${hs.map(x=>`<div class="plhr"><span><strong>${MESL[+x.m.slice(5)-1]}</strong><small>${x.g<=x.d?`sobrou ${brl0(x.d-x.g)}`:`passou ${brl0(x.g-x.d)}`} de ${brl0(x.d)}</small></span><span class="ring sm ${x.pu>1?'crit':x.pu>.9?'warn':'ok'}" style="--p:${Math.min(x.pu,1)*100}"><b class="n">${Math.round(x.pu*100)}%</b></span></div>`).join('')}</div></section>`:''})()}
       <p class="note">Como funciona: a renda do mês menos o que já está comprometido é o que você pode planejar. Dê um valor a cada envelope até “A destinar” chegar a zero. O que sobra ou falta num envelope passa para o mês seguinte.</p>`;
     const rd=()=>{sh.querySelectorAll('[data-pc]').forEach(i=>{const v=brNum(i.value);draft.cats[i.dataset.pc]=isNaN(v)?0:r2(v)});const g=brNum(sh.querySelector('[data-pg]').value);draft.guardar=isNaN(g)?0:r2(g)};
     sh.querySelectorAll('[data-pc],[data-pg]').forEach(i=>i.onchange=()=>{rd();draw(sh)});
@@ -2540,7 +2555,10 @@ function iniPlano(X){
   const top=B.cats.filter(x=>x.d>0).sort((a,b)=>a.disp/(a.d||1)-b.disp/(b.d||1)).slice(0,4),livre=sum(B.cats,x=>x.disp);
   return `<div class="card"><div class="ch"><h2>Plano de ${mn}</h2><button class="lk" type="button" data-plano="1">Abrir ›</button></div>
     <div class="plk"><div><small>Livre nos envelopes</small><b class="n ${livre<0?'neg':''}">${brl0(livre)}</b></div><div><small>${Math.abs(B.rest)<1?'Sem destino':B.rest>0?'A destinar':'A mais'}</small><b class="n ${B.rest<-1?'neg':''}">${brl0(Math.abs(B.rest))}</b></div><div><small>Guardar</small><b class="n">${brl0(B.guardFeito)}<small> de ${brl0(B.guard)}</small></b></div></div>
-    <div class="plc plmini">${top.map(x=>`<div class="ple ${x.disp<0?'over':x.g>=.9*((x.d+x.ro)||1e9)?'hi':''}">${catBubble(x.c,'sm')}<span class="plm"><strong>${esc(x.c)}</strong><span class="plbar"><i style="width:${Math.min(x.g/((x.d+x.ro)||1),1)*100}%"></i></span></span><span class="plv"><b class="n ${x.disp<0?'neg':''}">${x.disp<0?'−':''}${brl0(Math.abs(x.disp))}</b><small>de ${brl0(x.d+x.ro)}</small></span></div>`).join('')}</div></div>`;
+    ${(()=>{const t=today(),nd=lastDay(ym),dd=ym===t.slice(0,7)?+t.slice(8):ym<t.slice(0,7)?nd:0,tp=dd/nd,tot=sum(B.cats,x=>x.d+x.ro),g=sum(B.cats,x=>x.g),pu=tot?g/tot:0,rest=Math.max(nd-dd+1,1),lv=tot-g;
+      return tot?`<div class="pace"><div class="pcbar"><i class="${pu>tp+.1?'quase':''} ${pu>1?'over':''}" style="width:${Math.min(pu,1)*100}%"></i><em style="left:${tp*100}%"><span>hoje</span></em></div><div class="pcl"><span>1/${ym.slice(5)}</span><b class="n">${pctf(pu)} usado</b><span>${nd}/${ym.slice(5)}</span></div>
+      <p class="note">${lv>0?`Dá para gastar <b>${brl(lv/rest)}/dia</b> nos envelopes pelos próximos ${rest} dia${rest>1?'s':''}.`:`Os envelopes passaram ${brl(-lv)} do planejado.`}${pu>tp+.1&&lv>0?' Ritmo acima do mês: '+pctf(pu)+' gasto com '+pctf(tp)+' do mês.':''}</p></div>`:''})()}
+    <div class="plc plmini">${top.map(x=>`<div class="ple ${x.disp<0?'over':x.g>=.9*((x.d+x.ro)||1e9)?'quase':''}">${catBubble(x.c,'sm')}<span class="plm"><strong>${esc(x.c)}</strong><span class="plbar"><i style="width:${Math.min(x.g/((x.d+x.ro)||1),1)*100}%"></i></span></span><span class="plv"><b class="n ${x.disp<0?'neg':''}">${x.disp<0?'−':''}${brl0(Math.abs(x.disp))}</b><small>de ${brl0(x.d+x.ro)}</small></span></div>`).join('')}</div></div>`;
 }
 function openOrc(){
   const me=ME(),ym=today().slice(0,7),O=cfg().orc||{},avg={};const OKo=mesesOk(ym,3);OKo.forEach(m=>{const B=orcCalc(m,me);Object.entries(B.cats).forEach(([c,v])=>avg[c]=(avg[c]||0)+v/OKo.length)});
@@ -2939,7 +2957,7 @@ function lrow(x,showD){
   const srcN=x.isC?cardName(x.i.c):l.tipo==='transf'?`${(conta(l.conta)||{}).nome||'—'} → ${(conta(l.destino)||{}).nome||'outra conta'}`:l.tipo==='pagfat'?`${(conta(l.conta)||{}).nome||''} → ${cardName(card(l.cartao))}`:(x.src||{}).nome||'';
   const sub=[O?null:(l.subcategoria||l.categoria||'Outros'),srcN].filter(Boolean).join(' · ');
   const st=x.pend?'<span class="pq pend">pendente</span>':x.proj?'<span class="pq">prevista</span>':'';
-  return `<button type="button" class="lx" data-l="${esc(l.id)}">${ico}<span class="lxm"><b>${esc(descSemParc(l.desc||(O&&O[1])||''))} ${x.i?parcBadge(l.desc,x.i.j,x.i.N):''}${st}</b><small>${showD&&x.d?fdate(x.d).slice(0,5)+(x.d.slice(0,4)!==today().slice(0,4)?'/'+x.d.slice(2,4):'')+' · ':''}${esc(sub)}${x.i&&x.i.comum?' · <span class="cm">Comum</span>':''}</small></span><span class="lxv n ${x.v>0?'pos':''}">${x.v>0?'+':'−'}${brl(Math.abs(x.v))}</span></button>`;
+  return `<button type="button" class="lx" data-l="${esc(l.id)}">${ico}<span class="lxm"><b>${esc(descSemParc(l.desc||(O&&O[1])||''))} ${x.i?parcBadge(l.desc,x.i.j,x.i.N):''}${st}</b><small>${showD&&x.d?fdate(x.d).slice(0,5)+(x.d.slice(0,4)!==today().slice(0,4)?'/'+x.d.slice(2,4):'')+' · ':''}${esc(sub)}${x.i&&x.i.comum?' · <span class="cm">Comum</span>':''}${(l.tags||[]).length?' '+l.tags.slice(0,2).map(t=>{const tg=cfg().tags.find(y=>y.nome===t);return `<span class="ltg" style="--tc:${tg?tg.cor:'var(--muted)'}">${esc(t)}</span>`}).join(''):''}</small></span><span class="lxv n ${x.v>0?'pos':''}">${x.v>0?'+':'−'}${brl(Math.abs(x.v))}</span></button>`;
 }
 function vLanc(){
   const el=$('#v-lanc');if(!ready()){el.innerHTML=loading();return}
