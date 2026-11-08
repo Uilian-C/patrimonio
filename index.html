@@ -1560,6 +1560,34 @@ html:has(#overlay:not([hidden])),html:has(#overlay:not([hidden])) body{overflow:
 .sbar{background:none!important;padding:0!important}
 .qab>span{box-shadow:none!important}
 .gtr{height:4px!important;border-radius:4px!important}.gtr i{border-radius:4px!important}.gcr{row-gap:6px!important}
+
+/* ===== v7.1: lançamento e parcelamento leves ===== */
+.lvh{gap:12px}.lvi{width:38px!important;height:38px!important;border-radius:50%!important}.lvi svg{width:18px!important;height:18px!important}
+.lvh b{font-size:16px;font-weight:600}
+.lvv{font-size:40px!important;font-weight:600!important;letter-spacing:-.05em!important}
+.lvl{border:0!important;border-radius:0!important;border-top:1px solid var(--hair)!important}
+.lvr{background:none!important;padding:11px 0!important;border-top:0!important;border-bottom:1px solid var(--hair)}
+.lvr span{color:var(--muted);font-size:13px}.lvr b{font-weight:550;font-size:14px}
+.lvp{background:none!important;padding:0!important;border-radius:0!important;margin-top:6px!important}
+.lvph b{font-size:12px!important;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.dpb{height:4px!important;border-radius:4px!important;background:color-mix(in srgb,var(--crit) 18%,var(--sunk))!important}.dpb i{border-radius:4px!important}
+.dpl b{font-weight:600!important}
+.dph .bk{width:38px;height:38px;border-radius:50%}
+.dpk{gap:0!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;border-top:1px solid var(--hair)!important;border-bottom:1px solid var(--hair)!important}
+.dpk div{background:none!important;border-radius:0!important;padding:10px 6px 10px 0!important}.dpk div+div{border-left:1px solid var(--hair)!important;padding-left:10px!important}
+.dpk b{font-size:14.5px!important;font-weight:600!important}
+.dpi{background:none!important;padding:0 0 0 12px!important;border-left:2px solid var(--accent);border-radius:0!important}
+.dpi p{font-size:13px;color:var(--muted)}.dpi p b{color:var(--ink)}
+.dps h3{font-size:12px!important;font-weight:600!important;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.dpc path[fill-opacity],.dpc polygon{fill-opacity:.08!important}
+.lva{display:flex;flex-wrap:wrap;gap:8px}
+/* ===== recolher seções em todo o app ===== */
+.colh{cursor:pointer;user-select:none;-webkit-user-select:none}
+.colh::after{content:"";display:inline-block;width:7px;height:7px;margin-left:8px;border-right:1.6px solid var(--faint);border-bottom:1.6px solid var(--faint);transform:translateY(-2px) rotate(45deg);transition:transform .2s}
+.colp .colh::after{transform:translateY(1px) rotate(-135deg)}
+.card.colp>*:not(.ch){display:none!important}.card.colp>.ch{margin-bottom:0}.card.colp>.ch>*:not(h2):not(.aside):not(b):not(.score):not(.sxtot){display:none!important}
+.cds.colp>*:not(.cdsh),.ivs.colp>*:not(.ivsh),.blc.colp>*:not(.blch),.dps.colp>*:not(h3),.colsec.colp>*:not(.colhd){display:none!important}
+.cds.colp .cdsh small,.ivs.colp .ivsh small{display:none}
 </style>
 </head>
 <body>
@@ -3573,7 +3601,7 @@ function dpSaldoChart(D){
   const past=P2.slice(0,ci+1),fut=P2.slice(ci);const tY=today().slice(0,7),ti=P2.findIndex(p=>p.ym===tY);
   const step=Math.ceil(n/6);
   return `<svg class="dpc" viewBox="0 0 ${W} ${H}" role="img" aria-label="Saldo devedor projetado">
-    <path d="${line(P2)}L${X(n-1)},${H-pb}L${X(0)},${H-pb}Z" fill="color-mix(in srgb,var(--crit) 10%,transparent)"/>
+    <path d="${line(P2)}L${X(n-1)},${H-pb}L${X(0)},${H-pb}Z" fill="color-mix(in srgb,var(--crit) 5%,transparent)"/>
     ${past.length>1?`<path d="${line(past)}" fill="none" stroke="var(--good)" stroke-width="2.2" stroke-linejoin="round"/>`:''}
     <path d="${line(fut)}" fill="none" stroke="var(--crit)" stroke-width="2" stroke-dasharray="5 4" stroke-linejoin="round"/>
     ${ti>=0?`<line x1="${X(ti)}" x2="${X(ti)}" y1="${pt-4}" y2="${H-pb}" stroke="var(--ink)" stroke-opacity=".35" stroke-dasharray="2 3"/><text x="${X(ti)+(ti<n*.15?5:0)}" y="${pt-1}" text-anchor="${ti>n*.8?'end':ti<n*.15?'start':'middle'}" class="hl">hoje</text>`:''}
@@ -5016,6 +5044,18 @@ $('#fab').onclick=openMenu;
 document.addEventListener('paste',e=>{if(!$('#overlay').hidden||!S.sample)return;const fl=[...((e.clipboardData||{}).items||[])].filter(x=>x.kind==='file').map(x=>x.getAsFile()).filter(Boolean);if(fl.length){e.preventDefault();openSmartImport(fl.map((f,i)=>new File([f],f.name||`print-${i+1}.png`,{type:f.type})))}});
 $('#navback').onclick=navBack;
 document.querySelectorAll('nav.tabs a').forEach(a=>a.addEventListener('click',e=>{NAV=[];if(a.dataset.v===S.view){e.preventDefault();window.scrollTo({top:0,behavior:'smooth'})}}));
+
+/* ---------- recolher seções (lembrado por aparelho) ---------- */
+(()=>{let COL=new Set();try{COL=new Set(JSON.parse(localStorage.getItem('pt-col')||'[]'))}catch(e){}
+  const HD='.card>.ch>h2,.cds>.cdsh>h3,.ivs>.ivsh>h3,.blc>.blch>span,.dps>h3';
+  const box=hd=>hd.closest('.card,.cds,.ivs,.blc,.dps');
+  const key=hd=>{const b=box(hd);const sc=(b.closest('.view')||{}).id||((b.closest('.sheet')||{}).getAttribute?b.closest('.sheet').getAttribute('aria-label'):'')||'';
+    const t=hd.textContent.trim().replace(/\s+(de|em|·)\s+\S+(\s+\d{4})?$/i,'').replace(/\d[\d.,/]*/g,'').trim();
+    return (b.closest('.sheet')?'sheet|'+t:sc+'|'+t)};
+  const apply=()=>{document.querySelectorAll(HD).forEach(hd=>{const b=box(hd);if(!b||b.classList.contains('hero'))return;hd.classList.add('colh');b.classList.toggle('colp',COL.has(key(hd)))})};
+  document.addEventListener('click',e=>{const hd=e.target.closest&&e.target.closest(HD);if(!hd||!box(hd))return;const k=key(hd);if(COL.has(k))COL.delete(k);else COL.add(k);try{localStorage.setItem('pt-col',JSON.stringify([...COL]))}catch(_){}box(hd).classList.toggle('colp',COL.has(k))});
+  let t=0;new MutationObserver(()=>{clearTimeout(t);t=setTimeout(apply,30)}).observe(document.body,{childList:true,subtree:true});apply();
+})();
 route();
 const live=(t,on)=>{$('#livet').textContent=t;$('#live').classList.toggle('on',!!on)};
 const tm=setTimeout(()=>{if(!ready())live('Sem conexão')},10000);
