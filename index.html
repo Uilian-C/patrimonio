@@ -1333,7 +1333,7 @@ nav.tabs .fab:active{transform:translateY(-50%) scale(.94)}
 
 /* saldo por conta e conferência */
 .sxl{display:grid}.sxr{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:center;padding:12px 0;border:0;border-top:1px solid var(--hair);background:none;text-align:left;color:inherit;font:inherit;width:100%}
-.sxl .sxr:first-child{border-top:0;padding-top:2px}.sxm{display:grid;gap:1px;min-width:0}.sxm strong{font-weight:550;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.sxm small{font-size:12px;color:var(--faint)}.sxm small.warn{color:var(--warn)}.sxm small.ok{color:var(--good)}
+.sxl .sxr:first-child{border-top:0;padding-top:2px}.sxm{display:grid;gap:1px;min-width:0}.sxm strong{font-weight:550;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.sxm small{font-size:12px;color:var(--faint)}.sxm small.ok{color:var(--good)}.sxm small svg{width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2.6;vertical-align:-1px;margin-right:2px}
 .sxr>b{font-size:17px;font-weight:600;letter-spacing:-.03em}
 .sxt{display:flex;justify-content:space-between;align-items:baseline;border-top:1px solid var(--line);margin-top:4px;padding-top:12px}.sxt span{color:var(--muted);font-size:13px}.sxt b{font-size:20px;font-weight:600;letter-spacing:-.035em}
 .sxz{display:flex;align-items:center;gap:6px;border:0;background:none;color:var(--muted);font:inherit;font-size:13px;padding:8px 0 0}.sxz svg{width:14px;height:14px}
@@ -3527,8 +3527,12 @@ function cxSave(){try{localStorage.setItem('pt-cx',JSON.stringify(CXO))}catch(e)
 /* ---------- saldo por conta e conferência com o banco ---------- */
 let SXALL=false;
 const isCaixa=a=>a.ativo!==false&&(!a.tipo||a.tipo==='corrente'||a.tipo==='dinheiro');
-function confTxt(a){const c=a.conf;if(!c||!c.d)return ['não conferido','warn'];const n=diffD(c.d,today());return [n<=0?'conferido hoje':n===1?'conferido ontem':`conferido há ${n} dias`,n>7?'warn':'ok']}
+let CONFREAL={};
+function confTxt(a){const c=a.conf;if(!c||!c.d)return [esc(a.instituicao||TCONTA[a.tipo||'corrente']||''),''];const n=diffD(c.d,today());return [`${ic('check')} conferido ${n<=0?'hoje':n===1?'ontem':fdate(c.d).slice(0,5)}`,'ok']}
+/* conferência pendente: quando o saldo do app chegar ao valor digitado (depois de lançar a diferença), marca sozinho */
+function confAuto(){Object.entries(CONFREAL).forEach(([id,x])=>{const a=conta(id);if(!a){delete CONFREAL[id];return}if(Math.abs(saldoConta(a)-x.v)<.01){delete CONFREAL[id];if(!(a.conf&&a.conf.d===today()&&Math.abs(a.conf.v-x.v)<.01))markConf(a,x.v)}})}
 function saldoContas(me){
+  try{confAuto()}catch(e){}
   const cs=S.contas.filter(a=>isCaixa(a)&&fracOf(a.dono,me)>0).map(a=>({a,v:saldoConta(a)})).sort((x,y)=>Math.abs(y.v)-Math.abs(x.v));
   const vis=cs.filter(x=>Math.abs(x.v)>=.005||(x.a.conf&&x.a.conf.d)),zer=cs.filter(x=>!vis.includes(x)),tot=sum(cs,x=>x.v*fracOf(x.a.dono,me));
   const row=({a,v})=>{const [t,c]=confTxt(a);return `<button class="sxr" type="button" data-cf2="${esc(a.id)}">${bankBadge(a,a.tipo)}<span class="sxm"><strong>${esc(a.nome)}${a.dono!==me?' '+whoChip(a.dono):''}</strong><small class="${c}">${t}</small></span><b class="n ${v<0?'neg':''}">${brl(v)}</b></button>`};
@@ -3549,32 +3553,38 @@ function confCands(a){
 function subsetMatch(c,diff){const n=Math.min(c.length,14),tgt=Math.round(diff*100);let best=null;
   for(let m=1;m<(1<<n);m++){let s=0;for(let i=0;i<n;i++)if(m>>i&1)s+=Math.round(c[i].v*100);if(s===tgt){const pick=[];for(let i=0;i<n;i++)if(m>>i&1)pick.push(i);if(!best||pick.length<best.length)best=pick}}return best||[]}
 function openConferir(a){
-  if(!a)return;let real=null;
+  if(!a)return;let real=CONFREAL[a.id]?CONFREAL[a.id].v:null,again=false;
   const draw=sh=>{const t=today(),v=saldoConta(a),diff=real==null?null:r2(real-v),C=confCands(a),hit=diff&&Math.abs(diff)>=.01?subsetMatch(C,diff):[];
     const days=[];for(let i=0;i<10;i++){const d=addD(t,-i),L=S.lanc.filter(l=>!l.pend&&l.data===d&&(l.conta===a.id||(l.tipo==='transf'&&l.destino===a.id)));if(L.length)days.push({d,L,s:saldoConta(a,d)})}
     const sig=l=>{const tp=l.tipo||'despesa';return tp==='receita'||(tp==='ajuste'&&l.valor>0)||(tp==='transf'&&l.destino===a.id)?1:-1};
+    const cur=S.contas.find(x=>x.id===a.id)||a,cf=cur.conf,okNow=cf&&cf.d&&Math.abs(cf.v-v)<.01&&real==null&&!again;
     sh.querySelector('#cfx').innerHTML=`
       <div class="cfh">${bankBadge(a,a.tipo)}<div><span class="k">Saldo no app hoje</span><div class="big n ${v<0?'neg':''}">${brl(v)}</div></div></div>
+      ${okNow?`<div class="cfok">${ic('check')}<span><b>Conferido ${diffD(cf.d,today())<=0?'hoje':'em '+fdate(cf.d).slice(0,5)}</b><small>O saldo bate com o banco desde a última conferência.</small></span></div><button class="btn sm" type="button" id="cf-again">Conferir de novo</button>`:`
+      ${cf&&cf.d&&real==null?`<p class="note">Última conferência: ${fdate(cf.d).slice(0,5)}, com ${brl(cf.v)}. Houve movimentos depois disso.</p>`:''}
       <div class="field"><label for="cf-v">Saldo que aparece no banco agora</label><input id="cf-v" type="text" inputmode="decimal" autocomplete="off" placeholder="0,00" value="${real==null?'':String(real).replace('.',',')}"></div>
-      ${diff==null?'<p class="note">Digite o saldo do app do banco. O Patrimônio compara e procura o que falta.</p>':Math.abs(diff)<.01?`<div class="cfok">${ic('check')}<span><b>Confere</b><small>O saldo do app é igual ao do banco.</small></span></div>`:
+      ${real==null?`<button class="btn sm primary" type="button" id="cf-eq">${ic('check')} Está igual ao banco</button>`:''}`}
+      ${okNow?'':diff==null?'<p class="note">Se o banco mostra o mesmo valor, toque em “Está igual ao banco”. Se for diferente, digite o valor: o app procura o que falta.</p>':Math.abs(diff)<.01?`<div class="cfok">${ic('check')}<span><b>Confere</b><small>O saldo do app é igual ao do banco.</small></span></div>`:
       `<div class="cfd ${diff<0?'neg':'pos'}"><span class="k">Diferença</span><b class="n">${diff<0?'−':'+'}${brl(Math.abs(diff))}</b><small>${diff<0?`O banco tem ${brl(Math.abs(diff))} a menos: falta registrar uma saída (ou uma entrada foi lançada a mais).`:`O banco tem ${brl(diff)} a mais: falta registrar uma entrada (ou uma saída foi lançada a mais).`}</small></div>`}
       ${diff!=null&&Math.abs(diff)>=.01?`<section class="cfs"><h3>${hit.length?'Achei o que explica a diferença':'Possíveis causas'}</h3>${C.length?C.map((x,i)=>`<div class="cfi ${hit.includes(i)?'hit':''}"><span class="n">${x.d?fdate(x.d).slice(0,5):''}</span><span class="cfm"><strong>${esc(x.t)}</strong><small>${x.s}</small></span><b class="n ${x.v>0?'pos':''}">${x.v>0?'+':'−'}${brl(Math.abs(x.v))}</b>${x.k==='pend'?`<button class="btn sm" type="button" data-cfp="${esc(x.id)}">Marcar pago</button>`:x.k==='fut'?`<button class="btn sm" type="button" data-cfh="${esc(x.id)}">Foi hoje</button>`:x.k==='rec'?`<button class="btn sm" type="button" data-cfr="${i}">Lançar</button>`:''}</div>`).join(''):'<p class="note">Nada pendente, futuro ou recorrente nesta conta. Provavelmente é um gasto que não foi lançado: compare os movimentos abaixo com o extrato do banco.</p>'}
         <div class="btnrow"><button class="btn sm primary" type="button" id="cf-ln">${ic('plus')} Lançar ${brl(Math.abs(diff))} como ${diff<0?'despesa':'receita'}</button><button class="btn sm" type="button" id="cf-aj">Só ajustar o saldo</button></div></section>`:''}
       <section class="cfs"><h3>Movimentos dos últimos dias</h3><p class="note">Compare com o extrato do banco: o saldo de cada dia deve bater.</p>
         ${days.length?days.map(D=>`<div class="cfdy"><div class="cfdh"><span>${D.d===t?'Hoje':D.d===addD(t,-1)?'Ontem':fdate(D.d).slice(0,5)}</span><span>saldo do dia <b class="n">${brl(D.s)}</b></span></div>${D.L.map(l=>`<button class="cfl" type="button" data-l="${esc(l.id)}"><span>${esc(l.desc||({transf:'Transferência',pagfat:'Pagamento de fatura',ajuste:'Ajuste'})[l.tipo]||'')}</span><b class="n ${sig(l)>0?'pos':''}">${sig(l)>0?'+':'−'}${brl(Math.abs(+l.valor||0))}</b></button>`).join('')}</div>`).join(''):'<p class="note">Sem movimentos nos últimos 10 dias.</p>'}</section>
       <button class="lk" type="button" id="cf-det">Detalhes da conta ›</button>`;
-    const inp=sh.querySelector('#cf-v');inp.onchange=()=>{const n=brNum(inp.value);real=isNaN(n)?null:r2(n);draw(sh);const ok=real!=null&&Math.abs(r2(real-saldoConta(a)))<.01;if(ok)markConf(a,real)};
+    const inp=sh.querySelector('#cf-v');if(inp)inp.onchange=()=>{const n=brNum(inp.value);real=isNaN(n)?null:r2(n);if(real!=null)CONFREAL[a.id]={v:real};const ok=real!=null&&Math.abs(r2(real-saldoConta(a)))<.01;if(ok){delete CONFREAL[a.id];markConf(a,real).then(()=>{real=null;again=false;setTimeout(()=>draw(sh),250)})}else draw(sh)};
+    const eq=sh.querySelector('#cf-eq');if(eq)eq.onclick=async()=>{await markConf(a,saldoConta(a));delete CONFREAL[a.id];real=null;again=false;toast('Saldo conferido');setTimeout(()=>draw(sh),250)};
+    const ag=sh.querySelector('#cf-again');if(ag)ag.onclick=()=>{again=true;draw(sh);setTimeout(()=>{const i=sh.querySelector('#cf-v');i&&i.focus()},50)};
     sh.querySelectorAll('[data-l]').forEach(b=>b.onclick=()=>openLanc(S.lanc.find(l=>l.id===b.dataset.l)));
     sh.querySelectorAll('[data-cfp]').forEach(b=>b.onclick=async()=>{const l=S.lanc.find(x=>x.id===b.dataset.cfp);if(!l)return;const d=Object.assign({},l);delete d.id;d.pend=false;try{await save('lanc',l.id,d);toast('Marcado como pago');setTimeout(()=>draw(sh),300)}catch(e){toast(writeErr(e))}});
     sh.querySelectorAll('[data-cfh]').forEach(b=>b.onclick=async()=>{const l=S.lanc.find(x=>x.id===b.dataset.cfh);if(!l)return;const d=Object.assign({},l);delete d.id;d.data=today();try{await save('lanc',l.id,d);toast('Data alterada para hoje');setTimeout(()=>draw(sh),300)}catch(e){toast(writeErr(e))}});
     sh.querySelectorAll('[data-cfr]').forEach(b=>b.onclick=()=>{const x=C[+b.dataset.cfr];openLanc({tipo:x.r.tipo==='receita'?'receita':'despesa',conta:a.id,valor:Math.abs(x.v),data:x.d<=today()?x.d:today(),desc:x.t,categoria:x.r.categoria||'Outros',divisao:x.r.divisao||'pessoal',rec:x.r.id,recYm:x.ym})});
     const ln=sh.querySelector('#cf-ln');if(ln)ln.onclick=()=>openLanc({tipo:diff<0?'despesa':'receita',conta:a.id,valor:Math.abs(diff),data:today(),divisao:'pessoal',categoria:diff<0?'Outros':'Outras receitas'});
-    const aj=sh.querySelector('#cf-aj');if(aj)aj.onclick=async()=>{try{await S.db.collection('lanc').add({tipo:'ajuste',conta:a.id,data:today(),valor:diff,desc:'Ajuste de saldo',categoria:'',criadoEm:new Date().toISOString()});await markConf(a,real);toast('Saldo ajustado');setTimeout(()=>draw(sh),300)}catch(e){toast(writeErr(e))}};
+    const aj=sh.querySelector('#cf-aj');if(aj)aj.onclick=async()=>{try{await S.db.collection('lanc').add({tipo:'ajuste',conta:a.id,data:today(),valor:diff,desc:'Ajuste de saldo',categoria:'',criadoEm:new Date().toISOString()});await markConf(a,real);delete CONFREAL[a.id];real=null;again=false;toast('Saldo ajustado e conferido');setTimeout(()=>draw(sh),300)}catch(e){toast(writeErr(e))}};
     sh.querySelector('#cf-det').onclick=()=>openContaDet(a);
   };
-  openSheet(`<h2>Conferir ${esc(a.nome)}</h2><div id="cfx" class="cfx"></div>`,sh=>{draw(sh);setTimeout(()=>{const i=sh.querySelector('#cf-v');i&&i.focus()},350)});
+  openSheet(`<h2>Conferir ${esc(a.nome)}</h2><div id="cfx" class="cfx"></div>`,sh=>{draw(sh)});
 }
-async function markConf(a,v){try{const cur=S.contas.find(x=>x.id===a.id)||a,d=Object.assign({},cur);delete d.id;d.conf={d:today(),v};await save('contas',a.id,d)}catch(e){}}
+async function markConf(a,v){v=r2(v);try{const cur=S.contas.find(x=>x.id===a.id)||a,d=Object.assign({},cur);delete d.id;d.conf={d:today(),v};await save('contas',a.id,d)}catch(e){}}
 function vCart(){
   const el=$('#v-carteira');if(!ready()){el.innerHTML=loading();return}
   const me=ME(),byT=t=>S.contas.filter(a=>a.ativo!==false&&((a.tipo||'corrente')===t||(t==='corrente'&&a.tipo==='dinheiro'))),val=a=>saldoConta(a)*fracOf(a.dono,me);
