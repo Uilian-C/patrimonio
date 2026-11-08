@@ -381,7 +381,7 @@ nav.tabs a[aria-current="page"] svg.ic{stroke-width:2}
 .scrim{background:rgba(12,16,19,.32);animation:fd .2s ease}
 .sheet{top:calc(env(safe-area-inset-top,0px) + 10px);max-height:none;padding:0;gap:0;border-radius:22px 22px 0 0;display:flex;flex-direction:column;animation:up .26s cubic-bezier(.2,.8,.2,1)}
 .sheet.small{top:auto;max-height:80%}
-.sheet.fwd{animation:fw .22s cubic-bezier(.2,.8,.2,1)}.sheet.bk{animation:bw .22s cubic-bezier(.2,.8,.2,1)}
+.sheet.s-fwd{animation:fw .22s cubic-bezier(.2,.8,.2,1)}.sheet.s-bk{animation:bw .22s cubic-bezier(.2,.8,.2,1)}
 @keyframes up{from{transform:translateY(40px);opacity:.4}to{transform:none;opacity:1}}
 @keyframes fw{from{transform:translateX(28px);opacity:.5}to{transform:none;opacity:1}}
 @keyframes bw{from{transform:translateX(-28px);opacity:.5}to{transform:none;opacity:1}}
@@ -1379,6 +1379,15 @@ nav.tabs .fab:active{transform:translateY(-50%) scale(.94)}
 .ivl .ivr:first-child{border-top:0}.ivr>i{width:10px;height:10px;border-radius:3px}.ivm{display:grid;gap:2px;min-width:0}.ivm strong{font-weight:550;font-size:14.5px}.ivm small{font-size:11.5px;color:var(--muted)}
 .ivv{display:grid;justify-items:end;gap:1px}.ivv b{font-size:15px;font-weight:600;letter-spacing:-.02em}.ivv small{font-size:11.5px}.ivv .pos,.ivv small.pos{color:var(--good)}.ivv .neg{color:var(--crit)}
 .cxi.i{background:color-mix(in srgb,var(--inv) 14%,transparent);color:var(--inv)}
+
+/* formulários: nada passa da largura da tela (datas no iPhone/Android) e o fundo não rola junto */
+html:has(#overlay:not([hidden])),html:has(#overlay:not([hidden])) body{overflow:hidden}
+.sheet,.sheet-in{overflow-x:hidden;overscroll-behavior:contain}
+.sheet input,.sheet select,.sheet textarea{max-width:100%;min-width:0}
+.sheet .f2>*,.sheet .f3>*,.sheet .field,.sheet .lr>*{min-width:0}
+.sheet input[type=date],.sheet input[type=month],.sheet input[type=time]{-webkit-appearance:none;appearance:none;display:block;width:100%;min-height:46px;line-height:1.2;text-align:left}
+.sheet input[type=date]::-webkit-date-and-time-value{text-align:left;margin:0}
+.sheet .lmon{width:auto;max-width:150px}
 </style>
 </head>
 <body>
@@ -3734,7 +3743,7 @@ function openIconBook(){
 const ic=(n,c)=>`<svg class="ic ${c||''}" aria-hidden="true"><use href="#i-${n}"/></svg>`;
 let sheetState=false,STACK=[],CUR=null;
 function renderSheet(e,dir){const o=$('#overlay');o.hidden=false;const m=e.html.match(/^\s*<h2>([\s\S]*?)<\/h2>/),title=m?m[1]:'',body=m?e.html.slice(m[0].length):e.html;
-  o.innerHTML=`<div class="scrim" data-close></div><div class="sheet ${e.small?'small':''} ${dir||''}" role="dialog" aria-modal="true" aria-label="${esc(title.replace(/<[^>]+>/g,''))}"><div class="sheet-bar"><button class="sb-b" type="button" data-back aria-label="${STACK.length?'Voltar':'Fechar'}">${ic(STACK.length?'back':'close')}</button><span class="sb-t">${title}</span>${e.act?`<button class="sb-b sb-a" type="button" data-act aria-label="${esc(e.act.label)}">${ic(e.act.icon)}</button>`:'<span class="sb-s"></span>'}</div><div class="sheet-in">${body}</div></div>`;
+  o.innerHTML=`<div class="scrim" data-close></div><div class="sheet ${e.small?'small':''} ${dir?'s-'+dir:''}" role="dialog" aria-modal="true" aria-label="${esc(title.replace(/<[^>]+>/g,''))}"><div class="sheet-bar"><button class="sb-b" type="button" data-back aria-label="${STACK.length?'Voltar':'Fechar'}">${ic(STACK.length?'back':'close')}</button><span class="sb-t">${title}</span>${e.act?`<button class="sb-b sb-a" type="button" data-act aria-label="${esc(e.act.label)}">${ic(e.act.icon)}</button>`:'<span class="sb-s"></span>'}</div><div class="sheet-in">${body}</div></div>`;
   o.querySelector('[data-close]').onclick=()=>closeSheet();o.querySelector('[data-back]').onclick=()=>backSheet();const ab=o.querySelector('[data-act]');if(ab)ab.onclick=()=>e.act.fn();
   const sh=o.querySelector('.sheet');e.mount&&e.mount(sh);const f=sh.querySelector('form .btnrow:last-of-type');if(f&&f.querySelector('.primary'))f.classList.add('stick')}
 function openSheet(html,mount,small,act){const e={html,mount,small:!!small,act};if(CUR&&!CUR.small&&!$('#overlay').hidden)STACK.push(CUR);CUR=e;renderSheet(e,STACK.length?'fwd':'');
