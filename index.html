@@ -1512,6 +1512,54 @@ html:has(#overlay:not([hidden])),html:has(#overlay:not([hidden])) body{overflow:
 .cc .best .bi{background:none!important;color:var(--accent)}
 .agd{border-radius:14px!important}
 .ccd .kpis{border-left:0!important;border-right:0!important;border-radius:0!important;background:none!important;overflow:visible}
+
+/* ===== v7: leveza em todo o app ===== */
+:root{--info:#2F6FD6;--info-soft:#E4EDFB}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--info:#7FB2FF;--info-soft:#16243A}}
+:root[data-theme="dark"]{--info:#7FB2FF;--info-soft:#16243A}
+/* status de fatura: cada um com sua cor — aberta azul, fechada laranja, vencida vermelha, paga verde, prevista cinza */
+.cst.acc,.fhv small.acc,.ftr.aberta .pill,.ccs .pill.acc{color:var(--info)!important}.sdot.acc{background:var(--info)}
+.cst.warn,.fhv small.warn,.ftr.fechada .pill{color:var(--warn)!important}
+.ftr.vencida .pill,.fhv small.crit{color:var(--crit)!important}.ftr.paga .pill,.fhv small.ok{color:var(--good)!important}
+.fhv small.fut{color:var(--faint)!important}
+.ftr .pill::before,.cst::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:currentColor;margin-right:5px;vertical-align:1px}
+.ftr .pill{font-weight:600}
+/* textos que quebravam */
+.agw .agh{flex-wrap:nowrap;gap:8px}.agw .agh .k{white-space:nowrap}
+.agd{min-width:0}.agd .agb{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ccd .kpis span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ccd .kpis b{white-space:nowrap}
+.ccr .nm{min-width:0;white-space:nowrap}.ccr .v small{white-space:nowrap}
+.cc .best strong{white-space:nowrap}
+/* indicadores em todo o app: linha com divisórias, sem caixinhas */
+.kpis{gap:0!important;background:none!important;border:0!important;border-top:1px solid var(--hair)!important;border-bottom:1px solid var(--hair)!important;border-radius:0!important}
+.kpis>div{background:none!important;border:0!important;border-radius:0!important;padding:10px 8px 10px 0!important}.kpis>div+div{border-left:1px solid var(--hair)!important;padding-left:12px!important}
+.kpis span{font-size:11.5px;color:var(--muted)}.kpis b{font-weight:600;letter-spacing:-.02em}
+.lxs{gap:0!important;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair)}
+.lxs>*{background:none!important;border:0!important;border-radius:0!important;box-shadow:none!important;padding:10px 8px 10px 0!important}.lxs>*+*{border-left:1px solid var(--hair)!important;padding-left:12px!important}
+/* listas de lançamentos: sem cartão por dia */
+.lxd,.lxo{background:transparent!important;border:0!important;box-shadow:none!important;border-radius:0!important;margin-bottom:4px!important;overflow:visible!important}
+.lxdh{padding:14px 0 6px!important;font-size:11.5px!important;color:var(--faint)!important;border-bottom:1px solid var(--hair)}
+.lxd .row,.lxo .row{padding-left:0!important;padding-right:0!important}
+.row.mv{grid-template-columns:32px minmax(0,1fr) auto!important}.row.mv .cbub{width:32px;height:32px}.row.mv .cbub svg{width:16px;height:16px}
+/* início: alertas e blocos mais leves */
+.alc{box-shadow:none!important;background:transparent!important;min-height:104px!important}
+.alc b{font-size:16px!important}
+.qa .qab>span{background:transparent!important}
+.gk,.gks>div,.gkpi>div{background:none!important}
+.fch{box-shadow:none!important}.fch .fci,.setup .ali,.bcta .ali{background:var(--sunk)!important}
+.tile{box-shadow:none!important}
+/* barras de categoria finas */
+.gcr .bar,.gcr .track,.orr .track,.track{height:5px!important;border-radius:5px!important}
+/* seções: títulos discretos */
+.ch h2{font-size:15px}
+.card{padding:18px}
+
+.hab{gap:0!important;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);padding:0}
+.hab div{background:none!important;border-radius:0!important;padding:9px 6px 9px 0!important}.hab div+div{border-left:1px solid var(--hair);padding-left:10px!important}
+.rvd{background:none!important;border:1px solid var(--hair)}
+.sbar{background:none!important;padding:0!important}
+.qab>span{box-shadow:none!important}
+.gtr{height:4px!important;border-radius:4px!important}.gtr i{border-radius:4px!important}.gcr{row-gap:6px!important}
 </style>
 </head>
 <body>
@@ -2823,7 +2871,7 @@ function creditoDash(compact){
     <button class="ccx" type="button" id="ccx" aria-expanded="${CCX}"><span>${CCX?'Recolher':'Ver cartões e limites'}</span>${hot.length&&!CCX?`<span class="pill warn">${hot.length} acima de 70%</span>`:''}${ic('down','chev')}</button>
     <div class="ccd" ${CCX?'':'hidden'}>
       <div class="ccbar" aria-hidden="true">${ord.filter(x=>x.usado>0).map(x=>`<i style="flex:${x.usado/(lim||1)};background:${esc(x.c.cor||'var(--accent)')}" title="${esc(x.c.nome)}"></i>`).join('')}<i style="flex:${Math.max(disp,0)/(lim||1)};background:var(--sunk)"></i></div>
-      <div class="kpis"><div><span>Usado</span><b class="n">${brl0(us)}</b></div><div><span>Faturas atuais</span><b class="n">${brl0(atual)}</b></div><div><span>Parcelas futuras</span><b class="n">${brl0(fut)}</b></div><div><span>Sua parte</span><b class="n">${brl0(parte)}</b><small class="tg">sem a metade do Comum</small></div></div>
+      <div class="kpis"><div><span>Usado</span><b class="n">${brl0(us)}</b></div><div><span>Faturas</span><b class="n">${brl0(atual)}</b></div><div><span>Futuras</span><b class="n">${brl0(fut)}</b></div><div><span>Sua parte</span><b class="n">${brl0(parte)}</b></div></div>
       <div class="cclist">${ord.map(x=>`<button class="ccr" type="button" data-cd="${esc(x.c.id)}">
         <span class="nm">${cardGlyph(x.c)}${esc(x.c.nome)}${x.ym?` <span class="cst ${x.fechada?'warn':'acc'}">${x.fechada?'fechada':'aberta'}</span>`:''}</span>
         <span class="v"><b class="n">${brl0(x.disp)}</b><small>livre de ${brl0(x.lim)}</small></span>
@@ -3747,7 +3795,7 @@ function vCards(){
   const cx=CCX;CCX=true;let h=creditoDash(false);CCX=cx;
   h+=`<div class="cqa"><button type="button" class="qab" id="cq-buy" style="--qc:var(--crit)"><span>${ic('card')}</span><small>Comprar</small></button><button type="button" class="qab" id="cq-imp" style="--qc:var(--inv)"><span>${ic('doc')}</span><small>Importar</small></button><button type="button" class="qab" id="cq-new" style="--qc:var(--accent)"><span>${ic('plus')}</span><small>Novo cartão</small></button></div>`;
   const F=cs.map(c=>fatInfo(c,CYM)).filter(x=>x.tot>.005||x.st!=='vazia'),stL={paga:['ok','Paga'],vencida:['crit','Vencida'],fechada:['warn','Fechada'],aberta:['acc','Aberta'],vazia:['','—']};
-  h+=`<div class="card"><div class="mnav"><button class="navb" type="button" data-cm="-1" aria-label="Mês anterior">‹</button><div style="text-align:center"><b>Faturas de ${MESL[+CYM.slice(5)-1]} ${CYM.slice(0,4)}</b><div class="sub">pelo mês de vencimento</div></div><button class="navb" type="button" data-cm="1" aria-label="Próximo mês">›</button></div>
+  h+=`<div class="card"><div class="mnav"><button class="navb" type="button" data-cm="-1" aria-label="Mês anterior">‹</button><div style="text-align:center"><b>Faturas · ${MES[+CYM.slice(5)-1]} ${CYM.slice(0,4)}</b><div class="sub">pelo mês de vencimento</div></div><button class="navb" type="button" data-cm="1" aria-label="Próximo mês">›</button></div>
     ${F.length?`<div class="fts">${F.sort((a,b)=>a.due.localeCompare(b.due)).map(x=>`<div class="ftr ${x.st}"><button type="button" class="ftm" data-fat="${esc(x.c.id)}|${x.ym}">${cardGlyph(x.c)}<span class="cxm"><strong>${esc(x.c.nome)}</strong><small>vence ${fdate(x.due).slice(0,5)} · fecha ${fdate(x.fecha).slice(0,5)}${x.com>.005?` · sua parte ${brl0(x.parte)}`:''}</small></span><span class="ftv"><b class="n">${brl(x.tot)}</b><span class="pill ${stL[x.st][0]}">${stL[x.st][1]}</span></span></button>${!x.paga&&x.tot>.005&&x.st!=='aberta'?`<button class="lk ftp" type="button" data-pf="${esc(x.c.id)}|${x.ym}">Pagar fatura ›</button>`:''}</div>`).join('')}</div>
       <div class="ftt"><span>Total do mês</span><b class="n">${brl(sum(F,x=>x.tot))}</b><span>sua parte ${brl(sum(F,x=>x.parte))} · ${F.filter(x=>x.paga).length}/${F.length} pagas</span></div>`:'<p class="note">Nenhuma fatura com vencimento neste mês.</p>'}</div>`;
   const ms=[-2,-1,0,1,2,3,4,5].map(k=>ymAdd(cm,k)),sg=i=>i.tipo==='receita'?-i.valor:i.valor,mv=movs().filter(i=>i.src==='card');
