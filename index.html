@@ -1329,6 +1329,22 @@ nav.tabs .fab:active{transform:translateY(-50%) scale(.94)}
 /* movimento: entrada suave das telas */
 @media (prefers-reduced-motion:no-preference){.view:not([hidden])>*{animation:v6in .45s var(--ease) both}.view:not([hidden])>*:nth-child(2){animation-delay:.03s}.view:not([hidden])>*:nth-child(3){animation-delay:.06s}.view:not([hidden])>*:nth-child(n+4){animation-delay:.09s}
 @keyframes v6in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}}
+
+/* saldo por conta e conferência */
+.sxl{display:grid}.sxr{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:center;padding:12px 0;border:0;border-top:1px solid var(--hair);background:none;text-align:left;color:inherit;font:inherit;width:100%}
+.sxl .sxr:first-child{border-top:0;padding-top:2px}.sxm{display:grid;gap:1px;min-width:0}.sxm strong{font-weight:550;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.sxm small{font-size:12px;color:var(--faint)}.sxm small.warn{color:var(--warn)}.sxm small.ok{color:var(--good)}
+.sxr>b{font-size:17px;font-weight:600;letter-spacing:-.03em}
+.sxt{display:flex;justify-content:space-between;align-items:baseline;border-top:1px solid var(--line);margin-top:4px;padding-top:12px}.sxt span{color:var(--muted);font-size:13px}.sxt b{font-size:20px;font-weight:600;letter-spacing:-.035em}
+.sxz{display:flex;align-items:center;gap:6px;border:0;background:none;color:var(--muted);font:inherit;font-size:13px;padding:8px 0 0}.sxz svg{width:14px;height:14px}
+.cfx{display:grid;gap:16px}.cfh{display:flex;gap:12px;align-items:center}.cfh .big{font-size:30px;font-weight:600;letter-spacing:-.04em}
+#cf-v{font-size:22px;font-weight:600;letter-spacing:-.02em}
+.cfok{display:flex;gap:12px;align-items:center;padding:14px;border-radius:var(--r-md);background:var(--good-soft);color:var(--good)}.cfok svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2}.cfok span{display:grid}.cfok small{color:var(--muted)}
+.cfd{display:grid;gap:2px;padding:14px;border-radius:var(--r-md);background:var(--sunk)}.cfd b{font-size:28px;font-weight:600;letter-spacing:-.04em}.cfd.neg b{color:var(--crit)}.cfd.pos b{color:var(--good)}.cfd small{color:var(--muted);font-size:12.5px;line-height:1.4}
+.cfs{display:grid;gap:8px}.cfs h3{font-size:14px;font-weight:600}
+.cfi{display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:4px 10px;align-items:center;padding:10px 12px;border-radius:14px;border:1px solid var(--hair)}.cfi>.n:first-child{font-size:12px;color:var(--faint)}.cfi .btn{grid-column:2/-1;justify-self:start}
+.cfi.hit{border-color:var(--accent);background:var(--accent-soft)}.cfm{display:grid;min-width:0}.cfm strong{font-weight:550;font-size:14px}.cfm small{font-size:11.5px;color:var(--muted)}
+.cfdy{border-radius:14px;border:1px solid var(--hair);overflow:hidden}.cfdh{display:flex;justify-content:space-between;padding:9px 12px;background:var(--tile);font-size:12px;color:var(--muted)}.cfdh b{color:var(--ink)}
+.cfl{display:flex;justify-content:space-between;gap:10px;width:100%;padding:9px 12px;border:0;border-top:1px solid var(--hair);background:none;color:inherit;font:inherit;font-size:13.5px;text-align:left}.cfdh+.cfl{border-top:0}
 </style>
 </head>
 <body>
@@ -3054,8 +3070,8 @@ function openContaDet(a){
     sh.querySelectorAll('[data-l]').forEach(b=>b.onclick=()=>openLanc(S.lanc.find(l=>l.id===b.dataset.l)));
   };
   openSheet(`<h2>${esc(a.nome)}</h2><div id="cdx" class="det"></div>
-    <div class="dact"><button class="btn sm" type="button" id="d-aj">Atualizar saldo</button><button class="btn sm" type="button" id="d-tr">Transferir</button><button class="btn sm primary" type="button" id="d-ln">${ic('plus')} Lançamento</button></div>`,sh=>{
-    draw(sh);sh.querySelector('#d-aj').onclick=()=>openAjuste(a);sh.querySelector('#d-tr').onclick=()=>openLanc({tipo:'transf',conta:a.id,data:today()});
+    <div class="dact"><button class="btn sm" type="button" id="d-aj">${isCaixa(a)?'Conferir saldo':'Atualizar saldo'}</button><button class="btn sm" type="button" id="d-tr">Transferir</button><button class="btn sm primary" type="button" id="d-ln">${ic('plus')} Lançamento</button></div>`,sh=>{
+    draw(sh);sh.querySelector('#d-aj').onclick=()=>isCaixa(a)?openConferir(a):openAjuste(a);sh.querySelector('#d-tr').onclick=()=>openLanc({tipo:'transf',conta:a.id,data:today()});
     sh.querySelector('#d-ln').onclick=()=>openLanc({tipo:'despesa',conta:a.id,divisao:'pessoal',categoria:'Outros',data:today()});
   },false,{icon:'edit',label:'Editar conta',fn:()=>openConta(a)});
 }
@@ -3507,6 +3523,57 @@ document.addEventListener('click',e=>{const t=e.target.closest&&e.target.closest
 const CXO=(()=>{try{return JSON.parse(localStorage.getItem('pt-cx')||'{}')}catch(e){return {}}})();
 const cxOpen=k=>!!CXO[k];
 function cxSave(){try{localStorage.setItem('pt-cx',JSON.stringify(CXO))}catch(e){}}
+/* ---------- saldo por conta e conferência com o banco ---------- */
+let SXALL=false;
+const isCaixa=a=>a.ativo!==false&&(!a.tipo||a.tipo==='corrente'||a.tipo==='dinheiro');
+function confTxt(a){const c=a.conf;if(!c||!c.d)return ['não conferido','warn'];const n=diffD(c.d,today());return [n<=0?'conferido hoje':n===1?'conferido ontem':`conferido há ${n} dias`,n>7?'warn':'ok']}
+function saldoContas(me){
+  const cs=S.contas.filter(a=>isCaixa(a)&&fracOf(a.dono,me)>0).map(a=>({a,v:saldoConta(a)})).sort((x,y)=>Math.abs(y.v)-Math.abs(x.v));
+  const vis=cs.filter(x=>Math.abs(x.v)>=.005||(x.a.conf&&x.a.conf.d)),zer=cs.filter(x=>!vis.includes(x)),tot=sum(cs,x=>x.v*fracOf(x.a.dono,me));
+  const row=({a,v})=>{const [t,c]=confTxt(a);return `<button class="sxr" type="button" data-cf2="${esc(a.id)}">${bankBadge(a,a.tipo)}<span class="sxm"><strong>${esc(a.nome)}${a.dono!==me?' '+whoChip(a.dono):''}</strong><small class="${c}">${t}</small></span><b class="n ${v<0?'neg':''}">${brl(v)}</b></button>`};
+  return `<div class="card sxc"><div class="ch"><h2>Saldo por conta</h2><span class="aside">toque para conferir</span></div>
+    <div class="sxl">${vis.map(row).join('')}${SXALL?zer.map(row).join(''):''}</div>
+    ${zer.length?`<button class="sxz" type="button" id="sxz">${SXALL?'Ocultar contas zeradas':`+ ${zer.length} conta${zer.length>1?'s':''} zerada${zer.length>1?'s':''}`}</button>`:''}
+    <div class="sxt"><span>Total em contas</span><b class="n ${tot<0?'neg':''}">${brl(tot)}</b></div>
+    <button class="sxz" type="button" data-addc="corrente">${ic('plus')} Nova conta</button></div>`;
+}
+function confCands(a){
+  const t=today(),lim=addD(t,7),out=[];
+  S.lanc.filter(l=>l.conta===a.id&&l.pend&&(l.data||'')<=addD(t,2)).forEach(l=>out.push({k:'pend',id:l.id,d:l.data,t:l.desc||'Pendente',v:-(+l.valor||0)*(l.tipo==='receita'?-1:1),s:'marcado como pendente: ainda não desconta do saldo'}));
+  S.lanc.filter(l=>!l.pend&&(l.data||'')>t&&l.data<=lim&&(l.conta===a.id||(l.tipo==='transf'&&l.destino===a.id))).forEach(l=>{const tp=l.tipo||'despesa',inn=tp==='receita'||(tp==='ajuste'&&l.valor>0)||(tp==='transf'&&l.destino===a.id);out.push({k:'fut',id:l.id,d:l.data,t:l.desc||({transf:'Transferência',pagfat:'Pagamento de fatura'})[tp]||'Lançamento',v:(inn?1:-1)*Math.abs(+l.valor||0),s:`lançado para ${fdate(l.data).slice(0,5)}: só desconta nesse dia`})});
+  const cp=contaPadrao();recPrevistos(ymAdd(t.slice(0,7),-1),t.slice(0,7)).filter(x=>!x.r.cartao&&(x.r.conta||cp)===a.id&&x.date<=addD(t,2)).forEach(x=>out.push({k:'rec',r:x.r,ym:x.ym,d:x.date,t:x.nome,v:x.tipo==='receita'?x.valor:-x.valor,s:x.date<=t?'recorrente que já venceu e não foi confirmada':'recorrente prevista para os próximos dias'}));
+  S.acertos.filter(x=>!x.conta&&x.data&&x.data>=addD(t,-45)&&(x.de===a.dono||x.para===a.dono)).forEach(x=>out.push({k:'ac',d:x.data,t:'Acerto com '+other(a.dono).nome,v:x.de===a.dono?-(+x.valor||0):+x.valor||0,s:'acerto registrado sem conta: não mexe no saldo desta conta'}));
+  return out.sort((x,y)=>(x.d||'').localeCompare(y.d||''));
+}
+function subsetMatch(c,diff){const n=Math.min(c.length,14),tgt=Math.round(diff*100);let best=null;
+  for(let m=1;m<(1<<n);m++){let s=0;for(let i=0;i<n;i++)if(m>>i&1)s+=Math.round(c[i].v*100);if(s===tgt){const pick=[];for(let i=0;i<n;i++)if(m>>i&1)pick.push(i);if(!best||pick.length<best.length)best=pick}}return best||[]}
+function openConferir(a){
+  if(!a)return;let real=null;
+  const draw=sh=>{const t=today(),v=saldoConta(a),diff=real==null?null:r2(real-v),C=confCands(a),hit=diff&&Math.abs(diff)>=.01?subsetMatch(C,diff):[];
+    const days=[];for(let i=0;i<10;i++){const d=addD(t,-i),L=S.lanc.filter(l=>!l.pend&&l.data===d&&(l.conta===a.id||(l.tipo==='transf'&&l.destino===a.id)));if(L.length)days.push({d,L,s:saldoConta(a,d)})}
+    const sig=l=>{const tp=l.tipo||'despesa';return tp==='receita'||(tp==='ajuste'&&l.valor>0)||(tp==='transf'&&l.destino===a.id)?1:-1};
+    sh.querySelector('#cfx').innerHTML=`
+      <div class="cfh">${bankBadge(a,a.tipo)}<div><span class="k">Saldo no app hoje</span><div class="big n ${v<0?'neg':''}">${brl(v)}</div></div></div>
+      <div class="field"><label for="cf-v">Saldo que aparece no banco agora</label><input id="cf-v" type="text" inputmode="decimal" autocomplete="off" placeholder="0,00" value="${real==null?'':String(real).replace('.',',')}"></div>
+      ${diff==null?'<p class="note">Digite o saldo do app do banco. O Patrimônio compara e procura o que falta.</p>':Math.abs(diff)<.01?`<div class="cfok">${ic('check')}<span><b>Confere</b><small>O saldo do app é igual ao do banco.</small></span></div>`:
+      `<div class="cfd ${diff<0?'neg':'pos'}"><span class="k">Diferença</span><b class="n">${diff<0?'−':'+'}${brl(Math.abs(diff))}</b><small>${diff<0?`O banco tem ${brl(Math.abs(diff))} a menos: falta registrar uma saída (ou uma entrada foi lançada a mais).`:`O banco tem ${brl(diff)} a mais: falta registrar uma entrada (ou uma saída foi lançada a mais).`}</small></div>`}
+      ${diff!=null&&Math.abs(diff)>=.01?`<section class="cfs"><h3>${hit.length?'Achei o que explica a diferença':'Possíveis causas'}</h3>${C.length?C.map((x,i)=>`<div class="cfi ${hit.includes(i)?'hit':''}"><span class="n">${x.d?fdate(x.d).slice(0,5):''}</span><span class="cfm"><strong>${esc(x.t)}</strong><small>${x.s}</small></span><b class="n ${x.v>0?'pos':''}">${x.v>0?'+':'−'}${brl(Math.abs(x.v))}</b>${x.k==='pend'?`<button class="btn sm" type="button" data-cfp="${esc(x.id)}">Marcar pago</button>`:x.k==='fut'?`<button class="btn sm" type="button" data-cfh="${esc(x.id)}">Foi hoje</button>`:x.k==='rec'?`<button class="btn sm" type="button" data-cfr="${i}">Lançar</button>`:''}</div>`).join(''):'<p class="note">Nada pendente, futuro ou recorrente nesta conta. Provavelmente é um gasto que não foi lançado: compare os movimentos abaixo com o extrato do banco.</p>'}
+        <div class="btnrow"><button class="btn sm primary" type="button" id="cf-ln">${ic('plus')} Lançar ${brl(Math.abs(diff))} como ${diff<0?'despesa':'receita'}</button><button class="btn sm" type="button" id="cf-aj">Só ajustar o saldo</button></div></section>`:''}
+      <section class="cfs"><h3>Movimentos dos últimos dias</h3><p class="note">Compare com o extrato do banco: o saldo de cada dia deve bater.</p>
+        ${days.length?days.map(D=>`<div class="cfdy"><div class="cfdh"><span>${D.d===t?'Hoje':D.d===addD(t,-1)?'Ontem':fdate(D.d).slice(0,5)}</span><span>saldo do dia <b class="n">${brl(D.s)}</b></span></div>${D.L.map(l=>`<button class="cfl" type="button" data-l="${esc(l.id)}"><span>${esc(l.desc||({transf:'Transferência',pagfat:'Pagamento de fatura',ajuste:'Ajuste'})[l.tipo]||'')}</span><b class="n ${sig(l)>0?'pos':''}">${sig(l)>0?'+':'−'}${brl(Math.abs(+l.valor||0))}</b></button>`).join('')}</div>`).join(''):'<p class="note">Sem movimentos nos últimos 10 dias.</p>'}</section>
+      <button class="lk" type="button" id="cf-det">Detalhes da conta ›</button>`;
+    const inp=sh.querySelector('#cf-v');inp.onchange=()=>{const n=brNum(inp.value);real=isNaN(n)?null:r2(n);draw(sh);const ok=real!=null&&Math.abs(r2(real-saldoConta(a)))<.01;if(ok)markConf(a,real)};
+    sh.querySelectorAll('[data-l]').forEach(b=>b.onclick=()=>openLanc(S.lanc.find(l=>l.id===b.dataset.l)));
+    sh.querySelectorAll('[data-cfp]').forEach(b=>b.onclick=async()=>{const l=S.lanc.find(x=>x.id===b.dataset.cfp);if(!l)return;const d=Object.assign({},l);delete d.id;d.pend=false;try{await save('lanc',l.id,d);toast('Marcado como pago');setTimeout(()=>draw(sh),300)}catch(e){toast(writeErr(e))}});
+    sh.querySelectorAll('[data-cfh]').forEach(b=>b.onclick=async()=>{const l=S.lanc.find(x=>x.id===b.dataset.cfh);if(!l)return;const d=Object.assign({},l);delete d.id;d.data=today();try{await save('lanc',l.id,d);toast('Data alterada para hoje');setTimeout(()=>draw(sh),300)}catch(e){toast(writeErr(e))}});
+    sh.querySelectorAll('[data-cfr]').forEach(b=>b.onclick=()=>{const x=C[+b.dataset.cfr];openLanc({tipo:x.r.tipo==='receita'?'receita':'despesa',conta:a.id,valor:Math.abs(x.v),data:x.d<=today()?x.d:today(),desc:x.t,categoria:x.r.categoria||'Outros',divisao:x.r.divisao||'pessoal',rec:x.r.id,recYm:x.ym})});
+    const ln=sh.querySelector('#cf-ln');if(ln)ln.onclick=()=>openLanc({tipo:diff<0?'despesa':'receita',conta:a.id,valor:Math.abs(diff),data:today(),divisao:'pessoal',categoria:diff<0?'Outros':'Outras receitas'});
+    const aj=sh.querySelector('#cf-aj');if(aj)aj.onclick=async()=>{try{await S.db.collection('lanc').add({tipo:'ajuste',conta:a.id,data:today(),valor:diff,desc:'Ajuste de saldo',categoria:'',criadoEm:new Date().toISOString()});await markConf(a,real);toast('Saldo ajustado');setTimeout(()=>draw(sh),300)}catch(e){toast(writeErr(e))}};
+    sh.querySelector('#cf-det').onclick=()=>openContaDet(a);
+  };
+  openSheet(`<h2>Conferir ${esc(a.nome)}</h2><div id="cfx" class="cfx"></div>`,sh=>{draw(sh);setTimeout(()=>{const i=sh.querySelector('#cf-v');i&&i.focus()},350)});
+}
+async function markConf(a,v){try{const cur=S.contas.find(x=>x.id===a.id)||a,d=Object.assign({},cur);delete d.id;d.conf={d:today(),v};await save('contas',a.id,d)}catch(e){}}
 function vCart(){
   const el=$('#v-carteira');if(!ready()){el.innerHTML=loading();return}
   const me=ME(),byT=t=>S.contas.filter(a=>a.ativo!==false&&((a.tipo||'corrente')===t||(t==='corrente'&&a.tipo==='dinheiro'))),val=a=>saldoConta(a)*fracOf(a.dono,me);
@@ -3522,8 +3589,7 @@ function vCart(){
   const rowA=a=>{const v=saldoConta(a),m=+a.meta||0;return `<button class="cxr" type="button" data-ct="${esc(a.id)}">${bankBadge(a,a.tipo)}<span class="cxm"><strong>${esc(a.nome)}${a.dono!==me?' '+whoChip(a.dono):''}</strong><small>${m?`${pctf(v/m)} de ${brl0(m)}`:esc(a.instituicao||TCONTA[a.tipo||'corrente'])}${a.chequeEspecial?' · cheque especial '+brl0(a.chequeEspecial):''}</small>${m?`<span class="cxt"><i style="width:${Math.min(v/m,1)*100}%;background:${a.tipo==='reserva'?'var(--good)':'var(--inv)'}"></i></span>`:''}</span><b class="n ${v<0?'neg':''}">${brl(v)}</b></button>`};
   const empty=t=>`<p class="note cxe">${t}</p>`;
   const Pt=patrimonio(me);
-  let h=`<div class="card cxs pat">${patHead(Pt,me)}${patComp(Pt,me)}</div>`;
-  h+=grp('contas',I('<path d="M3 10l9-6 9 6M5 10v8M19 10v8M9.5 10v8M14.5 10v8M3 20h18"/>'),'Contas',tCC,`${cc.length} conta${cc.length===1?'':'s'} · saldo em ${fdate(today()).slice(0,5)}`,'data-addc="corrente"',cc.length?cc.slice().sort((a,b)=>val(b)-val(a)).map(rowA).join(''):empty('Contas de onde saem Pix, débitos e o pagamento das faturas.'),'u');
+  let h=saldoContas(me)+`<div class="card cxs pat">${patHead(Pt,me)}${patComp(Pt,me)}</div>`;
   h+=grp('beneficios',I('<path d="M7 3v8M5 3v4a2 2 0 0 0 4 0V3M7 11v10M16 3c-2 0-3 2.5-3 6h3v12"/>'),'Benefícios',sum(bn,a=>saldoConta(a)),bn.length?`${bn.length} cart${bn.length===1?'ão':'ões'} · VR, VA, flexível`:'VR, VA, flexível','data-addc="beneficio"',
     bn.length?bn.map(a=>{const C=benCiclo(a);return `<button class="cxr" type="button" data-ct="${esc(a.id)}">${bankBadge(a,'beneficio')}<span class="cxm"><strong>${esc(a.nome)}</strong><small>${brl0(Math.max(C.porDia,0))}/dia · recarga ${fdate(C.prox).slice(0,5)}${C.valorProx?' · +'+brl0(C.valorProx):''}</small><span class="cxt"><i style="width:${Math.min(C.uPct,1)*100}%;background:#7C5CD6"></i></span></span><b class="n">${brl(C.saldo)}</b></button>`}).join(''):empty('Cadastre seu vale-refeição, alimentação ou flexível para saber quanto pode gastar por dia até a próxima recarga.'),'b');
   h+=grp('reservas',I('<path d="M12 3l7 3v5c0 4.4-3 8.2-7 10-4-1.8-7-5.6-7-10V6z"/>'),'Reservas',tRS,(()=>{const m=sum(rs,a=>+a.meta||0);return m?`${pctf(tRS/m)} da meta de ${brl0(m)}`:`${rs.length} reserva${rs.length===1?'':'s'}`})(),'data-addc="reserva"',rs.length?rs.map(rowA).join(''):empty('Reserva de emergência, da obra, de viagem. Defina uma meta para acompanhar.'),'g');
@@ -3547,6 +3613,7 @@ function vCart(){
   el.querySelectorAll('.cxh').forEach(b=>b.onclick=()=>{const s=b.parentElement,k=s.dataset.cx,o=!CXO[k];CXO[k]=o;cxSave();s.classList.toggle('open',o);b.setAttribute('aria-expanded',String(o));s.querySelector('.cxb').hidden=!o});
   el.querySelectorAll('[data-addc]').forEach(b=>b.onclick=()=>openConta({tipo:b.dataset.addc}));
   el.querySelectorAll('[data-ct]').forEach(b=>b.onclick=()=>openContaDet(conta(b.dataset.ct)));
+  el.querySelectorAll('[data-cf2]').forEach(b=>b.onclick=()=>openConferir(conta(b.dataset.cf2)));{const z=el.querySelector('#sxz');if(z)z.onclick=()=>{SXALL=!SXALL;vCart()}}
   const ac=$('#addCard');if(ac)ac.onclick=()=>openCard(null);el.querySelectorAll('[data-card]').forEach(b=>b.onclick=()=>openCardDet(card(b.dataset.card)));
   const ad=$('#addDv');if(ad)ad.onclick=()=>openDivida(null);
   const ar=$('#addRec');if(ar)ar.onclick=()=>openRec(null);el.querySelectorAll('[data-rc]').forEach(b=>b.onclick=()=>openRec(S.recs.find(r=>r.id===b.dataset.rc)));
