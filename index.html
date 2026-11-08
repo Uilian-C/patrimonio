@@ -1355,13 +1355,13 @@ nav.tabs .fab:active{transform:translateY(-50%) scale(.94)}
 #fbgate{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;padding:24px;background:radial-gradient(60% 40% at 50% 0%,rgba(226,186,110,.12),transparent 70%),#0A0A0B;color:#F2F0EB;font-family:'Geist',system-ui,sans-serif}
 #fbgate[hidden]{display:none}
 #fbgate .bx{max-width:340px;width:100%;text-align:center;display:grid;gap:16px;justify-items:center}
-#fbgate .lg{width:56px;height:86px;color:#F2F0EB}
+#fbgate .lg{width:96px;height:76px;color:#F2F0EB}
 #fbgate h1{font:600 30px 'Geist',system-ui;letter-spacing:-.045em;margin:4px 0 0}
 #fbgate p{margin:0;color:#9B9990;font-size:15px;line-height:1.5}
 #fbgate button{width:100%;border:0;border-radius:16px;padding:15px 18px;font:600 16px 'Geist',system-ui;background:#E2BA6E;color:#1A1408;cursor:pointer;margin-top:8px}
 #fbgate .er{color:#FF8B7E}
 </style>
-<div id="fbgate" hidden><div class="bx"><svg class="lg" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="160 110 200 310"><g transform="translate(-8 -10)"><path d="M204 386V184" stroke="currentColor" stroke-width="44" stroke-linecap="round"/><circle cx="288" cy="196" r="62" fill="#E2BA6E"/></g></svg><h1>Patrimônio</h1><p id="fbmsg">Entre com a sua conta Google para ver as finanças da casa.</p><button type="button" id="fblogin">Entrar com Google</button></div></div>
+<div id="fbgate" hidden><div class="bx"><svg class="lg" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="126 164 260 204"><rect x="136" y="314" width="240" height="44" rx="22" fill="currentColor"/><rect x="170" y="244" width="172" height="44" rx="22" fill="currentColor" opacity=".62"/><rect x="204" y="174" width="104" height="44" rx="22" fill="#E2BA6E"/></svg><h1>Patrimônio</h1><p id="fbmsg">Entre com a sua conta Google para ver as finanças da casa.</p><button type="button" id="fblogin">Entrar com Google</button></div></div>
 <script type="module">
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
 import {getAuth,GoogleAuthProvider,signInWithPopup,signInWithRedirect,onAuthStateChanged,signOut} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
