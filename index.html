@@ -1315,13 +1315,14 @@ h1,h2,h3{letter-spacing:-.025em}
 input,select,textarea{border-radius:12px}
 
 /* navegação: vidro, ícone ativo em ouro, botão + escuro */
-nav.tabs{background:var(--glass);backdrop-filter:blur(24px) saturate(1.6);-webkit-backdrop-filter:blur(24px) saturate(1.6);border:1px solid color-mix(in srgb,var(--line) 70%,transparent);border-radius:28px;padding:6px;box-shadow:0 20px 40px -24px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.06);width:min(440px,calc(100% - 100px));left:max(16px,calc(50% - 254px));transform:none}
+nav.tabs{background:var(--glass);backdrop-filter:blur(24px) saturate(1.6);-webkit-backdrop-filter:blur(24px) saturate(1.6);border:1px solid color-mix(in srgb,var(--line) 70%,transparent);border-radius:28px;padding:6px;box-shadow:0 20px 40px -24px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.06);width:min(440px,calc(100% - 92px));left:max(16px,calc(50% - 250px));transform:none}
 nav.tabs a{font-size:10px;font-weight:550;color:var(--faint);padding:6px 0 5px}
 nav.tabs a::before{background:color-mix(in srgb,var(--ink) 8%,transparent);width:48px;height:30px;top:3px}
 nav.tabs a[aria-current="page"]{color:var(--ink)}
 nav.tabs a[aria-current="page"] svg{stroke:var(--ink)}
-nav.tabs .fab{position:absolute;right:-68px;left:auto;top:50%;bottom:auto;transform:translateY(-50%);width:58px;height:58px;border-radius:50%;background:var(--fab-bg);color:var(--fab-ink);box-shadow:0 14px 30px -12px rgba(0,0,0,.55);border:0;transition:transform .2s var(--ease)}
-nav.tabs .fab svg{stroke:var(--fab-ink);width:24px;height:24px;stroke-width:2}
+nav.tabs .fab{position:absolute;right:-60px;left:auto;top:50%;bottom:auto;transform:translateY(-50%);width:50px;height:50px;border-radius:50%;background:var(--fab-bg);color:var(--fab-ink);box-shadow:0 14px 30px -12px rgba(0,0,0,.55);border:0;transition:transform .2s var(--ease)}
+nav.tabs .fab svg{stroke:var(--fab-ink);width:22px;height:22px;stroke-width:2.2}
+nav.tabs .fab{box-shadow:0 0 0 4px color-mix(in srgb,var(--fab-bg) 16%,transparent),0 12px 26px -10px rgba(0,0,0,.55)}
 nav.tabs .fab:active{transform:translateY(-50%) scale(.94)}
 .custom{color:var(--faint);font-size:12.5px}
 .lxs b{font-size:17px;letter-spacing:-.045em}
@@ -4196,7 +4197,6 @@ function openMenu(){
   openSheet(`<h2>Adicionar</h2><div class="menu">
     <button class="mi" type="button" data-mm="manual">${I('<path d="M12 5v14M5 12h14"/>')}<span><strong>Lançamento</strong><small>Despesa, receita ou transferência</small></span><span class="go">›</span></button>
     <button class="mi" type="button" data-mm="smart">${I('<path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5"/><path d="M12 10.5l.9 2.6 2.6.9-2.6.9-.9 2.6-.9-2.6-2.6-.9 2.6-.9z"/>')}<span><strong>${S.sample?'Ler documento':'Importar extrato'}</strong><small>${S.sample?'PDF, extrato, fatura, print ou foto: o app identifica e lança':'Arquivo OFX ou CSV do banco: o app classifica e marca o que já existe'}</small></span><span class="go">›</span></button>
-    <button class="mi" type="button" data-mm="notas">${I('<path d="M4 20l4-1 11-11-3-3L5 16z"/><path d="M14 6l3 3"/>')}<span><strong>Anotações da ${esc(other(ME()).nome)}</strong><small>Foto do papel ou texto que ela mandou</small></span><span class="go">›</span></button>
   </div>`,sh=>sh.querySelectorAll('[data-mm]').forEach(b=>b.onclick=()=>{const k=b.dataset.mm;if(k==='manual')openLanc(null);else if(k==='smart')openSmartImport();else openImport(k)}),true);
 }
 
