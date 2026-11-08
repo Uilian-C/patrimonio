@@ -1601,6 +1601,14 @@ html:has(#overlay:not([hidden])),html:has(#overlay:not([hidden])) body{overflow:
 /* histórico do plano */
 .plh2{display:grid}.plhr{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-top:1px solid var(--hair)}.plh2 .plhr:first-child{border-top:0}
 .plhr>span:first-child{display:grid}.plhr strong{font-size:14px;font-weight:550}.plhr small{font-size:11.5px;color:var(--muted)}
+
+/* indicadores */
+.ind .cds{margin-top:4px}
+.inr{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;padding:10px 0;border-top:1px solid var(--hair)}.cds .cdsh+.inr{border-top:0}
+.inn{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:550}.inr>b{font-size:15px;font-weight:600;letter-spacing:-.02em}.inr small{grid-column:1/-1;font-size:11.5px;color:var(--muted);padding-left:15px;line-height:1.35}
+.sdot.nn{background:var(--faint)}
+.inl{display:flex;gap:10px;margin:12px 0 4px;padding-left:12px;border-left:2px solid var(--accent);font-size:13px;color:var(--muted);line-height:1.45}.inl b{color:var(--ink)}.inl svg{flex:0 0 auto;width:15px;height:15px;stroke:var(--accent);fill:none;stroke-width:1.8;margin-top:2px}
+.pth .k .lk{font-size:12.5px}
 </style>
 </head>
 <body>
@@ -1939,7 +1947,7 @@ function patComp(Pt,me){
 }
 function patHead(Pt,me){
   const B=balanco(Pt),PAS=r2(B.PC+B.PL),liqC=r2(B.AT-B.PC);
-  return `<div class="pth"><span class="k">Patrimônio líquido de ${esc(P(me).nome)}</span><div class="seg pseg sm" role="tablist"><button type="button" data-patm="comp" aria-pressed="${Pt.comp}">Com compromissos</button><button type="button" data-patm="hoje" aria-pressed="${!Pt.comp}">Só hoje</button></div></div>
+  return `<div class="pth"><span class="k">Patrimônio líquido de ${esc(P(me).nome)}${S.view==="carteira"?' · <button class="lk" type="button" data-go="relatorios" data-rp="patrimonio">indicadores ›</button>':''}</span><div class="seg pseg sm" role="tablist"><button type="button" data-patm="comp" aria-pressed="${Pt.comp}">Com compromissos</button><button type="button" data-patm="hoje" aria-pressed="${!Pt.comp}">Só hoje</button></div></div>
     <div class="big n ${Pt.liq<0?'neg':''}">${Pt.liq<0?'−':''}${brl0(Math.abs(Pt.liq))}</div>
     <div class="blk"><div><small>Ativo</small><b class="n">${brl0(B.AT)}</b></div><div><small>Passivo</small><b class="n">${brl0(PAS)}</b></div><div><small>Liquidez corrente</small><b class="n ${B.PC&&B.AT/B.PC<1?'neg':''}">${B.PC?(B.AT/B.PC).toLocaleString('pt-BR',{maximumFractionDigits:2})+'x':'—'}</b></div></div>`;
 }
@@ -2212,7 +2220,7 @@ function openRecarga(a){
 
 /* ---------- INÍCIO: painel montável ---------- */
 const SECS=[['hero','Em caixa hoje'],['acoes','Ações rápidas'],['fecha','Fechamento do mês'],['alertas','Para resolver'],['saude','Saúde financeira'],['kpis','Indicadores do mês'],['plano','Plano do mês (envelopes)'],['orcamento','Teto de gastos'],['contas','Contas'],['beneficios','Benefícios'],['dre','Resultado do mês'],['agenda','Próximos 15 dias'],['credito','Crédito'],['gastos','Gastos por categoria'],['planejado','Pagamentos planejados'],['fluxo6','Evolução'],['quinzenas','Quinzenas e acerto'],['patrimonio','Patrimônio']];
-let LAY=(()=>{try{return JSON.parse(localStorage.getItem('pt-ini3')||'null')}catch(e){return null}})()||{order:[],off:['acoes','orcamento','kpis','contas','mes','dre','agenda','credito','planejado','fluxo6','quinzenas','patrimonio']};
+let LAY=(()=>{try{return JSON.parse(localStorage.getItem('pt-ini3')||'null')}catch(e){return null}})()||{order:[],off:['acoes','orcamento','kpis','contas','mes','dre','agenda','credito','planejado','fluxo6','quinzenas']};
 const layOrder=()=>{const o=(LAY.order||[]).filter(k=>SECS.some(s=>s[0]===k));SECS.forEach((s,i)=>{if(!o.includes(s[0]))o.splice(Math.min(i,o.length),0,s[0])});return o};
 const laySave=()=>{try{localStorage.setItem('pt-ini3',JSON.stringify(LAY))}catch(e){}};
 let HV=LS('pt-hv','')==='1';document.documentElement.classList.toggle('hv',HV);
@@ -3302,11 +3310,10 @@ function vRel(){
     const hist=[];for(let ym=h0<cur?h0:cur;ym<cur;ym=ymAdd(ym,1))if(dayIn(ym,31)>=histIni())hist.push({ym,v:patrimonio(me,dayIn(ym,31)).liq});hist.push({ym:cur,v:Pt.liq});
     const proj=Pt.comp?J.rows.map(r=>({ym:r.ym,v:r.pl})):[];
     h+=`<div class="card cxs pat">${patHead(Pt,me)}${patProjChart(hist,proj,J.pos&&J.pos.ym)}</div>
+      ${indCard(me)}
       <div class="card"><div class="ch"><h2>Projeção até quitar</h2></div>${solvBlock(J)}</div>
       <div class="card"><div class="ch"><h2>Resultado mês a mês</h2></div>${dreBlock(J)}</div>
-      <div class="card"><div class="ch"><h2>O que compõe</h2></div>${patComp(Pt,me)}</div>
-      <div class="card"><div class="ch"><h2>Ativos</h2><b class="n">${brl0(Pt.ativos)}</b></div><div>${Pt.contas.map(x=>`<div class="lgr"><span class="cdot" style="background:${x.a.tipo==='reserva'?'var(--good)':x.a.tipo==='investimento'?'var(--inv)':'var(--u)'}"></span><span>${esc(x.a.nome)}<small>${TCONTA[x.a.tipo||'corrente']}${x.a.dono==='casal'?' · sua metade':''}</small></span><b class="n">${brl(x.v)}</b></div>`).join('')||'<p class="note">Nenhuma conta.</p>'}</div></div>
-      <div class="card"><div class="ch"><h2>Passivos</h2><b class="n">${brl0(Pt.passivos)}</b></div><div>${Pt.divs.map(x=>`<div class="lgr"><span class="cdot" style="background:var(--crit)"></span><span>${esc(x.d.nome)}<small>sua parte ${Math.round((((x.d.parte||{})[me])??100))}%${x.d.status==='aguardando'?' · aguardando liberação, não entra':''}</small></span><b class="n">${brl(x.d.status==='aguardando'?x.ag:x.v)}</b></div>`).join('')}${Pt.fatCards.map(x=>`<div class="lgr"><span class="cdot" style="background:var(--warn)"></span><span>Fatura ${esc(x.c.nome)}<small>sua parte, incluindo parcelas futuras</small></span><b class="n">${brl(x.v)}</b></div>`).join('')}${Pt.parc.map(x=>`<div class="lgr ${Pt.comp?'':'off'}"><span class="cdot" style="background:var(--g,#C2588A)"></span><span>${esc(x.nome)}<small>${x.pend?'pendente':`${x.n} parcela${x.n>1?'s':''} restante${x.n>1?'s':''} de ${brl(x.val)}`}${Pt.comp?'':' · fora do “Só hoje”'}</small></span><b class="n">${brl(x.v)}</b></div>`).join('')}</div></div>
+      <div class="card"><div class="ch"><h2>Balanço patrimonial</h2></div>${patComp(Pt,me)}</div>
       <p class="note">Linha cheia: meses já registrados. Tracejado: projeção só com o que está registrado (receitas fixas, parcelas, faturas já compradas). Salário futuro não entra no patrimônio de hoje; ele aparece na projeção, mês a mês.</p>`;
   }else if(RP==='fluxo'){
     const J=projecao(me),rs=J.rows.slice(0,7),ent=r=>r.rec,sai=r=>r.cvm+r.fix+r.parc+r.fat+r.gab-r.ac;
@@ -4036,6 +4043,55 @@ function openInvestDash(){
     const rg=sh.querySelector('#iv-reg');if(rg)rg.onclick=async()=>{rg.disabled=true;for(const r of rows)if(r.E&&r.E.v>=.01)await rendReg(r.a);setTimeout(()=>draw(sh),500)};
   };
   openSheet(`<h2>Investimentos</h2><div id="ivx" class="ivx"></div>`,sh=>draw(sh));
+}
+/* ---------- indicadores patrimoniais e de mercado ---------- */
+let IPCA=(()=>{try{return JSON.parse(localStorage.getItem('pt-ipca')||'null')}catch(e){return null}})()||{m:[],em:''};
+let IPCATRY=false;
+async function ipcaLoad(){if(IPCA.em===today()||IPCATRY)return;IPCATRY=true;
+  try{const r=await fetch('https://api.bcb.gov.br/dados/serie/bcdata.sgs.433/dados/ultimos/12?formato=json');if(!r.ok)throw 0;const js=await r.json();if(js.length){IPCA={m:js.map(x=>({d:x.data.slice(3),v:+x.valor})),em:today()};try{localStorage.setItem('pt-ipca',JSON.stringify(IPCA))}catch(e){}re()}}catch(e){}}
+function ipca12(){if(IPCA.m&&IPCA.m.length>=12)return {v:(IPCA.m.reduce((a,x)=>a*(1+x.v/100),1)-1)*100,ate:IPCA.m.at(-1).d,fonte:'IBGE via Banco Central'};return {v:+((S.cfg||{}).ipca12)||4.58,ate:'09/2026',fonte:'informado'}}
+function cdiPeriodo(de,ate){const ds=CDI.dias||{},ks=Object.keys(ds).filter(k=>k>de&&k<=ate);if(ks.length>20)return ks.reduce((a,k)=>a*(1+ds[k]/100),1)-1;const n=Math.round(diffD(de,ate)*252/365);return Math.pow(1+cdiAA()/100,n/252)-1}
+function indicadores(me){
+  if(CDI.em!==today())cdiLoad();if(IPCA.em!==today())ipcaLoad();
+  const t=today(),ym=t.slice(0,7),Pt=patrimonio(me),B=balanco(Pt),PAS=r2(B.PC+B.PL),J=projecao(me),r0=J.rows[0]||{};
+  const ini12=dayIn(ymAdd(ym,-1),31),pl0=patrimonio(me,ini12).liq,dPL=r2(Pt.liq-pl0);
+  const end=B.AT>0?PAS/B.AT:null,liqC=B.PC?B.AT/B.PC:null;
+  const renda=r0.rec||0,comp=renda?((r0.parc||0)+(r0.fix||0))/renda:null;
+  const ms=mesesOk(ym,3),desp=ms.length?sum(ms,m=>mesCalc(m,me).desp)/ms.length:mesCalc(ym,me).desp,IA=invContas(me),resv=sum(IA,a=>saldoConta(a)*fracOf(a.dono,me)),meses=desp?resv/desp:null;
+  /* mercado */
+  const cdi12=cdiPeriodo(addD(t,-365),t)*100,ip=ipca12(),real=((1+cdi12/100)/(1+ip.v/100)-1)*100;
+  /* seus investimentos no período com dados */
+  const ids=new Set(IA.map(a=>a.id)),de=[addD(t,-365),...IA.map(a=>a.dataIni||t)].sort()[IA.length?1:0]||t;
+  const rend=sum(S.lanc.filter(l=>l.tipo==='ajuste'&&ids.has(l.conta)&&!l.pend&&(l.data||'')>de&&(l.data||'')<=t),l=>+l.valor||0);
+  const pts=[];for(let d=de;d<=t;d=addD(d,30))pts.push(sum(IA,a=>saldoConta(a,d)));const med=pts.length?sum(pts,v=>v)/pts.length:0;
+  const ret=med>0?rend/med:null,cdiP=cdiPeriodo(de,t),pctCDI=ret!=null&&cdiP>0?ret/cdiP:null,dias=diffD(de,t);
+  /* custo da dívida */
+  const tx=[];S.dividas.forEach(d=>{const s=sched(d),pt=((d.parte||{})[me]??100)/100,sal=sum(s.rows.filter(r=>!r.pg),r=>r.amort)*pt;if(+d.taxa>0&&sal>0&&d.status!=='aguardando')tx.push({n:d.nome,t:+d.taxa/100,v:sal})});
+  Pt.parc.filter(x=>x.tx>0).forEach(x=>tx.push({n:x.nome,t:x.tx,v:x.v}));
+  const tv=sum(tx,x=>x.v),divT=tv?sum(tx,x=>x.t*x.v)/tv:null,invM=Math.pow(1+cdi12/100,1/12)-1;
+  return {Pt,B,PAS,dPL,ini12,end,liqC,comp,meses,desp,cdi12,ip,real,ret,pctCDI,dias,rend,de,divT,tx,invM};
+}
+function indCard(me){
+  const I=indicadores(me),pc=v=>(v*100).toLocaleString('pt-BR',{maximumFractionDigits:1})+'%',st=(v,a,b,inv)=>v==null?'':inv?(v>=a?'ok':v>=b?'warn':'crit'):(v<=a?'ok':v<=b?'warn':'crit');
+  const row=(n,v,s,txt)=>`<div class="inr"><span class="inn"><i class="sdot ${s||'nn'}"></i>${n}</span><b class="n">${v}</b><small>${txt}</small></div>`;
+  const dvx=I.divT!=null?I.divT:null,gan=dvx!=null?dvx-I.invM:null;
+  return `<div class="card ind"><div class="ch"><h2>Indicadores</h2><span class="aside">o que acompanhar</span></div>
+    <section class="cds"><div class="cdsh"><h3>Patrimoniais</h3></div>
+      ${row('Variação no mês',`${I.dPL>=0?'+':'−'}${brl0(Math.abs(I.dPL))}`,I.dPL>=0?'ok':'crit',`patrimônio líquido desde ${fdate(I.ini12).slice(0,5)} · dívidas novas cadastradas também entram aqui`)}
+      ${row('Endividamento',I.end==null?'—':pc(I.end),st(I.end,.5,1),I.end==null?'sem ativos':`para cada R$ 1 que tem, deve R$ ${I.end.toLocaleString('pt-BR',{maximumFractionDigits:2})} · saudável até 50%`)}
+      ${row('Liquidez corrente',I.liqC==null?'—':I.liqC.toLocaleString('pt-BR',{maximumFractionDigits:2})+'x',st(I.liqC,1,.5,true),'ativo circulante ÷ dívidas dos próximos 12 meses · ideal acima de 1x')}
+      ${row('Renda comprometida',I.comp==null?'—':pc(I.comp),st(I.comp,.5,.7),'contas fixas e parcelas ÷ renda do mês · até 50% é confortável')}
+      ${row('Reserva de emergência',I.meses==null?'—':I.meses.toLocaleString('pt-BR',{maximumFractionDigits:1})+' meses',st(I.meses,6,3,true),`investimentos e reservas ÷ despesa média (${brl0(I.desp)}) · meta 6 meses`)}
+    </section>
+    <section class="cds"><div class="cdsh"><h3>Mercado e investimentos</h3></div>
+      ${row('CDI em 12 meses',pc(I.cdi12/100),'nn',Object.keys(CDI.dias||{}).length?'Banco Central':'estimado pela taxa informada')}
+      ${row('Inflação (IPCA) em 12 meses',pc(I.ip.v/100),'nn',`até ${I.ip.ate} · ${I.ip.fonte}`)}
+      ${row('Juro real',pc(I.real/100),I.real>0?'ok':'crit','CDI acima da inflação: quanto o dinheiro parado em renda fixa ganha de verdade')}
+      ${I.ret!=null&&I.rend?row('Seus investimentos',pc(I.ret),I.pctCDI==null?'nn':I.pctCDI>=1?'ok':I.pctCDI>=.85?'warn':'crit',`rendimento registrado em ${I.dias} dias${I.pctCDI!=null?` · ${Math.round(I.pctCDI*100)}% do CDI no período`:''}`):''}
+      ${dvx!=null?row('Custo das dívidas',pc(dvx)+' a.m.',gan>0?'crit':'ok',`média ponderada de ${I.tx.length} dívida${I.tx.length>1?'s':''} com juros · investir rende ~${pc(I.invM)} a.m.`):''}
+    </section>
+    ${dvx!=null&&gan>0?`<p class="inl">${ic('spark')}<span><b>Antecipar dívida rende mais que investir.</b> Cada R$ 1.000 usados para antecipar parcelas economizam cerca de <b>${brl(1000*dvx)}/mês</b> em juros; investidos, renderiam cerca de <b>${brl(1000*I.invM)}/mês</b>. Mantenha antes a reserva de emergência.</span></p>`:''}
+    <p class="note">Só entram indicadores calculados com o que está registrado. Ações e cotações de mercado não entram: o app não acompanha carteira de renda variável.</p></div>`;
 }
 function vCart(){
   const el=$('#v-carteira');if(!ready()){el.innerHTML=loading();return}
