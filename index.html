@@ -1460,6 +1460,28 @@ html:has(#overlay:not([hidden])),html:has(#overlay:not([hidden])) body{overflow:
 .fhr>span:first-child{display:grid}.fhr strong{font-weight:550;font-size:14.5px}.fhr small{font-size:11.5px;color:var(--muted)}
 .fhv{display:grid;justify-items:end;gap:1px}.fhv b{font-size:15px;font-weight:600}.fhv b.z{color:var(--faint);font-weight:500}.fhv small{display:inline-flex;align-items:center;gap:3px;font-size:11.5px}.fhv small svg{width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2.8}
 .fhv small.ok{color:var(--good)}.fhv small.crit{color:var(--crit)}.fhv small.warn{color:var(--warn)}.fhv small.acc{color:var(--accent)}
+
+/* ===== v6.3: detalhe de conta e cartão minimalistas ===== */
+.hx{display:grid;gap:4px;padding:4px 0 6px}
+.hxs{display:flex;align-items:center;gap:10px;font-size:12.5px;color:var(--muted);margin-bottom:10px}.hxs .bk,.hxs .cg,.hxs>:first-child{flex:0 0 auto}.hxs .ok{color:var(--good)}.hxs svg{width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2.6;vertical-align:-1px}
+.hxk{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--muted)}
+.sdot{width:7px;height:7px;border-radius:50%;background:var(--muted)}.sdot.ok{background:var(--good)}.sdot.warn{background:var(--warn)}.sdot.crit{background:var(--crit)}.sdot.acc{background:var(--accent)}
+.hxv{font-size:44px;font-weight:600;letter-spacing:-.05em;line-height:1.05}.hxv.neg{color:var(--crit)}
+.hxm{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12.5px;color:var(--muted)}.hxm b{color:var(--ink);font-weight:600}.hxm b.neg{color:var(--crit)}
+.hxp{justify-self:start;display:inline-flex;align-items:center;gap:6px;margin-top:4px;padding:8px 14px;border-radius:99px;border:0;background:var(--ink);color:var(--bg);font:inherit;font-size:13px;font-weight:600}.hxp svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2.4}
+.hxl{display:grid;gap:6px;margin-top:14px}.uln{display:block;height:3px;border-radius:3px;background:var(--sunk);overflow:hidden}.uln i{display:block;height:100%;border-radius:3px}.hxl .hxm{justify-content:space-between}
+.acts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin:2px 0}.acts::-webkit-scrollbar{display:none}
+.acts button{min-width:0;display:inline-flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:10px 4px;border-radius:16px!important;border-radius:99px;border:1px solid var(--hair);background:transparent;color:var(--ink);font:inherit;font-size:12px;font-weight:550;white-space:nowrap}
+.acts svg{width:18px;height:18px;stroke:var(--muted);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.mper{display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--hair);padding-top:14px}.mper b{font-size:15px;font-weight:600}.mper .navb{width:30px;height:30px;border:0;background:var(--sunk)}
+.cflow>summary{display:grid;grid-template-columns:1fr auto 16px;gap:10px;align-items:center;list-style:none;cursor:pointer;font-size:13.5px;color:var(--muted);padding:2px 0}.cflow>summary::-webkit-details-marker{display:none}.cflow>summary b{color:var(--ink);font-weight:600;margin-left:4px}
+.cflow>summary .chev{width:15px;height:15px;stroke:var(--faint);fill:none;stroke-width:2;transition:transform .2s}.cflow[open]>summary .chev{transform:rotate(180deg)}
+.cflb{display:grid;gap:2px;margin-top:8px;padding-left:12px;border-left:2px solid var(--hair)}.cflb div{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);padding:3px 0}.cflb b{font-weight:500;color:var(--ink)}.cflb b.pos{color:var(--good)}.cflb .tt{color:var(--ink);font-weight:600;border-top:1px solid var(--hair);margin-top:4px;padding-top:7px}.cflb .tt b{font-weight:600}
+.cds{gap:8px;margin-top:6px}.cdsh h3{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.cdd{border:0;border-radius:0}.cddh{background:none;padding:12px 0 4px;font-size:11.5px;color:var(--faint);border-bottom:0}
+.cdi{padding:9px 0;border-top:1px solid var(--hair)}.cddh+.cdi{border-top:0}
+.rkr{grid-template-columns:minmax(0,38%) minmax(0,1fr) 40px}.rkb{height:6px;border-radius:3px}.rkb i{border-radius:3px}
+#cd-an .cc3.sm{border-top:1px solid var(--hair);padding-top:10px}
 </style>
 </head>
 <body>
@@ -3259,26 +3281,20 @@ function contaEvo(a,ym){
       ${S2.map((s,i)=>`<text x="${xs(i)}" y="${H-6}" text-anchor="${i===0?'start':i===n-1?'end':'middle'}">${String(s.i).padStart(2,'0')}–${String(s.f).padStart(2,'0')}</text>`).join('')}</svg>
     ${cur&&prv?(()=>{const t=today(),emAnd=dayIn(ym,cur.f)>=t&&ym===t.slice(0,7);return `<p class="note">${emAnd?`Nesta semana, até agora, saíram <b>${brl(cur.v)}</b>; na semana anterior foram <b>${brl(prv.v)}</b>.`:`Na última semana saíram <b>${brl(Math.abs(df))}</b> ${df>=0?'a mais':'a menos'} que na anterior.`}</p>`})():''}</section>`}
 function contaDetHTML(a,ym){
-  const R=periodoConta(a,ym),v=saldoConta(a),ce=+a.chequeEspecial||0,cur=ym===today().slice(0,7),m=+a.meta||0,pad=contaPadrao()===a.id;
-  const mv=[['Receitas',R.k.rec,'+'],['Transferências recebidas',R.k.tin,'+'],['Despesas',R.k.desp,'−'],['Faturas pagas',R.k.fat,'−'],['Transferências enviadas',R.k.tout,'−'],['Ajustes',Math.abs(R.k.aj),R.k.aj>=0?'+':'−']];
+  const R=periodoConta(a,ym),v=saldoConta(a),ce=+a.chequeEspecial||0,cur=ym===today().slice(0,7),m=+a.meta||0,pad=contaPadrao()===a.id,val=cur?v:R.fin,dm=r2(R.fin-R.ini);
+  const mv=[['Receitas',R.k.rec,'+'],['Transferências recebidas',R.k.tin,'+'],['Despesas',R.k.desp,'−'],['Faturas pagas',R.k.fat,'−'],['Transferências enviadas',R.k.tout,'−'],['Ajustes',Math.abs(R.k.aj),R.k.aj>=0?'+':'−']].filter(x=>x[1]>.005);
   return `
-    <div class="cdh">${bankBadge(a,a.tipo)}<div><strong>${esc(a.nome)}</strong><small>${esc(TCONTA[a.tipo||'corrente'])}${a.dono!==ME()?' · '+esc(P(a.dono).nome):''}</small><span class="cdtags">${pad?'<span class="pill ok">Padrão</span>':''}${a.conf&&a.conf.d?`<span class="pill">${ic('check')} conferida ${fdate(a.conf.d).slice(0,5)}</span>`:''}${a.rend&&a.rend.tipo?`<span class="pill acc">${rendLabel(a)}</span>`:''}</span></div></div>
-    <div class="dper"><button class="navb" type="button" data-pm="-1" aria-label="Mês anterior"></button><b>${MESL[+ym.slice(5)-1]} ${ym.slice(0,4)}</b><button class="navb" type="button" data-pm="1" aria-label="Próximo mês"></button></div>
-    <div class="cdb">
-      <div class="cdl"><span>Saldo inicial</span><b class="n">${brl(R.ini)}</b></div>
-      <details class="cdmv" ${CDMOV?'open':''}><summary><span>Movimentação</span><b class="n ${R.fin-R.ini<0?'neg':'pos'}">${R.fin-R.ini>=0?'+':'−'}${brl(Math.abs(R.fin-R.ini))}</b>${ic('down','chev')}</summary>
-        ${mv.map(([n,val,s])=>`<div class="cdl sm"><span>${n}</span><b class="n ${s==='+'&&val>.005?'pos':''}">${val>.005?s:''}${brl(val)}</b></div>`).join('')}</details>
-      <div class="cdsa"><div class="cdl big"><span>${cur?'Saldo atual':'Saldo final'}</span><b class="n ${R.fin<0?'neg':''}">${brl(cur?v:R.fin)}</b></div>
-        ${R.it.length||cur?`<div class="cdl sm"><span>Saldo previsto em ${lastDay(ym)}/${ym.slice(5)}</span><b class="n ${R.prevFim<0?'neg':''}">${brl(R.prevFim)}</b></div>`:''}
-        ${ce?`<div class="cdl sm"><span>Cheque especial</span><b class="n">${brl(ce)}</b></div><div class="cdl sm"><span>Saldo com cheque especial</span><b class="n ${v+ce<0?'neg':''}">${brl(v+ce)}</b></div>`:''}
-        ${m?`<div class="cdl sm"><span>Meta</span><b class="n">${pctf(v/m)} de ${brl0(m)}</b></div>`:''}</div>
+    <div class="hx">
+      <div class="hxs">${bankBadge(a,a.tipo)}<span>${esc(TCONTA[a.tipo||'corrente'])}${pad?' · padrão':''}${a.conf&&a.conf.d?` · <span class="ok">${ic('check')} conferida ${fdate(a.conf.d).slice(0,5)}</span>`:''}</span></div>
+      <span class="hxk">${cur?'Saldo atual':'Saldo em '+lastDay(ym)+'/'+ym.slice(5)}</span>
+      <div class="hxv n ${val<0?'neg':''}">${brl(val)}</div>
+      <div class="hxm">${R.it.length||cur?`<span>Previsto em ${lastDay(ym)}/${ym.slice(5)} <b class="n ${R.prevFim<0?'neg':''}">${brl(R.prevFim)}</b></span>`:''}${ce?`<span>Com cheque especial <b class="n">${brl(v+ce)}</b></span>`:''}${m?`<span>Meta <b class="n">${pctf(v/m)}</b> de ${brl0(m)}</span>`:''}${a.rend&&a.rend.tipo?`<span>${rendLabel(a)}</span>`:''}</div>
     </div>
+    <div class="acts"><button type="button" data-cda="ext">${ic('list')}Extrato</button><button type="button" data-cda="conf">${ic('check')}Conciliar</button><button type="button" data-cda="aj">${ICN.swap}Reajustar</button><button type="button" data-cda="an">${ic('spark')}Analisar</button></div>
+    <div class="mper"><button class="navb" type="button" data-pm="-1" aria-label="Mês anterior"></button><b>${MESL[+ym.slice(5)-1]} ${ym.slice(0,4)}</b><button class="navb" type="button" data-pm="1" aria-label="Próximo mês"></button></div>
+    <details class="cflow" ${CDMOV?'open':''}><summary><span>Saldo inicial <b class="n">${brl(R.ini)}</b></span><span class="n ${dm<0?'neg':'pos'}">${dm>=0?'+':'−'}${brl(Math.abs(dm))}</span>${ic('down','chev')}</summary>
+      <div class="cflb">${mv.length?mv.map(([n,x,sg])=>`<div><span>${n}</span><b class="n ${sg==='+'?'pos':''}">${sg}${brl(x)}</b></div>`).join(''):'<div><span>Sem movimentos no mês</span><b></b></div>'}<div class="tt"><span>${cur?'Saldo hoje':'Saldo final'}</span><b class="n">${brl(R.fin)}</b></div></div></details>
     ${rendBox(a)}
-    <div class="cda">
-      <button type="button" data-cda="ext">${ic('list')}<span>Extrato</span></button>
-      <button type="button" data-cda="conf">${ic('check')}<span>Conciliar</span></button>
-      <button type="button" data-cda="aj">${ICN.swap}<span>Reajustar</span></button>
-      <button type="button" data-cda="an">${ic('spark')}<span>Analisar</span></button></div>
     ${R.it.length?`<section class="cds"><div class="cdsh"><h3>Programado até o fim do mês</h3></div><div class="dlist">${R.it.map(x=>`<div class="dli"><span class="n">${fdate(x.d).slice(0,5)}</span><span>${esc(x.t)}</span><b class="n ${x.v>0?'pos':''}">${x.v>0?'+':'−'}${brl(Math.abs(x.v))}</b></div>`).join('')}</div></section>`:''}
     <div id="cd-an">${contaRank(R)}${contaEvo(a,ym)}</div>
     <section class="cds" id="cd-ext"><div class="cdsh"><h3>Extrato do mês</h3><small>${R.L.length} movimento${R.L.length===1?'':'s'}</small></div>
@@ -3290,7 +3306,7 @@ function openContaDet(a){
     const cats=Object.entries(R.cats).sort((x,y)=>y[1]-x[1]).slice(0,4),cmx=cats.length?cats[0][1]:1;
     const ln=(lab,val,sign,cls)=>Math.abs(val)<.005?'':`<span>${lab}</span><b class="n ${cls||''}">${sign}${brl(Math.abs(val))}</b>`;
     sh.querySelector('#cdx').innerHTML=contaDetHTML(a,ym);
-    const mvd=sh.querySelector('.cdmv');if(mvd)mvd.ontoggle=()=>{CDMOV=mvd.open;LSset('pt-cdmov',CDMOV?'1':'')};
+    const mvd=sh.querySelector('.cflow');if(mvd)mvd.ontoggle=()=>{CDMOV=mvd.open;LSset('pt-cdmov',CDMOV?'1':'')};
     sh.querySelectorAll('[data-cda]').forEach(b=>b.onclick=()=>{const k=b.dataset.cda;if(k==='conf')openConferir(a);else if(k==='aj')openAjuste(a);else{const t=sh.querySelector(k==='ext'?'#cd-ext':'#cd-an');t&&t.scrollIntoView({behavior:'smooth',block:'start'})}});
     sh.querySelectorAll('[data-pm]').forEach(b=>b.onclick=()=>{ym=ymAdd(ym,+b.dataset.pm);draw(sh)});
     sh.querySelectorAll('[data-rreg]').forEach(b=>b.onclick=async()=>{b.disabled=true;await rendReg(conta(b.dataset.rreg)||a);setTimeout(()=>draw(sh),400)});
@@ -3341,21 +3357,16 @@ function openCardDet(c){
     const cta=conta(c.conta),lk=st.pct>=.9?'var(--crit)':st.pct>=.7?'var(--warn)':'var(--accent)';
     const days={};its.forEach(i=>{const d=i.l.data||due;(days[d]=days[d]||[]).push(i)});
     sh.querySelector('#cdx').innerHTML=`
-      <div class="dper"><button class="navb" type="button" data-pm="-1" aria-label="Fatura anterior"></button><b>Fatura de ${MESL[+ym.slice(5)-1].toLowerCase()}</b><button class="navb" type="button" data-pm="1" aria-label="Próxima fatura"></button></div>
-      <div class="ccb">
-        <div class="cch">${cardGlyph(c)}<div><strong>${esc(c.nome)}</strong><small>${esc([c.bandeira,c.final?'final '+c.final:''].filter(Boolean).join(' · '))}${c.dono!==ME()?' · '+esc(P(c.dono).nome):''}</small></div></div>
-        <div class="cc3"><div><small>Limite</small><b class="n">${brl0(st.lim)}</b></div><div><small>Em aberto</small><b class="n">${brl0(st.usado)}</b></div><div><small>Disponível</small><b class="n ${st.disp<0?'neg':'pos'}">${brl0(st.disp)}</b></div></div>
-        <div class="ccbar"><i style="width:${Math.min(st.pct,1)*100}%;background:${lk}"></i><b class="n">${pctf(st.pct)}</b></div>
-        <div class="cc3 dash"><div><small>Conta</small><b>${cta?esc(cta.nome):'—'}</b></div><div><small>Fechamento</small><b class="n">${fdate(close).slice(0,5)}</b></div><div><small>Vencimento</small><b class="n">${fdate(due).slice(0,5)}</b></div></div>
-        <div class="ccf"><span>Fatura</span><b class="n ${status[1]==='crit'&&!paga?'neg':''}">${brl(tot)}</b></div>
-        <div class="ccs"><span class="pill ${status[1]}">${status[1]==='crit'?'🔒 ':''}${status[0]}</span>${paga||!its.length?`<small>paga em ${qLabel(perOf(due,c.quinzena!=='auto'?c.quinzena:null))}</small>`:`<button class="lk" type="button" id="d-pf">${ic('check')} Registrar pagamento</button>`}</div>
+      <div class="hx">
+        <div class="hxs">${cardGlyph(c)}<span>${esc([c.bandeira,c.final?'final '+c.final:''].filter(Boolean).join(' · '))}${cta?' · paga pela '+esc(cta.nome):''}</span></div>
+        <span class="hxk"><i class="sdot ${status[1]}"></i>${status[0]} · fecha ${fdate(close).slice(0,5)} · vence ${fdate(due).slice(0,5)}</span>
+        <div class="hxv n">${brl(tot)}</div>
+        ${paga||!its.length?`<span class="hxm"><span>paga em ${qLabel(perOf(due,c.quinzena!=='auto'?c.quinzena:null))}</span></span>`:`<button class="hxp" type="button" id="d-pf">${ic('check')} Registrar pagamento</button>`}
+        <div class="hxl"><span class="uln"><i style="width:${Math.min(st.pct,1)*100}%;background:${lk}"></i></span><span class="hxm"><span><b class="n ${st.disp<0?'neg':''}">${brl0(st.disp)}</b> livres de ${brl0(st.lim)}</span><span>${pctf(st.pct)} usado</span></span></div>
       </div>
-      <div class="cda">
-        <button type="button" data-cda="ext">${ic('list')}<span>Extrato</span></button>
-        <button type="button" data-cda="conf">${ICN.swap}<span>Conciliar</span></button>
-        <button type="button" data-cda="hist">${ICN.clock}<span>Faturas</span></button>
-        <button type="button" data-cda="an">${ic('spark')}<span>Analisar</span></button></div>
-      <section class="cds" id="cd-an"><div class="cdsh"><h3>Quem paga esta fatura</h3></div>
+      <div class="acts"><button type="button" data-cda="ext">${ic('list')}Extrato</button><button type="button" data-cda="conf">${ICN.swap}Conciliar</button><button type="button" data-cda="hist">${ICN.clock}Faturas</button><button type="button" data-cda="an">${ic('spark')}Analisar</button></div>
+      <div class="mper"><button class="navb" type="button" data-pm="-1" aria-label="Fatura anterior"></button><b>Fatura de ${MESL[+ym.slice(5)-1].toLowerCase()}</b><button class="navb" type="button" data-pm="1" aria-label="Próxima fatura"></button></div>
+      <section class="cds" id="cd-an"><div class="cdsh"><h3>Divisão</h3></div>
         <div class="dst">
           <span>Comum (50/50)</span><b class="n">${brl(com)}</b>
           <span>Pessoal</span><b class="n">${brl(tot-com)}</b>
