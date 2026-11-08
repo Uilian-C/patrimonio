@@ -3,16 +3,17 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#081215">
+<meta name="theme-color" content="#F4F3EF" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0A0A0B" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="icon" href="icon-192.png">
-<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <title>Patrimônio</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,500..800&family=Instrument+Sans:wdth,wght@75..100,400..700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@300..700&display=swap">
 <style>
 /* Layout: phone app — compact top bar, one scrolling column of cards, floating pill tab bar with a centered "+". A household balance sheet: accounts, cards, debts and reserves, settled between two people at two cash-ins (dia 15 / dia 30). */
 :root{
@@ -1187,6 +1188,147 @@ nav.tabs .fab{width:58px;height:58px;border-radius:20px;top:-74px;background:lin
 .trl{display:grid;gap:4px}.trl span{display:flex;justify-content:space-between;font-size:12.5px;color:var(--muted)}.trl b{color:var(--ink);font-weight:600}
 .trg{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}.trg span{display:grid;padding:6px 10px;border-radius:10px;background:var(--surface);min-width:96px}.trg small{font-size:11px;color:var(--muted)}.trg b{font-size:14px}
 .scp{position:sticky;bottom:0;z-index:5;display:grid;gap:8px;margin-top:12px;padding:14px;border-radius:var(--r-lg);background:var(--surface);border:1px solid var(--line);box-shadow:0 -8px 30px rgba(0,0,0,.35)}.scp b{font-size:15px}.scp small{font-size:12px;color:var(--muted);margin-top:-4px}.scp .lk{justify-self:center;margin-top:2px}
+/* ===================== TEMA v6 · "Sereno" =====================
+   Grafite + ouro. Um número por bloco, superfícies sem caixa dentro de caixa,
+   status como texto (não como etiqueta colorida), navegação em vidro. */
+:root{
+  --bg:#F4F3EF; --surface:#FFFFFF; --sunk:#EDEBE5; --tile:#F2F0EB; --line:#E3E0D8; --hair:#ECE9E2;
+  --ink:#151514; --muted:#6C6A63; --faint:#A4A299;
+  --accent:#8A6413; --accent-ink:#FFFFFF; --accent-soft:#F4EBD8; --u:#8A6413; --u-soft:#F4EBD8;
+  --gold:#E2BA6E;
+  --good:#1D7C50; --good-soft:#E3F1E8; --warn:#B15F10; --warn-soft:#F8ECDF; --crit:#C03C32; --crit-soft:#F9E6E3;
+  --g:#B4527E; --g-soft:#F6E6EE; --inv:#5A56C6;
+  --bar:#D8D4CA; --glass:rgba(248,247,244,.74);
+  --shadow:0 1px 0 rgba(21,21,20,.03),0 14px 34px -26px rgba(21,21,20,.28);
+  --f-ui:"Geist",-apple-system,"SF Pro Text","Segoe UI",Roboto,sans-serif; --f-num:var(--f-ui);
+  --r-xl:30px;--r-lg:24px;--r-md:18px;--r-sm:12px;
+  --hero-bg:#151514; --hero-ink:#F4F1EA; --hero-mut:rgba(244,241,234,.6); --hero-line:rgba(244,241,234,.1);
+  --fab-bg:#151514; --fab-ink:#E2BA6E;
+  --ease:cubic-bezier(.2,.8,.2,1);
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0A0A0B; --surface:#141416; --sunk:#1B1B1E; --tile:#18181B; --line:#28282C; --hair:#1F1F23;
+  --ink:#F2F0EB; --muted:#9B9990; --faint:#625F59;
+  --accent:#E2BA6E; --accent-ink:#1A1408; --accent-soft:#2A2316; --u:#E2BA6E; --u-soft:#2A2316;
+  --good:#6FD39C; --good-soft:#11251A; --warn:#F2A35E; --warn-soft:#2C1F12; --crit:#FF8B7E; --crit-soft:#331A19;
+  --g:#EE9CC2; --g-soft:#331D29; --inv:#A9A5F6;
+  --bar:#2C2C31; --glass:rgba(20,20,22,.62); --shadow:none;
+  --hero-bg:#141416; --fab-bg:#E2BA6E; --fab-ink:#1A1408; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0A0A0B; --surface:#141416; --sunk:#1B1B1E; --tile:#18181B; --line:#28282C; --hair:#1F1F23;
+  --ink:#F2F0EB; --muted:#9B9990; --faint:#625F59;
+  --accent:#E2BA6E; --accent-ink:#1A1408; --accent-soft:#2A2316; --u:#E2BA6E; --u-soft:#2A2316;
+  --good:#6FD39C; --good-soft:#11251A; --warn:#F2A35E; --warn-soft:#2C1F12; --crit:#FF8B7E; --crit-soft:#331A19;
+  --g:#EE9CC2; --g-soft:#331D29; --inv:#A9A5F6;
+  --bar:#2C2C31; --glass:rgba(20,20,22,.62); --shadow:none;
+  --hero-bg:#141416; --fab-bg:#E2BA6E; --fab-ink:#1A1408; color-scheme:dark}
+
+/* tipografia: uma família, números tabulares, títulos firmes */
+body{font-family:var(--f-ui);font-size:15px;letter-spacing:-.006em;background:var(--bg)}
+.n,.big,.hval,.dpk b,.kpis b,.dvk b,.ftt b,.lvv,.ptd b,.pcr.tot .pcv,.hfc b,.hsplit b{font-family:var(--f-ui);font-variation-settings:normal;font-feature-settings:"tnum" 1,"ss01" 1}
+.top{background:color-mix(in srgb,var(--bg) 82%,transparent);backdrop-filter:blur(20px) saturate(1.3);-webkit-backdrop-filter:blur(20px) saturate(1.3);padding-block:16px 10px}
+.top h1{font-family:var(--f-ui);font-size:28px;font-weight:620;letter-spacing:-.04em;line-height:1.05}
+.top .sub{font-size:12.5px;color:var(--faint)}
+.live{font-size:11.5px;color:var(--faint);gap:7px}.live i{width:6px;height:6px}.live.on i{box-shadow:0 0 0 3px color-mix(in srgb,var(--good) 18%,transparent)}
+h1,h2,h3{letter-spacing:-.025em}
+.ch{margin-bottom:14px}.ch h2{font-size:15.5px;font-weight:600}.ch .aside,.ch>b.n{font-size:12.5px;color:var(--muted);font-weight:500}
+.lk{color:var(--accent);font-weight:550;font-size:13px}
+.view{gap:12px}
+
+/* superfícies: cartão limpo, sem moldura dupla */
+.card{border-radius:var(--r-lg);background:var(--surface);border:1px solid var(--hair);box-shadow:var(--shadow);padding:20px}
+@media (prefers-color-scheme: light){:root:not([data-theme="dark"]) .card{border-color:transparent}}
+:root[data-theme="light"] .card{border-color:transparent}
+.btn{border-radius:14px;border-color:var(--line);font-weight:550}
+.btn.primary{background:var(--ink);border-color:var(--ink);color:var(--bg);box-shadow:none}
+.seg{background:var(--sunk);border-radius:14px;padding:3px}.seg button{border-radius:11px;font-weight:550}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.chip{border-color:var(--hair);background:transparent;font-weight:550}
+.chip[aria-pressed="true"],.chips .chip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.fchips .chip{background:transparent}.fchips .chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+
+/* status: texto e ponto, não pílula colorida */
+.pq{background:none!important;padding:0;margin-left:6px;color:var(--faint);font-size:11.5px;font-weight:550;letter-spacing:0}
+.pq.pend{color:var(--warn)}.pq.pend::before,.pq.last::before{content:"";display:inline-block;width:5px;height:5px;border-radius:50%;background:currentColor;margin-right:4px;vertical-align:1.5px}
+.pq.last{color:var(--good)}
+.pill{font-weight:600;font-size:11.5px;padding:3px 9px}
+.cbub{background:var(--tile);color:var(--cb)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .cbub{background:color-mix(in srgb,var(--cb) 13%,var(--sunk))}}
+:root[data-theme="dark"] .cbub{background:color-mix(in srgb,var(--cb) 13%,var(--sunk))}
+
+/* início: o cartão principal é o único escuro, como um cartão de metal */
+.hero{color:var(--hero-ink);border-radius:var(--r-xl);padding:22px 20px 18px;border:1px solid var(--hero-line);
+  background:radial-gradient(70% 55% at 100% 0%,rgba(226,186,110,.16) 0%,transparent 70%),radial-gradient(50% 40% at 0% 100%,rgba(226,186,110,.06) 0%,transparent 70%),var(--hero-bg);
+  box-shadow:0 30px 60px -40px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.05)}
+.hero::after{display:none}
+.hero .hr1{font-size:13px;color:var(--hero-mut)}
+.hero .eye{background:rgba(255,255,255,.06);border:1px solid var(--hero-line);color:var(--hero-ink)}
+.hlab{font-size:12.5px;color:var(--hero-mut);letter-spacing:.01em}
+.hval{font-size:46px;font-weight:600;letter-spacing:-.05em;margin:4px 0 2px;color:var(--hero-ink)}
+.hval.neg{color:#FF9C90}
+.hs{display:none}
+.hflow{background:transparent;border:0;border-top:1px solid var(--hero-line);border-radius:0;padding:16px 0 4px;margin-top:14px;backdrop-filter:none}
+.hfc small{color:var(--hero-mut)}.hfc b{font-size:18px;font-weight:600;letter-spacing:-.03em;color:var(--hero-ink)}
+.hfe b{color:var(--gold)}
+.hfa{color:rgba(244,241,234,.25)}
+.hfn{color:var(--hero-mut)}.hfn .up{color:#8FE0B2}.hfn .dn{color:#FF9C90}
+.hsplit{gap:0;border-top:1px solid var(--hero-line);padding-top:14px}
+.hsplit>*{background:transparent!important;border:0!important;border-radius:0;padding:0 12px 0 0}
+.hsplit>*+*{border-left:1px solid var(--hero-line)!important;padding-left:14px}
+.hsplit small{color:var(--hero-mut)}.hsplit em{color:var(--hero-mut)}
+.hsplit b{font-size:24px;font-weight:600;letter-spacing:-.04em}
+.hsplit>button:first-child b{color:var(--hero-ink)}.hsplit>div b{color:var(--gold)}.hsplit b.neg{color:#FF9C90!important}
+
+/* saúde e indicadores: linhas, não caixinhas */
+.hl{gap:0 18px}
+.hi{background:transparent;border-radius:0;border-top:1px solid var(--hair);padding:14px 0 12px 14px}
+.hi::before{left:0;top:20px}
+.hi b{font-size:20px;font-weight:600;letter-spacing:-.03em}
+.hl .hi:nth-child(-n+2){border-top:0;padding-top:4px}.hl .hi:nth-child(-n+2)::before{top:10px}
+.score b{font-size:20px;font-weight:600}
+
+/* alertas: faixa horizontal leve */
+.alc{border-radius:20px;border:1px solid var(--hair);background:var(--surface);box-shadow:var(--shadow);min-height:116px}
+.alc b{font-weight:600;letter-spacing:-.02em}
+.fch{border:1px solid var(--hair)!important}
+
+/* listas */
+.lxd,.lxo{border-radius:var(--r-lg);border:1px solid var(--hair);box-shadow:var(--shadow)}
+@media (prefers-color-scheme: light){:root:not([data-theme="dark"]) .lxd,:root:not([data-theme="dark"]) .lxo{border-color:transparent}}
+:root[data-theme="light"] .lxd,:root[data-theme="light"] .lxo{border-color:transparent}
+.lxdh{font-size:12px;font-weight:550;color:var(--faint);letter-spacing:.01em;padding:14px 16px 6px}
+.row{border-top-color:var(--hair)}
+.row strong{font-weight:550}.row .v{font-weight:600;letter-spacing:-.02em}
+.row.proj{opacity:.6}
+.kpis.dpk div,.dvk div,.fst{border-radius:var(--r-md)}
+
+/* relatórios salvos */
+.rcard{border-radius:var(--r-lg);box-shadow:var(--shadow);min-height:140px}
+.rkv b{font-size:20px;font-weight:600;letter-spacing:-.03em}
+.rnew{box-shadow:none;background:transparent}
+
+/* folhas (sheets) */
+.sheet{border-radius:var(--r-xl) var(--r-xl) 0 0}
+.sheet-bar{border-bottom-color:transparent;border-radius:var(--r-xl) var(--r-xl) 0 0}
+.scrim{background:rgba(10,10,11,.4);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
+.sheet h2{font-weight:620;letter-spacing:-.03em}
+input,select,textarea{border-radius:12px}
+
+/* navegação: vidro, ícone ativo em ouro, botão + escuro */
+nav.tabs{background:var(--glass);backdrop-filter:blur(24px) saturate(1.6);-webkit-backdrop-filter:blur(24px) saturate(1.6);border:1px solid color-mix(in srgb,var(--line) 70%,transparent);border-radius:28px;padding:6px;box-shadow:0 20px 40px -24px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.06);width:min(440px,calc(100% - 100px));left:max(16px,calc(50% - 254px));transform:none}
+nav.tabs a{font-size:10px;font-weight:550;color:var(--faint);padding:6px 0 5px}
+nav.tabs a::before{background:color-mix(in srgb,var(--ink) 8%,transparent);width:48px;height:30px;top:3px}
+nav.tabs a[aria-current="page"]{color:var(--ink)}
+nav.tabs a[aria-current="page"] svg{stroke:var(--ink)}
+nav.tabs .fab{position:absolute;right:-68px;left:auto;top:50%;bottom:auto;transform:translateY(-50%);width:58px;height:58px;border-radius:50%;background:var(--fab-bg);color:var(--fab-ink);box-shadow:0 14px 30px -12px rgba(0,0,0,.55);border:0;transition:transform .2s var(--ease)}
+nav.tabs .fab svg{stroke:var(--fab-ink);width:24px;height:24px;stroke-width:2}
+nav.tabs .fab:active{transform:translateY(-50%) scale(.94)}
+.custom{color:var(--faint);font-size:12.5px}
+.lxs b{font-size:17px;letter-spacing:-.045em}
+
+/* movimento: entrada suave das telas */
+@media (prefers-reduced-motion:no-preference){.view:not([hidden])>*{animation:v6in .45s var(--ease) both}.view:not([hidden])>*:nth-child(2){animation-delay:.03s}.view:not([hidden])>*:nth-child(3){animation-delay:.06s}.view:not([hidden])>*:nth-child(n+4){animation-delay:.09s}
+@keyframes v6in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}}
 </style>
 </head>
 <body>
@@ -1194,16 +1336,16 @@ nav.tabs .fab{width:58px;height:58px;border-radius:20px;top:-74px;background:lin
 (function(){var res;var p=new Promise(function(r){res=r});window.__fbReady=res;window.claude={use:function(n){return p.then(function(fb){return fb.use(n)})}};})();
 </script>
 <style>
-#fbgate{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;padding:24px;background:#081215;color:#E8F1EF;font-family:'Instrument Sans',system-ui,sans-serif}
+#fbgate{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;padding:24px;background:radial-gradient(60% 40% at 50% 0%,rgba(226,186,110,.12),transparent 70%),#0A0A0B;color:#F2F0EB;font-family:'Geist',system-ui,sans-serif}
 #fbgate[hidden]{display:none}
-#fbgate .bx{max-width:360px;width:100%;text-align:center;display:grid;gap:14px}
-#fbgate .lg{width:64px;height:64px;margin:0 auto;border-radius:18px;background:#43C6B4;display:grid;place-items:center;color:#081215;font:700 30px 'Bricolage Grotesque',system-ui}
-#fbgate h1{font:700 28px 'Bricolage Grotesque',system-ui;margin:0}
-#fbgate p{margin:0;color:#9DB3AE;font-size:15px;line-height:1.45}
-#fbgate button{border:0;border-radius:14px;padding:14px 18px;font:600 16px 'Instrument Sans',system-ui;background:#43C6B4;color:#081215;cursor:pointer}
-#fbgate .er{color:#FF8A7A}
+#fbgate .bx{max-width:340px;width:100%;text-align:center;display:grid;gap:16px;justify-items:center}
+#fbgate .lg{width:76px;height:76px;color:#F2F0EB}
+#fbgate h1{font:600 30px 'Geist',system-ui;letter-spacing:-.045em;margin:4px 0 0}
+#fbgate p{margin:0;color:#9B9990;font-size:15px;line-height:1.5}
+#fbgate button{width:100%;border:0;border-radius:16px;padding:15px 18px;font:600 16px 'Geist',system-ui;background:#E2BA6E;color:#1A1408;cursor:pointer;margin-top:8px}
+#fbgate .er{color:#FF8B7E}
 </style>
-<div id="fbgate" hidden><div class="bx"><div class="lg">P</div><h1>Patrimônio</h1><p id="fbmsg">Entre com a sua conta Google para ver as finanças da casa.</p><button type="button" id="fblogin">Entrar com Google</button></div></div>
+<div id="fbgate" hidden><div class="bx"><svg class="lg" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="130 100 252 312"><g transform="translate(-16 -6)"><path d="M176 392V228A96 96 0 0 1 368 228A96 96 0 0 1 320.0 311.1" fill="none" stroke="currentColor" stroke-width="40" stroke-linecap="round"/><circle cx="242.3" cy="319.3" r="26" fill="#D9AE5F"/></g></svg><h1>Patrimônio</h1><p id="fbmsg">Entre com a sua conta Google para ver as finanças da casa.</p><button type="button" id="fblogin">Entrar com Google</button></div></div>
 <script type="module">
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
 import {getAuth,GoogleAuthProvider,signInWithPopup,signInWithRedirect,onAuthStateChanged,signOut} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
@@ -1783,7 +1925,7 @@ function openRecarga(a){
 
 /* ---------- INÍCIO: painel montável ---------- */
 const SECS=[['hero','Em caixa hoje'],['acoes','Ações rápidas'],['fecha','Fechamento do mês'],['alertas','Para resolver'],['saude','Saúde financeira'],['kpis','Indicadores do mês'],['orcamento','Orçamento'],['contas','Contas'],['beneficios','Benefícios'],['dre','Resultado do mês'],['agenda','Próximos 15 dias'],['credito','Crédito'],['gastos','Gastos por categoria'],['planejado','Pagamentos planejados'],['fluxo6','Evolução'],['quinzenas','Quinzenas e acerto'],['patrimonio','Patrimônio']];
-let LAY=(()=>{try{return JSON.parse(localStorage.getItem('pt-ini3')||'null')}catch(e){return null}})()||{order:[],off:['kpis','contas','mes','dre','agenda','credito','planejado','fluxo6','quinzenas','patrimonio']};
+let LAY=(()=>{try{return JSON.parse(localStorage.getItem('pt-ini3')||'null')}catch(e){return null}})()||{order:[],off:['acoes','kpis','contas','mes','dre','agenda','credito','planejado','fluxo6','quinzenas','patrimonio']};
 const layOrder=()=>{const o=(LAY.order||[]).filter(k=>SECS.some(s=>s[0]===k));SECS.forEach((s,i)=>{if(!o.includes(s[0]))o.splice(Math.min(i,o.length),0,s[0])});return o};
 const laySave=()=>{try{localStorage.setItem('pt-ini3',JSON.stringify(LAY))}catch(e){}};
 let HV=LS('pt-hv','')==='1';document.documentElement.classList.toggle('hv',HV);
@@ -1830,13 +1972,13 @@ function heroChart(F,ym){
   const mi=F.min&&F.min.v<Math.min(F.final,sr[Math.max(ri,0)].v)-1?sr.findIndex(x=>x.d===F.min.d):-1;
   const ticks=[0,7,14,21,n-1];
   return `<svg viewBox="0 0 ${W} ${H}" class="hch" role="img" aria-label="Saldo dia a dia no mês">
-    <defs><linearGradient id="hcg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".28"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient><linearGradient id="hcg2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9FEBC6" stop-opacity=".18"/><stop offset="1" stop-color="#9FEBC6" stop-opacity="0"/></linearGradient></defs>
+    <defs><linearGradient id="hcg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".28"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient><linearGradient id="hcg2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E2BA6E" stop-opacity=".18"/><stop offset="1" stop-color="#E2BA6E" stop-opacity="0"/></linearGradient></defs>
     ${ticks.map(i=>`<line x1="${xs(i)}" x2="${xs(i)}" y1="${T}" y2="${B}" stroke="rgba(255,255,255,.07)"/>`).join('')}
     ${mn<0?`<line x1="${L}" x2="${R}" y1="${ys(0)}" y2="${ys(0)}" stroke="#FF9C8F" stroke-opacity=".7" stroke-dasharray="3 3"/><text x="${R}" y="${ys(0)-3}" text-anchor="end" class="hz">zero</text>`:''}
-    ${ent.map(e=>`<line x1="${xs(e.i)}" x2="${xs(e.i)}" y1="${T-2}" y2="${B}" stroke="#9FEBC6" stroke-opacity=".35" stroke-dasharray="1 3"/><text x="${xs(e.i)}" y="${T-6}" text-anchor="${e.i>n*.85?'end':e.i<n*.1?'start':'middle'}" class="he">+${kf(e.d).replace(/R\$\s*/,'')}</text>`).join('')}
-    ${P2.length>1?`<path d="M${xs(P2[0])},${B} L${P2.map(pt).join(' L')} L${xs(P2[P2.length-1])},${B} Z" fill="url(#hcg2)"/><polyline points="${P2.map(pt).join(' ')}" fill="none" stroke="#9FEBC6" stroke-width="2" stroke-dasharray="5 4" stroke-linejoin="round"/>`:''}
+    ${ent.map(e=>`<line x1="${xs(e.i)}" x2="${xs(e.i)}" y1="${T-2}" y2="${B}" stroke="#E2BA6E" stroke-opacity=".35" stroke-dasharray="1 3"/><text x="${xs(e.i)}" y="${T-6}" text-anchor="${e.i>n*.85?'end':e.i<n*.1?'start':'middle'}" class="he">+${kf(e.d).replace(/R\$\s*/,'')}</text>`).join('')}
+    ${P2.length>1?`<path d="M${xs(P2[0])},${B} L${P2.map(pt).join(' L')} L${xs(P2[P2.length-1])},${B} Z" fill="url(#hcg2)"/><polyline points="${P2.map(pt).join(' ')}" fill="none" stroke="#E2BA6E" stroke-width="2" stroke-dasharray="5 4" stroke-linejoin="round"/>`:''}
     ${P1.length>1?`<path d="M${xs(0)},${B} L${P1.map(pt).join(' L')} L${xs(P1[P1.length-1])},${B} Z" fill="url(#hcg)"/><polyline points="${P1.map(pt).join(' ')}" fill="none" stroke="#fff" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>`:''}
-    ${mi>=0?`<circle cx="${xs(mi)}" cy="${ys(sr[mi].v)}" r="4" fill="#FFB86B" stroke="#0E4A60" stroke-width="1.5"/><text x="${xs(mi)}" y="${Math.min(ys(sr[mi].v)+15,B+1)}" text-anchor="middle" class="hm">menor ${kf(sr[mi].v).replace(/R\$\s*/,'')}</text>`:''}
+    ${mi>=0?`<circle cx="${xs(mi)}" cy="${ys(sr[mi].v)}" r="4" fill="#F2A35E" stroke="#141416" stroke-width="1.5"/><text x="${xs(mi)}" y="${Math.min(ys(sr[mi].v)+15,B+1)}" text-anchor="middle" class="hm">menor ${kf(sr[mi].v).replace(/R\$\s*/,'')}</text>`:''}
     ${ri>=0?`<circle cx="${xs(ri)}" cy="${ys(sr[ri].v)}" r="6" fill="#fff" fill-opacity=".25"/><circle cx="${xs(ri)}" cy="${ys(sr[ri].v)}" r="3.6" fill="#fff"/>`:''}
     ${ticks.map(i=>`<text x="${xs(i)}" y="${H-6}" text-anchor="${i===0?'start':i===n-1?'end':'middle'}" class="ht ${i===ri?'on':''}">${i+1}</text>`).join('')}
   </svg>`;
