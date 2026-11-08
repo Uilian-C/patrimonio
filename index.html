@@ -1346,6 +1346,16 @@ nav.tabs .fab:active{transform:translateY(-50%) scale(.94)}
 .cfi.hit{border-color:var(--accent);background:var(--accent-soft)}.cfm{display:grid;min-width:0}.cfm strong{font-weight:550;font-size:14px}.cfm small{font-size:11.5px;color:var(--muted)}
 .cfdy{border-radius:14px;border:1px solid var(--hair);overflow:hidden}.cfdh{display:flex;justify-content:space-between;padding:9px 12px;background:var(--tile);font-size:12px;color:var(--muted)}.cfdh b{color:var(--ink)}
 .cfl{display:flex;justify-content:space-between;gap:10px;width:100%;padding:9px 12px;border:0;border-top:1px solid var(--hair);background:none;color:inherit;font:inherit;font-size:13.5px;text-align:left}.cfdh+.cfl{border-top:0}
+
+.sxc .ch{align-items:center}.sxc .ch h2{flex:1}
+.sxmin{width:30px;height:30px;border-radius:50%;border:0;background:var(--sunk);color:var(--muted);display:grid;place-items:center;flex:0 0 auto;margin-left:4px}.sxmin svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;transform:rotate(180deg);transition:transform .25s var(--ease)}
+.sxc.min .sxmin svg{transform:none}.sxc.min .ch{margin-bottom:12px}
+.sxtot{font-size:17px;font-weight:600;letter-spacing:-.03em}
+.sxg{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.sxp{position:relative;display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:14px;border:1px solid var(--hair);background:var(--tile);color:inherit;font:inherit;text-align:left;min-width:0}
+.sxp>span{display:grid;min-width:0}.sxp small{font-size:11.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.sxp b{font-size:14.5px;font-weight:600;letter-spacing:-.02em}
+.sxp .bk,.sxp .bkb,.sxp>:first-child{transform:scale(.82);transform-origin:left center;margin-right:-6px}
+.sxok{position:absolute;top:6px;right:7px;color:var(--good)}.sxok svg{width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2.8}
 </style>
 </head>
 <body>
@@ -3525,7 +3535,7 @@ const CXO=(()=>{try{return JSON.parse(localStorage.getItem('pt-cx')||'{}')}catch
 const cxOpen=k=>!!CXO[k];
 function cxSave(){try{localStorage.setItem('pt-cx',JSON.stringify(CXO))}catch(e){}}
 /* ---------- saldo por conta e conferência com o banco ---------- */
-let SXALL=false;
+let SXALL=false,SXMIN=LS('pt-sxmin','')==='1';
 const isCaixa=a=>a.ativo!==false&&(!a.tipo||a.tipo==='corrente'||a.tipo==='dinheiro');
 let CONFREAL={};
 function confTxt(a){const c=a.conf;if(!c||!c.d)return [esc(a.instituicao||TCONTA[a.tipo||'corrente']||''),''];const n=diffD(c.d,today());return [`${ic('check')} conferido ${n<=0?'hoje':n===1?'ontem':fdate(c.d).slice(0,5)}`,'ok']}
@@ -3536,7 +3546,10 @@ function saldoContas(me){
   const cs=S.contas.filter(a=>isCaixa(a)&&fracOf(a.dono,me)>0).map(a=>({a,v:saldoConta(a)})).sort((x,y)=>Math.abs(y.v)-Math.abs(x.v));
   const vis=cs.filter(x=>Math.abs(x.v)>=.005||(x.a.conf&&x.a.conf.d)),zer=cs.filter(x=>!vis.includes(x)),tot=sum(cs,x=>x.v*fracOf(x.a.dono,me));
   const row=({a,v})=>{const [t,c]=confTxt(a);return `<button class="sxr" type="button" data-cf2="${esc(a.id)}">${bankBadge(a,a.tipo)}<span class="sxm"><strong>${esc(a.nome)}${a.dono!==me?' '+whoChip(a.dono):''}</strong><small class="${c}">${t}</small></span><b class="n ${v<0?'neg':''}">${brl(v)}</b></button>`};
-  return `<div class="card sxc"><div class="ch"><h2>Saldo por conta</h2><span class="aside">toque para conferir</span></div>
+  const tg=`<button class="sxmin" type="button" id="sxmin" aria-label="${SXMIN?'Expandir':'Minimizar'} contas" aria-expanded="${!SXMIN}">${ic('down')}</button>`;
+  if(SXMIN){const all=vis.concat(SXALL?zer:[]);return `<div class="card sxc min"><div class="ch"><h2>Saldo por conta</h2><span class="sxtot n ${tot<0?'neg':''}">${brl(tot)}</span>${tg}</div>
+    <div class="sxg">${all.map(({a,v})=>`<button class="sxp" type="button" data-cf2="${esc(a.id)}">${bankBadge(a,a.tipo)}<span><small>${esc(a.nome)}</small><b class="n ${v<0?'neg':''}">${Math.abs(v)>=10000?brl0(v):brl(v)}</b></span>${a.conf&&a.conf.d?`<i class="sxok" title="conferido">${ic('check')}</i>`:''}</button>`).join('')}</div></div>`}
+  return `<div class="card sxc"><div class="ch"><h2>Saldo por conta</h2><span class="aside">toque para conferir</span>${tg}</div>
     <div class="sxl">${vis.map(row).join('')}${SXALL?zer.map(row).join(''):''}</div>
     ${zer.length?`<button class="sxz" type="button" id="sxz">${SXALL?'Ocultar contas zeradas':`+ ${zer.length} conta${zer.length>1?'s':''} zerada${zer.length>1?'s':''}`}</button>`:''}
     <div class="sxt"><span>Total em contas</span><b class="n ${tot<0?'neg':''}">${brl(tot)}</b></div>
@@ -3624,7 +3637,7 @@ function vCart(){
   el.querySelectorAll('.cxh').forEach(b=>b.onclick=()=>{const s=b.parentElement,k=s.dataset.cx,o=!CXO[k];CXO[k]=o;cxSave();s.classList.toggle('open',o);b.setAttribute('aria-expanded',String(o));s.querySelector('.cxb').hidden=!o});
   el.querySelectorAll('[data-addc]').forEach(b=>b.onclick=()=>openConta({tipo:b.dataset.addc}));
   el.querySelectorAll('[data-ct]').forEach(b=>b.onclick=()=>openContaDet(conta(b.dataset.ct)));
-  el.querySelectorAll('[data-cf2]').forEach(b=>b.onclick=()=>openConferir(conta(b.dataset.cf2)));{const z=el.querySelector('#sxz');if(z)z.onclick=()=>{SXALL=!SXALL;vCart()}}
+  el.querySelectorAll('[data-cf2]').forEach(b=>b.onclick=()=>openConferir(conta(b.dataset.cf2)));{const z=el.querySelector('#sxz');if(z)z.onclick=()=>{SXALL=!SXALL;vCart()}}{const m=el.querySelector('#sxmin');if(m)m.onclick=()=>{SXMIN=!SXMIN;LSset('pt-sxmin',SXMIN?'1':'');vCart()}}
   const ac=$('#addCard');if(ac)ac.onclick=()=>openCard(null);el.querySelectorAll('[data-card]').forEach(b=>b.onclick=()=>openCardDet(card(b.dataset.card)));
   const ad=$('#addDv');if(ad)ad.onclick=()=>openDivida(null);
   const ar=$('#addRec');if(ar)ar.onclick=()=>openRec(null);el.querySelectorAll('[data-rc]').forEach(b=>b.onclick=()=>openRec(S.recs.find(r=>r.id===b.dataset.rc)));
