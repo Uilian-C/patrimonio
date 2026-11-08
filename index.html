@@ -368,7 +368,7 @@ svg.ic{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.7;str
 .row strong{font-size:14.5px}.row .v{font-size:14.5px;font-weight:600}
 .chip{border-color:var(--hair);padding:6px 12px;font-size:12.5px}.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
 .chips.rp{position:sticky;top:calc(env(safe-area-inset-top,0px) + 62px);z-index:4;background:var(--bg);padding:6px 0;margin:-6px 0 0}
-.navb{border-color:var(--hair);display:grid;place-items:center;font-size:0}.navb::before{content:"";width:16px;height:16px;background:var(--ink);-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 6l6 6-6 6'/%3E%3C/svg%3E") center/16px no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 6l6 6-6 6'/%3E%3C/svg%3E") center/16px no-repeat}.navb[data-m="-1"]::before,.navb[data-rm="-1"]::before,.navb[data-mym="-1"]::before{transform:rotate(180deg)}
+.navb{border-color:var(--hair);display:grid;place-items:center;font-size:0}.navb::before{content:"";width:16px;height:16px;background:var(--ink);-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 6l6 6-6 6'/%3E%3C/svg%3E") center/16px no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 6l6 6-6 6'/%3E%3C/svg%3E") center/16px no-repeat}.navb[data-m="-1"]::before,.navb[data-rm="-1"]::before,.navb[data-mym="-1"]::before,.navb[data-fy="-1"]::before,.navb[data-pm="-1"]::before,.navb[aria-label$="anterior"]::before{transform:rotate(180deg)}
 .seg{background:var(--tile);border-radius:12px}.seg button{font-weight:500}
 .setup{border-color:var(--hair)}
 nav.tabs{border-color:var(--hair);box-shadow:0 10px 30px -12px rgba(0,0,0,.2);padding:6px 8px}
@@ -1444,6 +1444,22 @@ html:has(#overlay:not([hidden])),html:has(#overlay:not([hidden])) body{overflow:
 .cdi{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;width:100%;padding:10px 12px;border:0;border-top:1px solid var(--hair);background:none;color:inherit;font:inherit;text-align:left}.cddh+.cdi{border-top:0}
 .cdi .cbub svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.8}.cdm{display:grid;min-width:0}.cdm strong{font-weight:550;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.cdm small{font-size:11.5px;color:var(--muted)}.cdm .warn{color:var(--warn)}.cdi>b{font-size:14px;font-weight:600}
 #cd-an{display:grid;gap:22px}
+
+/* cartão v2 */
+.ccb{display:grid;gap:12px;padding:16px;border-radius:var(--r-lg);background:var(--sunk)}
+.cch{display:flex;gap:12px;align-items:center}.cch>div{display:grid}.cch strong{font-size:18px;font-weight:600;letter-spacing:-.02em}.cch small{font-size:12.5px;color:var(--muted)}
+.cc3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.cc3>div{display:grid;gap:1px}.cc3>div:nth-child(2){text-align:center}.cc3>div:nth-child(3){text-align:right}
+.cc3 small{font-size:11.5px;color:var(--muted)}.cc3 b{font-size:14.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.cc3 b.pos{color:var(--good)}
+.cc3.dash{border-top:1px dashed var(--line);border-bottom:1px dashed var(--line);padding:10px 0}
+.cc3.sm{margin-top:4px}.cc3.sm>div{text-align:left!important}
+.ccbar{position:relative;height:22px;border-radius:11px;background:var(--surface);overflow:hidden}.ccbar i{display:block;height:100%;border-radius:11px}.ccbar b{position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:12px;font-weight:700}
+.ccf{display:flex;justify-content:space-between;align-items:baseline}.ccf span{font-size:17px;font-weight:600}.ccf b{font-size:28px;font-weight:600;letter-spacing:-.045em}.ccf b.neg{color:var(--crit)}
+.ccs{display:flex;justify-content:space-between;align-items:center;gap:10px}.ccs small{font-size:12px;color:var(--muted)}.ccs .lk{display:inline-flex;align-items:center;gap:6px;font-size:14px}.ccs .lk svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2.2}
+.fhx{display:grid;gap:14px}.fhh{display:flex;align-items:center;gap:12px}.fhh .fht{display:grid;flex:1}.fhh strong{font-weight:600}.fhh small{font-size:12px;color:var(--muted)}.fhh>b{font-size:18px;font-weight:600}
+.fhl{display:grid}.fhr{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:13px 0;border:0;border-top:1px solid var(--hair);background:none;color:inherit;font:inherit;text-align:left;width:100%}.fhl .fhr:first-child{border-top:0}
+.fhr>span:first-child{display:grid}.fhr strong{font-weight:550;font-size:14.5px}.fhr small{font-size:11.5px;color:var(--muted)}
+.fhv{display:grid;justify-items:end;gap:1px}.fhv b{font-size:15px;font-weight:600}.fhv b.z{color:var(--faint);font-weight:500}.fhv small{display:inline-flex;align-items:center;gap:3px;font-size:11.5px}.fhv small svg{width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2.8}
+.fhv small.ok{color:var(--good)}.fhv small.crit{color:var(--crit)}.fhv small.warn{color:var(--warn)}.fhv small.acc{color:var(--accent)}
 </style>
 </head>
 <body>
@@ -3286,29 +3302,71 @@ function openContaDet(a){
     sh.querySelector('#d-ln').onclick=()=>openLanc({tipo:'despesa',conta:a.id,divisao:'pessoal',categoria:'Outros',data:today()});
   },false,{icon:'edit',label:'Editar conta',fn:()=>openConta(a)});
 }
+/* ---------- cartão v2 (inspirado no Minhas Finanças): resumo, ações, histórico de faturas ---------- */
+function fatTot(c,ym){return r2(sum(movs().filter(i=>i.src==='card'&&i.c===c&&i.ym===ym),i=>i.tipo==='receita'?-i.valor:i.valor))}
+function fatDatas(c,ym){const due=dayIn(ym,c.vencimento),closeYm=+c.vencimento>+c.fechamento?ym:ymAdd(ym,-1);return {due,close:dayIn(closeYm,c.fechamento)}}
+function openFatHist(c,onPick){
+  let y=today().slice(0,4);
+  const draw=sh=>{const rows=[...Array(12)].map((_,k)=>{const ym=`${y}-${String(12-k).padStart(2,'0')}`,tot=fatTot(c,ym),pg=fatPaga(c.id,ym),{due,close}=fatDatas(c,ym),compras=r2(sum(movs().filter(i=>i.src==='card'&&i.c===c&&i.tipo==='despesa'&&(i.l.data||'').slice(0,7)===ym),i=>i.N>1?(i.j===1?i.valor*i.N:0):i.valor)),st=pg?'ok':today()>=close?(today()>due?'crit':'warn'):'acc';return {ym,tot,pg,compras,st,due}});
+    const ano=sum(rows,r=>r.tot);
+    sh.querySelector('#fhx').innerHTML=`<div class="mnav"><button class="navb" type="button" data-fy="-1" aria-label="Ano anterior">‹</button><b>${y}</b><button class="navb" type="button" data-fy="1" aria-label="Próximo ano">›</button></div>
+      <div class="fhh">${cardGlyph(c)}<span class="fht"><strong>${esc(c.nome)}</strong><small>faturas de ${y}</small></span><b class="n">${brl(ano)}</b></div>
+      <div class="fhl">${rows.map(r=>`<button class="fhr" type="button" data-fym="${r.ym}"><span><strong>${MESL[+r.ym.slice(5)-1]}</strong>${r.compras>.005?`<small>compras no mês ${brl(r.compras)}</small>`:''}</span><span class="fhv"><b class="n ${r.tot<.005?'z':''}">${brl(r.tot)}</b>${r.tot>.005?`<small class="${r.st}">${r.pg?ic('check')+' paga':r.st==='crit'?'vencida':r.st==='warn'?'fechada':'aberta'}</small>`:''}</span></button>`).join('')}</div>
+      <p class="note">Valor de cada fatura pelo mês de vencimento. “Compras no mês” é o que foi comprado naquele mês (parcelado pelo valor total).</p>`;
+    sh.querySelectorAll('[data-fy]').forEach(b=>b.onclick=()=>{y=String(+y+ +b.dataset.fy);draw(sh)});
+    sh.querySelectorAll('[data-fym]').forEach(b=>b.onclick=()=>{onPick(b.dataset.fym);backSheet()});
+  };
+  openSheet(`<h2>Histórico de faturas</h2><div id="fhx" class="fhx"></div>`,sh=>draw(sh));
+}
+function openConfFat(c,ym){
+  let real=null;const draw=sh=>{const tot=fatTot(c,ym),diff=real==null?null:r2(real-tot);
+    sh.querySelector('#cfx').innerHTML=`<div class="cfh">${cardGlyph(c)}<div><span class="k">Fatura de ${MESL[+ym.slice(5)-1].toLowerCase()} no app</span><div class="big n">${brl(tot)}</div></div></div>
+      <div class="field"><label for="ff-v">Valor da fatura no app do banco</label><input id="ff-v" type="text" inputmode="decimal" placeholder="0,00" value="${real==null?'':String(real).replace('.',',')}"></div>
+      ${diff==null?'<p class="note">Digite o total da fatura que o banco mostra. Se for diferente, o app ajuda a achar o que falta.</p>':Math.abs(diff)<.01?`<div class="cfok">${ic('check')}<span><b>Confere</b><small>A fatura do app é igual à do banco.</small></span></div>`:
+      `<div class="cfd ${diff>0?'neg':'pos'}"><span class="k">Diferença</span><b class="n">${diff>0?'+':'−'}${brl(Math.abs(diff))}</b><small>${diff>0?'O banco cobra mais: falta lançar uma compra, juros, IOF ou anuidade.':'O banco cobra menos: há um estorno não lançado ou uma compra lançada a mais.'}</small></div>
+      <div class="btnrow"><button class="btn sm primary" type="button" id="ff-ln">${ic('plus')} Lançar ${brl(Math.abs(diff))} ${diff>0?'como despesa':'como estorno'}</button><button class="btn sm" type="button" id="ff-im">Importar fatura (OFX/CSV)</button></div>`}`;
+    const i=sh.querySelector('#ff-v');i.onchange=()=>{const n=brNum(i.value);real=isNaN(n)?null:r2(n);draw(sh)};
+    const ln=sh.querySelector('#ff-ln');if(ln)ln.onclick=()=>openLanc({tipo:diff>0?'despesa':'receita',cartao:c.id,fatura:ym,valor:Math.abs(diff),data:today(),categoria:diff>0?'Outros':'Outras receitas',divisao:'pessoal',desc:diff>0?'Diferença da fatura':'Estorno'});
+    const im=sh.querySelector('#ff-im');if(im)im.onclick=()=>openSmartImport();
+  };
+  openSheet(`<h2>Conciliar fatura</h2><div id="cfx" class="cfx"></div>`,sh=>draw(sh));
+}
 function openCardDet(c){
   if(!c)return;const st0=cardStats(c);let ym=st0.ym||baseDue({data:today()},c);
   const draw=sh=>{const st=cardStats(c),its=movs().filter(i=>i.src==='card'&&i.c===c&&i.ym===ym).sort((x,y)=>(y.l.data||'').localeCompare(x.l.data||''));
     const tot=sum(its,i=>i.tipo==='receita'?-i.valor:i.valor),com=sum(its.filter(i=>i.comum),i=>i.valor),due=dayIn(ym,c.vencimento),closeYm=+c.vencimento>+c.fechamento?ym:ymAdd(ym,-1),close=dayIn(closeYm,c.fechamento);
-    const paga=fatPaga(c.id,ym),fech=today()>=close,status=paga?['Paga','ok']:fech?['Fechada','crit']:['Aberta','acc'];
+    const paga=fatPaga(c.id,ym),fech=today()>=close,status=paga?['Paga','ok']:today()>due?['Vencida','crit']:fech?['Fechada','warn']:['Aberta','acc'];
     const cats={};its.filter(i=>i.tipo==='despesa').forEach(i=>{const k=i.l.categoria||'Outros';cats[k]=(cats[k]||0)+i.valor});const ca=Object.entries(cats).sort((a,b)=>b[1]-a[1]).slice(0,4),cmx=ca.length?ca[0][1]:1;
     const parc=its.filter(i=>i.N>1).length;
+    const cta=conta(c.conta),lk=st.pct>=.9?'var(--crit)':st.pct>=.7?'var(--warn)':'var(--accent)';
+    const days={};its.forEach(i=>{const d=i.l.data||due;(days[d]=days[d]||[]).push(i)});
     sh.querySelector('#cdx').innerHTML=`
-      <div class="dh1">${cardGlyph(c)}<div><strong>${esc(c.nome)}</strong><small>${esc([c.banco,c.bandeira,c.final?'final '+c.final:''].filter(Boolean).join(' · '))}${c.dono!==ME()?' · '+esc(P(c.dono).nome):''}</small></div></div>
-      <div class="dsal"><span class="k">Limite disponível</span><div class="big n ${st.disp<0?'neg':''}">${brl(st.disp)}</div>
-        <div class="dsub"><span>Limite <b class="n">${brl0(st.lim)}</b></span><span>Usado <b class="n">${brl0(st.usado)}</b> · ${pctf(st.pct)}</span></div><div class="dtr"><i style="width:${Math.min(st.pct,1)*100}%;background:${st.pct>=.9?'var(--crit)':st.pct>=.7?'var(--warn)':'var(--accent)'}"></i></div>
-        <div class="dsub"><span>Faturas atuais <b class="n">${brl0(st.atual)}</b></span><span>Parcelas futuras <b class="n">${brl0(st.fut)}</b></span></div></div>
       <div class="dper"><button class="navb" type="button" data-pm="-1" aria-label="Fatura anterior"></button><b>Fatura de ${MESL[+ym.slice(5)-1].toLowerCase()}</b><button class="navb" type="button" data-pm="1" aria-label="Próxima fatura"></button></div>
-      <div class="dfat"><div><span class="pill ${status[1]}">${status[0]}</span><div class="big2 n">${brl(tot)}</div><small>fecha ${fdate(close).slice(0,5)} · vence ${fdate(due).slice(0,5)} · paga em ${qLabel(perOf(due,c.quinzena!=='auto'?c.quinzena:null))}</small></div>
-        ${paga||!its.length?'':`<button class="btn sm primary" type="button" id="d-pf">Pagar fatura</button>`}</div>
-      <div class="dst">
-        <span>Comum (50/50)</span><b class="n">${brl(com)}</b>
-        <span>Pessoal</span><b class="n">${brl(tot-com)}</b>
-        <span class="mu">${c.dono===ME()?esc(other(ME()).nome)+' devolve no acerto':'Sua metade do Comum'}</span><b class="n mu">${brl(com/2)}</b>
-        <span class="tt"><b>Sua parte da fatura</b></span><b class="n tt">${brl(c.dono===ME()?tot-com/2:com/2)}</b>
+      <div class="ccb">
+        <div class="cch">${cardGlyph(c)}<div><strong>${esc(c.nome)}</strong><small>${esc([c.bandeira,c.final?'final '+c.final:''].filter(Boolean).join(' · '))}${c.dono!==ME()?' · '+esc(P(c.dono).nome):''}</small></div></div>
+        <div class="cc3"><div><small>Limite</small><b class="n">${brl0(st.lim)}</b></div><div><small>Em aberto</small><b class="n">${brl0(st.usado)}</b></div><div><small>Disponível</small><b class="n ${st.disp<0?'neg':'pos'}">${brl0(st.disp)}</b></div></div>
+        <div class="ccbar"><i style="width:${Math.min(st.pct,1)*100}%;background:${lk}"></i><b class="n">${pctf(st.pct)}</b></div>
+        <div class="cc3 dash"><div><small>Conta</small><b>${cta?esc(cta.nome):'—'}</b></div><div><small>Fechamento</small><b class="n">${fdate(close).slice(0,5)}</b></div><div><small>Vencimento</small><b class="n">${fdate(due).slice(0,5)}</b></div></div>
+        <div class="ccf"><span>Fatura</span><b class="n ${status[1]==='crit'&&!paga?'neg':''}">${brl(tot)}</b></div>
+        <div class="ccs"><span class="pill ${status[1]}">${status[1]==='crit'?'🔒 ':''}${status[0]}</span>${paga||!its.length?`<small>paga em ${qLabel(perOf(due,c.quinzena!=='auto'?c.quinzena:null))}</small>`:`<button class="lk" type="button" id="d-pf">${ic('check')} Registrar pagamento</button>`}</div>
       </div>
-      ${ca.length?`<div class="dlist"><span class="k">Por categoria</span>${ca.map(([k,v])=>`<div class="dcat"><span>${esc(k)}</span><b class="n">${brl(v)}</b><span class="dtr"><i style="width:${v/cmx*100}%"></i></span></div>`).join('')}</div>`:''}
-      <div class="dlist"><span class="k">Lançamentos · ${its.length}${parc?` · ${parc} parcelados`:''}</span>${its.length?its.map(i=>`<button class="dli b" type="button" data-l="${esc(i.l.id)}"><span class="n">${i.l.data?fdate(i.l.data).slice(0,5):''}</span><span>${esc(i.l.desc)}<small>${esc(i.l.categoria||'Outros')}${i.N>1?` · ${i.j}/${i.N}`:''} · ${i.tipo==='receita'?'estorno':i.comum?'Comum':'Pessoal'}</small></span><b class="n ${i.tipo==='receita'?'pos':''}">${i.tipo==='receita'?'−':''}${brl(i.valor)}</b></button>`).join(''):'<p class="note">Nenhum lançamento nesta fatura.</p>'}</div>`;
+      <div class="cda">
+        <button type="button" data-cda="ext">${ic('list')}<span>Extrato</span></button>
+        <button type="button" data-cda="conf">${ICN.swap}<span>Conciliar</span></button>
+        <button type="button" data-cda="hist">${ICN.clock}<span>Faturas</span></button>
+        <button type="button" data-cda="an">${ic('spark')}<span>Analisar</span></button></div>
+      <section class="cds" id="cd-an"><div class="cdsh"><h3>Quem paga esta fatura</h3></div>
+        <div class="dst">
+          <span>Comum (50/50)</span><b class="n">${brl(com)}</b>
+          <span>Pessoal</span><b class="n">${brl(tot-com)}</b>
+          <span class="mu">${c.dono===ME()?esc(other(ME()).nome)+' devolve no acerto':'Sua metade do Comum'}</span><b class="n mu">${brl(com/2)}</b>
+          <span class="tt"><b>Sua parte da fatura</b></span><b class="n tt">${brl(c.dono===ME()?tot-com/2:com/2)}</b>
+        </div>
+        ${ca.length?(()=>{const tt=sum(Object.values(cats),v=>v);return `<div class="rkl">${ca.map(([k,v])=>`<div class="rkr"><span class="rkn">${catBubble(k,'sm')}${esc(k)}</span><span class="rkb"><i style="width:${v/cmx*100}%;background:${catColor(k)}"></i></span><b class="n">${pctf(v/tt)}</b></div>`).join('')}</div>`})():''}
+        <div class="cc3 sm"><div><small>Lançamentos</small><b class="n">${its.length}</b></div><div><small>Parcelados</small><b class="n">${parc}</b></div><div><small>Parcelas futuras</small><b class="n">${brl0(st.fut)}</b></div></div></section>
+      <section class="cds" id="cd-ext"><div class="cdsh"><h3>Lançamentos da fatura</h3><small>${its.length}</small></div>
+        ${its.length?Object.entries(days).sort((a,b)=>b[0].localeCompare(a[0])).map(([d,g])=>`<div class="cdd"><div class="cddh"><span>${fdate(d)} · ${['domingo','segunda','terça','quarta','quinta','sexta','sábado'][new Date(d+'T12:00:00').getDay()]}</span><span class="n">${brl(sum(g,i=>i.tipo==='receita'?-i.valor:i.valor))}</span></div>${g.map(i=>`<button class="cdi" type="button" data-l="${esc(i.l.id)}">${catBubble(i.l.categoria||'Outros','sm')}<span class="cdm"><strong>${esc(descSemParc(i.l.desc))}${i.N>1?` <span class="pq ${i.j===i.N?'last':''}">${i.j}/${i.N}</span>`:''}</strong><small>${esc(i.l.categoria||'Outros')} · ${i.tipo==='receita'?'estorno':i.comum?'Comum':'Pessoal'}${i.l.rec?' · recorrente':''}</small></span><b class="n ${i.tipo==='receita'?'pos':''}">${i.tipo==='receita'?'+':'−'}${brl(i.valor)}</b></button>`).join('')}</div>`).join(''):'<p class="note">Nenhum lançamento nesta fatura.</p>'}</section>`;
+    sh.querySelectorAll('[data-cda]').forEach(b=>b.onclick=()=>{const k=b.dataset.cda;if(k==='conf')openConfFat(c,ym);else if(k==='hist')openFatHist(c,y=>{ym=y});else{const t=sh.querySelector(k==='ext'?'#cd-ext':'#cd-an');t&&t.scrollIntoView({behavior:'smooth',block:'start'})}});
     sh.querySelectorAll('[data-pm]').forEach(b=>b.onclick=()=>{ym=ymAdd(ym,+b.dataset.pm);draw(sh)});
     sh.querySelectorAll('[data-l]').forEach(b=>b.onclick=()=>openLanc(S.lanc.find(l=>l.id===b.dataset.l)));
     const pf=sh.querySelector('#d-pf');if(pf)pf.onclick=()=>openPagFat(c,ym);
