@@ -4128,7 +4128,7 @@ function openMenu(){
   const I=(p)=>`<span class="mic"><svg viewBox="0 0 24 24">${p}</svg></span>`;
   openSheet(`<h2>Adicionar</h2><div class="menu">
     <button class="mi" type="button" data-mm="manual">${I('<path d="M12 5v14M5 12h14"/>')}<span><strong>Lançamento</strong><small>Despesa, receita ou transferência</small></span><span class="go">›</span></button>
-    <button class="mi" type="button" data-mm="smart">${I('<path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5"/><path d="M12 10.5l.9 2.6 2.6.9-2.6.9-.9 2.6-.9-2.6-2.6-.9 2.6-.9z"/>')}<span><strong>Ler documento</strong><small>PDF, extrato, fatura, print ou foto: o app identifica e lança</small></span><span class="go">›</span></button>
+    <button class="mi" type="button" data-mm="smart">${I('<path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5"/><path d="M12 10.5l.9 2.6 2.6.9-2.6.9-.9 2.6-.9-2.6-2.6-.9 2.6-.9z"/>')}<span><strong>${S.sample?'Ler documento':'Importar extrato'}</strong><small>${S.sample?'PDF, extrato, fatura, print ou foto: o app identifica e lança':'Arquivo OFX ou CSV do banco: o app classifica e marca o que já existe'}</small></span><span class="go">›</span></button>
     <button class="mi" type="button" data-mm="notas">${I('<path d="M4 20l4-1 11-11-3-3L5 16z"/><path d="M14 6l3 3"/>')}<span><strong>Anotações da ${esc(other(ME()).nome)}</strong><small>Foto do papel ou texto que ela mandou</small></span><span class="go">›</span></button>
   </div>`,sh=>sh.querySelectorAll('[data-mm]').forEach(b=>b.onclick=()=>{const k=b.dataset.mm;if(k==='manual')openLanc(null);else if(k==='smart')openSmartImport();else openImport(k)}),true);
 }
@@ -4204,26 +4204,80 @@ Conteúdo:
 ${text.slice(0,60000)||'(veja as imagens)'}`;
   return await S.sample.json(prompt,{images:imgs.length?imgs:undefined,modelTier:'complex'});
 }
+/* ---------- leitor local de extratos (OFX / CSV), sem IA ---------- */
+const BANKS_COD={'001':'banco do brasil','748':'sicredi','260':'nubank','341':'itau','033':'santander','318':'bmg','323':'mercado pago','237':'bradesco','104':'caixa','077':'inter','336':'c6','756':'sicoob','212':'original','380':'picpay','290':'pagbank'};
+const isLocalDoc=f=>/\.(ofx|qfx|csv|txt)$/i.test(f.name||'')||/csv|ofx/i.test(f.type||'');
+async function readTxt(f){const b=await f.arrayBuffer();try{return new TextDecoder('utf-8',{fatal:true}).decode(b)}catch(e){return new TextDecoder('windows-1252').decode(b)}}
+const nrm=s=>String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/\s+/g,' ').trim();
+function brNum(s){s=String(s||'').trim().replace(/[R$\s]/g,'');if(!s)return NaN;let neg=/^\(.*\)$/.test(s)||/-$/.test(s);s=s.replace(/[()]/g,'').replace(/-$/,'');
+  if(/,\d{1,2}$/.test(s))s=s.replace(/\./g,'').replace(',','.');else if(/\.\d{1,2}$/.test(s))s=s.replace(/,/g,'');else s=s.replace(/[.,]/g,'');const v=parseFloat(s);return neg?-Math.abs(v):v}
+function brDate(s){s=String(s||'').trim();let m=s.match(/^(\d{4})-?(\d\d)-?(\d\d)/);if(m)return `${m[1]}-${m[2]}-${m[3]}`;m=s.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{2,4})/);if(m){const y=m[3].length===2?'20'+m[3]:m[3];return `${y}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`}return ''}
+function natConta(desc,v){const d=nrm(desc);
+  if(/pagto?\.? ?(de )?fatura|pagamento (de )?fatura|pgto cartao|fatura cartao|pagamento cartao/.test(d))return 'pagamento_fatura';
+  if(v>0&&/salario|proventos?|folha|pagto salario|adiantamento salar/.test(d))return 'salario';
+  if(/tarifa|juros|iof|encargo|anuidade|mensalidade pacote|cesta de servicos/.test(d))return 'encargo';
+  if(/aplicacao|resgate|rende facil|bb rende|cdb|poupanca/.test(d))return 'transferencia_propria';
+  return v>0?'credito':'debito'}
+function natCard(desc,v){const d=nrm(desc);if(/pagamento (recebido|efetuado)|pagto|pagamento fatura|credito de pagamento/.test(d))return 'ignorar';if(/juros|iof|encargo|anuidade|multa/.test(d))return 'encargo';return v>0?'estorno':'compra'}
+function matchOrig(kind,bankid,acct,fname){
+  const last=String(acct||'').replace(/\D/g,'').slice(-4),nm=BANKS_COD[String(bankid||'').padStart(3,'0').slice(-3)]||'',fn=nrm(fname);
+  if(kind==='card'){const cs=S.cards.filter(c=>c.ativo!==false);const c=(last&&cs.find(c=>String(c.final||'')===last))||cs.find(c=>nm&&nrm(c.banco||c.nome).includes(nm.split(' ')[0]))||cs.find(c=>fn.includes(nrm(c.nome).split(' ')[0]));return c?{tipo:'cartao',id:c.id}:{}}
+  const as=S.contas.filter(a=>a.ativo!==false&&(!a.tipo||a.tipo==='corrente'));const key=a=>nrm(a.instituicao||a.nome);
+  const a=(last&&as.find(a=>String(a.final||'')===last))||as.find(a=>nm&&key(a).includes(nm))||as.find(a=>nm&&nm.includes(key(a).split(' ')[0]))||as.find(a=>fn.includes(key(a).split(' ')[0]));return a?{tipo:'conta',id:a.id}:{}}
+function parseOFX(txt,fname){
+  const tag=(b,t)=>{const m=b.match(new RegExp('<'+t+'>([^<\\r\\n]*)','i'));return m?m[1].trim():''};
+  const card=/<CREDITCARDMSGSRSV1>|<CCSTMTRS>/i.test(txt),bankid=tag(txt,'BANKID'),acct=tag(txt,'ACCTID');
+  const itens=[...txt.matchAll(/<STMTTRN>([\s\S]*?)(?=<\/STMTTRN>|<STMTTRN>|<\/BANKTRANLIST>)/gi)].map(m=>{const b=m[1],v=brNum(tag(b,'TRNAMT').replace(',','.')),desc=[tag(b,'MEMO'),tag(b,'NAME')].filter(Boolean).filter((x,i,a)=>a.indexOf(x)===i).join(' · ')||tag(b,'TRNTYPE');
+    return {data:brDate(tag(b,'DTPOSTED')),desc:desc.replace(/\s+/g,' ').slice(0,80),valor:Math.abs(v),natureza:card?natCard(desc,v):natConta(desc,v),fitid:tag(b,'FITID')}}).filter(i=>i.data&&i.valor>0&&!/^saldo/i.test(nrm(i.desc)));
+  const bal=txt.match(/<LEDGERBAL>([\s\S]*?)(<\/LEDGERBAL>|<AVAILBAL>|$)/i);
+  return {tipo_doc:card?'fatura_cartao':'extrato_conta',origem:matchOrig(card?'card':'acct',bankid,acct,fname),resumo:`Arquivo OFX ${fname} · ${itens.length} movimentos lidos no aparelho, sem IA.`,
+    saldo_final:!card&&bal?{valor:brNum(tag(bal[1],'BALAMT').replace(',','.')),data:brDate(tag(bal[1],'DTASOF'))}:null,itens}}
+function splitCSV(line,d){const out=[];let cur='',q=false;for(let i=0;i<line.length;i++){const ch=line[i];if(ch==='"'){if(q&&line[i+1]==='"'){cur+='"';i++}else q=!q}else if(ch===d&&!q){out.push(cur);cur=''}else cur+=ch}out.push(cur);return out.map(s=>s.trim())}
+function parseCSV(txt,fname){
+  const lines=txt.replace(/^﻿/,'').split(/\r?\n/).filter(l=>l.trim());if(!lines.length)return null;
+  const d=[';',',','\t'].map(c=>[c,lines.slice(0,10).reduce((s,l)=>s+splitCSV(l,c).length,0)]).sort((a,b)=>b[1]-a[1])[0][0];
+  const rows=lines.map(l=>splitCSV(l,d));
+  let hi=rows.findIndex(r=>r.some(c=>/^(data|date)/i.test(nrm(c)))&&r.some(c=>/valor|amount|value|quantia/i.test(nrm(c))));
+  let cD,cV,cDs=[],cT=-1,cE=-1,cS=-1;
+  if(hi>=0){const H=rows[hi].map(nrm);cD=H.findIndex(h=>/^(data|date)/.test(h));
+    cE=H.findIndex(h=>/^(entrada|credito)/.test(h));cS=H.findIndex(h=>/^(saida|debito)/.test(h));
+    cV=H.findIndex(h=>/^valor|amount|value|quantia/.test(h)&&!/saldo/.test(h));
+    cDs=H.map((h,i)=>/descri|historico|lancamento|title|detalhe|memo|estabelecimento/.test(h)&&!/tipo/.test(h)?i:-1).filter(i=>i>=0);
+    cT=H.findIndex(h=>/tipo|natureza|d\/c|^dc$/.test(h))}
+  else{hi=-1;const r=rows.find(r=>r.some(c=>brDate(c))&&r.some(c=>/\d[.,]\d\d$/.test(c)));if(!r)return null;cD=r.findIndex(c=>brDate(c));cV=r.map((c,i)=>/\d[.,]\d\d$/.test(c)?i:-1).filter(i=>i>=0)[0];cDs=r.map((c,i)=>i!==cD&&i!==cV&&/[a-z]/i.test(c)?i:-1).filter(i=>i>=0).slice(0,2)}
+  const isCard=/fatura|cartao|card|nubank_20/i.test(nrm(fname))&&!/extrato|conta/i.test(nrm(fname));
+  const itens=rows.slice(hi+1).map(r=>{const data=brDate(r[cD]);let v=cV>=0?brNum(r[cV]):NaN;
+    if(isNaN(v)&&(cE>=0||cS>=0)){const e=brNum(r[cE]),s=brNum(r[cS]);v=!isNaN(e)&&e?Math.abs(e):!isNaN(s)&&s?-Math.abs(s):NaN}
+    if(cT>=0&&!isNaN(v)){const t=nrm(r[cT]);if(/^(d|debito|saida)/.test(t))v=-Math.abs(v);else if(/^(c|credito|entrada)/.test(t))v=Math.abs(v)}
+    const desc=cDs.map(i=>r[i]).filter(Boolean).filter((x,i,a)=>a.indexOf(x)===i).join(' · ').replace(/\s+/g,' ').slice(0,80);
+    if(isCard)v=-v; /* faturas em CSV costumam trazer compras positivas */
+    return {data,desc,valor:Math.abs(v),natureza:isCard?natCard(desc,v):natConta(desc,v)}}).filter(i=>i.data&&i.valor>0&&!isNaN(i.valor)&&!/^(saldo|s a l d o|total)/.test(nrm(i.desc)));
+  return {tipo_doc:isCard?'fatura_cartao':'extrato_conta',origem:matchOrig(isCard?'card':'acct','','',fname),resumo:`Arquivo CSV ${fname} · ${itens.length} movimentos lidos no aparelho, sem IA.`,saldo_final:null,itens}}
+async function localRead(files){
+  const outs=[];for(const f of files.filter(isLocalDoc)){const t=await readTxt(f);const o=/<OFX>|OFXHEADER/i.test(t)?parseOFX(t,f.name):parseCSV(t,f.name);if(o&&o.itens.length)outs.push(o)}
+  if(!outs.length)return null;const o=outs[0];if(outs.length>1){o.itens=outs.flatMap(x=>x.itens);o.resumo=`${outs.length} arquivos · ${o.itens.length} movimentos lidos no aparelho, sem IA.`}return o}
 function openSmartImport(pre){
-  openSheet(`<h2>Ler documento</h2>
-    <div class="sid" id="sid" tabindex="0"><span class="sidi">${ic('doc')}</span><b>Envie PDF, extrato, fatura, print ou foto</b><small>O app identifica o tipo, a conta ou o cartão e cria os lançamentos para você conferir.</small>
-      <div class="sidb"><label class="btn sm primary">${ic('clip')}Arquivos<input type="file" id="si-f" accept="application/pdf,.csv,.ofx,.txt,image/*" multiple hidden></label><label class="btn sm">${ic('camera')}Câmera<input type="file" id="si-c" accept="image/*" capture="environment" hidden></label></div>
-      <small class="sidp">Dica: também dá para colar (Ctrl+V) um print aqui.</small></div>
+  openSheet(`<h2>${S.sample?'Ler documento':'Importar extrato'}</h2>
+    <div class="sid" id="sid" tabindex="0"><span class="sidi">${ic('doc')}</span>${S.sample?'<b>Envie PDF, extrato, fatura, print ou foto</b><small>O app identifica o tipo, a conta ou o cartão e cria os lançamentos para você conferir.</small>':'<b>Envie o extrato em OFX ou CSV</b><small>No app do banco, exporte o extrato (ou a fatura) em OFX, também chamado de Money ou Quicken, ou em CSV/Excel. O Patrimônio lê no próprio aparelho, classifica pelo seu histórico e marca o que já foi lançado.</small>'}
+      <div class="sidb"><label class="btn sm primary">${ic('clip')}Arquivos<input type="file" id="si-f" accept="${S.sample?'application/pdf,.csv,.ofx,.txt,image/*':'.ofx,.qfx,.csv,.txt,text/csv,application/x-ofx'}" multiple hidden></label>${S.sample?`<label class="btn sm">${ic('camera')}Câmera<input type="file" id="si-c" accept="image/*" capture="environment" hidden></label>`:''}</div>
+      ${S.sample?'<small class="sidp">Dica: também dá para colar (Ctrl+V) um print aqui.</small>':''}</div>
     <div class="sfl" id="si-l"></div>
-    <div class="field"><label for="si-t">Ou cole o texto</label><textarea id="si-t" placeholder="Linhas copiadas do app do banco, mensagem, anotação…"></textarea></div>
-    <div class="btnrow stick"><button class="btn primary" type="button" id="si-go" ${S.sample?'':'disabled'}>${ic('spark')} Ler e organizar</button></div>
-    ${S.sample?'':'<p class="note">A leitura com IA não está disponível nesta tela.</p>'}<p class="note" id="si-st"></p>`,sh=>{
+    ${S.sample?`<div class="field"><label for="si-t">Ou cole o texto</label><textarea id="si-t" placeholder="Linhas copiadas do app do banco, mensagem, anotação…"></textarea></div>`:'<textarea id="si-t" hidden></textarea>'}
+    <div class="btnrow stick"><button class="btn primary" type="button" id="si-go">${ic('spark')} Ler e organizar</button></div>
+    ${S.sample?'':'<p class="note">PDF, foto e print precisam de leitura com IA, que não está disponível neste app. Para eles, mande o arquivo na conversa com o Claude e importe o lote em importar.html.</p>'}<p class="note" id="si-st"></p>`,sh=>{
     let files=(pre||[]).slice();
     const list=()=>{sh.querySelector('#si-l').innerHTML=files.map((f,i)=>`<span class="sfc">${ic(f.type.startsWith('image/')?'image':f.type==='application/pdf'||/\.pdf$/i.test(f.name)?'pdf':'doc')}<span>${esc(f.name||'print colado')}</span><button type="button" data-rf="${i}" aria-label="Remover">×</button></span>`).join('');sh.querySelectorAll('[data-rf]').forEach(b=>b.onclick=()=>{files.splice(+b.dataset.rf,1);list()})};list();
     const add=fl=>{files.push(...[...fl]);list()};
-    sh.querySelector('#si-f').onchange=e=>add(e.target.files);sh.querySelector('#si-c').onchange=e=>add(e.target.files);
+    sh.querySelector('#si-f').onchange=e=>add(e.target.files);const cam=sh.querySelector('#si-c');if(cam)cam.onchange=e=>add(e.target.files);
     const dz=sh.querySelector('#sid');dz.ondragover=e=>{e.preventDefault();dz.classList.add('on')};dz.ondragleave=()=>dz.classList.remove('on');dz.ondrop=e=>{e.preventDefault();dz.classList.remove('on');add(e.dataTransfer.files)};
     const onPaste=e=>{const it=[...(e.clipboardData||{}).items||[]].filter(x=>x.kind==='file').map(x=>x.getAsFile()).filter(Boolean);if(it.length){e.preventDefault();add(it.map((f,i)=>new File([f],f.name||`print-${Date.now()}-${i}.png`,{type:f.type})))}};
     sh.addEventListener('paste',onPaste);
     sh.querySelector('#si-go').onclick=async()=>{const txt=sh.querySelector('#si-t').value.trim(),st=sh.querySelector('#si-st'),go=sh.querySelector('#si-go');
       if(!files.length&&!txt){toast('Envie um arquivo ou cole o texto');return}
       go.disabled=true;st.innerHTML='<span class="spin"></span> Lendo e identificando o documento…';
-      try{const out=await smartRead(files,txt);if(!out||!Array.isArray(out.itens)||!out.itens.length){st.textContent='Não encontrei movimentos. Confira o arquivo ou cole o texto.';go.disabled=false;return}
+      try{const loc=files.length&&files.every(isLocalDoc)?await localRead(files):null;
+        if(!loc&&!S.sample){go.disabled=false;st.textContent=files.length?'Não reconheci movimentos neste arquivo. Use OFX ou CSV exportado pelo banco.':'Cole o texto só funciona com a leitura por IA. Envie o arquivo OFX ou CSV.';return}
+        const out=loc||await smartRead(files,txt);if(!out||!Array.isArray(out.itens)||!out.itens.length){st.textContent='Não encontrei movimentos. Confira o arquivo ou cole o texto.';go.disabled=false;return}
         reviewSmart(out,files)}
       catch(err){go.disabled=false;st.textContent=err&&err.code==='images_unavailable'?'Este arquivo é imagem ou PDF escaneado e a leitura de imagens não está liberada aqui. Cole o texto.':err&&err.code==='rate_limited'?'Muitas leituras seguidas. Espere um pouco e tente de novo.':err&&err.code==='not_granted'?'A leitura com IA não foi autorizada.':'Não consegui ler. Tente outro arquivo ou cole o texto.'}};
   });
