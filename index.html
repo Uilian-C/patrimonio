@@ -1691,30 +1691,74 @@ html:has(#overlay:not([hidden])),html:has(#overlay:not([hidden])) body{overflow:
 .rdash:has(#ac-sm.on){padding-bottom:110px}
 
 /* calculadora */
-.cxw{position:fixed;inset:0;z-index:60;display:flex;flex-direction:column;justify-content:flex-end}
-.cxbk{flex:1;background:rgba(8,8,9,.38);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);opacity:0;transition:opacity .18s}
-.cxw.on .cxbk{opacity:1}
-.cxp{position:relative;width:100%;max-width:480px;margin:0 auto;background:var(--surface);border-radius:28px 28px 0 0;padding:8px 18px calc(18px + env(safe-area-inset-bottom,0px));box-shadow:0 -24px 60px -24px rgba(0,0,0,.55);transform:translateY(100%);transition:transform .24s cubic-bezier(.2,.8,.2,1)}
-.cxw.on .cxp{transform:none}
-.cxg{display:block;width:36px;height:4px;border-radius:4px;background:var(--hair);margin:0 auto 8px}
-.cxh{display:flex;align-items:center;justify-content:space-between;font-size:13px;font-weight:600;color:var(--muted);letter-spacing:.02em}
-.cxx{width:32px;height:32px;border-radius:50%;border:0;background:var(--sunk);color:var(--muted);display:grid;place-items:center}.cxx .ic{width:16px;height:16px}
-.cxd{display:grid;justify-items:end;gap:4px;padding:18px 4px 16px;min-height:96px;border-bottom:1px solid var(--hair);margin-bottom:14px}
-.cxd small{font-size:15px;color:var(--muted);font-variant-numeric:tabular-nums;word-break:break-all;text-align:right;min-height:20px}
-.cxd b{font-size:44px;font-weight:600;letter-spacing:-.045em;line-height:1;color:var(--ink);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;transition:font-size .15s}.cxd b.sm{font-size:32px}
-.cxk{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
-.cxb{height:58px;border-radius:18px;border:0;background:var(--sunk);color:var(--ink);font:inherit;font-size:22px;font-weight:500;font-variant-numeric:tabular-nums;display:grid;place-items:center;transition:transform .08s,background .15s;-webkit-tap-highlight-color:transparent}
-.cxb:active{transform:scale(.94);background:var(--hair)}
-.cxb .ic{width:22px;height:22px}
-.cxb.fn{background:transparent;border:1px solid var(--hair);color:var(--muted);font-size:17px;font-weight:600}
-.cxb.op{background:transparent;border:1px solid color-mix(in srgb,var(--accent) 45%,transparent);color:var(--accent);font-size:25px}
-.cxb.eq{background:color-mix(in srgb,var(--accent) 18%,transparent);color:var(--accent);font-size:25px}
-.cxok{margin-top:12px;width:100%;height:56px;border-radius:18px;border:0;background:var(--ink);color:var(--surface);font:inherit;font-size:16px;font-weight:650;display:flex;align-items:center;justify-content:center;gap:8px}
-.cxok b{font-weight:650}.cxok:disabled{opacity:.4}
+.kcw{position:fixed;inset:0;z-index:60;display:flex;flex-direction:column;justify-content:flex-end}
+.kcbk{flex:1;background:rgba(8,8,9,.38);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);opacity:0;transition:opacity .18s}
+.kcw.on .kcbk{opacity:1}
+.kcp{position:relative;width:100%;max-width:480px;margin:0 auto;background:var(--surface);border-radius:28px 28px 0 0;padding:8px 18px calc(18px + env(safe-area-inset-bottom,0px));box-shadow:0 -24px 60px -24px rgba(0,0,0,.55);transform:translateY(100%);transition:transform .24s cubic-bezier(.2,.8,.2,1)}
+.kcw.on .kcp{transform:none}
+.kcg{display:block;width:36px;height:4px;border-radius:4px;background:var(--hair);margin:0 auto 8px}
+.kch{display:flex;align-items:center;justify-content:space-between;font-size:13px;font-weight:600;color:var(--muted);letter-spacing:.02em}
+.kcx{width:32px;height:32px;border-radius:50%;border:0;background:var(--sunk);color:var(--muted);display:grid;place-items:center}.kcx .ic{width:16px;height:16px}
+.kcd{display:grid;justify-items:end;gap:4px;padding:18px 4px 16px;min-height:96px;border-bottom:1px solid var(--hair);margin-bottom:14px}
+.kcd small{font-size:15px;color:var(--muted);font-variant-numeric:tabular-nums;word-break:break-all;text-align:right;min-height:20px}
+.kcd b{font-size:44px;font-weight:600;letter-spacing:-.045em;line-height:1;color:var(--ink);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;transition:font-size .15s}.kcd b.sm{font-size:32px}
+.kck{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.kcb{height:58px;border-radius:18px;border:0;background:var(--sunk);color:var(--ink);font:inherit;font-size:22px;font-weight:500;font-variant-numeric:tabular-nums;display:grid;place-items:center;transition:transform .08s,background .15s;-webkit-tap-highlight-color:transparent}
+.kcb:active{transform:scale(.94);background:var(--hair)}
+.kcb .ic{width:22px;height:22px}
+.kcb.fn{background:transparent;border:1px solid var(--hair);color:var(--muted);font-size:17px;font-weight:600}
+.kcb.op{background:transparent;border:1px solid color-mix(in srgb,var(--accent) 45%,transparent);color:var(--accent);font-size:25px}
+.kcb.eq{background:color-mix(in srgb,var(--accent) 18%,transparent);color:var(--accent);font-size:25px}
+.kcok{margin-top:12px;width:100%;height:56px;border-radius:18px;border:0;background:var(--ink);color:var(--surface);font:inherit;font-size:16px;font-weight:650;display:flex;align-items:center;justify-content:center;gap:8px}
+.kcok b{font-weight:650}.kcok:disabled{opacity:.4}
 /* ocultar valores também no saldo principal (a animação de entrada anulava o blur) */
 .hv .hero .hval{animation:none!important;filter:blur(10px)!important}
 .hv .hero .hfc b,.hv .hero .hsplit b,.hv .hero .n{filter:blur(7px)}
 .hv .hero svg text,.hv .hero .hfn .up,.hv .hero .hfn .dn,.hv .hero .hs b,.hv .hero em b{filter:blur(6px)}
+
+/* cartão principal: cores por tema (modo claro deixa de ser um bloco escuro) */
+:root{--hero-acc:#E2BA6E;--hero-good:#8FE0B2;--hero-neg:#FF9C90;--hero-warn:#FFC97A;--hero-glass:rgba(255,255,255,.06)}
+@media (prefers-color-scheme: light){:root:not([data-theme="dark"]){--hero-bg:#FFFDF8;--hero-ink:#171614;--hero-mut:#77736A;--hero-line:rgba(23,22,20,.08);--hero-acc:#A87A26;--hero-good:#2C8C62;--hero-neg:#C8463C;--hero-warn:#B5781E;--hero-glass:rgba(23,22,20,.04)}}
+:root[data-theme="light"]{--hero-bg:#FFFDF8;--hero-ink:#171614;--hero-mut:#77736A;--hero-line:rgba(23,22,20,.08);--hero-acc:#A87A26;--hero-good:#2C8C62;--hero-neg:#C8463C;--hero-warn:#B5781E;--hero-glass:rgba(23,22,20,.04)}
+@media (prefers-color-scheme: light){:root:not([data-theme="dark"]) .hero{background:radial-gradient(80% 60% at 100% 0%,rgba(226,186,110,.22) 0%,transparent 70%),radial-gradient(60% 45% at 0% 100%,rgba(226,186,110,.08) 0%,transparent 70%),var(--hero-bg);box-shadow:0 1px 2px rgba(23,22,20,.04),0 24px 48px -32px rgba(120,90,30,.28),inset 0 1px 0 #fff}}
+:root[data-theme="light"] .hero{background:radial-gradient(80% 60% at 100% 0%,rgba(226,186,110,.22) 0%,transparent 70%),radial-gradient(60% 45% at 0% 100%,rgba(226,186,110,.08) 0%,transparent 70%),var(--hero-bg);box-shadow:0 1px 2px rgba(23,22,20,.04),0 24px 48px -32px rgba(120,90,30,.28),inset 0 1px 0 #fff}
+.hero .eye{background:var(--hero-glass)}
+.hval.neg,.hsplit b.neg{color:var(--hero-neg)!important}
+.hfa{color:var(--hero-mut);opacity:.5}
+.hfn .up{color:var(--hero-good)}.hfn .dn{color:var(--hero-neg)}
+.hfe b,.hsplit>div b{color:var(--hero-acc)}
+.hch{color:var(--hero-ink)}.hch text{fill:var(--hero-mut)}.hch text.on{fill:var(--hero-ink)}.hch .he{fill:var(--hero-good)}.hch .hm{fill:var(--hero-warn)}.hch .hz{fill:var(--hero-neg)}
+
+:root{--hero-line2:rgba(255,255,255,.35)}:root[data-theme="light"]{--hero-line2:rgba(23,22,20,.18)}@media (prefers-color-scheme: light){:root:not([data-theme="dark"]){--hero-line2:rgba(23,22,20,.18)}}
+:root[data-theme="light"] .hero .hcomp{border-top-color:var(--hero-line)}
+:root[data-theme="light"] .hero .hcs,:root[data-theme="light"] .hero .hsk,:root[data-theme="light"] .hero .hzr span small,:root[data-theme="light"] .hero .hzr.sub span{color:var(--hero-mut)}
+:root[data-theme="light"] .hero .hzg>summary span,:root[data-theme="light"] .hero .hsl span,:root[data-theme="light"] .hero .hzr.fut span,:root[data-theme="light"] .hero .hzr.sub span{color:var(--hero-mut)}
+:root[data-theme="light"] .hero .hsl b{color:var(--hero-ink)}
+:root[data-theme="light"] .hero .hlk,:root[data-theme="light"] .hero .hzr.end span,:root[data-theme="light"] .hero .hzr.end b,:root[data-theme="light"] .hero .hzr .hzp{color:var(--hero-good)}
+:root[data-theme="light"] .hero .hzr .hzm{color:var(--hero-neg)}
+:root[data-theme="light"] .hero .hzr.past>i::before,:root[data-theme="light"] .hero .hzg.past .hzr>i::before{background:rgba(23,22,20,.35)}
+:root[data-theme="light"] .hero .hzr.fut>i::before,:root[data-theme="light"] .hero .hzr.end>i::before{background:repeating-linear-gradient(to bottom,var(--hero-good) 0 4px,transparent 4px 8px)}
+:root[data-theme="light"] .hero .hzr.now>i::before{background:linear-gradient(to bottom,rgba(23,22,20,.35) 50%,transparent 50%),repeating-linear-gradient(to bottom,var(--hero-good) 0 4px,transparent 4px 8px)}
+:root[data-theme="light"] .hero .hzr.ms .hzd::after{background:rgba(23,22,20,.45)}
+:root[data-theme="light"] .hero .hzr.now .hzd::after{background:var(--hero-ink);box-shadow:0 0 0 4px rgba(23,22,20,.1)}
+:root[data-theme="light"] .hero .hzr.end .hzd::after{background:var(--hero-good)}
+:root[data-theme="light"] .hero .hzr b{color:var(--hero-ink)}
+@media (prefers-color-scheme: light){
+:root:not([data-theme="dark"]) .hero .hcomp{border-top-color:var(--hero-line)}
+:root:not([data-theme="dark"]) .hero .hcs,:root:not([data-theme="dark"]) .hero .hsk,:root:not([data-theme="dark"]) .hero .hzr span small,:root:not([data-theme="dark"]) .hero .hzr.sub span{color:var(--hero-mut)}
+:root:not([data-theme="dark"]) .hero .hzg>summary span,:root:not([data-theme="dark"]) .hero .hsl span,:root:not([data-theme="dark"]) .hero .hzr.fut span,:root:not([data-theme="dark"]) .hero .hzr.sub span{color:var(--hero-mut)}
+:root:not([data-theme="dark"]) .hero .hsl b{color:var(--hero-ink)}
+:root:not([data-theme="dark"]) .hero .hlk,:root:not([data-theme="dark"]) .hero .hzr.end span,:root:not([data-theme="dark"]) .hero .hzr.end b,:root:not([data-theme="dark"]) .hero .hzr .hzp{color:var(--hero-good)}
+:root:not([data-theme="dark"]) .hero .hzr .hzm{color:var(--hero-neg)}
+:root:not([data-theme="dark"]) .hero .hzr.past>i::before,:root:not([data-theme="dark"]) .hero .hzg.past .hzr>i::before{background:rgba(23,22,20,.35)}
+:root:not([data-theme="dark"]) .hero .hzr.fut>i::before,:root:not([data-theme="dark"]) .hero .hzr.end>i::before{background:repeating-linear-gradient(to bottom,var(--hero-good) 0 4px,transparent 4px 8px)}
+:root:not([data-theme="dark"]) .hero .hzr.now>i::before{background:linear-gradient(to bottom,rgba(23,22,20,.35) 50%,transparent 50%),repeating-linear-gradient(to bottom,var(--hero-good) 0 4px,transparent 4px 8px)}
+:root:not([data-theme="dark"]) .hero .hzr.ms .hzd::after{background:rgba(23,22,20,.45)}
+:root:not([data-theme="dark"]) .hero .hzr.now .hzd::after{background:var(--hero-ink);box-shadow:0 0 0 4px rgba(23,22,20,.1)}
+:root:not([data-theme="dark"]) .hero .hzr.end .hzd::after{background:var(--hero-good)}
+:root:not([data-theme="dark"]) .hero .hzr b{color:var(--hero-ink)}
+}
+.hero .hflow,.hero .hsplit>*{color:var(--hero-ink)}
 </style>
 </head>
 <body>
@@ -2442,14 +2486,14 @@ function heroChart(F,ym){
   const mi=F.min&&F.min.v<Math.min(F.final,sr[Math.max(ri,0)].v)-1?sr.findIndex(x=>x.d===F.min.d):-1;
   const ticks=[0,7,14,21,n-1];
   return `<svg viewBox="0 0 ${W} ${H}" class="hch" role="img" aria-label="Saldo dia a dia no mês">
-    <defs><linearGradient id="hcg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".28"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient><linearGradient id="hcg2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E2BA6E" stop-opacity=".18"/><stop offset="1" stop-color="#E2BA6E" stop-opacity="0"/></linearGradient></defs>
-    ${ticks.map(i=>`<line x1="${xs(i)}" x2="${xs(i)}" y1="${T}" y2="${B}" stroke="rgba(255,255,255,.07)"/>`).join('')}
-    ${mn<0?`<line x1="${L}" x2="${R}" y1="${ys(0)}" y2="${ys(0)}" stroke="#FF9C8F" stroke-opacity=".7" stroke-dasharray="3 3"/><text x="${R}" y="${ys(0)-3}" text-anchor="end" class="hz">zero</text>`:''}
-    ${ent.map(e=>`<line x1="${xs(e.i)}" x2="${xs(e.i)}" y1="${T-2}" y2="${B}" stroke="#E2BA6E" stroke-opacity=".35" stroke-dasharray="1 3"/><text x="${xs(e.i)}" y="${T-6}" text-anchor="${e.i>n*.85?'end':e.i<n*.1?'start':'middle'}" class="he">+${kf(e.d).replace(/R\$\s*/,'')}</text>`).join('')}
-    ${P2.length>1?`<path d="M${xs(P2[0])},${B} L${P2.map(pt).join(' L')} L${xs(P2[P2.length-1])},${B} Z" fill="url(#hcg2)"/><polyline points="${P2.map(pt).join(' ')}" fill="none" stroke="#E2BA6E" stroke-width="2" stroke-dasharray="5 4" stroke-linejoin="round"/>`:''}
-    ${P1.length>1?`<path d="M${xs(0)},${B} L${P1.map(pt).join(' L')} L${xs(P1[P1.length-1])},${B} Z" fill="url(#hcg)"/><polyline points="${P1.map(pt).join(' ')}" fill="none" stroke="#fff" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>`:''}
-    ${mi>=0?`<circle cx="${xs(mi)}" cy="${ys(sr[mi].v)}" r="4" fill="#F2A35E" stroke="#141416" stroke-width="1.5"/><text x="${xs(mi)}" y="${Math.min(ys(sr[mi].v)+15,B+1)}" text-anchor="middle" class="hm">menor ${kf(sr[mi].v).replace(/R\$\s*/,'')}</text>`:''}
-    ${ri>=0?`<circle cx="${xs(ri)}" cy="${ys(sr[ri].v)}" r="6" fill="#fff" fill-opacity=".25"/><circle cx="${xs(ri)}" cy="${ys(sr[ri].v)}" r="3.6" fill="#fff"/>`:''}
+    <defs><linearGradient id="hcg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="currentColor" stop-opacity=".28"/><stop offset="1" stop-color="currentColor" stop-opacity="0"/></linearGradient><linearGradient id="hcg2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--hero-acc)" stop-opacity=".18"/><stop offset="1" style="stop-color:var(--hero-acc)" stop-opacity="0"/></linearGradient></defs>
+    ${ticks.map(i=>`<line x1="${xs(i)}" x2="${xs(i)}" y1="${T}" y2="${B}" stroke="currentColor" stroke-opacity=".08"/>`).join('')}
+    ${mn<0?`<line x1="${L}" x2="${R}" y1="${ys(0)}" y2="${ys(0)}" style="stroke:var(--hero-neg)" stroke-opacity=".7" stroke-dasharray="3 3"/><text x="${R}" y="${ys(0)-3}" text-anchor="end" class="hz">zero</text>`:''}
+    ${ent.map(e=>`<line x1="${xs(e.i)}" x2="${xs(e.i)}" y1="${T-2}" y2="${B}" style="stroke:var(--hero-acc)" stroke-opacity=".35" stroke-dasharray="1 3"/><text x="${xs(e.i)}" y="${T-6}" text-anchor="${e.i>n*.85?'end':e.i<n*.1?'start':'middle'}" class="he">+${kf(e.d).replace(/R\$\s*/,'')}</text>`).join('')}
+    ${P2.length>1?`<path d="M${xs(P2[0])},${B} L${P2.map(pt).join(' L')} L${xs(P2[P2.length-1])},${B} Z" fill="url(#hcg2)"/><polyline points="${P2.map(pt).join(' ')}" fill="none" style="stroke:var(--hero-acc)" stroke-width="2" stroke-dasharray="5 4" stroke-linejoin="round"/>`:''}
+    ${P1.length>1?`<path d="M${xs(0)},${B} L${P1.map(pt).join(' L')} L${xs(P1[P1.length-1])},${B} Z" fill="url(#hcg)"/><polyline points="${P1.map(pt).join(' ')}" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>`:''}
+    ${mi>=0?`<circle cx="${xs(mi)}" cy="${ys(sr[mi].v)}" r="4" style="fill:var(--hero-warn);stroke:var(--hero-bg)" stroke-width="1.5"/><text x="${xs(mi)}" y="${Math.min(ys(sr[mi].v)+15,B+1)}" text-anchor="middle" class="hm">menor ${kf(sr[mi].v).replace(/R\$\s*/,'')}</text>`:''}
+    ${ri>=0?`<circle cx="${xs(ri)}" cy="${ys(sr[ri].v)}" r="6" fill="currentColor" fill-opacity=".25"/><circle cx="${xs(ri)}" cy="${ys(sr[ri].v)}" r="3.6" fill="currentColor"/>`:''}
     ${ticks.map(i=>`<text x="${xs(i)}" y="${H-6}" text-anchor="${i===0?'start':i===n-1?'end':'middle'}" class="ht ${i===ri?'on':''}">${i+1}</text>`).join('')}
   </svg>`;
 }
@@ -2460,7 +2504,7 @@ function heroComp(F,me,ym){
   const fut=[['Receitas',Pv.rec],['Despesas',-Pv.desp],['Faturas',-Pv.fat],['Dia a dia (estimado)',Pv.cv||0],['Repasses para '+gn,Pv.gab||0],[Pv.ac>0?'Acerto · abate repasses':'Acerto · você completa',Pv.ac]].filter(x=>Math.abs(x[1])>=.5);
   const dv=F.balHoje-F.inicial,cl=v=>v<0?'hzm':'hzp';
   const tot=F.efet+sum(F.venc,x=>-x.v)+sum(F.prox,x=>-x.v)+sum(F.dist,x=>-x.v)||1;
-  const st=[['Efetivadas',F.efet,'#9FEBC6'],['Vencidas',sum(F.venc,x=>-x.v),'#FF9C8F'],['Próx. 7 dias',sum(F.prox,x=>-x.v),'#FFC97A'],['Mais adiante',sum(F.dist,x=>-x.v),'rgba(255,255,255,.35)']];
+  const st=[['Efetivadas',F.efet,'var(--hero-good)'],['Vencidas',sum(F.venc,x=>-x.v),'var(--hero-neg)'],['Próx. 7 dias',sum(F.prox,x=>-x.v),'var(--hero-warn)'],['Mais adiante',sum(F.dist,x=>-x.v),'var(--hero-line2)']];
   const open=LS('pt-hx','0')==='1',ld=lastDay(ymAdd(ym,-1));
   return `<details class="hcomp" ${open?'open':''}><summary><span>Composição do mês</span><span class="hcs">${ic('down','chev')}</span></summary>
     <div class="hzx">
@@ -4828,15 +4872,15 @@ function calcEval(ex){const s=ex.replace(/×/g,'*').replace(/÷/g,'/').replace(/
 function openCalc(ini,onOk){
   const old=document.getElementById('calc');if(old)old.remove();
   let ex=ini?String(ini).replace('.',','):'';
-  const w=document.createElement('div');w.id='calc';w.className='cxw';w.setAttribute('role','dialog');w.setAttribute('aria-label','Calculadora');
+  const w=document.createElement('div');w.id='calc';w.className='kcw';w.setAttribute('role','dialog');w.setAttribute('aria-label','Calculadora');
   const K=[['C','fn'],['⌫','fn'],['%','fn'],['÷','op'],['7'],['8'],['9'],['×','op'],['4'],['5'],['6'],['−','op'],['1'],['2'],['3'],['+','op'],['00'],['0'],[','],['=','eq']];
-  w.innerHTML=`<div class="cxbk"></div><div class="cxp"><i class="cxg" aria-hidden="true"></i><div class="cxh"><span>Calculadora</span><button type="button" class="cxx" aria-label="Fechar">${ic('close')}</button></div>
-    <div class="cxd"><small id="cx">&nbsp;</small><b class="n" id="cr"></b></div>
-    <div class="cxk">${K.map(([t,k])=>`<button type="button" class="cxb ${k||'num'}" data-k="${t}" aria-label="${{'⌫':'Apagar','C':'Limpar','%':'Porcentagem'}[t]||t}">${t==='⌫'?ic('back'):t}</button>`).join('')}</div>
-    <button type="button" class="cxok" data-k="✓">Usar <b class="n" id="cu"></b></button></div>`;
+  w.innerHTML=`<div class="kcbk"></div><div class="kcp"><i class="kcg" aria-hidden="true"></i><div class="kch"><span>Calculadora</span><button type="button" class="kcx" aria-label="Fechar">${ic('close')}</button></div>
+    <div class="kcd"><small id="cx">&nbsp;</small><b class="n" id="cr"></b></div>
+    <div class="kck">${K.map(([t,k])=>`<button type="button" class="kcb ${k||'num'}" data-k="${t}" aria-label="${{'⌫':'Apagar','C':'Limpar','%':'Porcentagem'}[t]||t}">${t==='⌫'?ic('back'):t}</button>`).join('')}</div>
+    <button type="button" class="kcok" data-k="✓">Usar <b class="n" id="cu"></b></button></div>`;
   document.body.appendChild(w);requestAnimationFrame(()=>w.classList.add('on'));
   const hasOp=()=>/[+−×÷]/.test(ex.slice(1));
-  const upd=()=>{const r=calcEval(ex),ok=!isNaN(r);w.querySelector('#cx').innerHTML=hasOp()?esc(ex.replace(/([+−×÷])/g,' $1 ')):'&nbsp;';const cr=w.querySelector('#cr');cr.textContent=ex?(ok?brl(r):'—'):brl(0);cr.classList.toggle('sm',cr.textContent.length>13);w.querySelector('#cu').textContent=ok&&r>=0?brl(r):'';w.querySelector('.cxok').disabled=!(ok&&r>=0);w.querySelector('[data-k="C"]').textContent=ex?'C':'AC'};upd();
+  const upd=()=>{const r=calcEval(ex),ok=!isNaN(r);w.querySelector('#cx').innerHTML=hasOp()?esc(ex.replace(/([+−×÷])/g,' $1 ')):'&nbsp;';const cr=w.querySelector('#cr');cr.textContent=ex?(ok?brl(r):'—'):brl(0);cr.classList.toggle('sm',cr.textContent.length>13);w.querySelector('#cu').textContent=ok&&r>=0?brl(r):'';w.querySelector('.kcok').disabled=!(ok&&r>=0);w.querySelector('[data-k="C"]').textContent=ex?'C':'AC'};upd();
   const close=()=>{w.classList.remove('on');document.removeEventListener('keydown',kd,true);setTimeout(()=>w.remove(),180)};
   const press=t=>{const last=ex.slice(-1),isOp=c=>'+−×÷'.includes(c),seg=ex.split(/[+−×÷]/).pop();
     if(navigator.vibrate)try{navigator.vibrate(6)}catch(e){}
@@ -4849,7 +4893,7 @@ function openCalc(ini,onOk){
     else{for(const d of t){const sg=ex.split(/[+−×÷]/).pop();if(/,\d\d$/.test(sg))break;if(sg==='0'&&d==='0')break;ex+=d}}
     upd()};
   w.querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>press(b.dataset.k==='C'&&!ex?'AC':b.dataset.k));
-  w.querySelector('.cxbk').onclick=close;w.querySelector('.cxx').onclick=close;
+  w.querySelector('.kcbk').onclick=close;w.querySelector('.kcx').onclick=close;
   const kd=e=>{const m={'*':'×','x':'×','/':'÷','-':'−','+':'+','Enter':'✓','=':'=','Backspace':'⌫','Delete':'C','Escape':'esc','.':',',',':',','%':'%'};let k=m[e.key]||(/^\d$/.test(e.key)?e.key:null);if(!k)return;e.preventDefault();e.stopPropagation();if(k==='esc')close();else press(k)};
   document.addEventListener('keydown',kd,true);
 }
