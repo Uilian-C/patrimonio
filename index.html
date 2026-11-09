@@ -1637,6 +1637,11 @@ html:has(#overlay:not([hidden])),html:has(#overlay:not([hidden])) body{overflow:
 .fxr>b{font-size:16px;font-weight:600;letter-spacing:-.02em}.fxr.hd span{color:var(--muted);font-size:13px}
 .fxn{margin-top:10px}.fxn>summary{list-style:none;cursor:pointer;font-size:12.5px;color:var(--accent);font-weight:550}.fxn>summary::-webkit-details-marker{display:none}.fxn .note{margin-top:6px}
 [data-cf].btn.sm{border:0!important;background:var(--sunk)!important;padding:7px 12px!important;font-size:12.5px!important;border-radius:99px!important}
+
+.lnum{width:52px;height:34px;text-align:center;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink);font:inherit;font-weight:650;font-size:15px;-moz-appearance:textfield}
+.lnum::-webkit-inner-spin-button{-webkit-appearance:none}
+.lof{font-size:12.5px;color:var(--muted);margin-left:6px;align-self:center}
+.lpm{margin:6px 0 4px}.lpm button{padding:10px 12px!important}.lpm small{display:block;font-size:11px;color:var(--muted);font-weight:400}
 </style>
 </head>
 <body>
@@ -4652,7 +4657,7 @@ function openLanc(l,opts){
   if(isNew&&!l.cartao&&!l.conta&&l.tipo==='despesa'){const bc=bestCards(S.cards.filter(c=>c.ativo!==false&&c.dono===ME()).map(cardStats))[0],c=bc?bc.c:S.cards.find(c=>c.dono===ME()&&c.ativo!==false);if(c)l.cartao=c.id;else l.conta=(S.contas[0]||{}).id}
   const st={pend:!!l.pend,venc:l.venc||'',tipo:l.tipo,valor:Math.abs(+l.valor||0),neg:(+l.valor||0)<0,desc:l.desc||'',src:l.cartao?'card:'+l.cartao:l.conta?'acct:'+l.conta:'',dest:l.destino||'',data:l.data||today(),
     n:+l.parcelas||1,k:+l.parcela||1,div:l.divisao==='pessoal'?'pessoal':'comum',cat:l.categoria||'Outros',sub:l.subcategoria||'',tags:(l.tags||[]).slice(),fatura:l.fatura||'',obs:l.obs||'',open:'',
-    rep:'unica',rn:2,rfim:'',gab:!!l.para,enc:+l.encargos||0,desc2:+l.desconto||0,adj:(+l.encargos?'enc':+l.desconto?'desc':''),ign:Object.assign({},l.ign||{}),anexos:(l.anexos||[]).slice(),cont:!!(opts&&opts.cont),
+    rep:'unica',rn:2,rfim:'',pm:'div',gab:!!l.para,enc:+l.encargos||0,desc2:+l.desconto||0,adj:(+l.encargos?'enc':+l.desconto?'desc':''),ign:Object.assign({},l.ign||{}),anexos:(l.anexos||[]).slice(),cont:!!(opts&&opts.cont),
     more:!!(l.obs||l.fatura||(+l.parcela||1)>1||l.para||+l.encargos||+l.desconto||(l.anexos||[]).length||l.ign)};
   const TIPOS={despesa:['Despesa','crit'],receita:['Receita','good'],transf:['Transferência','accent'],pagfat:['Pagar fatura','accent'],ajuste:['Ajuste de saldo','accent']};
   const srcInfo=v=>{if(!v)return null;const [k,id]=[v.slice(0,4),v.slice(5)];if(k==='card'){const c=card(id);return c&&{c,ic:cardGlyph(c),nm:c.nome,sub:'cartão de crédito'+(c.dono!==ME()?' · '+P(c.dono).nome:'')}}const a=conta(id);return a&&{a,ic:bankBadge(a,a.tipo),nm:a.nome,sub:(TCONTA[a.tipo||'corrente']||'conta').toLowerCase()+(a.dono!==ME()?' · '+P(a.dono).nome:'')}};
@@ -4692,7 +4697,9 @@ function openLanc(l,opts){
       if(!isNew&&st.rep==='unica'&&cardSel&&st.n>1)st.rep='parc';
       const showRep=isNew||(cardSel&&t==='despesa');
       if(showRep)h+=sec('Repetir lançamento',`<div class="lchips">${reps.map(([k,n])=>`<button type="button" class="lchip" data-rep="${k}" aria-pressed="${(st.rep==='parc'||(cardSel&&st.n>1)?'parc':st.rep)===k}">${I(k==='unica'?'checkc':k==='fixo'?'repeat':'split')}${n}</button>`).join('')}</div>
-        ${(st.rep==='parc'||(cardSel&&st.n>1))?`<div class="lr lstep">${I('split')}<span class="lrt">${cardSel?(isNew?'Parcelas no cartão':'Parcelas'):'Parcelas mensais'}<small>${st.valor?(isNew?`${(cardSel?st.n:st.rn)}x de ${brl(total()/(cardSel?st.n:st.rn))}`:`parcela ${st.k} de ${st.n} · ${brl(st.valor)}`):'informe o valor total'}</small></span><span class="stp2"><button type="button" data-n="-1" aria-label="Menos">−</button><b class="n">${cardSel?st.n:st.rn}x</b><button type="button" data-n="1" aria-label="Mais">+</button></span></div>`:''}
+        ${(st.rep==='parc'||(cardSel&&st.n>1))?(()=>{const N=cardSel?st.n:st.rn,pv=st.pm==='mul'?total():total()/N,tv=st.pm==='mul'?total()*N:total();return `<div class="lr lstep">${I('split')}<span class="lrt">${cardSel?(isNew?'Parcelas no cartão':'Parcelas'):'Parcelas mensais'}<small>${st.valor?(isNew?`${N}x de ${brl(pv)} · total ${brl(tv)}`:`parcela ${st.k} de ${st.n} · ${brl(st.valor)}`):(st.pm==='mul'?'informe o valor da parcela':'informe o valor total')}</small></span><span class="stp2"><button type="button" data-n="-1" aria-label="Menos">−</button><input class="n lnum" id="l-pn" type="number" inputmode="numeric" min="${cardSel?1:2}" max="${cardSel?48:72}" value="${N}" aria-label="Número de parcelas"><button type="button" data-n="1" aria-label="Mais">+</button></span></div>
+        ${isNew?`<div class="lseg lpm"><button type="button" data-pm="div" aria-pressed="${st.pm==='div'}"><span>Dividir<small>o valor é o total da compra</small></span></button><button type="button" data-pm="mul" aria-pressed="${st.pm==='mul'}"><span>Multiplicar<small>o valor é o de cada parcela</small></span></button></div>`:''}
+        ${cardSel?`<div class="lr">${I('split')}<span class="lrt">Parcela atual<small>se a compra já começou, informe em qual parcela está</small></span><span class="stp2"><input class="n lnum" id="l-pk" type="number" inputmode="numeric" min="1" max="${st.n}" value="${st.k}" aria-label="Parcela atual"><span class="lof">de ${st.n}</span></span></div>`:''}`})():''}
         ${st.rep==='fixo'?`<div class="lr">${I('repeat')}<span class="lrt">Todo dia ${+st.data.slice(8)}<small>${st.rfim?'até '+ymL(st.rfim):'sem data para terminar'}</small></span><input type="month" id="l-rf" class="lmon" value="${esc(st.rfim)}" aria-label="Termina em"></div>`:''}`);
     }
     if(t==='despesa')h+=sec('Divisão',`<div class="lseg"><button type="button" data-div="comum" aria-pressed="${st.div==='comum'}">${I('couple')}<span>Comum<small>${st.valor?brl(total()/2)+' cada':'metade cada'}</small></span></button><button type="button" data-div="pessoal" aria-pressed="${st.div==='pessoal'}">${I('user')}<span>Pessoal<small>só ${S1&&S1.c?esc(P(S1.c.dono).nome):S1&&S1.a?esc(P(S1.a.dono).nome):'seu'}</small></span></button></div>`);
@@ -4714,7 +4721,7 @@ function openLanc(l,opts){
     h+=`</div>`;
     sh.querySelector('#lb').innerHTML=h;
     const sv=sh.querySelector('#lsv');sv.className='lfab lfab-'+col;
-    const updSave=()=>{sv.setAttribute('aria-label',`Salvar ${TIPOS[st.tipo][0].toLowerCase()}${st.valor?' de '+brl(total()):''}`);const hn=sh.querySelector('#l-hint');if(hn)hn.textContent=st.adj&&st.valor?`total ${brl(total())}`:(cardSel&&t==='despesa'&&st.n>1&&isNew&&st.valor?`${st.n}x de ${brl(total()/st.n)}`:'')};
+    const updSave=()=>{sv.setAttribute('aria-label',`Salvar ${TIPOS[st.tipo][0].toLowerCase()}${st.valor?' de '+brl(total()):''}`);const hn=sh.querySelector('#l-hint');if(hn)hn.textContent=st.adj&&st.valor?`total ${brl(total())}`:(cardSel&&t==='despesa'&&st.n>1&&isNew&&st.valor?(st.pm==='mul'?`${st.n}x de ${brl(total())} · total ${brl(total()*st.n)}`:`${st.n}x de ${brl(total()/st.n)}`):'')};
     updSave();
     const lv=sh.querySelector('#l-v'),fitV=()=>{const cs=getComputedStyle(lv),cx=(window.__mc=window.__mc||document.createElement('canvas').getContext('2d'));cx.font=`${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;lv.style.width=Math.ceil(cx.measureText(lv.value||lv.placeholder||'0,00').width+6)+'px'};fitV();lv.addEventListener('input',fitV);
     moneyInput(lv,x=>{st.valor=x;updSave();fitV();sh.querySelectorAll('.lseg small')[0]&&st.tipo==='despesa'&&(sh.querySelectorAll('.lseg small')[0].textContent=x?brl(total()/2)+' cada':'metade cada')});
@@ -4726,6 +4733,9 @@ function openLanc(l,opts){
     sh.querySelectorAll('[data-dd2]').forEach(b=>b.onclick=()=>{st.data=addD(st.data,+b.dataset.dd2);draw(sh)});
     const dt=sh.querySelector('#l-dt');if(dt)dt.onchange=()=>{if(dt.value){st.data=dt.value;draw(sh)}};
     sh.querySelectorAll('[data-rep]').forEach(b=>b.onclick=()=>{st.rep=b.dataset.rep;if(isCard()){st.n=st.rep==='parc'?Math.max(st.n,2):1;st.k=1}draw(sh)});
+    sh.querySelectorAll('[data-pm]').forEach(b=>b.onclick=()=>{st.pm=b.dataset.pm;draw(sh)});
+    {const pn=sh.querySelector('#l-pn');if(pn)pn.onchange=()=>{const v=parseInt(pn.value)||1;if(isCard()){st.n=Math.min(Math.max(v,1),48);st.k=Math.min(st.k,st.n);if(st.n===1)st.rep='unica'}else st.rn=Math.min(Math.max(v,2),72);draw(sh)};
+     const pk=sh.querySelector('#l-pk');if(pk)pk.onchange=()=>{st.k=Math.min(Math.max(parseInt(pk.value)||1,1),st.n);draw(sh)}}
     sh.querySelectorAll('[data-n]').forEach(b=>b.onclick=()=>{if(isCard()){st.n=Math.min(Math.max(st.n+(+b.dataset.n),1),48);st.k=Math.min(st.k,st.n);if(st.n===1)st.rep='unica'}else st.rn=Math.min(Math.max(st.rn+(+b.dataset.n),2),72);draw(sh)});
     const rf=sh.querySelector('#l-rf');if(rf)rf.onchange=()=>{st.rfim=rf.value;draw(sh)};
     const cp=sh.querySelector('[data-catp]');if(cp)cp.onclick=()=>openCatPicker(sh,st.tipo==='receita'?'receita':'despesa',{cat:st.cat,sub:st.sub},(c,x)=>{st.cat=c;st.sub=x;draw(sh)});
@@ -4762,12 +4772,12 @@ function openLanc(l,opts){
         const ic2=st.src.startsWith('card:'),n=ic2&&tipo==='despesa'?st.n:1,tot=total();
         d.valor=tot;if(st.adj==='enc'&&st.enc){d.encargos=st.enc;d.valorBase=r2(st.valor)}else delete d.encargos;if(st.adj==='desc'&&st.desc2){d.desconto=st.desc2;d.valorBase=r2(st.valor)}else delete d.desconto;if(!d.encargos&&!d.desconto)delete d.valorBase;
         d.cartao=ic2?st.src.slice(5):'';d.conta=ic2?'':st.src.slice(5);d.parcelas=n;d.parcela=ic2?Math.min(Math.max(st.k,1),n):1;
-        if(isNew&&n>1)d.valor=r2(tot/n);d.divisao=tipo==='receita'?'pessoal':st.div;d.categoria=st.cat;d.subcategoria=st.sub;d.tags=st.tags;d.fatura=ic2?st.fatura:'';d.obs=st.obs.trim();
+        if(isNew&&n>1)d.valor=st.pm==='mul'?r2(tot):r2(tot/n);d.divisao=tipo==='receita'?'pessoal':st.div;d.categoria=st.cat;d.subcategoria=st.sub;d.tags=st.tags;d.fatura=ic2?st.fatura:'';d.obs=st.obs.trim();
         if(tipo==='despesa'&&!ic2&&st.pend){d.pend=true;delete d.venc;delete d.pagoEm}else{delete d.pend;if(st.venc){d.venc=st.venc;d.pagoEm=st.data}}
         if(st.gab)d.para=gabId();else delete d.para;
         if(st.ign.stats||st.ign.orc)d.ign={stats:!!st.ign.stats,orc:!!st.ign.orc};else delete d.ign;
         if(st.anexos.length)d.anexos=st.anexos;else delete d.anexos;
-        if(isNew&&!ic2&&(st.rep==='fixo'||(st.rep==='parc'&&tipo==='despesa'))){const ym=st.data.slice(0,7),N=st.rep==='parc'?st.rn:0,val=N?r2(tot/N):tot;
+        if(isNew&&!ic2&&(st.rep==='fixo'||(st.rep==='parc'&&tipo==='despesa'))){const ym=st.data.slice(0,7),N=st.rep==='parc'?st.rn:0,val=N?(st.pm==='mul'?r2(tot):r2(tot/N)):tot;
           recDoc={tipo,nome:d.desc,valor:val,dia:+st.data.slice(8),dono:(conta(d.conta)||{}).dono||ME(),conta:d.conta,categoria:d.categoria,subcategoria:d.subcategoria,tags:d.tags,inicio:ym,fim:N?ymAdd(ym,N-1):(st.rfim||''),parcelas:N,parcelaIni:N?1:0,ativo:true,para:d.para||''};
           d.valor=val;d.recYm=ym;if(N)d.desc=d.desc+' 1/'+N}
         await ensureTags(d.tags)}
