@@ -1657,6 +1657,7 @@ html:has(#overlay:not([hidden])),html:has(#overlay:not([hidden])) body{overflow:
 .ck:active{transform:scale(.96)}
 #l-v{cursor:pointer;caret-color:transparent}
 .lxcx{margin:6px 0 0;font-size:11.5px;color:var(--faint)}.lxcx b{color:var(--muted);font-weight:600}
+.abl{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:-4px 0 14px;padding:10px 0 10px 14px;border-left:2px solid var(--good)}.abl span{display:grid;font-size:13.5px;font-weight:550}.abl small{font-size:11.5px;color:var(--muted);font-weight:400}
 </style>
 </head>
 <body>
@@ -1901,6 +1902,22 @@ function recPrevistos(fromYm,toYm){
     if((!r.inicio||ym>=r.inicio)&&(!r.fim||ym<=r.fim)&&!(r.parcelas&&recN(r,ym)>+r.parcelas)&&!S.lanc.some(l=>l.rec===r.id&&l.recYm===ym)){const d=recDia(r,ym);out.push({r,ym,date:d,per:perOf(d),valor:+r.valor||0,tipo:r.tipo,dono:r.dono||ME(),nome:recNome(r,ym),n:recN(r,ym),N:+r.parcelas||0})}
     ym=ymAdd(ym,1)}});return out;
 }
+
+/* ---------- crédito com o parceiro (compras comuns pagas por você) e abatimentos ---------- */
+const isAbat=x=>x&&x.tipo==='abat';
+function credGab(){const me=ME(),gid=gabId();if(!gid)return {cred:0,gerado:0,aplicado:0};let k=perOf(histIni()),g=0,ger=0;const cur=curPeriod();
+  while(k<=cur&&g++<200){const A=acerto(k);if(!A.done&&A.net>.005&&[A.a.id,A.b.id].includes(gid))ger+=A.de===gid?A.net:-A.net;k=nextP(k)}
+  const ap=sum(S.acertos.filter(x=>isAbat(x)&&x.para===me),x=>+x.valor||0);return {cred:r2(ger-ap),gerado:r2(ger),aplicado:r2(ap)}}
+function openAbater(sug,q,onDone){const me=ME(),gid=gabId(),C=credGab(),gn=esc(P(gid).nome.split(' ')[0]);
+  openSheet(`<h2>Abater do repasse</h2><p class="note">Você já pagou compras comuns: ${gn} te deve <b>${brl(C.cred)}</b>. Abater significa transferir menos agora. Só conta a partir desta data; o que não abater continua acumulado.</p>
+    <form class="form" id="fab2" novalidate><div class="f2"><div class="field"><label for="ab-v">Abater (R$)</label><input id="ab-v" type="text" inputmode="decimal" value="${String(r2(Math.min(sug,C.cred))).replace('.',',')}"></div><div class="field"><label for="ab-d">Data</label><input id="ab-d" type="date" value="${today()}"></div></div>
+    <div class="field"><label for="ab-c">Conta de onde sai o repasse</label><select id="ab-c">${contasOpts(contaPadrao(),['corrente','dinheiro'])}</select></div>
+    <p class="note">O valor volta para o saldo dessa conta na data, porque você transfere menos do que os itens somam.</p>
+    <div class="btnrow"><button class="btn primary" type="submit">Aplicar abatimento</button></div></form>`,sh=>{
+    sh.querySelector('#fab2').onsubmit=async e=>{e.preventDefault();const v=brNum(sh.querySelector('#ab-v').value);if(!(v>0)){toast('Informe o valor');return}if(v>C.cred+.005){toast('Maior que o crédito acumulado ('+brl(C.cred)+')');return}
+      try{await S.db.collection('acertos').add({tipo:'abat',de:gid,para:me,valor:r2(v),data:sh.querySelector('#ab-d').value||today(),conta:sh.querySelector('#ab-c').value||'',q:q||'',criadoEm:new Date().toISOString()});closeSheet();toast(brl(v)+' abatido');onDone&&onDone()}catch(err){toast(writeErr(err))}};
+  });
+}
 function acerto(per){
   const its=movs().filter(i=>i.per===per&&i.comum&&i.dono!=='casal'),[a,b]=cfg().pessoas;
   const cA=its.filter(i=>i.dono===a.id),cB=its.filter(i=>i.dono===b.id);
@@ -2126,7 +2143,8 @@ function agendaPessoal(pid,ate,de,o){
   /* acerto do casal: na mesma data em que entra no repasse (relatório Pagar), para os dois números baterem */
   if(pid===ME()&&gabId()){try{const on=other(pid).nome;gabItems().filter(x=>x.acerto&&!x.paid&&qDate(nextP(x.acerto))<=ate&&Math.abs(x.v)>.005).forEach(x=>out.push({k:'ac',d:qDate(nextP(x.acerto)),t:'Acerto com '+on,s:x.v<0?'você recebe':'você transfere',v:-x.v,cor:'var(--g)',nav:'ac:'+x.acerto}))}catch(e){}}
   else{let k=perOf(t);for(let n=0;n<80;n++){const qd=qDate(k);if(qd>ate)break;if(qd>=t){const A=acerto(k);if(A.net&&!A.done&&(A.de===pid||A.para===pid))out.push({k:'ac',d:qd,t:'Acerto com '+other(pid).nome,s:A.de===pid?'você transfere':'você recebe',v:A.de===pid?-A.net:A.net,cor:'var(--g)',nav:'ac:'+k})}k=nextP(k)}}
-  return out.sort((a,b)=>a.d.localeCompare(b.d)||a.v-b.v);
+  /* acerto do casal não é projetado: só conta quando você aplica o abatimento */
+  return out.filter(x=>x.k!=='ac').sort((a,b)=>a.d.localeCompare(b.d)||a.v-b.v);
 }
 /* ---------- mês: saldo inicial → movimentos → saldo final ---------- */
 const scopeContas=pid=>S.contas.filter(a=>a.ativo!==false&&(a.tipo==='corrente'||a.tipo==='dinheiro'||!a.tipo)&&fracOf(a.dono,pid)>0);
@@ -2148,7 +2166,7 @@ function mesFluxo(ym,pid){
     else if(tp==='pagfat'&&ids.has(l.conta))R.fat+=v*fr(l.conta);
     else if(tp==='ajuste'&&ids.has(l.conta))R.aj+=v*fr(l.conta);
     else if(tp==='transf'){const o=ids.has(l.conta),i=ids.has(l.destino);if(o&&!i)R.res-=v*fr(l.conta);else if(i&&!o)R.res+=v*fr(l.destino)}});
-  R.ac=acAdj(pid,fim>t?t:fim,dayIn(ini,31));
+  R.ac=acAdj(pid,fim>t?t:fim,dayIn(ini,31))+sum(S.acertos.filter(x=>x.conta&&ids.has(x.conta)&&x.data&&x.data>=d0&&x.data<=(fim>t?t:fim)),x=>(x.para===(conta(x.conta)||{}).dono?1:-1)*(+x.valor||0)*fr(x.conta));
   /* previsto no mês (a partir de hoje) */
   const ag=agAll.filter(x=>x.d>=d0&&x.d<=fim),Pv={rec:sum(ag.filter(x=>x.k==='rec'),x=>x.v),desp:-sum(ag.filter(x=>x.k==='fix'||x.k==='div'||x.k==='pend'),x=>x.v)-sum(agAll.filter(x=>x.k==='pend'&&x.d<d0),x=>x.v),fat:-sum(ag.filter(x=>x.k==='fat'),x=>x.v),ac:sum(ag.filter(x=>x.k==='ac'),x=>x.v),cv:sum(ag.filter(x=>x.k==='cv'),x=>x.v),gab:sum(ag.filter(x=>x.k==='gab'),x=>x.v)+sum(agAll.filter(x=>x.k==='gab'&&x.d<d0),x=>x.v)};
   const final=projAt(fim);
@@ -2703,10 +2721,11 @@ function gabItems(){
   S.lanc.filter(l=>(l.tipo||'despesa')==='despesa'&&l.conta&&isGab(l)).forEach(l=>{const due=l.venc||l.data;out.push({l,desc:l.desc,v:+l.valor||0,due,paid:!l.pend,pagoEm:l.pend?'':(l.pagoEm||l.data),cat:l.categoria||'Outros',tags:l.tags||[]})});
   recPrevistos(t.slice(0,7),ymAdd(t.slice(0,7),24)).filter(x=>x.tipo==='despesa'&&isGab(x.r)).forEach(x=>out.push({prev:x,desc:x.nome,v:x.valor,due:x.date,paid:false,cat:x.r.categoria||'Outros',tags:x.r.tags||[]}));
   try{const me=ME(),gid=gabId();let k=curPeriod();const ks=[k];for(let j=0;j<3;j++){k=prevP(k);ks.push(k)}k=curPeriod();for(let j=0;j<3;j++){k=nextP(k);ks.push(k)}
-    ks.forEach(per=>{const A=acerto(per);if(![A.a.id,A.b.id].includes(gid))return;const d=A.done,net=d?+d.valor||0:A.net;if(net<.005)return;
+    ks.forEach(per=>{const A=acerto(per);if(![A.a.id,A.b.id].includes(gid))return;const d=A.done;if(!d)return;const net=+d.valor||0;if(net<.005)return;
       const dues=A.its.map(i=>i.due||i.d||'').filter(Boolean).sort(),eu=d?d.de===me:A.de===me,v=r2(eu?net:-net),end=dues.length?dues[dues.length-1]:perEnd(per),parcial=end>=t&&per<=curPeriod();
       out.push({acerto:per,desc:`Acerto da quinzena ${qLabel(per)}`,v,due:end,paid:!!d,pagoEm:d?d.data:'',cat:'Acerto do casal',tags:[],
         sub:eu?`metade das compras comuns pagas por ${P(gid).nome.split(' ')[0]}${parcial?' · parcial até hoje':end>=t?' · previsto':''}`:`abate: metade das compras comuns pagas por você${parcial?' · parcial até hoje':end>=t?' · previsto':''}`})})}catch(e){}
+  S.acertos.filter(isAbat).forEach(x=>out.push({abat:x.id,desc:'Abatimento de compras comuns',v:-(+x.valor||0),due:x.data,paid:true,pagoEm:x.data,cat:'Acerto do casal',tags:[],sub:'crédito usado neste repasse'}));
   out.forEach(x=>{x.lote=loteOf(x)});
   return out.sort((a,b)=>a.due.localeCompare(b.due)||b.v-a.v);
 }
@@ -3125,10 +3144,11 @@ function repFonte(D,R){
     if(a<=b){recPrevistos(a,b).forEach(x=>{const r=x.r;out.push({key:'p:'+r.id+'|'+x.ym,kind:'prev',tipo:x.tipo,desc:x.nome,v:x.valor,cat:r.categoria||'Outros',sub:r.subcategoria||'',tags:r.tags||[],conta:r.conta||'',cartao:'',div:r.divisao==='comum'?'comum':'pessoal',para:r.para||'',recor:r.parcelas?'parcelado':'fixo',dl:x.date,dv:x.date,de:'',paid:false,prev:{r,date:x.date,ym:x.ym,nome:x.nome},payable:x.tipo==='despesa'})});
       DVX().forEach(d=>{const s=sched(d);s.rows.filter(r=>!r.pg&&r.date&&r.date>=R.ini&&r.date<=R.fim).forEach(r=>out.push({key:'d:'+d.id+':'+r.n,kind:'div',tipo:'despesa',desc:`${d.nome} ${r.n}/${s.rows.length}`,v:r.enc,cat:'Dívidas',sub:d.tipo||'',tags:[],conta:'',cartao:'',div:'pessoal',para:'',recor:'parcelado',dl:r.date,dv:r.date,de:'',paid:false,d}))})}}
   if((D.orig||[]).includes('acerto')&&gabId()){const me=ME(),gid=gabId();let k=prevP(perOf(R.ini));const end=nextP(perOf(R.fim));
-    for(let g=0;g<60;g++){const q=k.slice(8);if(D.acQ==='ambas'||D.acQ===q){const A=acerto(k);if([A.a.id,A.b.id].includes(gid)){const d=A.done,net=d?+d.valor||0:A.net;
-      if(net>.005){const eu=d?d.de===me:A.de===me,dt=qDate(k);out.push({key:'a:'+k,kind:'acerto',tipo:'acerto',acerto:k,desc:`Acerto da quinzena ${qLabel(k)}`,v:r2(eu?net:-net),cat:'Acerto do casal',sub:'',tags:[],conta:'',cartao:'',div:'comum',para:gid,recor:'avulso',dl:dt,dv:dt,de:d?d.data:'',paid:!!d,payable:true,
+    for(let g=0;g<60;g++){const q=k.slice(8);if(D.acQ==='ambas'||D.acQ===q){const A=acerto(k);if([A.a.id,A.b.id].includes(gid)){const d=A.done,net=d?+d.valor||0:0;
+      if(d&&net>.005){const eu=d?d.de===me:A.de===me,dt=qDate(k);out.push({key:'a:'+k,kind:'acerto',tipo:'acerto',acerto:k,desc:`Acerto da quinzena ${qLabel(k)}`,v:r2(eu?net:-net),cat:'Acerto do casal',sub:'',tags:[],conta:'',cartao:'',div:'comum',para:gid,recor:'avulso',dl:dt,dv:dt,de:d?d.data:'',paid:!!d,payable:true,
         sub2:eu?`metade das compras comuns pagas por ${P(gid).nome.split(' ')[0]}`:'abate: metade das compras comuns pagas por você'})}}}
-      if(k===end)break;k=nextP(k)}}
+      if(k===end)break;k=nextP(k)}
+    S.acertos.filter(x=>isAbat(x)&&x.data>=R.ini&&x.data<=R.fim&&(D.acQ==='ambas'||!x.q||x.q===D.acQ)).forEach(x=>out.push({key:'ab:'+x.id,kind:'abat',tipo:'acerto',desc:'Abatimento de compras comuns',v:-(+x.valor||0),cat:'Acerto do casal',sub:'',tags:[],conta:x.conta||'',cartao:'',div:'comum',para:gid,recor:'avulso',dl:x.data,dv:x.data,de:x.data,paid:true,payable:false,sub2:'crédito usado: você transferiu menos'}))}
   if((D.orig||[]).includes('acitens')&&gabId()){const me=ME(),gid=gabId();let k=prevP(perOf(R.ini));const end=nextP(perOf(R.fim));
     for(let g=0;g<60;g++){const q=k.slice(8);if(D.acQ==='ambas'||D.acQ===q){const A=acerto(k),d=A.done,dt=qDate(k);if([A.a.id,A.b.id].includes(gid))A.its.forEach(i=>{const l=i.l,mine=i.dono===me,h=r2(i.valor/2)*(i.tipo==='receita'?-1:1);
       out.push({key:'ai:'+k+':'+l.id+':'+(i.j||1),kind:'acitem',tipo:'acitem',acerto:k,per:k,desc:(l.desc||'')+(i.N>1&&!/\s\d{1,2}\/\d{1,2}$/.test(l.desc||'')?` ${i.j}/${i.N}`:''),v:mine?-h:h,total:i.valor,quem:i.dono,cat:l.categoria||'Outros',sub:l.subcategoria||'',tags:l.tags||[],conta:i.src==='card'?'':l.conta||'',cartao:i.src==='card'?i.c.id:'',div:'comum',para:'',recor:i.N>1?'parcelado':'avulso',dl:l.data||i.due,dv:dt,de:d?d.data:'',paid:!!d,l})})}
@@ -3141,8 +3161,8 @@ function repRun(D,R){
   const its=repFonte(D,R).filter(x=>{
     if(!orig.includes(om[x.tipo]))return false;
     const d=refD(x);if(!d||d<R.ini||d>R.fim)return false;
-    if(D.sit==='efet'&&!x.paid)return false;if(D.sit==='pend'&&x.paid)return false;
-    if(x.kind==='acerto')return true;/* acerto segue só os parâmetros dele */
+    if(D.sit==='efet'&&!x.paid)return false;if(D.sit==='pend'&&x.paid&&x.kind!=='abat')return false;
+    if(x.kind==='acerto'||x.kind==='abat')return true;/* acerto e abatimento seguem só os parâmetros deles */
     const t=tg(x.tags);
     if(ft.length&&!(D.tagModo==='todas'?ft.every(z=>t.includes(z)):ft.some(z=>t.includes(z))))return false;
     if(fx.length&&fx.some(z=>t.includes(z)))return false;
@@ -3201,8 +3221,9 @@ function repDashHTML(r){
     <div class="mnav rmn"><button class="navb" type="button" data-roff="-1" aria-label="Período anterior">‹</button><b>${esc(R.lab)}</b><button class="navb" type="button" data-roff="1" aria-label="Próximo período">›</button></div>
     <button type="button" class="rpf" id="rdcfg">${ic('filter')}<span>${esc(repSummary(D))}</span>${ic('chev','chev')}</button>
     ${D.trf?(()=>{const T=repTrf(D,R,X),dn=esc(r.destino||'');return `<div class="trf ${T.tot<-.005?'inv':T.tot<.005?'ok':''}"><span class="k">${T.tot<-.005?(dn?dn+' te devolve':'A receber'):T.tot<.005?'Nada a transferir':'Transferir'+(dn?' para '+dn:'')}</span><div class="big n">${brl(Math.abs(T.tot))}</div>
-      <div class="trl">${T.pos>.005?`<span>Itens em aberto<b class="n">${brl(T.pos-Math.max(T.prevV,0))}</b></span>`:''}${T.neg<-.005?`<span>Abatimentos (acertos, estornos)<b class="n pos">−${brl(Math.abs(T.neg))}</b></span>`:''}${Math.abs(T.prevV)>.005?`<span>Inclui pendente de meses anteriores<b class="n ${T.prevV>0?'neg':'pos'}">${T.prevV<0?'−':''}${brl(Math.abs(T.prevV))}</b></span>`:''}</div>
+      <div class="trl">${T.pos>.005?`<span>Itens em aberto<b class="n">${brl(T.pos-Math.max(T.prevV,0))}</b></span>`:''}${T.neg<-.005?`<span>Estornos e créditos<b class="n pos">−${brl(Math.abs(T.neg))}</b></span>`:''}${T.ab<-.005?`<span>Abatimento aplicado<b class="n pos">−${brl(Math.abs(T.ab))}</b></span>`:''}${Math.abs(T.prevV)>.005?`<span>Inclui pendente de meses anteriores<b class="n ${T.prevV>0?'neg':'pos'}">${T.prevV<0?'−':''}${brl(Math.abs(T.prevV))}</b></span>`:''}</div>
       ${T.gr.length>1?`<div class="trg">${T.gr.map(([k,v])=>`<span><small>${esc(k)}</small><b class="n">${v<0?'−':''}${brl(Math.abs(v))}</b></span>`).join('')}</div>`:''}</div>`})():''}
+    ${D.trf&&gabId()&&(D.orig||[]).includes('acerto')?(()=>{const C=credGab();return C.cred>.005?`<div class="abl"><span>Crédito de compras comuns<small>${esc(gn)} te deve ${brl(C.cred)} acumulado · só abate quando você aplicar</small></span><button class="btn sm" type="button" id="rd-ab">Abater</button></div>`:''})():''}
     <div class="gbh"><div><span class="k">${X.open>.005?'Em aberto no período':X.open<-.005?`${esc(gn)} devolve`:'Tudo pago'}</span><div class="big n">${brl(Math.abs(X.open>.005||X.open<-.005?X.open:X.tot))}</div>
       <span class="gmsum2">total <b class="n">${brl0(X.tot)}</b> · pago <b class="n pos">${brl0(X.paid)}</b> · ${X.its.length} ite${X.its.length===1?'m':'ns'}</span>
       ${late?`<span class="pill crit">${late} em atraso</span> `:''}<span class="pill ${dlt>0?'warn':'ok'}">${Pv.tot>.005||Pv.its.length?`${dlt>=0?'+':'−'}${brl0(Math.abs(dlt))} vs período anterior`:'sem período anterior'}</span></div>
@@ -3219,9 +3240,9 @@ function repDashHTML(r){
 /* campo de transferência: em aberto no período + (opcional) o que ficou em aberto antes, por grupo */
 function repTrf(D,R,X){const its=X.its.filter(x=>!x.paid);let prev=[];
   if(D.carry){const R0={ini:addD(R.ini,-366),fim:addD(R.ini,-1)};prev=repRun(Object.assign({},D,{sit:'pend'}),R0).its.filter(x=>!x.paid)}
-  const all=its.concat(prev),sg=X.sg,tot=r2(sum(all,sg)),pos=r2(sum(all.filter(x=>sg(x)>0),sg)),neg=r2(sum(all.filter(x=>sg(x)<0),sg)),gr={};
+  const all=its.concat(prev),sg=X.sg,ab=r2(sum(X.its.filter(x=>x.kind==='abat'),sg)),t0=sum(all,sg),abE=Math.max(ab,-Math.max(t0,0)),tot=r2(t0+abE),pos=r2(sum(all.filter(x=>sg(x)>0),sg)),neg=r2(sum(all.filter(x=>sg(x)<0),sg)),gr={};
   its.forEach(x=>{const k=repGroupKey(D,x)||'';gr[k]=(gr[k]||0)+sg(x)});
-  return {tot,pos,neg,prev,prevV:r2(sum(prev,sg)),gr:Object.entries(gr).filter(([k,v])=>Math.abs(v)>.005)}}
+  return {tot,pos,neg,ab:r2(abE),prev,prevV:r2(sum(prev,sg)),gr:Object.entries(gr).filter(([k,v])=>Math.abs(v)>.005)}}
 const repS0=(r,X,R,T)=>({title:repDef(r).trf?('Transferir'+(r.destino?' para '+r.destino:'')):r.nome,lab:`${r.nome} · ${R.lab}`,w:R.fim,items:X.its.map(x=>({desc:x.desc,v:X.sg(x),paid:x.paid,pagoEm:x.de,due:x.dv,cat:x.cat,tags:x.tags,acerto:x.acerto})).concat(T&&T.prev.length?T.prev.map(x=>({desc:x.desc+' (pendente de '+ymS(x.ref.slice(0,7))+')',v:X.sg(x),paid:false,due:x.dv,cat:x.cat,tags:x.tags,acerto:x.acerto})):[]),tot:X.tot+(T?T.prevV:0),paid:X.paid,open:T?T.tot:X.open});
 async function repPay(x,paid,day,nome){
   if(x.kind==='acerto')return gabSetPaid({acerto:x.acerto,rel:nome},paid,day);
@@ -3235,6 +3256,7 @@ function wireRep(el){
   el.querySelectorAll('[data-rback]').forEach(b=>b.onclick=()=>{RP='salvos';vRel()});
   el.querySelectorAll('[data-roff]').forEach(b=>b.onclick=()=>{ROFF+=+b.dataset.roff;vRel()});
   [el.querySelector('#rdedit'),el.querySelector('#rdcfg')].forEach(b=>b&&(b.onclick=()=>openRepEdit(r)));
+  {const ab=el.querySelector('#rd-ab');if(ab)ab.onclick=()=>{const D=repDef(r),R=repRange(D,ROFF),X=repRun(D,R),T=repTrf(D,R,X);openAbater(Math.max(T.tot,0),D.acQ&&D.acQ!=='ambas'?D.acQ:'',()=>renderView())}}
   const day=()=>{const v=el.querySelector('#gpd');return v&&v.value||today()};
   el.querySelectorAll('[data-rk2]').forEach(c=>c.onclick=async()=>{const x=X.its[+c.dataset.rk2],to=!x.paid;if(!to&&x.kind==='prev')return;c.disabled=true;c.parentElement.classList.toggle('on',to);try{await repPay(x,to,day(),r.nome);toast(to?'Marcado como pago':'Voltou para em aberto')}catch(err){toast(writeErr(err));c.parentElement.classList.toggle('on',!to);c.disabled=false}});
   el.querySelectorAll('[data-ro]').forEach(b=>b.onclick=()=>{const x=X.its[+b.dataset.ro];
