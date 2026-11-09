@@ -1609,6 +1609,34 @@ html:has(#overlay:not([hidden])),html:has(#overlay:not([hidden])) body{overflow:
 .sdot.nn{background:var(--faint)}
 .inl{display:flex;gap:10px;margin:12px 0 4px;padding-left:12px;border-left:2px solid var(--accent);font-size:13px;color:var(--muted);line-height:1.45}.inl b{color:var(--ink)}.inl svg{flex:0 0 auto;width:15px;height:15px;stroke:var(--accent);fill:none;stroke-width:1.8;margin-top:2px}
 .pth .k .lk{font-size:12.5px}
+
+/* ===== v7.2: relatórios leves ===== */
+.rdash{border-top:0!important}
+.rdt h2{display:flex;align-items:center;gap:8px}.rdt h2::before{content:"";width:9px;height:9px;border-radius:50%;background:var(--rc)}
+.rdt .navb,.rmn .navb{width:30px;height:30px;border:0;background:var(--sunk)}.rdeb{border:0!important;background:var(--sunk)!important;width:32px!important;height:32px!important}
+.rpf{border:0!important;border-top:1px solid var(--hair)!important;border-bottom:1px solid var(--hair)!important;border-radius:0!important;background:none!important;padding:10px 0!important}
+.trf{background:none!important;border:0!important;border-left:2px solid var(--rc,var(--accent))!important;border-radius:0!important;padding:2px 0 2px 14px!important;margin:12px 0 16px!important}
+.trf .k{font-weight:550;color:var(--muted)}.trf .big{font-weight:600!important;letter-spacing:-.045em!important}
+.trg span{background:none!important;border:1px solid var(--hair);border-radius:12px}
+.rdash .trf~.gbh .big{font-size:22px!important}.rdash .trf~.gbh{padding-top:12px;border-top:1px solid var(--hair)}
+.pill{background:none!important;padding:0!important;font-weight:550!important;font-size:11.5px!important;display:inline-flex;align-items:center;gap:5px}
+.pill::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor;flex:0 0 auto}
+.pill.ok{color:var(--good)!important}.pill.warn{color:var(--warn)!important}.pill.crit{color:var(--crit)!important}.pill.acc{color:var(--accent)!important}
+.cat .t{height:4px!important}.cat .t i{opacity:.9}
+.cats{gap:12px!important}
+.stb{height:6px!important}
+.rsin{background:none!important;padding:8px 0!important;border-radius:0!important;border-top:1px solid var(--hair)}.rsins .rsin:first-child{border-top:0}
+.rsin>span{background:none!important;width:22px!important;height:22px!important}
+.ddbtn{background:none!important;border-top:1px solid var(--hair)!important;border-radius:0!important;padding:12px 0 0!important;color:var(--accent)}
+.rsk b{font-weight:600!important;letter-spacing:-.02em}
+.rcard{box-shadow:none!important}
+.chips.rp .chip{padding:6px 12px}
+
+.fxl{display:grid}.fxr{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--hair)}.fxl .fxr:first-child{border-top:0}
+.fxr>span{display:grid}.fxr strong{font-size:14px;font-weight:550}.fxr small{font-size:11.5px;color:var(--muted)}.fxr small .pos{color:var(--good)}.fxr small .neg{color:var(--crit)}
+.fxr>b{font-size:16px;font-weight:600;letter-spacing:-.02em}.fxr.hd span{color:var(--muted);font-size:13px}
+.fxn{margin-top:10px}.fxn>summary{list-style:none;cursor:pointer;font-size:12.5px;color:var(--accent);font-weight:550}.fxn>summary::-webkit-details-marker{display:none}.fxn .note{margin-top:6px}
+[data-cf].btn.sm{border:0!important;background:var(--sunk)!important;padding:7px 12px!important;font-size:12.5px!important;border-radius:99px!important}
 </style>
 </head>
 <body>
@@ -3318,10 +3346,9 @@ function vRel(){
       <p class="note">Linha cheia: meses já registrados. Tracejado: projeção só com o que está registrado (receitas fixas, parcelas, faturas já compradas). Salário futuro não entra no patrimônio de hoje; ele aparece na projeção, mês a mês.</p>`;
   }else if(RP==='fluxo'){
     const J=projecao(me),rs=J.rows.slice(0,7),ent=r=>r.rec,sai=r=>r.cvm+r.fix+r.parc+r.fat+r.gab-r.ac;
-    h+=`<div class="card"><div class="ch"><h2>Fluxo de caixa projetado</h2></div><div class="tbl ftb"><div class="tr th"><span>Mês</span><span>Entradas</span><span>Saídas</span><span>Caixa no fim</span></div>
-      <div class="tr"><span>Hoje</span><span></span><span></span><b class="n">${brl0(realBal(me,today()))}</b></div>
-      ${rs.map(r=>`<div class="tr"><span>${ymL(r.ym)}</span><span class="n pos">+${brl0(ent(r))}</span><span class="n neg">−${brl0(sai(r))}</span><b class="n ${r.cash<0?'neg':''}">${brl0(r.cash)}</b></div>`).join('')}</div>
-      <p class="note" style="margin-top:8px">Caixa no fim = caixa anterior + entradas − saídas. Saídas já líquidas do acerto do casal (compensação, não receita). Mesma conta do Início e do Resultado mês a mês do Patrimônio. Só entra o que está no app: receitas fixas, contas fixas, parcelas, faturas já compradas e pendentes. Cada item sai na data de vencimento; se você paga antes, vale a data do pagamento.</p></div>`;
+    h+=`<div class="card"><div class="ch"><h2>Fluxo de caixa projetado</h2></div><div class="fxl"><div class="fxr hd"><span>Hoje</span><b class="n">${brl0(realBal(me,today()))}</b></div>
+      ${rs.map(r=>`<div class="fxr"><span><strong>${ymL(r.ym)}</strong><small><span class="pos">+${brl0(ent(r))}</span> · <span class="neg">−${brl0(sai(r))}</span></small></span><b class="n ${r.cash<0?'neg':''}">${brl0(r.cash)}</b></div>`).join('')}</div>
+      <details class="fxn"><summary>Como é calculado</summary><p class="note">Caixa no fim = caixa anterior + entradas − saídas. Saídas já líquidas do acerto do casal (compensação, não receita). Mesma conta do Início e do Resultado mês a mês do Patrimônio. Só entra o que está no app: receitas fixas, contas fixas, parcelas, faturas já compradas e pendentes. Cada item sai na data de vencimento; se você paga antes, vale a data do pagamento.</p></details></div>`;
     h+=mesCard(me);
     const pv=recPrevistos(today().slice(0,7),ymAdd(today().slice(0,7),1)).filter(x=>x.dono===me).sort((a,b)=>a.date.localeCompare(b.date));
     h+=`<div class="card"><div class="ch"><h2>Previstos para confirmar</h2></div>${pv.length?`<div>${pv.map(x=>`<div class="lgr" style="grid-template-columns:minmax(0,1fr) auto auto"><span>${esc(x.nome)}<small>${x.tipo==='receita'?'receita':'despesa'} · ${fdate(x.date).slice(0,5)}</small></span><b class="n ${x.tipo==='receita'?'pos':''}">${x.tipo==='receita'?'+':'−'}${brl(x.valor)}</b><button class="btn sm" type="button" data-cf="${esc(x.r.id)}|${x.ym}">Confirmar</button></div>`).join('')}</div>`:'<p class="note">Nada previsto para este mês e o próximo.</p>'}</div>`;
