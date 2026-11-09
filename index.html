@@ -1518,7 +1518,7 @@ html:has(#overlay:not([hidden])),html:has(#overlay:not([hidden])) body{overflow:
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--info:#7FB2FF;--info-soft:#16243A}}
 :root[data-theme="dark"]{--info:#7FB2FF;--info-soft:#16243A}
 /* status de fatura: cada um com sua cor — aberta azul, fechada laranja, vencida vermelha, paga verde, prevista cinza */
-.cst.acc,.fhv small.acc,.ftr.aberta .pill,.ccs .pill.acc{color:var(--info)!important}.sdot.acc{background:var(--info)}
+.cst.pd{color:var(--good)!important}.cst.acc,.fhv small.acc,.ftr.aberta .pill,.ccs .pill.acc{color:var(--info)!important}.sdot.acc{background:var(--info)}
 .cst.warn,.fhv small.warn,.ftr.fechada .pill{color:var(--warn)!important}
 .ftr.vencida .pill,.fhv small.crit{color:var(--crit)!important}.ftr.paga .pill,.fhv small.ok{color:var(--good)!important}
 .fhv small.fut{color:var(--faint)!important}
@@ -2111,7 +2111,8 @@ function agendaPessoal(pid,ate,de,o){
 /* ---------- mês: saldo inicial → movimentos → saldo final ---------- */
 const scopeContas=pid=>S.contas.filter(a=>a.ativo!==false&&(a.tipo==='corrente'||a.tipo==='dinheiro'||!a.tipo)&&fracOf(a.dono,pid)>0);
 function acAdj(pid,ate,de){return sum(S.acertos.filter(x=>!x.conta&&x.data&&x.data<=ate&&(!de||x.data>de)&&(x.de===pid||x.para===pid)),x=>x.de===pid?-x.valor:x.valor)}
-const contaPadrao=()=>(S.contas.find(a=>a.ativo!==false&&a.tipo==='corrente'&&a.dono===ME())||S.contas.find(a=>a.dono===ME())||{}).id||'';
+const PADR=()=>((S.cfg||{}).padrao)||{};
+const contaPadrao=()=>(conta(PADR().conta)&&conta(PADR().conta).ativo!==false?PADR().conta:'')||(S.contas.find(a=>a.ativo!==false&&a.tipo==='corrente'&&a.dono===ME())||S.contas.find(a=>a.dono===ME())||{}).id||'';
 function realBal(pid,d){return sum(scopeContas(pid),a=>saldoConta(a,d)*fracOf(a.dono,pid))+acAdj(pid,d)}
 let MYM=null;
 function mesFluxo(ym,pid){
@@ -2957,7 +2958,7 @@ function creditoDash(compact){
       <div class="ccbar" aria-hidden="true">${ord.filter(x=>x.usado>0).map(x=>`<i style="flex:${x.usado/(lim||1)};background:${esc(x.c.cor||'var(--accent)')}" title="${esc(x.c.nome)}"></i>`).join('')}<i style="flex:${Math.max(disp,0)/(lim||1)};background:var(--sunk)"></i></div>
       <div class="kpis"><div><span>Usado</span><b class="n">${brl0(us)}</b></div><div><span>Faturas</span><b class="n">${brl0(atual)}</b></div><div><span>Futuras</span><b class="n">${brl0(fut)}</b></div><div><span>Sua parte</span><b class="n">${brl0(parte)}</b></div></div>
       <div class="cclist">${ord.map(x=>`<button class="ccr" type="button" data-cd="${esc(x.c.id)}">
-        <span class="nm">${cardGlyph(x.c)}${esc(x.c.nome)}${x.ym?` <span class="cst ${x.fechada?'warn':'acc'}">${x.fechada?'fechada':'aberta'}</span>`:''}</span>
+        <span class="nm">${cardGlyph(x.c)}${esc(x.c.nome)}${PADR().cartao===x.c.id?' <span class="cst pd">padrão</span>':''}${x.ym?` <span class="cst ${x.fechada?'warn':'acc'}">${x.fechada?'fechada':'aberta'}</span>`:''}</span>
         <span class="v"><b class="n">${brl0(x.disp)}</b><small>livre de ${brl0(x.lim)}</small></span>
         ${x.lim?`<span class="lb"><i class="${lvl(x.pct)}" style="width:${Math.min(x.pct,1)*100}%;background:${lvl(x.pct)?'':esc(x.c.cor||'var(--accent)')}"></i></span><span class="pc n ${lvl(x.pct)}">${pctf(x.pct)}</span>`:''}
         <span class="sub">fecha ${x.c.fechamento} · vence ${x.c.vencimento}${x.ym?` · fatura ${brl0(x.atual)}`:''}${x.fut>0?` · futuras ${brl0(x.fut)}`:''}</span></button>`).join('')}</div>
@@ -3522,7 +3523,7 @@ function openCardDet(c){
     const days={};its.forEach(i=>{const d=i.l.data||due;(days[d]=days[d]||[]).push(i)});
     sh.querySelector('#cdx').innerHTML=`
       <div class="hx">
-        <div class="hxs">${cardGlyph(c)}<span>${esc([c.bandeira,c.final?'final '+c.final:''].filter(Boolean).join(' · '))}${cta?' · paga pela '+esc(cta.nome):''}</span></div>
+        <div class="hxs">${cardGlyph(c)}<span>${esc([c.bandeira,c.final?'final '+c.final:''].filter(Boolean).join(' · '))}${PADR().cartao===c.id?' · padrão':''}${cta?' · paga pela '+esc(cta.nome):''}</span></div>
         <span class="hxk"><i class="sdot ${status[1]}"></i>${status[0]} · fecha ${fdate(close).slice(0,5)} · vence ${fdate(due).slice(0,5)}</span>
         <div class="hxv n">${brl(tot)}</div>
         ${paga||!its.length?`<span class="hxm"><span>paga em ${qLabel(perOf(due,c.quinzena!=='auto'?c.quinzena:null))}</span></span>`:`<button class="hxp" type="button" id="d-pf">${ic('check')} Registrar pagamento</button>`}
@@ -4258,6 +4259,7 @@ function openConta(a){
     <div id="a-rd2" ${a.tipo==='investimento'||a.tipo==='reserva'?'':'hidden'}><div class="f2"><div class="field"><label for="a-rt">Rendimento automático</label><select id="a-rt">${opts(RTIPOS,(a.rend||{}).tipo||'')}</select></div><div class="field"><label for="a-rx">Taxa (%)</label><input id="a-rx" type="text" inputmode="decimal" value="${(a.rend||{}).taxa?String(a.rend.taxa).replace('.',','):''}" placeholder="Ex.: 120"></div></div>
     <div class="f2"><div class="field"><label for="a-cdi">CDI de reserva (% a.a.)</label><input id="a-cdi" type="text" inputmode="decimal" value="${String(cdiAA()).replace('.',',')}"></div><p class="note" style="align-self:end">Usado só se o app não conseguir buscar o CDI no Banco Central.</p></div></div>
     ${corPick(a.cor)}
+    <label class="chk"><input type="checkbox" id="a-pd" ${!isNew&&PADR().conta===a.id?'checked':''}> Conta padrão (receitas, transferências e pagamentos)</label>
     <label class="chk"><input type="checkbox" id="a-a" ${a.ativo!==false?'checked':''}> Ativa</label>
     <div class="btnrow"><button class="btn primary" type="submit">Salvar</button>${isNew?'':'<button class="btn danger" type="button" id="adel">Excluir</button>'}</div></form>`,sh=>{
     wireCor(sh,o);
@@ -4268,7 +4270,7 @@ function openConta(a){
       if(d.tipo==='investimento'||d.tipo==='reserva'){const rt=sh.querySelector('#a-rt').value,rx=brNum(sh.querySelector('#a-rx').value);d.rend=rt&&rx>0?{tipo:rt,taxa:rx}:null;
         const cv=brNum(sh.querySelector('#a-cdi').value);if(cv>0&&Math.abs(cv-cdiAA())>.001){try{await S.db.doc('config/app').set(Object.assign({},S.cfg||{},{cdiAA:cv}))}catch(e){}}}
       if(!isNew){const cur=S.contas.find(x=>x.id===a.id);if(cur){const keep=Object.assign({},cur);delete keep.id;d=Object.assign(keep,d)}}
-      try{await save('contas',isNew?null:a.id,d);closeSheet();toast('Salvo')}catch(err){toast(writeErr(err))}};
+      try{const r=await save('contas',isNew?null:a.id,d);const id=isNew?(r&&r.id):a.id,pd=sh.querySelector('#a-pd').checked,P0=PADR();if(id&&(pd!==(P0.conta===id))){await S.db.doc('config/app').set(Object.assign({},S.cfg||{},{padrao:Object.assign({},P0,{conta:pd?id:''})}))}closeSheet();toast('Salvo')}catch(err){toast(writeErr(err))}};
     const aj=sh.querySelector('#aj');if(aj)aj.onclick=()=>openAjuste(a);const tr=sh.querySelector('#tr');if(tr)tr.onclick=()=>openLanc({tipo:'transf',conta:a.id,data:today()});
     const del=sh.querySelector('#adel');if(del)confirmBtn(del,S.lanc.some(l=>l.conta===a.id||l.destino===a.id)?'Tem lançamentos. Toque de novo para excluir':'Toque de novo para excluir',()=>delDoc('contas',a.id));
   });
@@ -4292,12 +4294,14 @@ function openCard(c){
     <div class="field"><label for="c-q">Fatura paga com</label><select id="c-q">${opts([['auto','Automático: última entrada antes do vencimento'],['q1',Q().q1.nome+' (dia '+Q().q1.dia+')'],['q2',Q().q2.nome+' (dia '+Q().q2.dia+')']],c.quinzena||'auto')}</select></div>
     <p class="note">Nunca guarde o número completo do cartão; o final basta.</p>
     ${corPick(c.cor)}
+    <label class="chk"><input type="checkbox" id="c-pd" ${!isNew&&PADR().cartao===c.id?'checked':''}> Cartão padrão para despesas</label>
     <label class="chk"><input type="checkbox" id="c-a" ${c.ativo!==false?'checked':''}> Cartão ativo</label>
     <div class="btnrow"><button class="btn primary" type="submit">Salvar</button>${isNew?'':'<button class="btn danger" type="button" id="cdel">Excluir</button>'}</div></form>`,sh=>{
     wireCor(sh,o);
     sh.querySelector('#fc').onsubmit=async e=>{e.preventDefault();const nome=sh.querySelector('#c-n').value.trim();if(!nome){toast('Dê um nome ao cartão');return}
       const d={nome,final:sh.querySelector('#c-f').value.replace(/\D/g,'').slice(-4),banco:sh.querySelector('#c-b').value.trim(),dono:sh.querySelector('#c-d').value,fechamento:Math.min(Math.max(+sh.querySelector('#c-fe').value||1,1),31),vencimento:Math.min(Math.max(+sh.querySelector('#c-ve').value||1,1),31),limite:r2(parseFloat(sh.querySelector('#c-l').value)||0),quinzena:sh.querySelector('#c-q').value,bandeira:sh.querySelector('#c-bd').value,conta:sh.querySelector('#c-ct').value,cor:o.cor,ativo:sh.querySelector('#c-a').checked,ordem:c.ordem??S.cards.length};
-      try{await save('cartoes',isNew?null:c.id,d);closeSheet();toast('Cartão salvo')}catch(err){toast(writeErr(err))}};
+      if(!isNew){const cur=S.cards.find(x=>x.id===c.id);if(cur){const keep=Object.assign({},cur);delete keep.id;Object.keys(d).forEach(k=>keep[k]=d[k]);Object.assign(d,keep)}}
+      try{const r=await save('cartoes',isNew?null:c.id,d);const id=isNew?(r&&r.id):c.id,pd=sh.querySelector('#c-pd').checked,P0=PADR();if(id&&(pd!==(P0.cartao===id))){await S.db.doc('config/app').set(Object.assign({},S.cfg||{},{padrao:Object.assign({},P0,{cartao:pd?id:''})}))}closeSheet();toast('Cartão salvo')}catch(err){toast(writeErr(err))}};
     const del=sh.querySelector('#cdel');if(del)confirmBtn(del,S.lanc.some(l=>l.cartao===c.id)?'Tem lançamentos. Toque de novo para excluir':'Toque de novo para excluir',()=>delDoc('cartoes',c.id,'Cartão excluído'));
   });
 }
@@ -4642,6 +4646,8 @@ function openLanc(l,opts){
   if(!S.cards.length&&!S.contas.length){openConta(null);toast('Cadastre uma conta ou cartão primeiro');return}
   const isNew=!l||!l.id;l=Object.assign({tipo:'despesa',data:today(),parcelas:1,parcela:1,divisao:'comum',categoria:'Mercado',tags:[]},l||{});
   if(isNew&&l.divida&&!l.conta)l.conta=(S.contas.find(x=>x.tipo==='corrente'&&x.dono===ME())||S.contas[0]||{}).id;
+  if(isNew&&!l.cartao&&!l.conta&&l.tipo==='despesa'&&card(PADR().cartao)&&card(PADR().cartao).ativo!==false)l.cartao=PADR().cartao;
+  if(isNew&&!l.cartao&&!l.conta&&(l.tipo==='receita'||l.tipo==='transf'||l.tipo==='pagfat')&&contaPadrao())l.conta=contaPadrao();
   if(isNew&&!l.cartao&&!l.conta&&l.tipo==='despesa'){const bc=bestCards(S.cards.filter(c=>c.ativo!==false&&c.dono===ME()).map(cardStats))[0],c=bc?bc.c:S.cards.find(c=>c.dono===ME()&&c.ativo!==false);if(c)l.cartao=c.id;else l.conta=(S.contas[0]||{}).id}
   const st={pend:!!l.pend,venc:l.venc||'',tipo:l.tipo,valor:Math.abs(+l.valor||0),neg:(+l.valor||0)<0,desc:l.desc||'',src:l.cartao?'card:'+l.cartao:l.conta?'acct:'+l.conta:'',dest:l.destino||'',data:l.data||today(),
     n:+l.parcelas||1,k:+l.parcela||1,div:l.divisao==='pessoal'?'pessoal':'comum',cat:l.categoria||'Outros',sub:l.subcategoria||'',tags:(l.tags||[]).slice(),fatura:l.fatura||'',obs:l.obs||'',open:'',
@@ -5140,7 +5146,29 @@ function route(){let h=location.hash.slice(1);if(h==='acertos'){RP='acertos';h='
   const bk=BACKING;BACKING=null;
   if(bk&&bk.v===v){requestAnimationFrame(()=>window.scrollTo(0,bk.y));if(bk.sheet){STACK=bk.sheet.stack;CUR=bk.sheet.cur;renderSheet(CUR,'bk');if(!sheetState){try{history.pushState({sheet:1},'');sheetState=true}catch(e){}}}}
   else window.scrollTo(0,0)}
-function renderView(){const v=S.view;if(v==='inicio')vInicio();else if(v==='lanc')vLanc();else if(v==='relatorios')vRel();else if(v==='cartoes')vCards();else vCart()}
+
+/* ---------- organizar telas (Carteira e Relatórios): ordem e visibilidade dos blocos ---------- */
+let ORG=(()=>{try{return JSON.parse(localStorage.getItem('pt-org')||'{}')}catch(e){return {}}})();
+const orgSave=()=>{try{localStorage.setItem('pt-org',JSON.stringify(ORG))}catch(e){}};
+const ORGV={carteira:'#v-carteira',relatorios:'#v-relatorios'};
+const orgScope=()=>S.view==='relatorios'?'relatorios:'+(typeof RP!=='undefined'?RP:''):S.view;
+const orgItems=el=>[...el.children].filter(c=>c.matches('.card,section.cx,.cxs2')&&!c.matches('.rdash')).map(c=>{const t=(c.querySelector('.ch>h2,.cxh .cxm strong,.cxm strong,.pth .k,h2')||c).textContent.trim().replace(/\s+(de|em|·)\s+\S+(\s+\d{4})?$/i,'').replace(/[\d.,/R$−+%]+/g,'').replace(/\s+/g,' ').trim().slice(0,40);return {c,k:t||'bloco'}});
+function orgApply(){const sel=ORGV[S.view];if(!sel)return;const el=$(sel);if(!el||!ready())return;if(S.view==='relatorios'&&el.querySelector('.rdash'))return;
+  const sc=orgScope(),O=ORG[sc]||{order:[],off:[]},its=orgItems(el);if(its.length<2)return;
+  const anchor=its[0].c.previousElementSibling,pos=its.map(x=>x.c),tail=pos[pos.length-1].nextElementSibling;
+  const ord=its.slice().sort((a,b)=>{const ia=O.order.indexOf(a.k),ib=O.order.indexOf(b.k);return (ia<0?999+its.indexOf(a):ia)-(ib<0?999+its.indexOf(b):ib)});
+  const frag=document.createDocumentFragment();ord.forEach(x=>{x.c.hidden=(O.off||[]).includes(x.k);frag.appendChild(x.c)});
+  if(tail)el.insertBefore(frag,tail);else el.appendChild(frag);
+  if(!el.querySelector('#orgbtn')){const b=document.createElement('button');b.type='button';b.className='custom';b.id='orgbtn';b.innerHTML=ic('edit')+'<span>Organizar esta tela</span>';b.onclick=openOrg;el.appendChild(b)}}
+function openOrg(){const el=$(ORGV[S.view]);const sc=orgScope();
+  const draw=sh=>{const O=ORG[sc]||(ORG[sc]={order:[],off:[]}),its=orgItems(el),ks=[...new Set(its.map(x=>x.k))];O.order=ks.slice().sort((a,b)=>{const ia=O.order.indexOf(a),ib=O.order.indexOf(b);return (ia<0?999+ks.indexOf(a):ia)-(ib<0?999+ks.indexOf(b):ib)});
+    sh.querySelector('#psl').innerHTML=O.order.map((k,i)=>{const on=!(O.off||[]).includes(k);return `<div class="psr"><label class="psw"><input type="checkbox" data-ok="${esc(k)}" ${on?'checked':''} aria-label="Mostrar ${esc(k)}"><span></span></label><span class="psn ${on?'':'off'}">${esc(k)}</span><button type="button" class="psb" data-om="${i}|-1" ${i?'':'disabled'} aria-label="Subir">${ic('down','up')}</button><button type="button" class="psb" data-om="${i}|1" ${i<O.order.length-1?'':'disabled'} aria-label="Descer">${ic('down')}</button></div>`}).join('');
+    sh.querySelectorAll('[data-ok]').forEach(c=>c.onchange=()=>{const k=c.dataset.ok;O.off=(O.off||[]).filter(x=>x!==k);if(!c.checked)O.off.push(k);orgSave();draw(sh);renderView()});
+    sh.querySelectorAll('[data-om]').forEach(b=>b.onclick=()=>{const [i,d]=b.dataset.om.split('|').map(Number),j=i+d;[O.order[i],O.order[j]]=[O.order[j],O.order[i]];orgSave();draw(sh);renderView()});};
+  openSheet(`<h2>Organizar ${S.view==='carteira'?'Carteira':'Relatórios'}</h2><p class="note">Escolha a ordem e o que aparece${S.view==='relatorios'?' nesta aba':''}. Fica salvo neste aparelho.</p><div id="psl" class="psl"></div><div class="btnrow"><button class="btn" type="button" id="orr">Restaurar padrão</button></div>`,sh=>{draw(sh);sh.querySelector('#orr').onclick=()=>{delete ORG[sc];orgSave();renderView();draw(sh)}});
+}
+
+function renderView(){const v=S.view;if(v==='inicio')vInicio();else if(v==='lanc')vLanc();else if(v==='relatorios')vRel();else if(v==='cartoes')vCards();else vCart();try{orgApply()}catch(e){console.error('org',e)}}
 let raf=0;const re=()=>{CACHE=null;cancelAnimationFrame(raf);raf=requestAnimationFrame(()=>{if($('#overlay').hidden||S.view!=='lanc')renderView();else renderView()})};
 window.addEventListener('hashchange',route);
 $('#fab').onclick=openMenu;
@@ -5159,6 +5187,7 @@ document.querySelectorAll('nav.tabs a').forEach(a=>a.addEventListener('click',e=
   document.addEventListener('click',e=>{const hd=e.target.closest&&e.target.closest(HD);if(!hd||!box(hd))return;const k=key(hd);if(COL.has(k))COL.delete(k);else COL.add(k);try{localStorage.setItem('pt-col',JSON.stringify([...COL]))}catch(_){}box(hd).classList.toggle('colp',COL.has(k))});
   let t=0;new MutationObserver(()=>{clearTimeout(t);t=setTimeout(apply,30)}).observe(document.body,{childList:true,subtree:true});apply();
 })();
+{const _vC=vCart,_vR=vRel;vCart=function(){_vC();try{orgApply()}catch(e){}};vRel=function(){_vR();try{orgApply()}catch(e){}}}
 route();
 const live=(t,on)=>{$('#livet').textContent=t;$('#live').classList.toggle('on',!!on)};
 const tm=setTimeout(()=>{if(!ready())live('Sem conexão')},10000);
