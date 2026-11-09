@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="appName">Patrimônio</string>
+    <string name="launchUrl">https://uilian-c.github.io/patrimonio/</string>
+    <string name="assetStatements" translatable="false">[{ \"relation\": [\"delegate_permission/common.handle_all_urls\"], \"target\": { \"namespace\": \"web\", \"site\": \"https://uilian-c.github.io\" } }]</string>
+</resources>
