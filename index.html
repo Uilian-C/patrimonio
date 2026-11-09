@@ -5152,7 +5152,7 @@ let ORG=(()=>{try{return JSON.parse(localStorage.getItem('pt-org')||'{}')}catch(
 const orgSave=()=>{try{localStorage.setItem('pt-org',JSON.stringify(ORG))}catch(e){}};
 const ORGV={carteira:'#v-carteira',relatorios:'#v-relatorios'};
 const orgScope=()=>S.view==='relatorios'?'relatorios:'+(typeof RP!=='undefined'?RP:''):S.view;
-const orgItems=el=>[...el.children].filter(c=>c.matches('.card,section.cx,.cxs2')&&!c.matches('.rdash')).map(c=>{const t=(c.querySelector('.ch>h2,.cxh .cxm strong,.cxm strong,.pth .k,h2')||c).textContent.trim().replace(/\s+(de|em|·)\s+\S+(\s+\d{4})?$/i,'').replace(/[\d.,/R$−+%]+/g,'').replace(/\s+/g,' ').trim().slice(0,40);return {c,k:t||'bloco'}});
+const orgItems=el=>[...el.children].filter(c=>c.matches('.card,section.cx,.cxs2')&&!c.matches('.rdash')).map(c=>{const t=(c.querySelector('.ch>h2,.cxh .cxm strong,.cxm strong,.pth .k,h2')||c).textContent.trim().replace(/\s+(de|em|·)\s+\S+(\s+\d{4})?$/i,'').replace(/[−+]?R\$\s?[\d.,]+/g,'').replace(/\s·\s.*$/,'').replace(/\d[\d.,/%]*/g,'').replace(/\s+/g,' ').trim().slice(0,40);return {c,k:t||'bloco'}});
 function orgApply(){const sel=ORGV[S.view];if(!sel)return;const el=$(sel);if(!el||!ready())return;if(S.view==='relatorios'&&el.querySelector('.rdash'))return;
   const sc=orgScope(),O=ORG[sc]||{order:[],off:[]},its=orgItems(el);if(its.length<2)return;
   const anchor=its[0].c.previousElementSibling,pos=its.map(x=>x.c),tail=pos[pos.length-1].nextElementSibling;
