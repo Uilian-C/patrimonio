@@ -2450,7 +2450,7 @@ const myBens=me=>S.contas.filter(a=>a.ativo!==false&&isBen(a)&&fracOf(a.dono,me)
 
 /* ---------- início v4: ações rápidas e "para resolver" ---------- */
 function iniAcoes(){
-  const A=[['despesa','out','Despesa','crit'],['receita','in','Receita','good'],['transf','swap','Transferir','accent'],['gab','heartpay',P(gabId()).nome.split(' ')[0],'g'],['import','doc','Ler documento','inv']];
+  const A=[['despesa','out','Despesa','crit'],['receita','in','Receita','good'],['transf','swap','Transferir','accent'],...(((cfg().pessoas||[]).length>1)?[['gab','heartpay','Acerto','g']]:[]),['import','doc','Ler documento','inv']];
   return `<div class="qa">${A.map(([k,i,n,c])=>`<button type="button" class="qab" data-qa="${k}" style="--qc:var(--${c})"><span>${ic(i)}</span><small>${esc(n)}</small></button>`).join('')}</div>`;
 }
 function iniResolver(X){
@@ -2469,7 +2469,7 @@ function iniResolver(X){
     ${ent.length?`<div class="rvin">${ic('in')}<span>Entra em breve: <b class="n pos">${brl0(sum(ent,x=>x.v))}</b> · ${ent.slice(0,2).map(x=>`${esc(x.t)} ${fdate(x.d).slice(0,5)}`).join(', ')}</span></div>`:''}</div>`;
 }
 function wireIni4(el){
-  el.querySelectorAll('[data-qa]').forEach(b=>b.onclick=()=>{const k=b.dataset.qa;if(k==='despesa')openLanc({tipo:'despesa'});else if(k==='receita')openLanc({tipo:'receita',conta:(S.contas.find(a=>a.tipo==='corrente'&&a.dono===ME())||S.contas[0]||{}).id,categoria:'Salário'});else if(k==='transf')openLanc({tipo:'transf',conta:(S.contas.find(a=>a.tipo==='corrente'&&a.dono===ME())||S.contas[0]||{}).id});else if(k==='gab'){RP='salvos';go('relatorios')}else openSmartImport()});
+  el.querySelectorAll('[data-qa]').forEach(b=>b.onclick=()=>{const k=b.dataset.qa;if(k==='despesa')openLanc({tipo:'despesa'});else if(k==='receita')openLanc({tipo:'receita',conta:(S.contas.find(a=>a.tipo==='corrente'&&a.dono===ME())||S.contas[0]||{}).id,categoria:'Salário'});else if(k==='transf')openLanc({tipo:'transf',conta:(S.contas.find(a=>a.tipo==='corrente'&&a.dono===ME())||S.contas[0]||{}).id});else if(k==='gab'){const r=S.reps.find(isAcRep);if(r){RSEL=r.id;RP='rel';ROFF=0}else RP='salvos';go('relatorios')}else openSmartImport()});
   el.querySelectorAll('[data-rv]').forEach(b=>b.onclick=()=>{const [k,v]=b.dataset.rv.split(/:(.*)/s);
     if(k==='l'){const l=S.lanc.find(x=>x.id===v);l&&l.pend?openPagar(l):openLanc(l)}
     else if(k==='fat'){const [c,y]=v.split('|');openPagFat(card(c),y)}
