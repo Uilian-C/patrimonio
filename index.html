@@ -1573,7 +1573,8 @@ html:has(#overlay:not([hidden])),html:has(#overlay:not([hidden])) body{overflow:
 .dpb{height:4px!important;border-radius:4px!important;background:color-mix(in srgb,var(--crit) 18%,var(--sunk))!important}.dpb i{border-radius:4px!important}
 .dpl b{font-weight:600!important}
 .dph .bk{width:38px;height:38px;border-radius:50%}
-.dpk{gap:0!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;border-top:1px solid var(--hair)!important;border-bottom:1px solid var(--hair)!important}
+.dpk{gap:0!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;}.dpw .dpk{grid-template-columns:repeat(4,minmax(0,1fr))!important;}
+.dpk{border-top:1px solid var(--hair)!important;border-bottom:1px solid var(--hair)!important}
 .dpk div{background:none!important;border-radius:0!important;padding:10px 6px 10px 0!important}.dpk div+div{border-left:1px solid var(--hair)!important;padding-left:10px!important}
 .dpk b{font-size:14.5px!important;font-weight:600!important}
 .dpi{background:none!important;padding:0 0 0 12px!important;border-left:2px solid var(--accent);border-radius:0!important}
@@ -3842,7 +3843,7 @@ function openOrganizar(re){if(re===true)CUR=null;
   const row=(x,i)=>`<div class="org" data-ot="${esc(norm((x.l.desc||'')+' '+(+x.l.valor||0).toFixed(2).replace('.',',')))}"><span class="cxm"><strong>${esc(descSemParc(x.l.desc||'—'))}</strong><small>${fdate(x.l.data||'').slice(0,5)} · ${esc(x.l.cartao?cardName(card(x.l.cartao)):(conta(x.l.conta)||{}).nome||'')}</small></span><b class="n">${brl(+x.l.valor||0)}</b>
     <div class="orga">${x.g?`<button class="chip osg" type="button" data-oa="${i}">${catBubble(x.g.categoria,'sm')}${esc(x.g.categoria)}${x.g.subcategoria?' › '+esc(x.g.subcategoria):''} ✓</button>`:''}<button class="lk" type="button" data-op="${i}">${x.g?'Outra':'Escolher categoria'}</button></div></div>`;
   openSheet(`<h2>Organizar “Outros”</h2>
-    <div class="kpis dpk"><div><span>Sem categoria</span><b class="n">${L.length}</b><small>lançamentos</small></div><div><span>Valor</span><b class="n">${brl0(tot)}</b><small>${com.length} com sugestão</small></div></div>
+    ${L.length?`<div class="kpis dpk"><div><span>Sem categoria</span><b class="n">${L.length} ${L.length===1?'lançamento':'lançamentos'}</b></div><div><span>Valor</span><b class="n">${brl0(tot)}</b>${com.length?`<small>${com.length} com sugestão</small>`:''}</div></div>`:''}
     <label class="orgm"><input type="checkbox" id="o-mem" ${ORG_MEM?'checked':''}> Lembrar a escolha para próximos lançamentos com a mesma descrição</label>
     ${com.length?`<button class="btn primary" type="button" id="o-all" style="width:100%">Aplicar ${com.length} sugest${com.length>1?'ões':'ão'}</button>`:''}
     ${L.length>4?`<div class="sbar"><label class="srch">${ic('search')}<input id="o-q" type="text" enterkeyhint="search" autocomplete="off" placeholder="Buscar" aria-label="Buscar lançamento"></label><select id="o-o" aria-label="Ordenar">${[['v','Maior valor'],['data','Mais recentes'],['nome','A–Z']].map(([k,n])=>`<option value="${k}" ${ORGO===k?'selected':''}>${n}</option>`).join('')}</select></div>`:''}
