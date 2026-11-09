@@ -1661,6 +1661,8 @@ html:has(#overlay:not([hidden])),html:has(#overlay:not([hidden])) body{overflow:
 .rdash .cdi>b{font-size:14px!important;font-weight:600!important;letter-spacing:-.01em!important}.rdash .cdm strong{font-size:14px!important}.rdash .cdm small{font-size:11.5px!important;line-height:1.35}.rdash .cdd{margin-top:2px}
 .rdash .cdm{text-align:left!important;justify-items:start!important}.rdash .cdi{grid-template-columns:auto minmax(0,1fr) auto!important}
 .rdash .cdi{justify-items:stretch!important;text-align:left!important}.rdash .cdm>*{justify-self:start!important;text-align:left!important;max-width:100%;overflow:hidden;text-overflow:ellipsis}.rdash .cdi>b{justify-self:end!important}
+.exr{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:16px;padding-top:12px;border-top:1px solid var(--hair)}.exr>span{font-size:12px;color:var(--muted);margin-right:auto}.exr .btn{display:inline-flex;align-items:center;gap:6px}.exr svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.8}
+.lxt .lxb{flex:0 0 auto}
 </style>
 </head>
 <body>
@@ -3053,7 +3055,7 @@ function vLanc(){
       <p class="lxcx">Caixa do mês, sua parte · faturas pelo vencimento · vira para ${MES[+ymAdd(LF.ym,1).slice(5)-1]} com <b class="n">${brl0(F.final)}</b></p>`}catch(e){console.error(e)}}
       return `<div class="lxs"><span><small>Entradas</small><b class="n pos">+${brl0(ent)}</b>${entP>.5?`<em class="lxp">${brl0(entP)} previsto</em>`:''}</span><span><small>Saídas</small><b class="n neg">−${brl0(sai)}</b>${saiP>.5?`<em class="lxp">${brl0(saiP)} em aberto</em>`:''}</span><span><small>Resultado</small><b class="n ${ent-sai<0?'neg':''}">${ent-sai<0?'−':'+'}${brl0(Math.abs(ent-sai))}</b></span></div>${af.length||(LF.per||'mes')!=='mes'?'<p class="lxcx">Soma dos lançamentos filtrados (valor cheio, compras pela data)</p>':''}`})()}
     <div class="lxt"><div class="seg seg-sm" role="group" aria-label="Visualização"><button type="button" data-lv="extrato" aria-pressed="${view==='extrato'}">Extrato</button><button type="button" data-lv="origem" aria-pressed="${view==='origem'}">Cartões e contas</button></div>
-      <button type="button" class="lxb ${LF.q?'on':''}" id="lxs" aria-label="Buscar">${ic('search')}</button><button type="button" class="lxb ${af.length?'on':''}" id="lxf" aria-label="Filtros">${ic('filter')}${af.length?`<i>${af.length}</i>`:''}</button></div>
+      <button type="button" class="lxb ${LF.q?'on':''}" id="lxs" aria-label="Buscar">${ic('search')}</button><button type="button" class="lxb ${af.length?'on':''}" id="lxf" aria-label="Filtros">${ic('filter')}${af.length?`<i>${af.length}</i>`:''}</button><button type="button" class="lxb" id="lxe" aria-label="Exportar">${ic('share')}</button></div>
     <div class="lxq" ${LF.q||LF.qOpen?'':'hidden'}>${ic('search')}<input id="lq" type="text" enterkeyhint="search" autocomplete="off" placeholder="Descrição, categoria, etiqueta ou valor" value="${esc(LF.q)}" aria-label="Buscar"><button type="button" id="lqx" aria-label="Limpar">${ic('close')}</button></div>
     ${LF.q&&(LF.per||'mes')==='mes'?`<div class="lxa"><button type="button" class="chip" data-per="tudo">${ic('search','lic')} Buscar “${esc(LF.q)}” em todos os meses</button></div>`:''}
     ${its.length&&(af.length||LF.q)?`<div class="lxn">${its.length} resultado${its.length>1?'s':''} · ${brl(Math.abs(sum(its,x=>x.v)))} no total</div>`:''}
@@ -3079,6 +3081,7 @@ function vLanc(){
   el.querySelectorAll('[data-lv]').forEach(b=>b.onclick=()=>{LVIEW=b.dataset.lv;LSset('pt-lv',LVIEW);vLanc()});
   $('#lxs').onclick=()=>{LF.qOpen=!LF.qOpen;if(!LF.qOpen)LF.q='';vLanc();const n=$('#lq');if(n&&LF.qOpen)n.focus()};
   $('#lxf').onclick=openLanFiltros;
+  {const e=$('#lxe');if(e)e.onclick=()=>{const S0=lancS0();openSheet(`<h2>Exportar lançamentos</h2><p class="note">${esc(S0.title)} · ${S0.items.length} lançamento${S0.items.length===1?'':'s'}. Exporta exatamente o que está na lista, com os filtros aplicados.</p>${expBtns('lxx')}`,sh=>wireExp(sh,'lxx',lancS0,'lancamentos-'+LF.ym))}}
   const q=$('#lq');if(q)q.oninput=()=>{LF.q=q.value;clearTimeout(q.t);q.t=setTimeout(()=>{vLanc();const n=$('#lq');if(n){n.focus();n.setSelectionRange(n.value.length,n.value.length)}},300)};
   const qx=$('#lqx');if(qx)qx.onclick=()=>{LF.q='';LF.qOpen=false;vLanc()};
   el.querySelectorAll('[data-rmf]').forEach(b=>b.onclick=()=>{const k=b.dataset.rmf;if(k==='all'){Object.assign(LF,{tipo:'',div:'todos',sit:'',card:'',tag:'',cat:'',vmin:'',vmax:'',ord:'data',per:'mes'})}else if(k==='div')LF.div='todos';else if(k==='val'){LF.vmin='';LF.vmax=''}else if(k==='ord')LF.ord='data';else if(k==='per')LF.per='mes';else if(k==='prevOff')LF.prevOff=false;else LF[k]='';vLanc()});
@@ -3239,6 +3242,7 @@ function acertoDashHTML(r){
     ${ACTAB==='aberto'?(ab.length?byM(ab).map(([m,g])=>`<section class="cds"><div class="cdsh"><h3>${MESL[+m.slice(5)-1]} ${m.slice(0,4)}</h3><small class="n">${brl(sum(g,x=>x.rest))}</small></div><div class="cdd">${g.map(x=>row(x,x.rest,x.quit.length?`parcialmente abatido, faltam ${brl(x.rest)}`:'')).join('')}</div></section>`).join(''):'<p class="note">Nada em aberto: tudo foi abatido.</p>')
       :(L.abs.length?`<section class="cds"><div class="cdsh"><h3>Abatimentos</h3><small class="n">${brl(L.quit)}</small></div><div class="cdd">${L.abs.slice().reverse().map(a=>`<div class="cdi"><span class="cbub sm" style="--cb:var(--good)">${ic('check')}</span><span class="cdm"><strong>Abatimento</strong><small>${fdate(a.d)}${a.left>.005?` · ${brl(a.left)} ainda sem compra para quitar`:''}</small></span><b class="n pos">${brl(a.v)}</b></div>`).join('')}</div></section>
         ${byM(qt).reverse().map(([m,g])=>`<section class="cds"><div class="cdsh"><h3>${MESL[+m.slice(5)-1]} ${m.slice(0,4)} · quitado</h3><small class="n">${brl(sum(g,x=>sum(x.quit,q=>q.v)))}</small></div><div class="cdd">${g.map(x=>row(x,sum(x.quit,q=>q.v),'quitado em '+x.quit.map(q=>fdate(q.d).slice(0,5)).join(', '))).join('')}</div></section>`).join('')}`:'<p class="note">Nenhum abatimento ainda. Quando você abater num repasse, as compras quitadas aparecem aqui.</p>')}
+    ${expBtns('acx')}
   </div>`;
 }
 function repDashHTML(r){
@@ -3280,6 +3284,25 @@ async function repPay(x,paid,day,nome){
   if(x.kind==='lanc')return gabSetPaid({l:x.l},paid,day);
   if(x.kind==='prev'&&paid)return gabSetPaid({prev:x.prev,v:x.v},true,day);
 }
+/* ---------- exportar qualquer lista (texto, imagem, PDF) ---------- */
+function s0Text(S0,head){return `${head||S0.title}\n\n`+S0.items.map(x=>`${x.paid?'✓':'•'} ${x.desc} · ${x.v<0?'−':''}${brl(Math.abs(x.v))}${x.paid&&x.pagoEm?' ('+(x.pagoLab||'pago')+' '+fdate(x.pagoEm).slice(0,5)+')':x.due?' ('+fdate(x.due).slice(0,5)+')':''}`).join('\n')+`\n\nTotal ${brl(S0.tot)}${S0.paid?`\n${S0.paidLab||'Pago'} ${brl(S0.paid)}`:''}\n${S0.openLab||'Em aberto'}: ${brl(S0.open)}`}
+async function expText(S0,head){const t=s0Text(S0,head);try{if(navigator.share&&/Mobi/i.test(navigator.userAgent))await navigator.share({text:t});else{await navigator.clipboard.writeText(t);toast('Texto copiado')}}catch(e){try{await navigator.clipboard.writeText(t);toast('Texto copiado')}catch(e2){toast('Não consegui copiar')}}}
+async function expImg(S0,fn,b){if(b)b.disabled=true;try{const blob=await gabPNG(S0);const f=`${norm(fn||'relatorio').replace(/ /g,'-')}.png`;if(S.downloads)await S.downloads.save({filename:f,data:blob});else window.open(URL.createObjectURL(blob),'_blank')}catch(err){if(!(err&&(err.code==='cancelled'||err.code==='declined')))toast('Não consegui gerar a imagem.')}finally{if(b)b.disabled=false}}
+const expBtns=p=>`<div class="exr"><span>Exportar</span><button class="btn sm" type="button" id="${p}-tx">${ic('text')} Texto</button><button class="btn sm" type="button" id="${p}-im">${ic('image')} Imagem</button><button class="btn sm" type="button" id="${p}-pf">${ic('pdf')} PDF</button></div>`;
+async function expPDF(S0,fn,btn){if(btn)btn.disabled=true;try{const J=await loadJsPDF(),doc=new J({unit:'mm',format:'a4'}),W=200;let y=18;const line=(t,x,yy,o)=>doc.text(String(t),x,yy,o||{});
+  doc.setFont('helvetica','bold');doc.setFontSize(15);doc.splitTextToSize(S0.title,185).forEach(t=>{line(t,10,y);y+=7});doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(120);line('Patrimônio · gerado em '+fdate(today()),10,y);doc.setTextColor(20);y+=9;
+  doc.setFontSize(11);if(S0.paid)line(`${S0.paidLab||'Pago'}: ${brl(S0.paid)}`,10,y);line(`${S0.openLab||'Em aberto'}: ${brl(S0.open)}`,S0.paid?80:10,y);doc.setFont('helvetica','bold');line(`Total: ${brl(S0.tot)}`,W,y,{align:'right'});doc.setFont('helvetica','normal');y+=8;
+  doc.setFontSize(8.5);doc.setTextColor(120);line('Item',10,y);line('Data',128,y);line('Categoria',150,y);line('Valor',W,y,{align:'right'});doc.setTextColor(20);y+=2;doc.setDrawColor(215);doc.line(10,y,W,y);y+=5;doc.setFontSize(9.5);
+  S0.items.forEach(x=>{if(y>282){doc.addPage();y=18}line(doc.splitTextToSize(x.desc,115)[0],10,y);line(fdate(x.paid&&x.pagoEm?x.pagoEm:x.due||'').slice(0,10),128,y);line(doc.splitTextToSize(x.cat||'',30)[0]||'',150,y);if(x.v<0)doc.setTextColor(190,60,50);line((x.v<0?'−':'')+brl(Math.abs(x.v)),W,y,{align:'right'});doc.setTextColor(20);y+=5.6});
+  const f=`${norm(fn||'relatorio').replace(/ /g,'-')}.pdf`,blob=doc.output('blob');if(S.downloads)await S.downloads.save({filename:f,data:blob});else window.open(URL.createObjectURL(blob),'_blank')}catch(err){if(!(err&&(err.code==='cancelled'||err.code==='declined')))toast('Não consegui gerar o PDF.')}finally{if(btn)btn.disabled=false}}
+function wireExp(root,p,getS0,fn,head){const q=s=>root.querySelector('#'+p+'-'+s);if(!q('tx'))return;q('tx').onclick=()=>expText(getS0(),head);q('im').onclick=e=>expImg(getS0(),fn,e.currentTarget);q('pf').onclick=e=>expPDF(getS0(),fn,e.currentTarget)}
+function lancS0(){const its=lancItems(LVIEW),t=today(),af=lfActive();const lab=(LF.per||'mes')==='mes'?MESL[+LF.ym.slice(5)-1]+' '+LF.ym.slice(0,4):'Período filtrado';
+  const items=its.slice().sort((a,b)=>(a.d||'').localeCompare(b.d||'')).map(x=>({desc:(x.l.desc||'Lançamento')+(af.length?'':''),v:x.v,paid:!x.pend&&!x.proj&&(x.d||'')<=t,pagoEm:x.d,pagoLab:'em',due:x.d,cat:x.l.categoria||'',tags:x.l.tags||[]}));
+  const ent=sum(items.filter(x=>x.v>0),x=>x.v),sai=-sum(items.filter(x=>x.v<0),x=>x.v);
+  return {title:'Lançamentos · '+lab+(af.length?' · '+af.map(a=>a[1]).join(', '):''),lab:'Lançamentos · '+lab,w:t,items,tot:r2(ent-sai),paid:r2(ent),paidLab:'Entradas',open:r2(-sai),openLab:'Saídas'}}
+function acertoS0(){const L=acertoLedger(),gn=P(gabId()).nome.split(' ')[0],ab=ACTAB==='aberto';
+  const items=ab?L.its.filter(x=>Math.abs(x.rest)>.005).map(x=>({desc:x.desc+` (total ${brl(x.total)})`,v:x.rest,paid:false,due:x.d,cat:x.cat,tags:[]})):L.its.filter(x=>x.quit.length).map(x=>({desc:x.desc,v:sum(x.quit,q=>q.v),paid:true,pagoEm:x.quit.at(-1).d,pagoLab:'quitado',due:x.d,cat:x.cat,tags:[]}));
+  return {title:ab?`${gn} te deve (em aberto)`:'Acerto quitado',lab:'Acerto · '+(ab?'em aberto':'quitado'),w:today(),items,tot:r2(sum(items,x=>x.v)),paid:ab?0:r2(sum(items,x=>x.v)),open:ab?r2(L.open):0,openLab:ab?'Em aberto':'Em aberto'}}
 function wireRep(el){
   el.querySelectorAll('[data-rsel]').forEach(b=>b.onclick=()=>{RSEL=b.dataset.rsel;LSset('pt-rsel',RSEL);ROFF=0;RP='rel';vRel()});
   const nw=el.querySelector('#rnew');if(nw)nw.onclick=()=>openRepEdit(null);
@@ -3287,7 +3310,7 @@ function wireRep(el){
   el.querySelectorAll('[data-rback]').forEach(b=>b.onclick=()=>{RP='salvos';vRel()});
   el.querySelectorAll('[data-roff]').forEach(b=>b.onclick=()=>{ROFF+=+b.dataset.roff;vRel()});
   [el.querySelector('#rdedit'),el.querySelector('#rdcfg')].forEach(b=>b&&(b.onclick=()=>openRepEdit(r)));
-  el.querySelectorAll('[data-act]').forEach(b=>b.onclick=()=>{ACTAB=b.dataset.act;vRel()});el.querySelectorAll('.rdash .cdi[data-l]').forEach(b=>b.onclick=()=>openLanc(S.lanc.find(l=>l.id===b.dataset.l)));{const a2=el.querySelector('#ac-ab');if(a2)a2.onclick=()=>openAbater(credGab().cred,'',()=>renderView())}
+  el.querySelectorAll('[data-act]').forEach(b=>b.onclick=()=>{ACTAB=b.dataset.act;vRel()});wireExp(el,'acx',acertoS0,'acerto-'+ACTAB+'-'+today());el.querySelectorAll('.rdash .cdi[data-l]').forEach(b=>b.onclick=()=>openLanc(S.lanc.find(l=>l.id===b.dataset.l)));{const a2=el.querySelector('#ac-ab');if(a2)a2.onclick=()=>openAbater(credGab().cred,'',()=>renderView())}
   {const ab=el.querySelector('#rd-ab');if(ab)ab.onclick=()=>{const D=repDef(r),R=repRange(D,ROFF),X=repRun(D,R),T=repTrf(D,R,X);openAbater(Math.max(T.tot,0),D.acQ&&D.acQ!=='ambas'?D.acQ:'',()=>renderView())}}
   const day=()=>{const v=el.querySelector('#gpd');return v&&v.value||today()};
   el.querySelectorAll('[data-rk2]').forEach(c=>c.onclick=async()=>{const x=X.its[+c.dataset.rk2],to=!x.paid;if(!to&&x.kind==='prev')return;c.disabled=true;c.parentElement.classList.toggle('on',to);try{await repPay(x,to,day(),r.nome);toast(to?'Marcado como pago':'Voltou para em aberto')}catch(err){toast(writeErr(err));c.parentElement.classList.toggle('on',!to);c.disabled=false}});
