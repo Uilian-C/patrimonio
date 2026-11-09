@@ -1658,6 +1658,8 @@ html:has(#overlay:not([hidden])),html:has(#overlay:not([hidden])) body{overflow:
 #l-v{cursor:pointer;caret-color:transparent}
 .lxcx{margin:6px 0 0;font-size:11.5px;color:var(--faint)}.lxcx b{color:var(--muted);font-weight:600}
 .abl{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:-4px 0 14px;padding:10px 0 10px 14px;border-left:2px solid var(--good)}.abl span{display:grid;font-size:13.5px;font-weight:550}.abl small{font-size:11.5px;color:var(--muted);font-weight:400}
+.rdash .cdi>b{font-size:14px!important;font-weight:600!important;letter-spacing:-.01em!important}.rdash .cdm strong{font-size:14px!important}.rdash .cdm small{font-size:11.5px!important;line-height:1.35}.rdash .cdd{margin-top:2px}
+.rdash .cdm{text-align:left!important;justify-items:start!important}.rdash .cdi{grid-template-columns:auto minmax(0,1fr) auto!important}
 </style>
 </head>
 <body>
@@ -2868,9 +2870,9 @@ function wireGab(el){
   el.querySelectorAll('[data-gk]').forEach(c=>c.onclick=async()=>{const x=S0.items[+c.dataset.gk],to=!x.paid;c.disabled=true;c.parentElement.classList.toggle('on',to);try{await gabSetPaid(x,to,day());toast(to?'Marcado como pago':'Voltou para em aberto')}catch(err){toast(writeErr(err));c.parentElement.classList.toggle('on',!to);c.disabled=false}});
   el.querySelectorAll('[data-ge]').forEach(b=>b.onclick=()=>{const x=S0.items[+b.dataset.ge];if(x.acerto)openAcerto(x.acerto);else openPagarG(x)});
   const all=el.querySelector('#gall');if(all)all.onclick=async()=>{all.disabled=true;try{for(const x of S0.items.filter(x=>!x.paid))await gabSetPaid(x,true,day());toast('Tudo pago em '+fdate(day()).slice(0,5))}catch(err){toast(writeErr(err));all.disabled=false}};
-  el.querySelector('#gtx').onclick=async()=>{const t=gabText(S0,gabResumo(G,S0));try{if(navigator.share&&/Mobi/i.test(navigator.userAgent))await navigator.share({text:t});else{await navigator.clipboard.writeText(t);toast('Resumo copiado')}}catch(e){try{await navigator.clipboard.writeText(t);toast('Resumo copiado')}catch(e2){toast('Não consegui copiar')}}};
-  el.querySelector('#gim').onclick=async e=>{const b=e.currentTarget;b.disabled=true;try{const blob=await gabPNG(S0,gabResumo(G,S0));if(S.downloads)await S.downloads.save({filename:`repasse-${norm(P(gabId()).nome).split(' ')[0]}-${S0.w}.png`,data:blob});else{const u=URL.createObjectURL(blob);window.open(u,'_blank')}}catch(err){if(!(err&&(err.code==='cancelled'||err.code==='declined')))toast('Não consegui gerar a imagem.')}finally{b.disabled=false}};
-  el.querySelector('#gpf').onclick=e=>gabPDF(S0,e.currentTarget,gabResumo(G,S0));
+  (el.querySelector('#gtx')||{}).onclick=async()=>{const t=gabText(S0,gabResumo(G,S0));try{if(navigator.share&&/Mobi/i.test(navigator.userAgent))await navigator.share({text:t});else{await navigator.clipboard.writeText(t);toast('Resumo copiado')}}catch(e){try{await navigator.clipboard.writeText(t);toast('Resumo copiado')}catch(e2){toast('Não consegui copiar')}}};
+  (el.querySelector('#gim')||{}).onclick=async e=>{const b=e.currentTarget;b.disabled=true;try{const blob=await gabPNG(S0,gabResumo(G,S0));if(S.downloads)await S.downloads.save({filename:`repasse-${norm(P(gabId()).nome).split(' ')[0]}-${S0.w}.png`,data:blob});else{const u=URL.createObjectURL(blob);window.open(u,'_blank')}}catch(err){if(!(err&&(err.code==='cancelled'||err.code==='declined')))toast('Não consegui gerar a imagem.')}finally{b.disabled=false}};
+  (el.querySelector('#gpf')||{}).onclick=e=>gabPDF(S0,e.currentTarget,gabResumo(G,S0));
 }
 
 function despItems(ym,me,tot){
@@ -3206,12 +3208,40 @@ function repChart(D,X,R){
 }
 function repListHTML(){
   const L=S.reps.slice().sort((a,b)=>(a.ordem||99)-(b.ordem||99)||String(a.nome).localeCompare(b.nome));
-  return `<div class="rgrid">${L.map(r=>{const D=repDef(r),R=repRange(D,0),X=repRun(D,R),pp=X.tot>.005?Math.min(Math.max(X.paid/X.tot,0),1):0,TT=D.trf?repTrf(D,R,X):null;
+  return `<div class="rgrid">${L.map(r=>{if(isAcRep(r)){const A=acertoLedger();return `<button type="button" class="rcard" data-rsel="${esc(r.id)}" style="--rc:${esc(r.cor||'var(--accent)')}"><span class="rch1"><i></i><b>${esc(r.nome)}</b></span><small class="rds">${esc(r.desc||'')}</small><span class="rkv"><span><small>em aberto</small><b class="n">${brl0(Math.abs(A.open))}</b></span></span><small class="rper">acumulado · abatido ${brl0(A.quit)}</small></button>`}const D=repDef(r),R=repRange(D,0),X=repRun(D,R),pp=X.tot>.005?Math.min(Math.max(X.paid/X.tot,0),1):0,TT=D.trf?repTrf(D,R,X):null;
     return `<button type="button" class="rcard" data-rsel="${esc(r.id)}" style="--rc:${esc(r.cor||'var(--accent)')}"><span class="rch1"><i></i><b>${esc(r.nome)}</b></span><small class="rds">${esc(r.desc||'')}</small>
       <span class="rkv"><span><small>${TT?(TT.tot<-.005?'a receber':'transferir'):X.open>.005?'em aberto':'total'}</small><b class="n">${brl0(TT?Math.abs(TT.tot):X.open>.005?X.open:X.tot)}</b></span><span class="ring sm ${pp>=1?'ok':''}" style="--p:${pp*100}"><b class="n">${pp>=1?'✓':pctf(pp)}</b></span></span><small class="rper">${esc(R.lab)} · ${X.its.length} ite${X.its.length===1?'m':'ns'}</small></button>`}).join('')}
     <button type="button" class="rcard rnew" id="rnew">${ic('plus')}<b>Novo relatório</b><small>filtros, etiquetas e painel do seu jeito</small></button></div>`;
 }
+/* ---------- relatório de acerto acumulado: em aberto (até abater) e quitado ---------- */
+const isAcRep=r=>{const o=(repDef(r).orig||[]);return o.length===1&&o[0]==='acitens'};
+let ACTAB='aberto';
+function acertoLedger(){
+  const me=ME(),gid=gabId(),its=[];if(!gid)return {its,abs:[],open:0,quit:0};let k=perOf(histIni()),g=0;const cur=curPeriod();
+  while(k<=cur&&g++<200){const A=acerto(k);if(!A.done&&[A.a.id,A.b.id].includes(gid))A.its.forEach(i=>{const h=r2(i.valor/2)*(i.tipo==='receita'?-1:1),mine=i.dono===me,d=i.l.data||i.due||'';its.push({l:i.l,d,desc:(i.l.desc||'')+(i.N>1&&!/\s\d{1,2}\/\d{1,2}$/.test(i.l.desc||'')?` ${i.j}/${i.N}`:''),total:i.valor,v:mine?h:-h,cat:i.l.categoria||'Outros',rest:0,quit:[]})});k=nextP(k)}
+  its.sort((a,b)=>a.d.localeCompare(b.d));
+  const abs=S.acertos.filter(x=>isAbat(x)&&x.para===me).map(x=>({id:x.id,d:x.data,v:+x.valor||0,left:+x.valor||0})).sort((a,b)=>a.d.localeCompare(b.d));
+  /* créditos (itens a seu favor) são quitados pela ordem de data com os abatimentos; itens a favor dela reduzem o crédito */
+  let pool=abs.map(a=>Object.assign({},a));its.forEach(x=>{if(x.v<=0){x.rest=x.v;return}let need=x.v;for(const a of pool){if(need<=.005)break;if(a.left<=.005)continue;const u=Math.min(a.left,need);a.left=r2(a.left-u);need=r2(need-u);x.quit.push({d:a.d,v:u})}x.rest=r2(need)});
+  const open=r2(sum(its,x=>x.rest)),quit=r2(sum(abs,a=>a.v));return {its,abs:pool,open,quit}}
+function acertoDashHTML(r){
+  const L=acertoLedger(),gn=esc(P(gabId()).nome.split(' ')[0]),ab=L.its.filter(x=>Math.abs(x.rest)>.005),qt=L.its.filter(x=>x.quit.length);
+  const byM=arr=>{const m={};arr.forEach(x=>{const k=x.d.slice(0,7);(m[k]=m[k]||[]).push(x)});return Object.entries(m).sort((a,b)=>a[0].localeCompare(b[0]))};
+  const row=(x,v,sub)=>`<button class="cdi" type="button" data-l="${esc(x.l.id)}">${catBubble(x.cat,'sm')}<span class="cdm"><strong>${esc(x.desc)}</strong><small>${fdate(x.d).slice(0,5)} · total ${brl(x.total)}${sub?' · '+sub:''}</small></span><b class="n ${v<0?'neg':'pos'}">${v<0?'−':'+'}${brl(Math.abs(v))}</b></button>`;
+  const first=ab.length?ab[0].d:'';
+  return `<div class="card rdash" style="--rc:${esc(r.cor||'var(--accent)')}">
+    <div class="rdt"><button type="button" class="navb" data-rback aria-label="Voltar aos relatórios">‹</button><div><h2>${esc(r.nome)}</h2><small>Compras comuns: o que ${gn} te deve, acumulado até você abater</small></div><button type="button" class="rdeb" id="rdedit" aria-label="Editar relatório">${ic('edit')}</button></div>
+    <div class="hx"><span class="hxk">${L.open>=0?`${gn} te deve`:`Você deve a ${gn}`}${first?` · desde ${fdate(first).slice(0,5)}`:''}</span><div class="hxv n">${brl(Math.abs(L.open))}</div>
+      <div class="hxm"><span>${ab.length} compra${ab.length===1?'':'s'} em aberto</span><span>Já abatido <b class="n">${brl(L.quit)}</b></span></div>
+      ${L.open>.005?`<button class="hxp" type="button" id="ac-ab">${ic('check')} Abater agora</button>`:''}</div>
+    <div class="seg" role="tablist" style="margin-top:12px"><button type="button" data-act="aberto" aria-pressed="${ACTAB==='aberto'}">Em aberto</button><button type="button" data-act="quitado" aria-pressed="${ACTAB==='quitado'}">Quitado</button></div>
+    ${ACTAB==='aberto'?(ab.length?byM(ab).map(([m,g])=>`<section class="cds"><div class="cdsh"><h3>${MESL[+m.slice(5)-1]} ${m.slice(0,4)}</h3><small class="n">${brl(sum(g,x=>x.rest))}</small></div><div class="cdd">${g.map(x=>row(x,x.rest,x.quit.length?`parcialmente abatido, faltam ${brl(x.rest)}`:'')).join('')}</div></section>`).join(''):'<p class="note">Nada em aberto: tudo foi abatido.</p>')
+      :(L.abs.length?`<section class="cds"><div class="cdsh"><h3>Abatimentos</h3><small class="n">${brl(L.quit)}</small></div><div class="cdd">${L.abs.slice().reverse().map(a=>`<div class="cdi"><span class="cbub sm" style="--cb:var(--good)">${ic('check')}</span><span class="cdm"><strong>Abatimento</strong><small>${fdate(a.d)}${a.left>.005?` · ${brl(a.left)} ainda sem compra para quitar`:''}</small></span><b class="n pos">${brl(a.v)}</b></div>`).join('')}</div></section>
+        ${byM(qt).reverse().map(([m,g])=>`<section class="cds"><div class="cdsh"><h3>${MESL[+m.slice(5)-1]} ${m.slice(0,4)} · quitado</h3><small class="n">${brl(sum(g,x=>sum(x.quit,q=>q.v)))}</small></div><div class="cdd">${g.map(x=>row(x,sum(x.quit,q=>q.v),'quitado em '+x.quit.map(q=>fdate(q.d).slice(0,5)).join(', '))).join('')}</div></section>`).join('')}`:'<p class="note">Nenhum abatimento ainda. Quando você abater num repasse, as compras quitadas aparecem aqui.</p>')}
+  </div>`;
+}
 function repDashHTML(r){
+  if(isAcRep(r))return acertoDashHTML(r);
   const D=repDef(r),R=repRange(D,ROFF),X=repRun(D,R),Pv=repRun(D,repRange(D,ROFF-1)),pp=X.tot>.005?Math.min(Math.max(X.paid/X.tot,0),1):0,dlt=X.tot-Pv.tot,gn=P(gabId()).nome.split(' ')[0];
   const grps={};X.its.forEach(x=>{const k=repGroupKey(D,x);(grps[k]=grps[k]||[]).push(x)});const GK=Object.keys(grps);
   const late=X.its.filter(x=>!x.paid&&x.dv<today()&&x.kind!=='card').length;
@@ -3256,6 +3286,7 @@ function wireRep(el){
   el.querySelectorAll('[data-rback]').forEach(b=>b.onclick=()=>{RP='salvos';vRel()});
   el.querySelectorAll('[data-roff]').forEach(b=>b.onclick=()=>{ROFF+=+b.dataset.roff;vRel()});
   [el.querySelector('#rdedit'),el.querySelector('#rdcfg')].forEach(b=>b&&(b.onclick=()=>openRepEdit(r)));
+  el.querySelectorAll('[data-act]').forEach(b=>b.onclick=()=>{ACTAB=b.dataset.act;vRel()});el.querySelectorAll('.rdash .cdi[data-l]').forEach(b=>b.onclick=()=>openLanc(S.lanc.find(l=>l.id===b.dataset.l)));{const a2=el.querySelector('#ac-ab');if(a2)a2.onclick=()=>openAbater(credGab().cred,'',()=>renderView())}
   {const ab=el.querySelector('#rd-ab');if(ab)ab.onclick=()=>{const D=repDef(r),R=repRange(D,ROFF),X=repRun(D,R),T=repTrf(D,R,X);openAbater(Math.max(T.tot,0),D.acQ&&D.acQ!=='ambas'?D.acQ:'',()=>renderView())}}
   const day=()=>{const v=el.querySelector('#gpd');return v&&v.value||today()};
   el.querySelectorAll('[data-rk2]').forEach(c=>c.onclick=async()=>{const x=X.its[+c.dataset.rk2],to=!x.paid;if(!to&&x.kind==='prev')return;c.disabled=true;c.parentElement.classList.toggle('on',to);try{await repPay(x,to,day(),r.nome);toast(to?'Marcado como pago':'Voltou para em aberto')}catch(err){toast(writeErr(err));c.parentElement.classList.toggle('on',!to);c.disabled=false}});
@@ -3264,10 +3295,10 @@ function wireRep(el){
   el.querySelectorAll('[data-racq]').forEach(b=>b.onclick=()=>openAcerto(b.dataset.racq));
   const all=el.querySelector('#rpall');if(all)all.onclick=async()=>{all.disabled=true;try{for(const x of X.its.filter(x=>x.payable&&!x.paid&&(x.kind==='lanc'||x.kind==='prev'||x.kind==='acerto')))await repPay(x,true,day(),r.nome);toast('Pago em '+fdate(day()).slice(0,5))}catch(err){toast(writeErr(err));all.disabled=false}};
   const S0=repS0(r,X,R,D.trf?repTrf(D,R,X):null),RS={lines:[],ending:[],nextWs:[]};
-  el.querySelector('#gtx').onclick=async()=>{const t=`${S0.title} · ${r.nome} · ${R.lab}\n\n`+S0.items.map(x=>`${x.paid?'✓':'•'} ${x.desc} · ${x.v<0?'−':''}${brl(Math.abs(x.v))}${x.paid&&x.pagoEm?' (pago '+fdate(x.pagoEm).slice(0,5)+')':x.due?' (vence '+fdate(x.due).slice(0,5)+')':''}`).join('\n')+`\n\nTotal ${brl(S0.tot)}\nPago ${brl(S0.paid)}\n${D.trf?S0.title:'Em aberto'}: ${brl(S0.open)}`;
+  (el.querySelector('#gtx')||{}).onclick=async()=>{const t=`${S0.title} · ${r.nome} · ${R.lab}\n\n`+S0.items.map(x=>`${x.paid?'✓':'•'} ${x.desc} · ${x.v<0?'−':''}${brl(Math.abs(x.v))}${x.paid&&x.pagoEm?' (pago '+fdate(x.pagoEm).slice(0,5)+')':x.due?' (vence '+fdate(x.due).slice(0,5)+')':''}`).join('\n')+`\n\nTotal ${brl(S0.tot)}\nPago ${brl(S0.paid)}\n${D.trf?S0.title:'Em aberto'}: ${brl(S0.open)}`;
     try{if(navigator.share&&/Mobi/i.test(navigator.userAgent))await navigator.share({text:t});else{await navigator.clipboard.writeText(t);toast('Texto copiado')}}catch(e){try{await navigator.clipboard.writeText(t);toast('Texto copiado')}catch(e2){toast('Não consegui copiar')}}};
-  el.querySelector('#gim').onclick=async e=>{const b=e.currentTarget;b.disabled=true;try{const blob=await gabPNG(S0,RS);const fn=`${norm(r.nome).replace(/ /g,'-')||'relatorio'}-${R.ym}.png`;if(S.downloads)await S.downloads.save({filename:fn,data:blob});else window.open(URL.createObjectURL(blob),'_blank')}catch(err){if(!(err&&(err.code==='cancelled'||err.code==='declined')))toast('Não consegui gerar a imagem.')}finally{b.disabled=false}};
-  el.querySelector('#gpf').onclick=e=>gabPDF(S0,e.currentTarget,RS);
+  (el.querySelector('#gim')||{}).onclick=async e=>{const b=e.currentTarget;b.disabled=true;try{const blob=await gabPNG(S0,RS);const fn=`${norm(r.nome).replace(/ /g,'-')||'relatorio'}-${R.ym}.png`;if(S.downloads)await S.downloads.save({filename:fn,data:blob});else window.open(URL.createObjectURL(blob),'_blank')}catch(err){if(!(err&&(err.code==='cancelled'||err.code==='declined')))toast('Não consegui gerar a imagem.')}finally{b.disabled=false}};
+  (el.querySelector('#gpf')||{}).onclick=e=>gabPDF(S0,e.currentTarget,RS);
 }
 /* editor de relatório */
 function openRepEdit(r){
