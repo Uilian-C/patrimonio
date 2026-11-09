@@ -1661,7 +1661,7 @@ html:has(#overlay:not([hidden])),html:has(#overlay:not([hidden])) body{overflow:
 .rdash .cdi>b{font-size:14px!important;font-weight:600!important;letter-spacing:-.01em!important}.rdash .cdm strong{font-size:14px!important}.rdash .cdm small{font-size:11.5px!important;line-height:1.35}.rdash .cdd{margin-top:2px}
 .rdash .cdm{text-align:left!important;justify-items:start!important}.rdash .cdi{grid-template-columns:auto minmax(0,1fr) auto!important}
 .rdash .cdi{justify-items:stretch!important;text-align:left!important}.rdash .cdm>*{justify-self:start!important;text-align:left!important;max-width:100%;overflow:hidden;text-overflow:ellipsis}.rdash .cdi>b{justify-self:end!important}
-.exr{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:16px;padding-top:12px;border-top:1px solid var(--hair)}.exr>span{font-size:12px;color:var(--muted);margin-right:auto}.exr .btn{display:inline-flex;align-items:center;gap:6px}.exr svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.8}
+.exr{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:16px;padding-top:12px;border-top:1px solid var(--hair)}.exr>span{grid-column:1/-1;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}.exr .btn{justify-content:center;width:100%;min-width:0}.exr .btn{display:inline-flex;align-items:center;gap:6px}.exr svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.8}
 .lxt .lxb{flex:0 0 auto}
 
 /* abatimento: composição, seleção e grupo separado */
@@ -1686,6 +1686,9 @@ html:has(#overlay:not([hidden])),html:has(#overlay:not([hidden])) body{overflow:
 .pill.xs{font-size:10.5px;padding:1px 6px;vertical-align:1px;margin-left:4px}
 .rdash .cdi:has(.acck){grid-template-columns:auto auto minmax(0,1fr) auto!important}
 .abq .cdm strong{white-space:normal!important;overflow:visible!important}
+.acsel{flex-wrap:wrap}.acsel>span{min-width:60%}
+.acsel{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(96px + env(safe-area-inset-bottom,0px));width:min(560px,calc(100% - 32px));z-index:30;background:var(--surface);border:1px solid var(--hair);box-shadow:0 12px 32px -12px rgba(0,0,0,.35);margin:0;padding:10px 12px}
+.rdash:has(#ac-sm.on){padding-bottom:110px}
 </style>
 </head>
 <body>
@@ -1970,6 +1973,15 @@ function openAbater(sug,q,onDone,o){o=o||{};const me=ME(),gid=gabId(),ed=o.doc||
       try{if(ed){delete doc.id;doc.atualizadoEm=new Date().toISOString();await save('acertos',ed.id,doc)}else{doc.criadoEm=new Date().toISOString();await S.db.collection('acertos').add(doc)}closeSheet();toast(ed?'Abatimento salvo':forma==='entrada'?brl(v)+' entrou na conta':brl(v)+' a abater na transferência');onDone&&onDone()}catch(err){toast(writeErr(err))}};
   });
 }
+/* desfazer: abatimentos inteiros (ids) ou compras específicas (keys) voltam para em aberto */
+async function abatDesfazer(abIds,keys){const L=acertoLedger(),K=new Set(keys),A=new Set(abIds);let n=0;
+  L.its.forEach(x=>{if(x.quit.some(z=>A.has(z.ab)||K.has(x.k)))n++});
+  for(const a of L.abs){const d=a.doc;if(A.has(a.id)){await S.db.doc('acertos/'+a.id).delete();continue}
+    const al=L.its.filter(x=>x.quit.some(z=>z.ab===a.id)).map(x=>({x,v:r2(sum(x.quit.filter(z=>z.ab===a.id),z=>z.v))}));
+    const rm=al.filter(o=>K.has(o.x.k)),keep=al.filter(o=>!K.has(o.x.k));if(!rm.length&&(d.itens||[]).length)continue;
+    const nv=r2(a.v-sum(rm,o=>o.v));if(nv<=.005){await S.db.doc('acertos/'+a.id).delete();continue}
+    const doc=Object.assign({},d,{valor:nv,itens:keep.map(o=>({k:o.x.k,v:o.v,desc:o.x.desc,d:o.x.d,l:o.x.l.id})),atualizadoEm:new Date().toISOString()});delete doc.id;await save('acertos',a.id,doc)}
+  return n}
 /* edição em massa de abatimentos */
 function openAbatMassa(ids,onDone){const docs=ids.map(id=>S.acertos.find(a=>a.id===id)).filter(Boolean);if(!docs.length)return;
   openSheet(`<h2>Editar ${docs.length} abatimento${docs.length===1?'':'s'}</h2><p class="note">Total ${brl(sum(docs,x=>+x.valor||0))}. Deixe “manter” no que não quiser mudar.</p>
@@ -2884,7 +2896,7 @@ async function gabPNG(S0,RS){RS=RS||{lines:[],ending:[],nextWs:[]};
   try{await document.fonts.ready}catch(e){}
   const gn=P(gabId()).nome,[cls,st]=lotStatus(S0),W=1080,pad=64,rowH=96,F="Geist, -apple-system, 'Segoe UI', Roboto, sans-serif";
   const g={};S0.items.forEach(x=>{const k=gGroup(x);g[k]=(g[k]||0)+x.v});const gs=Object.entries(g).sort((a,b)=>b[1]-a[1]);
-  const H=pad+330+S0.items.length*rowH+40+150+gs.length*64+120+(RS.lines.length?90+RS.lines.length*52+(RS.ending.length?40:0)+(RS.nextWs.length?70+RS.nextWs.length*52:0):0);
+  const nC=sum(S0.items,x=>(x.comp||[]).length),H=pad+330+S0.items.length*rowH+nC*44+40+150+gs.length*64+120+(RS.lines.length?90+RS.lines.length*52+(RS.ending.length?40:0)+(RS.nextWs.length?70+RS.nextWs.length*52:0):0);
   const cv=document.createElement('canvas');cv.width=W;cv.height=H;const c=cv.getContext('2d');
   const C={bg:'#F5F7F8',card:'#FFFFFF',ink:'#14202B',mu:'#64737F',fa:'#9AA6AF',line:'#E6EBEE',acc:'#17708F',ok:'#2C8C62',warn:'#B5781E',crit:'#C8463C',okS:'#E3F2EA',warnS:'#FAF0DD',critS:'#FAE7E5',accS:'#E2F0F5'};
   const tone={ok:[C.ok,C.okS],warn:[C.warn,C.warnS],crit:[C.crit,C.critS],acc:[C.acc,C.accS]}[cls]||[C.acc,C.accS];
@@ -2901,9 +2913,9 @@ async function gabPNG(S0,RS){RS=RS||{lines:[],ending:[],nextWs:[]};
   S0.items.forEach(x=>{const done=x.paid;
     rr(pad+16,y+14,40,40,12,done?C.ok:C.card);if(!done){c.strokeStyle=C.line;c.lineWidth=3;c.strokeRect(pad+17.5,y+15.5,37,37)}else{c.strokeStyle='#fff';c.lineWidth=5;c.beginPath();c.moveTo(pad+26,y+35);c.lineTo(pad+33,y+42);c.lineTo(pad+47,y+26);c.stroke()}
     tx(fit(x.desc,W-2*pad-330,32,500),pad+80,y+40,32,done?C.mu:C.ink,500);
-    tx(done?`pago em ${fdate(x.pagoEm).slice(0,5)}`:`vence ${fdate(x.due).slice(0,5)}${x.prev?' · previsto':''} · ${gGroup(x)}`,pad+80,y+76,24,done?C.ok:C.mu,400);
-    tx(brl(x.v),W-pad-16,y+48,32,done?C.mu:C.ink,600,'right');
-    y+=rowH;c.fillStyle=C.line;c.fillRect(pad+16,y-4,W-2*pad-32,2)});
+    tx(x.abat?`${x.comp.length} compra${x.comp.length===1?'':'s'} na composição`:done?`pago em ${fdate(x.pagoEm).slice(0,5)}`:`vence ${fdate(x.due).slice(0,5)}${x.prev?' · previsto':''} · ${gGroup(x)}`,pad+80,y+76,24,x.abat?C.ok:done?C.ok:C.mu,400);
+    tx((x.v<0?'−':'')+brl(Math.abs(x.v)),W-pad-16,y+48,32,x.abat?C.ok:done?C.mu:C.ink,600,'right');
+    y+=rowH;(x.comp||[]).forEach(cp=>{c.fillStyle=C.okS;c.fillRect(pad+96,y-6,4,44);tx(fit(cp.desc,W-2*pad-420,24,400),pad+116,y+24,24,C.mu,400);tx(cp.d?fdate(cp.d).slice(0,5):'',W-pad-200,y+24,22,C.fa,400,'right');tx(brl(cp.v),W-pad-16,y+24,24,C.mu,500,'right');y+=44});c.fillStyle=C.line;c.fillRect(pad+16,y-4,W-2*pad-32,2)});
   y+=40;const cols=[['Pago',S0.paid,C.ok],['Em aberto',S0.open,S0.open>.005?C.crit:C.ink],['Total',S0.tot,C.ink]],cw=(W-2*pad-32)/3;
   cols.forEach(([l,v,col],i)=>{const x=pad+16+cw*i;tx(l,x,y+30,24,C.mu,400);tx(brl(v),x,y+76,36,col,650)});y+=160;
   tx('Por grupo',pad+16,y,26,C.mu,600);y+=20;const mx=Math.max(...gs.map(x=>x[1]),1);
@@ -2922,7 +2934,7 @@ async function gabPDF(S0,btn,RS){RS=RS||{lines:[],ending:[],nextWs:[]};btn.disab
     doc.setFont('helvetica','bold');doc.setFontSize(16);line(`${S0.title||'Pagamento para '+gn} · ${S0.lab}`,10,y);y+=7;doc.setFont('helvetica','normal');doc.setFontSize(10);doc.setTextColor(110);line(`Gerado em ${fdate(today())} · ${st}`,10,y);doc.setTextColor(20);y+=11;
     doc.setFontSize(12);doc.setFont('helvetica','bold');line(gabDone(S0)?`Transferido: ${brl(S0.tot)} (${gabDone(S0).lab})`:`A transferir: ${brl(S0.open)}`,10,y);doc.setFont('helvetica','normal');doc.setFontSize(10);line(`Total ${brl(S0.tot)} · já pago ${brl(S0.paid)}`,W,y,{align:'right'});y+=9;
     doc.setFontSize(9);doc.setTextColor(120);line('Item',10,y);line('Vencimento',120,y);line('Situação',145,y);line('Valor',W,y,{align:'right'});doc.setTextColor(20);y+=2;doc.setDrawColor(210);doc.line(10,y,W,y);y+=5;doc.setFontSize(10);
-    S0.items.forEach(x=>{if(y>275){doc.addPage();y=20}line(doc.splitTextToSize(x.desc,105)[0],10,y);line(fdate(x.due),120,y);line(x.paid?'pago '+fdate(x.pagoEm).slice(0,5):'em aberto',145,y);line(brl(x.v),W,y,{align:'right'});y+=6});
+    S0.items.forEach(x=>{if(y>275){doc.addPage();y=20}line(doc.splitTextToSize(x.desc,105)[0],10,y);line(fdate(x.due),120,y);line(x.abat?'abatimento':x.paid?'pago '+fdate(x.pagoEm).slice(0,5):'em aberto',145,y);line(brl(x.v),W,y,{align:'right'});y+=6;(x.comp||[]).forEach(c=>{if(y>275){doc.addPage();y=20}doc.setFontSize(8.5);doc.setTextColor(110);line('↳ '+doc.splitTextToSize(c.desc,100)[0],15,y);line(c.d?fdate(c.d):'',120,y);line(brl(c.v),W,y,{align:'right'});doc.setTextColor(20);doc.setFontSize(10);y+=5});});
     doc.line(10,y-2,W,y-2);y+=5;doc.setFont('helvetica','bold');line('Por grupo',10,y);y+=6;doc.setFont('helvetica','normal');
     const g={};S0.items.forEach(x=>{const k=gGroup(x);g[k]=(g[k]||0)+x.v});Object.entries(g).forEach(([k,v])=>{line(k,10,y);line(brl(v),W,y,{align:'right'});y+=6});
     if(RS.lines.length){y+=4;if(y>250){doc.addPage();y=20}doc.setDrawColor(210);doc.line(10,y,W,y);y+=7;doc.setFont('helvetica','bold');line('Resumo',10,y);y+=6;doc.setFont('helvetica','normal');
@@ -3303,9 +3315,9 @@ function acertoDashHTML(r){
   const L=acertoLedger(),gn=esc(P(gabId()).nome.split(' ')[0]),ab=L.its.filter(x=>Math.abs(x.rest)>.005),qt=L.its.filter(x=>x.quit.length);
   const byM=arr=>{const m={};arr.forEach(x=>{const k=x.d.slice(0,7);(m[k]=m[k]||[]).push(x)});return Object.entries(m).sort((a,b)=>a[0].localeCompare(b[0]))};
   const ck=(id,on)=>ACSM?`<span class="acck ${on?'on':''}" aria-hidden="true">${ic('check')}</span>`:'';
-  const row=(x,v,sub)=>{const sl=ACSM&&ACTAB==='aberto'&&x.rest>.005;return `<button class="cdi ${sl&&ACSEL.has(x.k)?'sel':''}" type="button" ${sl?`data-acs="${esc(x.k)}" aria-pressed="${ACSEL.has(x.k)}"`:`data-l="${esc(x.l.id)}"`}>${sl?ck(x.k,ACSEL.has(x.k)):''}${catBubble(x.cat,'sm')}<span class="cdm"><strong>${esc(x.desc)}</strong><small>${fdate(x.d).slice(0,5)} · total ${brl(x.total)}${sub?' · '+sub:''}</small></span><b class="n ${v<0?'neg':'pos'}">${v<0?'−':'+'}${brl(Math.abs(v))}</b></button>`};
+  const row=(x,v,sub)=>{const ab0=ACTAB==='aberto',sk=ab0?x.k:'q:'+x.k,sl=ACSM&&(ab0?x.rest>.005:x.quit.length>0),on=ACSEL.has(sk);return `<button class="cdi ${sl&&on?'sel':''}" type="button" ${sl?`data-acs="${esc(sk)}" aria-pressed="${on}"`:`data-l="${esc(x.l.id)}"`}>${sl?ck(sk,on):''}${catBubble(x.cat,'sm')}<span class="cdm"><strong>${esc(x.desc)}</strong><small>${fdate(x.d).slice(0,5)} · total ${brl(x.total)}${sub?' · '+sub:''}</small></span><b class="n ${v<0?'neg':'pos'}">${v<0?'−':'+'}${brl(Math.abs(v))}</b></button>`};
   const first=ab.length?ab[0].d:'';
-  const selV=ACTAB==='aberto'?r2(sum(ab.filter(x=>ACSEL.has(x.k)),x=>x.rest)):r2(sum(L.abs.filter(a=>ACSEL.has(a.id)),a=>a.v));
+  const selV=ACTAB==='aberto'?r2(sum(ab.filter(x=>ACSEL.has(x.k)),x=>x.rest)):r2(sum(L.abs.filter(a=>ACSEL.has(a.id)),a=>a.v)+sum(qt.filter(x=>ACSEL.has('q:'+x.k)&&!x.quit.every(z=>ACSEL.has(z.ab))),x=>sum(x.quit.filter(z=>!ACSEL.has(z.ab)),z=>z.v)));
   const abRow=a=>{const c=L.its.filter(x=>x.quit.some(z=>z.ab===a.id)),on=ACSEL.has(a.id),x=a.doc,pend=abForma(x)==='abat'&&!x.pago;
     return `<div class="abq"><button class="cdi ${ACSM&&on?'sel':''}" type="button" ${ACSM?`data-acs="${esc(a.id)}" aria-pressed="${on}"`:`data-abe="${esc(a.id)}"`}>${ck(a.id,on)}<span class="cbub sm" style="--cb:${pend?'var(--warn)':'var(--good)'}">${ic(abForma(x)==='entrada'?'in':'swap')}</span><span class="cdm"><strong>${abForma(x)==='entrada'?'Entrada na conta':'Abatido na transferência'} <span class="pill ${pend?'warn':'ok'} xs">${pend?'pendente':abForma(x)==='entrada'?'entrou':'transferido'}</span></strong><small>${fdate(a.d)} · ${esc(abStat(x))}${a.left>.005?` · ${brl(a.left)} sem compra para quitar`:''}</small></span><b class="n pos">${brl(a.v)}</b></button>
       ${c.length?`<div class="abcomp">${c.map(i=>`<span><i>${esc(i.desc)}</i><small>${fdate(i.d).slice(0,5)}</small><b class="n">${brl(sum(i.quit.filter(z=>z.ab===a.id),z=>z.v))}</b></span>`).join('')}</div>`:''}</div>`};
@@ -3315,7 +3327,7 @@ function acertoDashHTML(r){
       <div class="hxm"><span>${ab.length} compra${ab.length===1?'':'s'} em aberto</span><span>Já abatido <b class="n">${brl(L.quit)}</b></span></div>
       ${L.open>.005?`<button class="hxp" type="button" id="ac-ab">${ic('check')} Abater agora</button>`:''}</div>
     <div class="acbar"><div class="seg" role="tablist"><button type="button" data-act="aberto" aria-pressed="${ACTAB==='aberto'}">Em aberto</button><button type="button" data-act="quitado" aria-pressed="${ACTAB==='quitado'}">Quitado</button></div>${(ACTAB==='aberto'?ab.some(x=>x.rest>.005):L.abs.length)?`<button type="button" class="btn sm ${ACSM?'on':''}" id="ac-sm">${ACSM?'Cancelar':'Selecionar'}</button>`:''}</div>
-    ${ACSM?`<div class="acsel"><span><b>${ACSEL.size}</b> selecionad${ACSEL.size===1?'o':'os'} · <b class="n">${brl(selV)}</b></span><button type="button" class="lk" id="ac-all">${ACSEL.size?'Limpar':'Todos'}</button>${ACTAB==='aberto'?`<button type="button" class="btn sm primary" id="ac-go" ${ACSEL.size?'':'disabled'}>Abater selecionadas</button>`:`<button type="button" class="btn sm primary" id="ac-ed" ${ACSEL.size?'':'disabled'}>Editar em massa</button>`}</div>`:''}
+    ${ACSM?`<div class="acsel"><span><b>${ACSEL.size}</b> selecionad${ACSEL.size===1?'o':'os'} · <b class="n">${brl(selV)}</b></span><button type="button" class="lk" id="ac-all">${ACSEL.size?'Limpar':'Todos'}</button>${ACTAB==='aberto'?`<button type="button" class="btn sm primary" id="ac-go" ${ACSEL.size?'':'disabled'}>Abater selecionadas</button>`:`<button type="button" class="btn sm" id="ac-ed" ${[...ACSEL].some(k=>!k.startsWith('q:'))?'':'disabled'}>Editar</button><button type="button" class="btn sm primary" id="ac-un" ${ACSEL.size?'':'disabled'}>Voltar para em aberto</button>`}</div>`:''}
     ${ACTAB==='aberto'?(ab.length?byM(ab).map(([m,g])=>`<section class="cds"><div class="cdsh"><h3>${MESL[+m.slice(5)-1]} ${m.slice(0,4)}</h3><small class="n">${brl(sum(g,x=>x.rest))}</small></div><div class="cdd">${g.map(x=>row(x,x.rest,x.quit.length?`parcialmente abatido, faltam ${brl(x.rest)}`:'')).join('')}</div></section>`).join(''):'<p class="note">Nada em aberto: tudo foi abatido.</p>')
       :(L.abs.length?`<section class="cds"><div class="cdsh"><h3>Abatimentos e composição</h3><small class="n">${brl(L.quit)}</small></div><div class="cdd">${L.abs.slice().reverse().map(abRow).join('')}</div></section>
         ${byM(qt).reverse().map(([m,g])=>`<section class="cds"><div class="cdsh"><h3>${MESL[+m.slice(5)-1]} ${m.slice(0,4)} · quitado</h3><small class="n">${brl(sum(g,x=>sum(x.quit,q=>q.v)))}</small></div><div class="cdd">${g.map(x=>row(x,sum(x.quit,q=>q.v),'quitado em '+x.quit.map(q=>fdate(q.d).slice(0,5)).join(', '))).join('')}</div></section>`).join('')}`:'<p class="note">Nenhum abatimento ainda. Quando você abater num repasse, as compras quitadas aparecem aqui.</p>')}
@@ -3356,14 +3368,15 @@ function repTrf(D,R,X){const its=X.its.filter(x=>!x.paid);let prev=[];
   const sg=X.sg,all=its.concat(prev).filter(x=>x.kind!=='abat'),ab=r2(sum(its.filter(x=>x.kind==='abat'),sg)),t0=sum(all,sg),abE=Math.max(ab,-Math.max(t0,0)),tot=r2(t0+abE),pos=r2(sum(all.filter(x=>sg(x)>0),sg)),neg=r2(sum(all.filter(x=>sg(x)<0),sg)),gr={};
   its.filter(x=>x.kind!=='abat').forEach(x=>{const k=repGroupKey(D,x)||'';gr[k]=(gr[k]||0)+sg(x)});
   return {tot,pos,neg,ab:r2(abE),prev,prevV:r2(sum(prev,sg)),gr:Object.entries(gr).filter(([k,v])=>Math.abs(v)>.005)}}
-const repS0=(r,X,R,T)=>({title:repDef(r).trf?('Transferir'+(r.destino?' para '+r.destino:'')):r.nome,lab:`${r.nome} · ${R.lab}`,w:R.fim,items:X.its.map(x=>({desc:x.desc,v:X.sg(x),paid:x.paid,pagoEm:x.de,due:x.dv,cat:x.cat,tags:x.tags,acerto:x.acerto})).concat(T&&T.prev.length?T.prev.map(x=>({desc:x.desc+' (pendente de '+ymS(x.ref.slice(0,7))+')',v:X.sg(x),paid:false,due:x.dv,cat:x.cat,tags:x.tags,acerto:x.acerto})):[]),tot:X.tot+(T?T.prevV:0),paid:X.paid,open:T?T.tot:X.open});
+const repS0=(r,X,R,T)=>({title:repDef(r).trf?('Transferir'+(r.destino?' para '+r.destino:'')):r.nome,lab:`${r.nome} · ${R.lab}`,w:R.fim,items:X.its.map(x=>({desc:x.kind==='abat'?'Abatimento · '+x.sub2:x.desc,v:X.sg(x),paid:x.paid,pagoEm:x.de,due:x.dv,cat:x.kind==='abat'?'Abatimento':x.cat,tags:x.tags,acerto:x.acerto,comp:x.comp,abat:x.kind==='abat'})).concat(T&&T.prev.length?T.prev.map(x=>({desc:x.desc+' (pendente de '+ymS(x.ref.slice(0,7))+')',v:X.sg(x),paid:false,due:x.dv,cat:x.cat,tags:x.tags,acerto:x.acerto})):[]),tot:X.tot+(T?T.prevV:0),paid:X.paid,open:T?T.tot:X.open});
 async function repPay(x,paid,day,nome){
   if(x.kind==='acerto')return gabSetPaid({acerto:x.acerto,rel:nome},paid,day);
   if(x.kind==='lanc')return gabSetPaid({l:x.l},paid,day);
   if(x.kind==='prev'&&paid)return gabSetPaid({prev:x.prev,v:x.v},true,day);
 }
 /* ---------- exportar qualquer lista (texto, imagem, PDF) ---------- */
-function s0Text(S0,head){return `${head||S0.title}\n\n`+S0.items.map(x=>`${x.paid?'✓':'•'} ${x.desc} · ${x.v<0?'−':''}${brl(Math.abs(x.v))}${x.paid&&x.pagoEm?' ('+(x.pagoLab||'pago')+' '+fdate(x.pagoEm).slice(0,5)+')':x.due?' ('+fdate(x.due).slice(0,5)+')':''}`).join('\n')+`\n\nTotal ${brl(S0.tot)}${S0.paid?`\n${S0.paidLab||'Pago'} ${brl(S0.paid)}`:''}\n${S0.openLab||'Em aberto'}: ${brl(S0.open)}`}
+const compTxt=x=>(x.comp||[]).length?'\n'+x.comp.map(c=>`    ↳ ${c.desc}${c.d?' ('+fdate(c.d).slice(0,5)+')':''} · ${brl(c.v)}`).join('\n'):'';
+function s0Text(S0,head){return `${head||S0.title}\n\n`+S0.items.map(x=>`${x.paid?'✓':'•'} ${x.desc} · ${x.v<0?'−':''}${brl(Math.abs(x.v))}${x.paid&&x.pagoEm?' ('+(x.pagoLab||'pago')+' '+fdate(x.pagoEm).slice(0,5)+')':x.due?' ('+fdate(x.due).slice(0,5)+')':''}`+compTxt(x)).join('\n')+`\n\nTotal ${brl(S0.tot)}${S0.paid?`\n${S0.paidLab||'Pago'} ${brl(S0.paid)}`:''}\n${S0.openLab||'Em aberto'}: ${brl(S0.open)}`}
 async function expText(S0,head){const t=s0Text(S0,head);try{if(navigator.share&&/Mobi/i.test(navigator.userAgent))await navigator.share({text:t});else{await navigator.clipboard.writeText(t);toast('Texto copiado')}}catch(e){try{await navigator.clipboard.writeText(t);toast('Texto copiado')}catch(e2){toast('Não consegui copiar')}}}
 async function expImg(S0,fn,b){if(b)b.disabled=true;try{const blob=await gabPNG(S0);const f=`${norm(fn||'relatorio').replace(/ /g,'-')}.png`;if(S.downloads)await S.downloads.save({filename:f,data:blob});else window.open(URL.createObjectURL(blob),'_blank')}catch(err){if(!(err&&(err.code==='cancelled'||err.code==='declined')))toast('Não consegui gerar a imagem.')}finally{if(b)b.disabled=false}}
 const expBtns=p=>`<div class="exr"><span>Exportar</span><button class="btn sm" type="button" id="${p}-tx">${ic('text')} Texto</button><button class="btn sm" type="button" id="${p}-im">${ic('image')} Imagem</button><button class="btn sm" type="button" id="${p}-pf">${ic('pdf')} PDF</button></div>`;
@@ -3371,7 +3384,7 @@ async function expPDF(S0,fn,btn){if(btn)btn.disabled=true;try{const J=await load
   doc.setFont('helvetica','bold');doc.setFontSize(15);doc.splitTextToSize(S0.title,185).forEach(t=>{line(t,10,y);y+=7});doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(120);line('Patrimônio · gerado em '+fdate(today()),10,y);doc.setTextColor(20);y+=9;
   doc.setFontSize(11);if(S0.paid)line(`${S0.paidLab||'Pago'}: ${brl(S0.paid)}`,10,y);line(`${S0.openLab||'Em aberto'}: ${brl(S0.open)}`,S0.paid?80:10,y);doc.setFont('helvetica','bold');line(`Total: ${brl(S0.tot)}`,W,y,{align:'right'});doc.setFont('helvetica','normal');y+=8;
   doc.setFontSize(8.5);doc.setTextColor(120);line('Item',10,y);line('Data',128,y);line('Categoria',150,y);line('Valor',W,y,{align:'right'});doc.setTextColor(20);y+=2;doc.setDrawColor(215);doc.line(10,y,W,y);y+=5;doc.setFontSize(9.5);
-  S0.items.forEach(x=>{if(y>282){doc.addPage();y=18}line(doc.splitTextToSize(x.desc,115)[0],10,y);line(fdate(x.paid&&x.pagoEm?x.pagoEm:x.due||'').slice(0,10),128,y);line(doc.splitTextToSize(x.cat||'',30)[0]||'',150,y);if(x.v<0)doc.setTextColor(190,60,50);line((x.v<0?'−':'')+brl(Math.abs(x.v)),W,y,{align:'right'});doc.setTextColor(20);y+=5.6});
+  S0.items.forEach(x=>{if(y>282){doc.addPage();y=18}line(doc.splitTextToSize(x.desc,115)[0],10,y);line(fdate(x.paid&&x.pagoEm?x.pagoEm:x.due||'').slice(0,10),128,y);line(doc.splitTextToSize(x.cat||'',30)[0]||'',150,y);if(x.v<0)doc.setTextColor(190,60,50);line((x.v<0?'−':'')+brl(Math.abs(x.v)),W,y,{align:'right'});doc.setTextColor(20);y+=5.6;(x.comp||[]).forEach(c=>{if(y>282){doc.addPage();y=18}doc.setFontSize(8.5);doc.setTextColor(110);line('↳ '+doc.splitTextToSize(c.desc,105)[0],15,y);line(c.d?fdate(c.d).slice(0,10):'',128,y);line(brl(c.v),W,y,{align:'right'});doc.setTextColor(20);doc.setFontSize(9.5);y+=4.8})});
   const f=`${norm(fn||'relatorio').replace(/ /g,'-')}.pdf`,blob=doc.output('blob');if(S.downloads)await S.downloads.save({filename:f,data:blob});else window.open(URL.createObjectURL(blob),'_blank')}catch(err){if(!(err&&(err.code==='cancelled'||err.code==='declined')))toast('Não consegui gerar o PDF.')}finally{if(btn)btn.disabled=false}}
 function wireExp(root,p,getS0,fn,head){const q=s=>root.querySelector('#'+p+'-'+s);if(!q('tx'))return;q('tx').onclick=()=>expText(getS0(),head);q('im').onclick=e=>expImg(getS0(),fn,e.currentTarget);q('pf').onclick=e=>expPDF(getS0(),fn,e.currentTarget)}
 function lancS0(){const its=lancItems(LVIEW),t=today(),af=lfActive();const lab=(LF.per||'mes')==='mes'?MESL[+LF.ym.slice(5)-1]+' '+LF.ym.slice(0,4):'Período filtrado';
@@ -3379,8 +3392,10 @@ function lancS0(){const its=lancItems(LVIEW),t=today(),af=lfActive();const lab=(
   const ent=sum(items.filter(x=>x.v>0),x=>x.v),sai=-sum(items.filter(x=>x.v<0),x=>x.v);
   return {title:'Lançamentos · '+lab+(af.length?' · '+af.map(a=>a[1]).join(', '):''),lab:'Lançamentos · '+lab,w:t,items,tot:r2(ent-sai),paid:r2(ent),paidLab:'Entradas',open:r2(-sai),openLab:'Saídas'}}
 function acertoS0(){const L=acertoLedger(),gn=P(gabId()).nome.split(' ')[0],ab=ACTAB==='aberto';
-  const items=ab?L.its.filter(x=>Math.abs(x.rest)>.005).map(x=>({desc:x.desc+` (total ${brl(x.total)})`,v:x.rest,paid:false,due:x.d,cat:x.cat,tags:[]})):L.its.filter(x=>x.quit.length).map(x=>({desc:x.desc,v:sum(x.quit,q=>q.v),paid:true,pagoEm:x.quit.at(-1).d,pagoLab:'quitado',due:x.d,cat:x.cat,tags:[]}));
-  return {title:ab?`${gn} te deve (em aberto)`:'Acerto quitado',lab:'Acerto · '+(ab?'em aberto':'quitado'),w:today(),items,tot:r2(sum(items,x=>x.v)),paid:ab?0:r2(sum(items,x=>x.v)),open:ab?r2(L.open):0,openLab:ab?'Em aberto':'Em aberto'}}
+  const items=ab?L.its.filter(x=>Math.abs(x.rest)>.005).map(x=>({desc:x.desc+` (total ${brl(x.total)})`,v:x.rest,paid:false,due:x.d,cat:x.cat,tags:[]}))
+    :L.abs.slice().reverse().map(a=>({desc:(abForma(a.doc)==='entrada'?'Entrada na conta':'Abatido na transferência')+' · '+abStat(a.doc),v:a.v,paid:abForma(a.doc)==='entrada'||!!a.doc.pago,pagoEm:a.doc.pagoEm||a.d,pagoLab:'em',due:a.d,cat:'Abatimento',tags:[],abat:true,
+      comp:L.its.filter(x=>x.quit.some(z=>z.ab===a.id)).map(x=>({desc:x.desc,d:x.d,v:r2(sum(x.quit.filter(z=>z.ab===a.id),z=>z.v))}))}));
+  return {title:ab?`${gn} te deve (em aberto)`:'Acerto quitado · abatimentos e composição',lab:'Acerto · '+(ab?'em aberto':'quitado'),w:today(),items,tot:r2(sum(items,x=>x.v)),paid:ab?0:r2(sum(items,x=>x.v)),paidLab:'Abatido',open:ab?r2(L.open):r2(Math.max(L.open,0)),openLab:'Em aberto'}}
 function wireRep(el){
   el.querySelectorAll('[data-rsel]').forEach(b=>b.onclick=()=>{RSEL=b.dataset.rsel;LSset('pt-rsel',RSEL);ROFF=0;RP='rel';vRel()});
   const nw=el.querySelector('#rnew');if(nw)nw.onclick=()=>openRepEdit(null);
@@ -3391,11 +3406,13 @@ function wireRep(el){
   el.querySelectorAll('[data-act]').forEach(b=>b.onclick=()=>{if(ACTAB!==b.dataset.act){ACSEL.clear();ACSM=false}ACTAB=b.dataset.act;vRel()});
   {const q=x=>el.querySelector(x),sm=q('#ac-sm');if(sm)sm.onclick=()=>{ACSM=!ACSM;ACSEL.clear();vRel()};
     el.querySelectorAll('[data-acs]').forEach(b=>b.onclick=()=>{const k=b.dataset.acs;ACSEL.has(k)?ACSEL.delete(k):ACSEL.add(k);vRel()});
-    const al=q('#ac-all');if(al)al.onclick=()=>{if(ACSEL.size)ACSEL.clear();else{const L=acertoLedger();(ACTAB==='aberto'?L.its.filter(x=>x.rest>.005).map(x=>x.k):L.abs.map(a=>a.id)).forEach(k=>ACSEL.add(k))}vRel()};
+    const al=q('#ac-all');if(al)al.onclick=()=>{if(ACSEL.size)ACSEL.clear();else{const L=acertoLedger();(ACTAB==='aberto'?L.its.filter(x=>x.rest>.005).map(x=>x.k):L.its.filter(x=>x.quit.length).map(x=>'q:'+x.k)).forEach(k=>ACSEL.add(k))}vRel()};
     const done=()=>{ACSEL.clear();ACSM=false;renderView()};
     const go=q('#ac-go');if(go)go.onclick=()=>openAbater(0,'',done,{keys:[...ACSEL]});
-    const ed=q('#ac-ed');if(ed)ed.onclick=()=>openAbatMassa([...ACSEL],done);
-    el.querySelectorAll('[data-abe]').forEach(b=>b.onclick=()=>{const d=S.acertos.find(a=>a.id===b.dataset.abe);if(d)openAbater(0,'',()=>renderView(),{doc:d})})}wireExp(el,'acx',acertoS0,'acerto-'+ACTAB+'-'+today());el.querySelectorAll('.rdash .cdi[data-l]').forEach(b=>b.onclick=()=>openLanc(S.lanc.find(l=>l.id===b.dataset.l)));{const a2=el.querySelector('#ac-ab');if(a2)a2.onclick=()=>openAbater(credGab().cred,'',()=>renderView())}
+    const ed=q('#ac-ed');if(ed)ed.onclick=()=>openAbatMassa([...ACSEL].filter(k=>!k.startsWith('q:')),done);
+    const un=q('#ac-un');if(un)confirmBtn(un,'Toque de novo para desfazer',async()=>{try{const n=await abatDesfazer([...ACSEL].filter(k=>!k.startsWith('q:')),[...ACSEL].filter(k=>k.startsWith('q:')).map(k=>k.slice(2)));toast(n+' compra'+(n===1?'':'s')+' de volta para em aberto');done()}catch(err){toast(writeErr(err));un.disabled=false}});
+    el.querySelectorAll('[data-abe]').forEach(b=>b.onclick=()=>{const d=S.acertos.find(a=>a.id===b.dataset.abe);if(d)openAbater(0,'',()=>renderView(),{doc:d})});
+    document.querySelectorAll('body>.acsel').forEach(x=>x.remove());const bar=el.querySelector('.acsel');if(bar)document.body.appendChild(bar)}wireExp(el,'acx',acertoS0,'acerto-'+ACTAB+'-'+today());el.querySelectorAll('.rdash .cdi[data-l]').forEach(b=>b.onclick=()=>openLanc(S.lanc.find(l=>l.id===b.dataset.l)));{const a2=el.querySelector('#ac-ab');if(a2)a2.onclick=()=>openAbater(credGab().cred,'',()=>renderView())}
   {const ab=el.querySelector('#rd-ab');if(ab)ab.onclick=()=>{const D=repDef(r),R=repRange(D,ROFF),X=repRun(D,R),T=repTrf(D,R,X);openAbater(Math.max(T.tot,0),D.acQ&&D.acQ!=='ambas'?D.acQ:'',()=>renderView())}}
   const day=()=>{const v=el.querySelector('#gpd');return v&&v.value||today()};
   el.querySelectorAll('[data-rk2]').forEach(c=>c.onclick=async()=>{const x=X.its[+c.dataset.rk2],to=!x.paid;if(!to&&x.kind==='prev')return;c.disabled=true;c.parentElement.classList.toggle('on',to);try{await repPay(x,to,day(),r.nome);if(to&&!X.its.some(y=>y!==x&&PK(y)&&!y.paid))await abatPagar(abIds(),day());toast(to?'Marcado como pago':'Voltou para em aberto')}catch(err){toast(writeErr(err));c.parentElement.classList.toggle('on',!to);c.disabled=false}});
@@ -3406,7 +3423,7 @@ function wireRep(el){
   const abIds=()=>X.its.filter(x=>x.kind==='abat'&&!x.paid).map(x=>x.abat.id),PK=x=>x.payable&&(x.kind==='lanc'||x.kind==='prev'||x.kind==='acerto');
   const all=el.querySelector('#rpall');if(all)all.onclick=async()=>{all.disabled=true;try{for(const x of X.its.filter(x=>x.payable&&!x.paid&&(x.kind==='lanc'||x.kind==='prev'||x.kind==='acerto')))await repPay(x,true,day(),r.nome);await abatPagar(abIds(),day());toast('Pago em '+fdate(day()).slice(0,5))}catch(err){toast(writeErr(err));all.disabled=false}};
   const S0=repS0(r,X,R,D.trf?repTrf(D,R,X):null),RS={lines:[],ending:[],nextWs:[]};
-  (el.querySelector('#gtx')||{}).onclick=async()=>{const t=`${S0.title} · ${r.nome} · ${R.lab}\n\n`+S0.items.map(x=>`${x.paid?'✓':'•'} ${x.desc} · ${x.v<0?'−':''}${brl(Math.abs(x.v))}${x.paid&&x.pagoEm?' (pago '+fdate(x.pagoEm).slice(0,5)+')':x.due?' (vence '+fdate(x.due).slice(0,5)+')':''}`).join('\n')+`\n\nTotal ${brl(S0.tot)}\nPago ${brl(S0.paid)}\n${D.trf?S0.title:'Em aberto'}: ${brl(S0.open)}`;
+  (el.querySelector('#gtx')||{}).onclick=async()=>{const t=`${S0.title} · ${r.nome} · ${R.lab}\n\n`+S0.items.map(x=>`${x.paid?'✓':'•'} ${x.desc} · ${x.v<0?'−':''}${brl(Math.abs(x.v))}${x.paid&&x.pagoEm?' (pago '+fdate(x.pagoEm).slice(0,5)+')':x.due?' (vence '+fdate(x.due).slice(0,5)+')':''}`+compTxt(x)).join('\n')+`\n\nTotal ${brl(S0.tot)}\nPago ${brl(S0.paid)}\n${D.trf?S0.title:'Em aberto'}: ${brl(S0.open)}`;
     try{if(navigator.share&&/Mobi/i.test(navigator.userAgent))await navigator.share({text:t});else{await navigator.clipboard.writeText(t);toast('Texto copiado')}}catch(e){try{await navigator.clipboard.writeText(t);toast('Texto copiado')}catch(e2){toast('Não consegui copiar')}}};
   (el.querySelector('#gim')||{}).onclick=async e=>{const b=e.currentTarget;b.disabled=true;try{const blob=await gabPNG(S0,RS);const fn=`${norm(r.nome).replace(/ /g,'-')||'relatorio'}-${R.ym}.png`;if(S.downloads)await S.downloads.save({filename:fn,data:blob});else window.open(URL.createObjectURL(blob),'_blank')}catch(err){if(!(err&&(err.code==='cancelled'||err.code==='declined')))toast('Não consegui gerar a imagem.')}finally{b.disabled=false}};
   (el.querySelector('#gpf')||{}).onclick=e=>gabPDF(S0,e.currentTarget,RS);
@@ -3465,7 +3482,7 @@ function openRepEdit(r){
   });
 }
 
-function vRel(){
+function vRel(){document.querySelectorAll('body>.acsel').forEach(x=>x.remove());
   if(RP==='acertos'){RP='rel';RSEL=(S.reps.find(r=>(r.def&&r.def.orig||[]).includes('acitens'))||{}).id||RSEL}
   if(RP==='cartoes'){RP='resumo';return go('cartoes')}
   const el=$('#v-relatorios');if(!ready()){el.innerHTML=loading();return}
@@ -5386,7 +5403,7 @@ function openOrg(){const el=$(ORGV[S.view]);const sc=orgScope();
   openSheet(`<h2>Organizar ${S.view==='carteira'?'Carteira':'Relatórios'}</h2><p class="note">Escolha a ordem e o que aparece${S.view==='relatorios'?' nesta aba':''}. Fica salvo neste aparelho.</p><div id="psl" class="psl"></div><div class="btnrow"><button class="btn" type="button" id="orr">Restaurar padrão</button></div>`,sh=>{draw(sh);sh.querySelector('#orr').onclick=()=>{delete ORG[sc];orgSave();renderView();draw(sh)}});
 }
 
-function renderView(){const v=S.view;if(v==='inicio')vInicio();else if(v==='lanc')vLanc();else if(v==='relatorios')vRel();else if(v==='cartoes')vCards();else vCart();try{orgApply()}catch(e){console.error('org',e)}}
+function renderView(){document.querySelectorAll('body>.acsel').forEach(x=>x.remove());const v=S.view;if(v==='inicio')vInicio();else if(v==='lanc')vLanc();else if(v==='relatorios')vRel();else if(v==='cartoes')vCards();else vCart();try{orgApply()}catch(e){console.error('org',e)}}
 let raf=0;const re=()=>{CACHE=null;cancelAnimationFrame(raf);raf=requestAnimationFrame(()=>{if($('#overlay').hidden||S.view!=='lanc')renderView();else renderView()})};
 window.addEventListener('hashchange',route);
 $('#fab').onclick=openMenu;
