@@ -2219,7 +2219,7 @@ function openRecarga(a){
 }
 
 /* ---------- INÍCIO: painel montável ---------- */
-const SECS=[['hero','Em caixa hoje'],['acoes','Ações rápidas'],['fecha','Fechamento do mês'],['alertas','Para resolver'],['saude','Saúde financeira'],['kpis','Indicadores do mês'],['plano','Plano do mês (envelopes)'],['orcamento','Teto de gastos'],['contas','Contas'],['beneficios','Benefícios'],['dre','Resultado do mês'],['agenda','Próximos 15 dias'],['credito','Crédito'],['gastos','Gastos por categoria'],['planejado','Pagamentos planejados'],['fluxo6','Evolução'],['quinzenas','Quinzenas e acerto'],['patrimonio','Patrimônio']];
+const SECS=[['hero','Em caixa hoje'],['acoes','Ações rápidas'],['fecha','Fechamento do mês'],['alertas','Para resolver'],['saude','Saúde financeira'],['kpis','Indicadores do mês'],['plano','Plano do mês'],['contas','Contas'],['beneficios','Benefícios'],['dre','Resultado do mês'],['agenda','Próximos 15 dias'],['credito','Crédito'],['gastos','Gastos por categoria'],['planejado','Pagamentos planejados'],['fluxo6','Evolução'],['quinzenas','Quinzenas e acerto'],['patrimonio','Patrimônio']];
 let LAY=(()=>{try{return JSON.parse(localStorage.getItem('pt-ini3')||'null')}catch(e){return null}})()||{order:[],off:['acoes','orcamento','kpis','contas','mes','dre','agenda','credito','planejado','fluxo6','quinzenas']};
 const layOrder=()=>{const o=(LAY.order||[]).filter(k=>SECS.some(s=>s[0]===k));SECS.forEach((s,i)=>{if(!o.includes(s[0]))o.splice(Math.min(i,o.length),0,s[0])});return o};
 const laySave=()=>{try{localStorage.setItem('pt-ini3',JSON.stringify(LAY))}catch(e){}};
@@ -2435,7 +2435,7 @@ function vInicio(){
   const ok=setup.filter(s=>s[0]).length,nx=setup.find(s=>!s[0]);
   if(nx&&!SETUPX)h+=`<div class="setup"><span class="sp">${setup.map(s=>`<i class="${s[0]?'on':''}"></i>`).join('')}</span><button class="lk" type="button" data-setup="${nx[2]}">${ok}/${setup.length} · ${nx[1]} ›</button><button class="sx2" type="button" id="stx" aria-label="Ocultar">×</button></div>`;
   const X={me,t,ym,saldo:realBal(me,t),M:mesCalc(ym,me),F:mesFluxo(ym,me)};
-  const B={hero:iniHero,acoes:iniAcoes,alertas:iniResolver,contas:iniContas,beneficios:iniBen,mes:()=>mesCard(me),agenda:iniAgenda,credito:()=>creditoDash(true),gastos:iniGastos2,planejado:iniPlan,fluxo6:iniEvo,kpis:iniKpis,orcamento:iniOrc,plano:iniPlano,dre:iniDre,saude:iniSaude,fecha:iniFecha,quinzenas:iniQuin,patrimonio:iniPat};
+  const B={hero:iniHero,acoes:iniAcoes,alertas:iniResolver,contas:iniContas,beneficios:iniBen,mes:()=>mesCard(me),agenda:iniAgenda,credito:()=>creditoDash(true),gastos:iniGastos2,planejado:iniPlan,fluxo6:iniEvo,kpis:iniKpis,orcamento:()=>'',plano:iniPlano,dre:iniDre,saude:iniSaude,fecha:iniFecha,quinzenas:iniQuin,patrimonio:iniPat};
   layOrder().forEach(k=>{if((LAY.off||[]).includes(k))return;try{h+=B[k](X)||''}catch(e){console.error('início/'+k,e)}});
   h+=`<button class="custom" type="button" id="pers">${ic('edit')}<span>Personalizar início</span></button>`;
   el.innerHTML=h;wireIni(el);wireIni4(el);
@@ -2562,13 +2562,14 @@ function iniPlano(X){
   if(!B.tem)return `<button type="button" class="setup bcta" data-plano="1" style="--c:var(--accent)"><span class="ali">${ICN.cal}</span><span><b>Planeje ${mn}: dê um destino a cada real</b><small>renda ${brl0(B.renda)} · compromissos ${brl0(B.fixo)} · sobram ${brl0(B.renda-B.fixo)} para distribuir</small></span><span class="go">›</span></button>`;
   const top=B.cats.filter(x=>x.d>0).sort((a,b)=>a.disp/(a.d||1)-b.disp/(b.d||1)).slice(0,4),livre=sum(B.cats,x=>x.disp);
   return `<div class="card"><div class="ch"><h2>Plano de ${mn}</h2><button class="lk" type="button" data-plano="1">Abrir ›</button></div>
-    <div class="plk"><div><small>Livre nos envelopes</small><b class="n ${livre<0?'neg':''}">${brl0(livre)}</b></div><div><small>${Math.abs(B.rest)<1?'Sem destino':B.rest>0?'A destinar':'A mais'}</small><b class="n ${B.rest<-1?'neg':''}">${brl0(Math.abs(B.rest))}</b></div><div><small>Guardar</small><b class="n">${brl0(B.guardFeito)}<small> de ${brl0(B.guard)}</small></b></div></div>
+    <div class="plk"><div><small>Livre nos envelopes</small><b class="n ${livre<0?'neg':''}">${brl0(livre)}</b></div><div><small>${Math.abs(B.rest)<1?'Sem destino':B.rest>0?'A destinar':'A mais'}</small><b class="n ${B.rest<-1?'neg':''}">${brl0(Math.abs(B.rest))}</b></div><div><small>Guardar</small><b class="n">${B.guard?`${brl0(B.guardFeito)}<small> de ${brl0(B.guard)}</small>`:B.guardFeito?brl0(B.guardFeito):'<small>sem meta</small>'}</b></div></div>
     ${(()=>{const t=today(),nd=lastDay(ym),dd=ym===t.slice(0,7)?+t.slice(8):ym<t.slice(0,7)?nd:0,tp=dd/nd,tot=sum(B.cats,x=>x.d+x.ro),g=sum(B.cats,x=>x.g),pu=tot?g/tot:0,rest=Math.max(nd-dd+1,1),lv=tot-g;
       return tot?`<div class="pace"><div class="pcbar"><i class="${pu>tp+.1?'quase':''} ${pu>1?'over':''}" style="width:${Math.min(pu,1)*100}%"></i><em style="left:${tp*100}%"><span>hoje</span></em></div><div class="pcl"><span>1/${ym.slice(5)}</span><b class="n">${pctf(pu)} usado</b><span>${nd}/${ym.slice(5)}</span></div>
       <p class="note">${lv>0?`Dá para gastar <b>${brl(lv/rest)}/dia</b> nos envelopes pelos próximos ${rest} dia${rest>1?'s':''}.`:`Os envelopes passaram ${brl(-lv)} do planejado.`}${pu>tp+.1&&lv>0?' Ritmo acima do mês: '+pctf(pu)+' gasto com '+pctf(tp)+' do mês.':''}</p></div>`:''})()}
     <div class="plc plmini">${top.map(x=>`<div class="ple ${x.disp<0?'over':x.g>=.9*((x.d+x.ro)||1e9)?'quase':''}">${catBubble(x.c,'sm')}<span class="plm"><strong>${esc(x.c)}</strong><span class="plbar"><i style="width:${Math.min(x.g/((x.d+x.ro)||1),1)*100}%"></i></span></span><span class="plv"><b class="n ${x.disp<0?'neg':''}">${x.disp<0?'−':''}${brl0(Math.abs(x.disp))}</b><small>de ${brl0(x.d+x.ro)}</small></span></div>`).join('')}</div></div>`;
 }
-function openOrc(){
+function openOrc(){return openPlano()}
+function openOrcOld(){
   const me=ME(),ym=today().slice(0,7),O=cfg().orc||{},avg={};const OKo=mesesOk(ym,3);OKo.forEach(m=>{const B=orcCalc(m,me);Object.entries(B.cats).forEach(([c,v])=>avg[c]=(avg[c]||0)+v/OKo.length)});
   const tAvg=sum(Object.values(avg),v=>v);
   openSheet(`<h2>Orçamento mensal</h2><p class="note">Defina um teto geral e, se quiser, limites por categoria. Vale para todo mês e conta a sua parte, pela data da compra. Deixe em branco o que não quiser limitar.</p>
@@ -3890,7 +3891,7 @@ function iniFecha(X){
 }
 function openFechamento(ym,re){if(re===true)CUR=null;
   ym=ym||ymAdd(today().slice(0,7),-1);const me=ME(),F=FECH()[ym],C=fechCheck(ym),M=mesCalc(ym,me),res=M.rec-M.desp,tx=M.rec?res/M.rec:null;
-  const orc=(cfg().orc||{}).total||0,rs=S.contas.find(a=>a.ativo!==false&&a.tipo==='reserva'),cc=(S.contas.find(a=>a.tipo==='corrente'&&a.dono===me&&a.ativo!==false)||{});
+  const orc=(()=>{const p=planoOf(ym);return p?sum(Object.values(p.cats||{}),v=>+v||0):0})(),rs=S.contas.find(a=>a.ativo!==false&&a.tipo==='reserva'),cc=(S.contas.find(a=>a.tipo==='corrente'&&a.dono===me&&a.ativo!==false)||{});
   const hist=Object.entries(FECH()).filter(([k,v])=>v&&v.em).sort((a,b)=>b[0].localeCompare(a[0])).slice(0,6);
   const step=(x,i)=>`<div class="fst ${x.ok?'ok':''}"><span class="fsn">${x.ok?ic('check'):i+1}</span><span class="cxm"><strong>${x.t}</strong><small>${esc(x.s)}</small></span>${x.act?`<button class="lk" type="button" data-fa="${x.k}">${x.act} ›</button>`:''}</div>`
     +(x.k==='conc'?`<div class="fcc">${x.acc.map(a=>{const sv=saldoConta(a,dayIn(ym,31));return `<div class="fca"><span>${esc(a.nome)}<small>no app em ${fdate(dayIn(ym,31)).slice(0,5)}: <b class="n">${brl(sv)}</b></small></span><button class="chip" type="button" data-cf="${esc(a.id)}" aria-pressed="${!!x.conf[a.id]}">${x.conf[a.id]?'✓ Confere':'Confere'}</button><button class="lk" type="button" data-aj="${esc(a.id)}">Ajustar</button></div>`}).join('')}</div>`:'');
