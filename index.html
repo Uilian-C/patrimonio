@@ -2130,6 +2130,19 @@ main{padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))!important}
 .mgmore summary{list-style:none;cursor:pointer;font-size:13px;color:var(--accent,#E2BA6E);padding:4px 2px}.mgmore summary::-webkit-details-marker{display:none}.mgmore[open]{display:flex;flex-direction:column;gap:8px}
 .mgw{display:block;margin-top:4px;line-height:1.35}
 .mgom small.warn{color:var(--warn,#C8913A)}
+.topr{display:inline-flex;align-items:center;gap:10px}
+.topw{display:grid;place-items:center;width:34px;height:34px;border-radius:11px;color:var(--muted);border:1px solid var(--sep,var(--hair))}.topw .ic{width:18px;height:18px}.topw[aria-current="page"]{color:var(--accent,#E2BA6E);border-color:var(--accent,#E2BA6E)}
+.gmr{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:4px}
+.gmi{display:grid;justify-items:center;gap:2px;padding:8px 4px 10px;border:1px solid var(--sep,var(--hair));border-radius:14px;background:none;color:inherit}
+.gmi.on{border-color:color-mix(in srgb,var(--accent,#E2BA6E) 60%,transparent)}.gmg{width:100%;max-width:96px}.gmg svg{width:100%;height:auto;display:block}
+.gmi small{font-size:11.5px;color:var(--muted)}.gmi b{font-size:16px;font-weight:650;letter-spacing:-.01em}
+.dch{font-size:12px;font-weight:650;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:22px 4px 8px}.dch:first-child{margin-top:4px}
+.dcbig{display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:12px;align-items:center;width:100%;text-align:left;padding:4px 0;border:0;background:none;color:inherit}
+.dcbig .bk{width:40px;height:40px;border-radius:12px;display:grid;place-items:center}.dcbig b{display:block;font-size:15.5px}.dcbig small{display:block;font-size:12.5px;color:var(--muted);line-height:1.4}
+.dcol{margin-top:12px;display:flex;flex-direction:column}.dcol>small{font-size:11.5px;color:var(--muted);margin-bottom:4px}
+.dcinv{display:grid;grid-template-columns:1fr 1fr;gap:10px}.dcinv small{display:block;font-size:11.5px;color:var(--muted)}.dcinv b{font-size:21px;font-weight:650}
+.dcsob{margin:12px 0 6px;padding:10px 12px;border-radius:12px;background:var(--sunk,rgba(127,127,127,.1));font-size:13px;line-height:1.5;color:var(--muted)}.dcsob b{color:var(--ink,inherit)}.dcsob b.pos{color:var(--good)}
+.dcc .lk{margin-top:8px}
 </style>
 </head>
 <body>
@@ -2242,7 +2255,7 @@ onAuthStateChanged(auth,u=>{if(u){gate.hidden=true;window.__fbUser={email:u.emai
 </defs></svg>
 <header class="top"><div class="in">
   <div class="tl"><button type="button" class="navback" id="navback" hidden aria-label="Voltar"><svg class="ic" aria-hidden="true"><use href="#i-back"/></svg><span id="navbl">Voltar</span></button><h1 id="ttl">Patrimônio</h1><div class="sub" id="sub"></div></div>
-  <span class="live" id="live"><i></i><span id="livet">Conectando</span></span>
+  <span class="topr"><span class="live" id="live"><i></i><span id="livet">Conectando</span></span><a class="topw" href="#carteira" data-v="carteira" aria-label="Carteira: contas, cartões e ajustes"><svg class="ic"><use href="#i-wallet"/></svg></a></span>
 </div></header>
 
 <main>
@@ -2251,6 +2264,7 @@ onAuthStateChanged(auth,u=>{if(u){gate.hidden=true;window.__fbUser={email:u.emai
   <section class="view" id="v-cartoes" hidden></section>
   <section class="view" id="v-relatorios" hidden></section>
   <section class="view" id="v-carteira" hidden></section>
+  <section class="view" id="v-decidir" hidden></section>
 </main>
 
 <nav class="tabs" aria-label="Seções">
@@ -2259,7 +2273,7 @@ onAuthStateChanged(auth,u=>{if(u){gate.hidden=true;window.__fbUser={email:u.emai
   <button class="fab" id="fab" type="button" aria-label="Adicionar"><svg class="ic"><use href="#i-plus"/></svg></button>
   <a href="#cartoes" data-v="cartoes"><svg class="ic"><use href="#i-card"/></svg>Cartões</a>
   <a href="#relatorios" data-v="relatorios"><svg class="ic"><use href="#i-chart"/></svg>Relatórios</a>
-  <a href="#carteira" data-v="carteira"><svg class="ic"><use href="#i-wallet"/></svg>Carteira</a>
+  <a href="#decidir" data-v="decidir"><svg class="ic"><use href="#i-trend"/></svg>Decidir</a>
 </nav>
 <div id="overlay" hidden></div>
 <div class="toast" id="toast" hidden></div>
@@ -2821,7 +2835,7 @@ function openRecarga(a){
 }
 
 /* ---------- INÍCIO: painel montável ---------- */
-const SECS=[['ticker','Cotações (faixa que corre)'],['hero','Em caixa hoje'],['acoes','Ações rápidas'],['alertas','Para resolver'],['margem','Margem do mês'],['mesx','Mês (candles e resultado)'],['cats','Categorias (plano, stop e mapa)'],['saude','Saúde financeira'],['beneficios','Benefícios'],['ultimos','Últimos lançamentos'],['fecha','Fechamento do mês (avulso)'],['spread','Dívida × aplicação (avulso)'],['kpis','Indicadores do mês'],['plano','Plano do mês'],['contas','Contas'],['dre','Resultado do mês'],['agenda','Próximos 15 dias'],['credito','Crédito'],['gastos','Gastos por categoria'],['planejado','Pagamentos planejados'],['fluxo6','Evolução'],['quinzenas','Quinzenas e acerto'],['patrimonio','Patrimônio']];
+const SECS=[['ticker','Cotações (faixa que corre)'],['hero','Em caixa hoje'],['acoes','Ações rápidas'],['alertas','Para resolver'],['margem','Quanto posso gastar (3 visões)'],['mesx','Mês (candles e resultado)'],['cats','Categorias (plano, stop e mapa)'],['saude','Saúde financeira'],['beneficios','Benefícios'],['ultimos','Últimos lançamentos'],['fecha','Fechamento do mês (avulso)'],['spread','Dívida × aplicação (avulso)'],['kpis','Indicadores do mês'],['plano','Plano do mês'],['contas','Contas'],['dre','Resultado do mês'],['agenda','Próximos 15 dias'],['credito','Crédito'],['gastos','Gastos por categoria'],['planejado','Pagamentos planejados'],['fluxo6','Evolução'],['quinzenas','Quinzenas e acerto'],['patrimonio','Patrimônio']];
 /* layout v4: Início enxuto (8 seções). Migra a personalização anterior: mantém a ordem, recolhe as seções que foram unificadas */
 const OFF4=['orcamento','mes','fecha','spread','kpis','dre','plano','gastos','agenda','planejado','contas','credito','fluxo6','quinzenas','patrimonio'];
 let LAY=(()=>{try{const v4=JSON.parse(localStorage.getItem('pt-ini4')||'null');if(v4)return v4;const v3=JSON.parse(localStorage.getItem('pt-ini3')||'null');if(v3){const off=[...new Set([...(v3.off||[]),...OFF4])].filter(k=>k!=='acoes');return {order:[],off}}}catch(e){}return null})()||{order:[],off:OFF4.slice()};
@@ -3090,6 +3104,47 @@ function iniMargem(X){let G;try{G=gastoLentes(X.me,X.ym)}catch(e){return ''}if(!
     <p class="mgn">${sub}.</p>
     <div class="mgsim"><button type="button" class="mgin" id="mg-v"><span>Vou gastar</span><b class="n">${MGV?brl(MGV):'R$ —'}</b><small>${MGV?'toque para mudar':'toque e digite o valor'}</small></button>${MGV?`<button class="lk" type="button" data-mgx="1">limpar</button>`:''}
     <div id="mg-sim">${mgSim(G,MGV,X.me)}</div></div></div>`}
+/* ===================== Decidir: gastar, comprar maior, investir ===================== */
+function wireMg(el,rr){
+  el.querySelectorAll('[data-colch]').forEach(b=>b.onclick=openColchao);
+  el.querySelectorAll('[data-mgk]').forEach(b=>b.onclick=()=>{MGL=b.dataset.mgk;LSset('pt-mgl',MGL);rr()});
+  el.querySelectorAll('[data-mgp]').forEach(b=>b.onclick=()=>{MGP=!MGP;LSset('pt-mgp',MGP?'1':'0');rr()});
+  el.querySelectorAll('[data-mgx]').forEach(b=>b.onclick=()=>{MGV=0;rr()});
+  {const mv=el.querySelector('#mg-v');if(mv)mv.onclick=()=>openCalc(MGV||'',v=>{MGV=r2(v);rr();setTimeout(()=>{const s2=document.getElementById('mg-sim');s2&&s2.scrollIntoView({behavior:'smooth',block:'nearest'})},120)})}
+  el.querySelectorAll('[data-mgsim]').forEach(b=>b.onclick=()=>openSimCompra({v:MGV}));
+  el.querySelectorAll('[data-mgl]').forEach(b=>b.onclick=()=>{const k=b.dataset.mgl;openLanc(k==='pix'?{tipo:'despesa',valor:MGV,conta:contaPadrao()}:{tipo:'despesa',valor:MGV,cartao:k})});
+}
+/* início: só os três velocímetros, um toque abre o Decidir */
+function iniGastoMini(X){let G;try{G=gastoLentes(X.me,X.ym)}catch(e){return ''}if(!G.renda&&!G.bal0)return '';const p=MGP?1:0;
+  const one=k=>{const v=G.L[k][p];let uso,st;if(k==='caixa'){const lv=r2(G.bal0-G.cz);uso=lv>0?Math.max(0,1-Math.max(G.C[p].min-G.cz,0)/lv):(v<0?9:0)}else{const lv=r2(G.livre(p)+(k==='sobra'?G.sobra:0));uso=lv>0?G.usado/lv:(G.usado>0?9:0)}
+    st=v<0?'stop':k!=='caixa'&&uso>G.ritmo*1.1&&uso>.5?'atencao':'ok';
+    return `<button type="button" class="gmi ${MGL===k?'on':''}" data-gmk="${k}"><span class="gmg">${gaugeSVG(Math.min(uso,1.3),k==='caixa'?0:G.ritmo,st)}</span><small>${MGLAB[k]}</small><b class="n ${v<0?'neg':''}">${v<0?'−'+brl0(-v):brl0(v)}</b></button>`};
+  return `<div class="card gmc"><div class="ch"><h2>Quanto posso gastar</h2><button class="lk" type="button" data-go="decidir">Decidir ›</button></div>
+    <div class="gmr">${Object.keys(MGLAB).map(one).join('')}</div>
+    <p class="mgn">${MGP?'Contando o que ainda vai entrar no mês':'Só com o que já entrou'} · toque para simular um gasto e ver a melhor forma de pagar.</p></div>`}
+function vDecidir(){
+  const el=$('#v-decidir');if(!ready()){el.innerHTML=loading();return}
+  const me=ME(),t=today(),ym=t.slice(0,7),X={me,t,ym,saldo:realBal(me,t),M:mesCalc(ym,me),F:mesFluxo(ym,me)};
+  let h=`<h3 class="dch">Gastar</h3>${iniMargem(X)||'<div class="card"><p class="note">Cadastre contas e receitas para ver quanto pode gastar.</p></div>'}`;
+  /* comprar maior: simulador e ordens salvas */
+  const ords=cfg().ordens||[],prontas=new Set(ordensProntas(me).map(o=>o.id));
+  h+=`<h3 class="dch">Comprar maior</h3><div class="card dcc"><button type="button" class="dcbig" data-dsim="1"><span class="bk bk-g">${ic('spark')}</span><span><b>Posso comprar?</b><small>simule à vista ou parcelado: o app diz se cabe, quando cabe e qual forma pesa menos</small></span><span class="go">›</span></button>
+    ${ords.length?`<div class="dcol"><small>Ordens salvas</small>${ords.map(o=>`<button type="button" class="cxr" data-dord="${esc(o.id)}"><span class="bk ${prontas.has(o.id)?'bk-g':''}">${ic(prontas.has(o.id)?'check':'clock')}</span><span class="cxm"><strong>${esc(o.desc||'Compra planejada')}</strong><small>${brl(o.v)} · ${esc(simForma(o.f))} · ${prontas.has(o.id)?'<span class="pos">já cabe</span>':'aguardando caber'}</small></span><span class="go">›</span></button>`).join('')}</div>`:''}</div>`;
+  /* investir: aplicações e reservas, quanto a sobra renderia, spread */
+  const val=a=>saldoConta(a)*fracOf(a.dono,me),inv=S.contas.filter(a=>a.ativo!==false&&(a.tipo==='investimento'||a.tipo==='reserva')&&fracOf(a.dono,me)>0),tot=sum(inv,val);
+  let G=null;try{G=gastoLentes(me,ym)}catch(e){}const sob=G?Math.max(0,Math.min(G.L.sobra[1],G.L.caixa[1])):0,im=cdiMes();
+  h+=`<h3 class="dch">Investir</h3><div class="card dcc"><div class="dcinv"><div><small>Aplicado e reservas</small><b class="n">${brl0(tot)}</b></div><div><small>Rende por mês no CDI</small><b class="n pos">≈ ${brl0(tot*im)}</b></div></div>
+    ${inv.length?`<div class="dcol">${inv.map(a=>{const E=rendEst(a);return `<button class="cxr" type="button" data-ct="${esc(a.id)}">${bankBadge(a,a.tipo)}<span class="cxm"><strong>${esc(a.nome)}</strong><small>${E?`${rendLabel(a)} · <span class="pos">≈ ${brl(E.hoje)} hoje</span>`:esc(TCONTA[a.tipo]||'')}</small></span><b class="n">${brl0(val(a))}</b></button>`}).join('')}</div>`:'<p class="note">Nenhuma aplicação cadastrada. Cadastre em Carteira → Investimentos.</p>'}
+    ${sob>50?`<div class="dcsob"><span>Se aplicar o que está livre agora (<b class="n">${brl0(sob)}</b>), renderia ≈ <b class="n pos">${brl0(sob*im)}/mês</b> e <b class="n pos">${brl0(sob*(Math.pow(1+im,12)-1))}</b> em 1 ano no CDI (antes do IR).</span></div>`:''}
+    <button class="lk" type="button" data-go="carteira">Ver contas e investimentos na Carteira ›</button></div>
+    ${iniSpread(X)||''}`;
+  el.innerHTML=h;wireMg(el,vDecidir);
+  el.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>go(b.dataset.go));
+  el.querySelectorAll('[data-dsim]').forEach(b=>b.onclick=()=>openSimCompra());
+  el.querySelectorAll('[data-dord]').forEach(b=>b.onclick=()=>{const o=(cfg().ordens||[]).find(z=>z.id===b.dataset.dord);if(o)openSimCompra({v:o.v,desc:o.desc,cat:o.cat,f:o.f,ordem:o.id})});
+  el.querySelectorAll('[data-ct]').forEach(b=>b.onclick=()=>openContaDet(conta(b.dataset.ct)));
+  el.querySelectorAll('[data-spread]').forEach(b=>b.onclick=openSpread);
+}
 function openColchao(){const me=ME();let pct=colchaoPct();
   openSheet(`<h2>Colchão de segurança</h2><p class="note">Parte da renda que fica sempre guardada no caixa. Ela sai da margem do mês e o "Posso comprar?" não deixa a compra encostar nela.</p>
     <div id="cz-g"></div>
@@ -3363,7 +3418,7 @@ function vInicio(){
   const ok=setup.filter(s=>s[0]).length,nx=setup.find(s=>!s[0]);
   if(nx&&!SETUPX)h+=`<div class="setup"><span class="sp">${setup.map(s=>`<i class="${s[0]?'on':''}"></i>`).join('')}</span><button class="lk" type="button" data-setup="${nx[2]}">${ok}/${setup.length} · ${nx[1]} ›</button><button class="sx2" type="button" id="stx" aria-label="Ocultar">×</button></div>`;
   const X={me,t,ym,saldo:realBal(me,t),M:mesCalc(ym,me),F:mesFluxo(ym,me)};
-  const B={margem:iniMargem,ticker:iniTicker,mesx:iniMesX,cats:iniCats,hero:iniHero,acoes:iniAcoes,alertas:iniResolver,ultimos:iniUltimos,spread:iniSpread,contas:iniContas,beneficios:iniBen,mes:()=>mesCard(me),agenda:iniAgenda,credito:()=>creditoDash(true),gastos:iniGastos2,planejado:iniPlan,fluxo6:iniEvo,kpis:iniKpis,orcamento:()=>'',plano:iniPlano,dre:iniDre,saude:iniSaude,fecha:iniFecha,quinzenas:iniQuin,patrimonio:iniPat};
+  const B={margem:iniGastoMini,ticker:iniTicker,mesx:iniMesX,cats:iniCats,hero:iniHero,acoes:iniAcoes,alertas:iniResolver,ultimos:iniUltimos,spread:iniSpread,contas:iniContas,beneficios:iniBen,mes:()=>mesCard(me),agenda:iniAgenda,credito:()=>creditoDash(true),gastos:iniGastos2,planejado:iniPlan,fluxo6:iniEvo,kpis:iniKpis,orcamento:()=>'',plano:iniPlano,dre:iniDre,saude:iniSaude,fecha:iniFecha,quinzenas:iniQuin,patrimonio:iniPat};
   layOrder().forEach(k=>{if((LAY.off||[]).includes(k))return;try{h+=B[k](X)||''}catch(e){console.error('início/'+k,e)}});
   h+=`<button class="custom" type="button" id="pers">${ic('edit')}<span>Personalizar início</span></button>`;
   el.innerHTML=h;wireIni(el);wireIni4(el);
@@ -3374,12 +3429,7 @@ function vInicio(){
   el.querySelectorAll('[data-ct]').forEach(b=>b.onclick=()=>openContaDet(conta(b.dataset.ct)));
   el.querySelectorAll('[data-pends]').forEach(b=>b.onclick=openPendentes);
   el.querySelectorAll('[data-spread]').forEach(b=>b.onclick=openSpread);
-  el.querySelectorAll('[data-colch]').forEach(b=>b.onclick=openColchao);el.querySelectorAll('[data-mgk]').forEach(b=>b.onclick=()=>{MGL=b.dataset.mgk;LSset('pt-mgl',MGL);vInicio()});
-  el.querySelectorAll('[data-mgp]').forEach(b=>b.onclick=()=>{MGP=!MGP;LSset('pt-mgp',MGP?'1':'0');vInicio()});
-  el.querySelectorAll('[data-mgx]').forEach(b=>b.onclick=()=>{MGV=0;vInicio()});
-  {const mv=el.querySelector('#mg-v');if(mv)mv.onclick=()=>openCalc(MGV||'',v=>{MGV=r2(v);vInicio();setTimeout(()=>{const s2=document.getElementById('mg-sim');s2&&s2.scrollIntoView({behavior:'smooth',block:'nearest'})},120)})}
-  el.querySelectorAll('[data-mgsim]').forEach(b=>b.onclick=()=>openSimCompra({v:MGV}));
-  el.querySelectorAll('[data-mgl]').forEach(b=>b.onclick=()=>{const k=b.dataset.mgl;openLanc(k==='pix'?{tipo:'despesa',valor:MGV,conta:contaPadrao()}:{tipo:'despesa',valor:MGV,cartao:k})});
+  wireMg(el,vInicio);el.querySelectorAll('[data-gmk]').forEach(b=>b.onclick=()=>{MGL=b.dataset.gmk;LSset('pt-mgl',MGL);go('decidir')});el.querySelectorAll('.gmc [data-go]').forEach(b=>b.onclick=()=>go(b.dataset.go));
   el.querySelectorAll('[data-msob]').forEach(b=>b.onclick=async()=>{try{await S.db.doc('config/app').set(Object.assign({},S.cfg||{},{margemSobra:b.dataset.msob==='1'}));COLM.k='';toast(b.dataset.msob==='1'?'A margem agora conta a sobra do mês anterior':'A margem volta a contar só a renda do mês')}catch(err){toast(writeErr(err))}});
   el.querySelectorAll('[data-wtab]').forEach(b=>b.onclick=()=>{WTAB=b.dataset.wtab;LSset('pt-wtab',WTAB);vInicio()});
   el.querySelectorAll('[data-wcat]').forEach(b=>b.onclick=()=>openCatFicha(b.dataset.wcat));
@@ -4965,6 +5015,7 @@ const mesFechado=l=>{const ym=(l.fatura&&l.cartao?l.fatura:(l.data||'')).slice(0
 /* ---------- ajuda e dúvidas (FAQ) ---------- */
 const FAQ=[
  ['Primeiros passos',[
+  ['Onde ficou a Carteira? E o que é o Decidir?','A <b>Carteira</b> (contas, cartões cadastrados, dívidas e Ajustes) agora abre pelo ícone de carteira no topo, ao lado do ponto de sincronização. No menu de baixo entrou o <b>Decidir</b>: quanto posso gastar nas três visões, o simulador “Vou gastar”, o “Posso comprar?” com as ordens salvas e seus investimentos.'],
   ['Como faço um lançamento?','Toque no botão dourado <b>+</b> no menu de baixo e escolha despesa, receita ou transferência. No Início, as <b>ações rápidas</b> levam direto para cada tipo. Valor, data, conta ou cartão e categoria são o essencial; o resto é opcional.'],
   ['Qual a diferença entre “Comum” e “Só sua”?','“Comum” divide a despesa meio a meio entre as duas pessoas; “Só sua” fica 100% com quem lançou. Todos os totais pessoais (caixa, margem, relatórios) usam sempre a sua parte.'],
   ['Por que o saldo não mudou depois que lancei?','O caixa só muda quando o lançamento está <b>pago</b>. Itens pendentes ficam previstos na agenda até você marcar como pago, com data e conta. Compras no cartão entram no caixa quando a fatura é paga.'],
@@ -6326,14 +6377,14 @@ async function exportCSV(){
   try{await S.downloads.save({filename:'patrimonio-lancamentos-'+today()+'.csv',data:new Blob([csv],{type:'text/csv'})})}catch(e){}}
 
 /* ---------- routing & boot ---------- */
-const VIEWS={inicio:['Patrimônio',''],lanc:['Lançamentos',''],cartoes:['Cartões',''],relatorios:['Relatórios',''],carteira:['Carteira','']};
+const VIEWS={inicio:['Patrimônio',''],lanc:['Lançamentos',''],cartoes:['Cartões',''],relatorios:['Relatórios',''],carteira:['Carteira',''],decidir:['Decidir','']};
 let NAV=[],BACKING=null;
 function go(v){const from=S.view;if(from&&from!==v){NAV.push({v:from,y:window.scrollY,sheet:(!$('#overlay').hidden&&CUR)?{cur:CUR,stack:STACK.slice()}:null});if(NAV.length>12)NAV.shift()}
   if(location.hash.slice(1)===v)route();else location.hash=v}
 function navBack(){const e=NAV.pop();if(!e)return;BACKING=e;if(location.hash.slice(1)===e.v)route();else location.hash=e.v}
 function route(){let h=location.hash.slice(1);if(h==='acertos'){RP='acertos';h='relatorios'}if(h==='ajustes')h='carteira';const v=VIEWS[h]?h:'inicio';if(!$('#overlay').hidden)closeSheet(true);S.view=v;
   Object.keys(VIEWS).forEach(k=>$('#v-'+k).hidden=k!==v);$('#ttl').textContent=VIEWS[v][0];$('#sub').textContent=VIEWS[v][1];
-  document.querySelectorAll('nav.tabs a').forEach(a=>{if(a.dataset.v===v)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current')});
+  document.querySelectorAll('nav.tabs a,.topw').forEach(a=>{if(a.dataset.v===v)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current')});
   {const tp=document.querySelector('.top');if(tp){tp.classList.remove('hide');document.body.classList.remove('tophide')}}
   renderView();
   const nb=$('#navback'),top=NAV[NAV.length-1];nb.hidden=!top;if(top)$('#navbl').textContent=({inicio:'Início'})[top.v]||VIEWS[top.v][0];
@@ -6362,7 +6413,7 @@ function openOrg(){const el=$(ORGV[S.view]);const sc=orgScope();
   openSheet(`<h2>Organizar ${S.view==='carteira'?'Carteira':'Relatórios'}</h2><p class="note">Escolha a ordem e o que aparece${S.view==='relatorios'?' nesta aba':''}. Fica salvo neste aparelho.</p><div id="psl" class="psl"></div><div class="btnrow"><button class="btn" type="button" id="orr">Restaurar padrão</button></div>`,sh=>{draw(sh);sh.querySelector('#orr').onclick=()=>{delete ORG[sc];orgSave();renderView();draw(sh)}});
 }
 
-function renderView(){document.querySelectorAll('body>.acsel').forEach(x=>x.remove());const v=S.view;if(v==='inicio')vInicio();else if(v==='lanc')vLanc();else if(v==='relatorios')vRel();else if(v==='cartoes')vCards();else vCart();try{orgApply()}catch(e){console.error('org',e)}}
+function renderView(){document.querySelectorAll('body>.acsel').forEach(x=>x.remove());const v=S.view;if(v==='inicio')vInicio();else if(v==='lanc')vLanc();else if(v==='relatorios')vRel();else if(v==='cartoes')vCards();else if(v==='decidir')vDecidir();else vCart();try{orgApply()}catch(e){console.error('org',e)}}
 let raf=0;const re=()=>{CACHE=null;cancelAnimationFrame(raf);raf=requestAnimationFrame(()=>{if($('#overlay').hidden||S.view!=='lanc')renderView();else renderView()})};
 window.addEventListener('hashchange',route);
 $('#fab').onclick=openMenu;
