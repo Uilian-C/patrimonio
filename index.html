@@ -16,7 +16,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@300..700&display=swap">
 <style>
-:root{color-scheme:light dark}/* o app tem tema escuro próprio: impede o navegador de escurecer as cores por conta própria */
+:root{color-scheme:only light}/* o app tem tema escuro próprio: impede o navegador de escurecer as cores por conta própria */
 
 /* Layout: phone app — compact top bar, one scrolling column of cards, floating pill tab bar with a centered "+". A household balance sheet: accounts, cards, debts and reserves, settled between two people at two cash-ins (dia 15 / dia 30). */
 :root{
@@ -2071,6 +2071,11 @@ nav.tabs .fab svg.ic{width:22px!important;height:22px!important}
 nav.tabs .fab:active{transform:scale(.94)!important}
 main{padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))!important}
 .toast{bottom:calc(76px + env(safe-area-inset-bottom,0px))!important}
+.live.off i{background:var(--warn,#C8913A)!important;box-shadow:0 0 0 3px color-mix(in srgb,var(--warn,#C8913A) 20%,transparent)!important}
+.live.off #livet{position:static!important;width:auto!important;height:auto!important;clip:auto!important;color:var(--warn,#C8913A)}
+.bkl{display:flex;flex-direction:column;gap:2px;margin:6px 0 10px}
+.bkt{width:100%;border-collapse:collapse;font-size:14px;margin:4px 0 8px}.bkt th{font-size:11.5px;font-weight:500;color:var(--muted);text-align:right;padding:4px 6px}.bkt th:first-child{text-align:left}
+.bkt td{padding:7px 6px;border-top:1px solid var(--sep,var(--line))}.bkt td.n{text-align:right;font-variant-numeric:tabular-nums}.bkt td.warn{color:var(--warn,#C8913A);font-weight:600}
 </style>
 </head>
 <body>
@@ -2091,16 +2096,21 @@ main{padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))!important}
 <script type="module">
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
 import {getAuth,GoogleAuthProvider,signInWithPopup,signInWithRedirect,onAuthStateChanged,signOut} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
-import {initializeFirestore,persistentLocalCache,collection,doc,onSnapshot,addDoc,setDoc,deleteDoc} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
+import {initializeFirestore,persistentLocalCache,persistentMultipleTabManager,collection,doc,onSnapshot,setDoc,deleteDoc,getDoc} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
 const firebaseConfig={apiKey:"AIzaSyAhEF_UqkFKjPemovKLNVYnuxdeAwFPJ1Y",authDomain:"patrimonio-uilian.firebaseapp.com",projectId:"patrimonio-uilian",storageBucket:"patrimonio-uilian.firebasestorage.app",messagingSenderId:"433087123506",appId:"1:433087123506:web:2844eaaab62a987748ac2b"};
 const app=initializeApp(firebaseConfig),auth=getAuth(app);
-let fs;try{fs=initializeFirestore(app,{localCache:persistentLocalCache()})}catch(e){fs=initializeFirestore(app,{})}
+let fs;try{fs=initializeFirestore(app,{localCache:persistentLocalCache({tabManager:persistentMultipleTabManager()})})}catch(e){try{fs=initializeFirestore(app,{localCache:persistentLocalCache()})}catch(_){fs=initializeFirestore(app,{})}}
 const gate=document.getElementById('fbgate'),msg=document.getElementById('fbmsg'),btn=document.getElementById('fblogin');
 const negado=()=>{gate.hidden=false;msg.innerHTML='<span class="er">Este e-mail não tem acesso.</span> Entre com a conta Google cadastrada nas regras do banco.';btn.textContent='Trocar de conta';btn.onclick=()=>signOut(auth).then(()=>location.reload())};
 const E=er=>e=>{if(e&&e.code==='permission-denied')negado();er&&er(e)};
 const clean=o=>JSON.parse(JSON.stringify(o));
-const db={collection:n=>({onSnapshot:(cb,er)=>onSnapshot(collection(fs,n),s=>cb({docs:s.docs.map(d=>({id:d.id,data:()=>d.data()}))}),E(er)),add:d=>addDoc(collection(fs,n),clean(d))}),
-  doc:p=>{const r=doc(fs,p);return {onSnapshot:(cb,er)=>onSnapshot(r,s=>cb({exists:s.exists(),data:()=>s.data()}),E(er)),set:d=>setDoc(r,clean(d)),delete:()=>deleteDoc(r)}}};
+/* gravações: aplicadas na hora no aparelho (cache do Firestore) e enviadas quando houver internet.
+   Não esperamos o servidor confirmar — assim o app funciona igual sem internet e nada se perde. */
+let PEND=0;const pend=d=>{PEND=Math.max(0,PEND+d);window.__fbPend=PEND;window.__syncUI&&window.__syncUI()};
+const Q=p=>/^(backups|meta)\//.test(p);/* cópias: erro de permissão não bloqueia o app */
+const W=(p,path)=>{pend(1);p.then(()=>pend(-1),e=>{pend(-1);if(Q(path||'')){window.__bkErr&&window.__bkErr(e);return}if(e&&e.code==='permission-denied')negado();window.__syncErr&&window.__syncErr(e)});return Promise.resolve()};
+const db={collection:n=>({onSnapshot:(cb,er)=>onSnapshot(collection(fs,n),s=>cb({docs:s.docs.map(d=>({id:d.id,data:()=>d.data()}))}),E(er)),add:d=>{const r=doc(collection(fs,n));W(setDoc(r,clean(d)));return Promise.resolve({id:r.id})}}),
+  doc:p=>{const r=doc(fs,p);return {onSnapshot:(cb,er)=>onSnapshot(r,s=>cb({exists:s.exists(),data:()=>s.data()}),Q(p)?(e=>er&&er(e)):E(er)),get:()=>getDoc(r).then(s=>({exists:s.exists(),data:()=>s.data()})),set:(d,o)=>W(setDoc(r,clean(d),o||{}),p),delete:()=>W(deleteDoc(r),p)}}};
 const downloads={save:async({filename,data})=>{const u=URL.createObjectURL(data),a=document.createElement('a');a.href=u;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),5000);return {ok:true}}};
 const api={use:async n=>n==='db'?db:n==='downloads'?downloads:null};
 btn.onclick=async()=>{const pv=new GoogleAuthProvider();pv.setCustomParameters({prompt:'select_account'});try{await signInWithPopup(auth,pv)}catch(e){if(e&&(e.code==='auth/popup-blocked'||e.code==='auth/operation-not-supported-in-environment'))await signInWithRedirect(auth,pv);else msg.innerHTML='<span class="er">Não consegui entrar ('+(e&&e.code||'erro')+').</span> Tente de novo.'}};
@@ -5031,7 +5041,9 @@ function vCart(){
     <button class="cxr" type="button" data-prem="1"><span class="bk bk-g">${ic('info')}</span><span class="cxm"><strong>Premissas do app</strong><small>como cada número é calculado</small></span><span class="go">›</span></button>
     <button class="cxr" type="button" id="edIco"><span class="bk bk-g">${I('<path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4z"/><circle cx="16.5" cy="16.5" r="3.5"/>')}</span><span class="cxm"><strong>Book de ícones</strong><small>marca, ícones, categorias e bancos do app</small></span><span class="go">›</span></button>
     <button class="cxr" type="button" id="edPes"><span class="bk bk-g">${I('<circle cx="9" cy="8" r="3.2"/><path d="M3 20c.8-3.4 3.2-5 6-5s5.2 1.6 6 5M16 4.5a3 3 0 0 1 0 6M18 15c1.6.6 2.6 2.2 3 5"/>')}</span><span class="cxm"><strong>Pessoas e quinzenas</strong><small>${cfg().pessoas.map(p=>esc(p.nome)).join(' e ')} · dias ${Q().q1.dia} e ${Q().q2.dia}</small></span><span class="go">›</span></button>
-    ${S.downloads?`<button class="cxr" type="button" id="bkp"><span class="bk bk-g">${I('<path d="M12 4v11M7 10l5 5 5-5M5 20h14"/>')}</span><span class="cxm"><strong>Baixar backup</strong><small>arquivo JSON com tudo, para guardar todo mês</small></span><span class="go">›</span></button>
+    ${S.downloads?`<button class="cxr" type="button" id="bkp"><span class="bk bk-g">${I('<path d="M12 4v11M7 10l5 5 5-5M5 20h14"/>')}</span><span class="cxm"><strong>Baixar backup</strong><small>arquivo JSON com tudo, para guardar todo mês</small></span><span class="go">›</span></button>`:''}
+    <button class="cxr" type="button" id="bkauto"><span class="bk bk-g">${I('<path d="M4 12a8 8 0 1 0 2.4-5.7L4 8.6"/><path d="M4 4v4.6h4.6M12 8v4.5l3 2"/>')}</span><span class="cxm"><strong>Cópias automáticas</strong><small>${(()=>{const L=bkLista();return L.length?'última '+bkNome(L[0]).replace(' · hoje','')+' · '+L.length+(L.length>1?' guardadas':' guardada'):'uma por dia, guardadas no banco'})()}</small></span><span class="go">›</span></button>
+    ${S.downloads?`
     <button class="cxr" type="button" id="csv"><span class="bk bk-g">${I('<path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4"/>')}</span><span class="cxm"><strong>Exportar lançamentos</strong><small>planilha CSV</small></span><span class="go">›</span></button>`:''}
     ${window.__fbSair?`<button class="cxr" type="button" id="sair"><span class="bk bk-g">${I('<path d="M15 4h4v16h-4M10 8l-4 4 4 4M6 12h10"/>')}</span><span class="cxm"><strong>Sair</strong><small>${esc((window.__fbUser||{}).email||'')}</small></span><span class="go">›</span></button>`:''}`,'s');
   el.innerHTML=h;
@@ -5043,7 +5055,7 @@ function vCart(){
   const ad=$('#addDv');if(ad)ad.onclick=()=>openDivida(null);
   const ar=$('#addRec');if(ar)ar.onclick=()=>openRec(null);el.querySelectorAll('[data-rc]').forEach(b=>b.onclick=()=>openRec(S.recs.find(r=>r.id===b.dataset.rc)));
   $('#edTags').onclick=()=>openCategorias();$('#edIco').onclick=openIconBook;$('#edPes').onclick=openPessoas;
-  const bk=$('#bkp');if(bk)bk.onclick=backup;const sr=$('#sair');if(sr)sr.onclick=()=>window.__fbSair();const cv=$('#csv');if(cv)cv.onclick=exportCSV;
+  const bk=$('#bkp');if(bk)bk.onclick=backup;{const ba=$('#bkauto');if(ba)ba.onclick=openBackups}const sr=$('#sair');if(sr)sr.onclick=()=>window.__fbSair();const cv=$('#csv');if(cv)cv.onclick=exportCSV;
   wireCommon(el);
 }
 
@@ -6030,6 +6042,46 @@ function openTransf(per){
 /* ---------- backup / export ---------- */
 async function backup(){const data={app:'patrimonio',versao:3,geradoEm:new Date().toISOString(),config:S.cfg,contas:S.contas,cartoes:S.cards,lancamentos:S.lanc,dividas:S.dividas,recorrentes:S.recs,acertos:S.acertos,relatorios:S.reps};
   try{await S.downloads.save({filename:'patrimonio-backup-'+today()+'.json',data:new Blob([JSON.stringify(data,null,1)],{type:'application/json'})})}catch(e){}}
+/* ---------- cópias de segurança automáticas (no banco, uma por dia, 30 guardadas) ---------- */
+const BKC=[['contas','contas','contas'],['cartoes','cartoes','cards'],['lancamentos','lanc','lanc'],['dividas','dividas','dividas'],['recorrentes','recorrentes','recs'],['acertos','acertos','acertos'],['relatorios','relatorios','reps']];
+const BKMAX=30,BKPART=350000;let BKIDX=null,BKRUN=false,BKOFF=false;
+function bkData(){const d={app:'patrimonio',versao:3,geradoEm:new Date().toISOString(),config:S.cfg};BKC.forEach(([j,,k])=>d[j]=S[k]||[]);return d}
+function bkLista(){return Object.entries((BKIDX&&BKIDX.datas)||{}).map(([k,v])=>Object.assign({k},v)).sort((a,b)=>b.k.localeCompare(a.k))}
+const bkDoc=(k,i)=>'backups/'+k+(i?'~'+i:'');
+async function bkSalvar(k,motivo){const d=bkData(),js=JSON.stringify(d),partes=Math.max(1,Math.ceil(js.length/BKPART));
+  for(let i=0;i<partes;i++)await S.db.doc(bkDoc(k,i)).set({k,geradoEm:d.geradoEm,partes,parte:i,json:js.slice(i*BKPART,(i+1)*BKPART)});
+  const all=Object.assign({},(BKIDX&&BKIDX.datas)||{},{[k]:{geradoEm:d.geradoEm,bytes:js.length,partes,lanc:d.lancamentos.length,contas:d.contas.length,motivo:motivo||'automática'}});
+  Object.keys(all).sort().reverse().slice(BKMAX).forEach(x=>{for(let i=0;i<(all[x].partes||1);i++)S.db.doc(bkDoc(x,i)).delete();delete all[x]});
+  BKIDX={datas:all};await S.db.doc('meta/backups').set({datas:all});return k}
+/* roda sozinho: com internet, dados carregados e base não vazia (nunca troca uma cópia boa por uma base vazia) */
+function bkAuto(){if(BKRUN||BKOFF||!BKIDX||!S.db||!navigator.onLine)return;const k=today();if(BKIDX.datas&&BKIDX.datas[k])return;
+  if(!(S.lanc.length||S.contas.length))return;BKRUN=true;setTimeout(()=>{bkSalvar(k).catch(()=>{}).finally(()=>{BKRUN=false})},8000)}
+async function bkLer(k){const m=bkLista().find(x=>x.k===k),p=(m&&m.partes)||1;let js='';
+  for(let i=0;i<p;i++){const s=await S.db.doc(bkDoc(k,i)).get();if(!s.exists)throw new Error('Cópia incompleta neste aparelho — abra com internet');js+=s.data().json}return JSON.parse(js)}
+function bkResumo(d){return BKC.map(([j,,k])=>[j,(d[j]||[]).length,(S[k]||[]).length])}
+async function bkRestaurar(data){const hm=new Date().toTimeString().slice(0,5).replace(':','');
+  try{await bkSalvar(today()+'-'+hm,'antes de restaurar')}catch(e){}
+  for(const [j,col,k] of BKC){if(!Array.isArray(data[j]))continue;const ids=new Set(data[j].map(x=>x.id).filter(Boolean));
+    (S[k]||[]).filter(x=>!ids.has(x.id)).forEach(x=>S.db.doc(col+'/'+x.id).delete());
+    data[j].forEach(x=>{const d=Object.assign({},x);delete d.id;x.id?S.db.doc(col+'/'+x.id).set(d):S.db.collection(col).add(d)})}
+  if(data.config)await S.db.doc('config/app').set(data.config)}
+const bkNome=x=>{const d=x.k.slice(0,10),hm=x.k.slice(11);return fdate(d)+(hm?' '+hm.slice(0,2)+':'+hm.slice(2):'')+(d===today()&&!hm?' · hoje':'')};
+function openBackups(){const L=bkLista();
+  openSheet(`<h2>Cópias de segurança</h2><p class="note">Uma cópia completa é salva sozinha no banco, uma vez por dia, quando o app abre com internet. Ficam as ${BKMAX} mais recentes. Antes de qualquer restauração o app guarda uma cópia do estado atual — dá para voltar atrás.</p>
+    ${BKOFF?'<p class="note neg">As regras do banco não deixam gravar as cópias (coleções <b>backups</b> e <b>meta</b>).</p>':''}
+    <div class="bkl">${L.length?L.map(x=>`<button class="cxr" type="button" data-bk="${esc(x.k)}"><span class="bk bk-g">${ic('check')}</span><span class="cxm"><strong>${bkNome(x)}</strong><small>${x.lanc} lançamentos · ${Math.max(1,Math.round(x.bytes/1024))} KB · ${esc(x.motivo||'automática')}</small></span><span class="go">›</span></button>`).join(''):'<p class="note">Nenhuma cópia ainda. A primeira é feita hoje, alguns segundos depois de abrir com internet.</p>'}</div>
+    <div class="btnrow"><button class="btn" type="button" id="bk-now">Fazer cópia agora</button><button class="btn" type="button" id="bk-file">Restaurar de arquivo</button></div><input type="file" id="bk-in" accept=".json,application/json" hidden>`,sh=>{
+    sh.querySelectorAll('[data-bk]').forEach(b=>b.onclick=async()=>{const k=b.dataset.bk;try{const d=await bkLer(k);openBkDet(d,bkNome(bkLista().find(x=>x.k===k)),k)}catch(e){toast(e.message||'Não foi possível abrir a cópia')}});
+    sh.querySelector('#bk-now').onclick=async e=>{if(!navigator.onLine){toast('Sem internet — a cópia é feita quando a conexão voltar');return}e.target.disabled=true;const hm=new Date().toTimeString().slice(0,5).replace(':','');try{await bkSalvar(today()+'-'+hm,'manual');closeSheet();toast('Cópia salva');setTimeout(openBackups,300)}catch(err){toast('Não foi possível salvar a cópia');e.target.disabled=false}};
+    const inp=sh.querySelector('#bk-in');sh.querySelector('#bk-file').onclick=()=>inp.click();
+    inp.onchange=async()=>{const f=inp.files&&inp.files[0];if(!f)return;try{const d=JSON.parse(await f.text());if(d.app!=='patrimonio')throw 0;openBkDet(d,'arquivo '+f.name)}catch(e){toast('Arquivo não é um backup do Patrimônio')}}})}
+function openBkDet(d,nome,k){const R=bkResumo(d),lb={contas:'Contas',cartoes:'Cartões',lancamentos:'Lançamentos',dividas:'Dívidas',recorrentes:'Recorrentes',acertos:'Acertos',relatorios:'Relatórios'};
+  openSheet(`<h2>Cópia de ${esc(nome)}</h2><p class="note">Gerada em ${d.geradoEm?new Date(d.geradoEm).toLocaleString('pt-BR',{dateStyle:'short',timeStyle:'short'}):'—'}. Compare com o que está no app hoje:</p>
+    <table class="bkt"><thead><tr><th></th><th>Na cópia</th><th>Hoje</th></tr></thead><tbody>${R.map(([j,a,b])=>`<tr><td>${lb[j]}</td><td class="n">${a}</td><td class="n ${a!==b?'warn':''}">${b}</td></tr>`).join('')}</tbody></table>
+    <p class="note">Restaurar deixa o app exatamente como estava nesta cópia: o que foi lançado depois some. O estado atual é guardado antes, como cópia "antes de restaurar".</p>
+    <div class="btnrow">${S.downloads?'<button class="btn" type="button" id="bk-dl">Baixar arquivo</button>':''}<button class="btn primary" type="button" id="bk-go">Restaurar esta cópia</button></div>`,sh=>{
+    const dl=sh.querySelector('#bk-dl');if(dl)dl.onclick=()=>S.downloads.save({filename:'patrimonio-backup-'+(k||today())+'.json',data:new Blob([JSON.stringify(d,null,1)],{type:'application/json'})}).catch(()=>{});
+    confirmBtn(sh.querySelector('#bk-go'),'Toque de novo para restaurar',async()=>{try{await bkRestaurar(d);closeSheet();toast('Cópia restaurada')}catch(e){toast(writeErr(e))}})})}
 async function exportCSV(){
   const f=v=>String(r2(v)).replace('.',','),head=['Data de caixa','Quinzena','Tipo','Origem','Titular','Data da compra','Descrição','Parcela','Valor','Divisão','Categoria','Etiquetas','Sua parte'];
   const rows=movs().slice().sort((a,b)=>a.due.localeCompare(b.due)).map(i=>[fdate(i.due),qLabel(i.per),i.tipo==='receita'?'Receita':'Despesa',i.c?cardName(i.c):i.a?i.a.nome:'',P(i.dono).nome,fdate(i.l.data),i.l.desc,i.N>1?i.j+'/'+i.N:'',f(i.valor),i.tipo==='receita'?'':i.comum?'Comum':'Pessoal',i.l.categoria||'',(i.l.tags||[]).join(' '),f(share(i,ME()))]);
@@ -6105,9 +6157,14 @@ const tm=setTimeout(()=>{if(!ready())live('Sem conexão')},10000);
   const C=window.claude,db=C&&C.use?await C.use('db'):null;
   if(!db){clearTimeout(tm);live('Sem acesso');$('#fab').hidden=true;$('#v-inicio').innerHTML='<div class="card empty"><strong>Dados indisponíveis</strong>Abra este link com a conta que recebeu acesso.</div>';return}
   S.db=db;const err=()=>live('Erro ao ler');
-  const mark=()=>{if(ready()){clearTimeout(tm);live('Ao vivo',true)}};
+  const syncUI=()=>{if(!ready())return;const n=window.__fbPend||0,L=$('#live');if(!navigator.onLine){live(n?'Offline · '+n+' a enviar':'Offline · salvo no aparelho');L&&L.classList.add('off')}else{L&&L.classList.remove('off');n?live('Enviando '+n):live('Ao vivo',true)}};
+  window.__syncUI=syncUI;window.__syncErr=e=>toast(writeErr(e));window.__bkErr=e=>{if(e&&e.code==='permission-denied')BKOFF=true};
+  addEventListener('offline',()=>{syncUI();toast('Sem internet — pode lançar normalmente, sincroniza quando voltar')});
+  addEventListener('online',()=>{syncUI();if(window.__fbPend)toast('Internet de volta — enviando o que foi lançado');bkAuto()});
+  const mark=()=>{if(ready()){clearTimeout(tm);syncUI();bkAuto()}};
   const col=(name,key,ok)=>db.collection(name).onSnapshot(s=>{S[key]=s.docs.map(d=>Object.assign({id:d.id},d.data()));S.ok[ok]=1;mark();re()},err);
   db.doc('config/app').onSnapshot(s=>{S.cfg=s.exists?s.data():null;applyCats();S.ok.c=1;mark();re()},err);
+  db.doc('meta/backups').onSnapshot(s=>{BKIDX=s.exists?s.data():{datas:{}};bkAuto()},e=>{if(e&&e.code==='permission-denied')BKOFF=true});
   col('cartoes','cards','k');col('contas','contas','n');col('lanc','lanc','l');col('dividas','dividas','d');col('recorrentes','recs','r');col('acertos','acertos','a');col('relatorios','reps','x');
   C.use('assets').then(a=>{S.assets=a});
   setTimeout(()=>{if(S.contas.some(a=>a.rend&&a.rend.tipo))cdiLoad()},1500);
@@ -6117,5 +6174,6 @@ const tm=setTimeout(()=>{if(!ready())live('Sem conexão')},10000);
 })();
 </script>
 
+<script>if('serviceWorker' in navigator&&(location.protocol==='https:'||location.hostname==='localhost'))addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));</script>
 </body>
 </html>
