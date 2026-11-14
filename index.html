@@ -2086,6 +2086,17 @@ main{padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))!important}
 .rvtab{margin:2px 0 10px}.rvtab button{display:inline-flex;align-items:center;justify-content:center;gap:6px}
 .rvc{min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--sunk,rgba(127,127,127,.15));font-size:11px;font-weight:650;display:inline-grid;place-items:center;font-variant-numeric:tabular-nums}.rvc.neg{background:var(--crit-soft,rgba(220,80,80,.16));color:var(--crit,#E0705F)}
 .rvnt{margin:10px 0 0;font-size:12.5px}
+.pgc{margin:0 0 12px}.pgc strong{font-size:15.5px}.pgc small{font-size:12.5px}
+.pgf{gap:12px}
+.pgval{display:grid;justify-items:start;gap:2px;width:100%;text-align:left;padding:12px 14px;border-radius:16px;border:1px solid var(--sep,var(--hair));background:var(--sunk,transparent);color:inherit;cursor:pointer}
+.pgval small{font-size:12px;color:var(--muted)}.pgval b{font-size:28px;font-weight:650;letter-spacing:-.02em;line-height:1.15}
+.pgdif{font-size:12.5px;color:var(--muted)}.pgdif.pos{color:var(--good)}.pgdif.neg{color:var(--crit,#E0705F)}
+.pgacc{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 6px;margin:4px -2px 0;scrollbar-width:none;-webkit-overflow-scrolling:touch}.pgacc::-webkit-scrollbar{display:none}
+.pga{flex:none;display:inline-flex;align-items:center;gap:8px;padding:6px 12px 6px 6px;border:1px solid var(--sep,var(--hair));border-radius:999px;background:none;color:inherit;font-size:13.5px;white-space:nowrap}
+.pga .bk{width:26px;height:26px;border-radius:8px;font-size:10.5px}.pga[aria-pressed="true"]{border-color:var(--accent,#E2BA6E);background:color-mix(in srgb,var(--accent,#E2BA6E) 12%,transparent)}
+.pgf textarea{width:100%;min-height:58px;resize:vertical;font:inherit;font-size:14.5px}
+.opt{font-weight:400;color:var(--faint,var(--muted));font-size:11.5px;margin-left:4px}
+.rvob{font-style:normal;color:var(--ink,inherit);opacity:.8}
 </style>
 </head>
 <body>
@@ -2813,7 +2824,7 @@ function iniResolver(X){
   const tabs=`<div class="seg rvtab" role="tablist" aria-label="Pagar ou receber"><button type="button" role="tab" data-rvt="pagar" aria-pressed="${!rcv}">A pagar${pend.length?` <span class="rvc">${pend.length}</span>`:''}</button><button type="button" role="tab" data-rvt="receber" aria-pressed="${rcv}">A receber${nE?` <span class="rvc ${atrE.length?'neg':''}">${nE}</span>`:''}</button></div>`;
   const head=`<div class="ch"><h2>Para resolver</h2>${hz}</div>${tabs}`;
   const dd=d=>{const n=diffD(t,d);return n<0?`${-n}d atrás`:n===0?'hoje':n===1?'amanhã':`em ${n}d`};
-  const row=(x,act,pos)=>{const late=x.d<t,today0=x.d===t;return `<button type="button" class="rvr ${late?'late':today0?'now':''}" data-rv="${esc(x.nav)}"><span class="rvd"><b>${pad(+x.d.slice(8))}</b><small>${MES[+x.d.slice(5,7)-1]}</small></span><span class="lxm"><b>${esc(x.t)}</b><small>${late||today0?`<span class="${late?'neg':'warn'}">${dd(x.d)}</span> · `:dd(x.d)+' · '}${esc(x.s||'')}</small></span><span class="rvv"><b class="n ${pos?'pos':''}">${pos?'+':''}${brl0(Math.abs(x.v))}</b><small>${act} ›</small></span></button>`};
+  const row=(x,act,pos)=>{const late=x.d<t,today0=x.d===t;return `<button type="button" class="rvr ${late?'late':today0?'now':''}" data-rv="${esc(x.nav)}"><span class="rvd"><b>${pad(+x.d.slice(8))}</b><small>${MES[+x.d.slice(5,7)-1]}</small></span><span class="lxm"><b>${esc(x.t)}</b><small>${late||today0?`<span class="${late?'neg':'warn'}">${dd(x.d)}</span> · `:dd(x.d)+' · '}${esc(x.s||'')}${(()=>{const o=String(x.nav).startsWith('l:')&&(S.lanc.find(l=>'l:'+l.id===x.nav)||{}).obs;return o?` · <i class="rvob">${esc(o)}</i>`:''})()}</small></span><span class="rvv"><b class="n ${pos?'pos':''}">${pos?'+':''}${brl0(Math.abs(x.v))}</b><small>${act} ›</small></span></button>`};
   const N=RVH>7?10:6;
   if(rcv){
     const actR=x=>x.k==='abt'?'Ver':x.atr?'Confirmar':'Recebi';
@@ -3676,26 +3687,33 @@ function openPagar(l){if(l)openPagarG({l,desc:l.desc,v:+l.valor||0,due:l.venc||l
 function openAjustePrev(pv){const r=pv.r,rc=r.tipo==='receita';
   openSheet(`<h2>Ajustar previsão</h2><p class="note">${esc(pv.nome)} · só ${MES[+pv.ym.slice(5)-1].toLowerCase()}/${pv.ym.slice(2,4)}. A recorrência continua igual nos outros meses.</p>
     <form class="form" id="fap" novalidate><div class="f2"><div class="field"><label for="ap-d">${rc?'Nova data prevista':'Novo vencimento'}</label><input id="ap-d" type="date" value="${pv.date}"></div><div class="field"><label for="ap-v">Valor previsto (R$)</label><input id="ap-v" type="number" inputmode="decimal" step="0.01" value="${+r.valor||0}"></div></div>
+    <div class="field"><label for="ap-o">Observação <span class="opt">opcional</span></label><textarea id="ap-o" rows="2" maxlength="300" placeholder="Ex.: férias caem dia 17"></textarea></div>
     <div class="btnrow"><button class="btn primary" type="submit">Salvar previsão</button><button class="btn" type="button" id="ap-x">${rc?'Não vai entrar este mês':'Não vai sair este mês'}</button></div></form>`,sh=>{
     sh.querySelector('#fap').onsubmit=async ev=>{ev.preventDefault();const d=sh.querySelector('#ap-d').value,v=r2(parseFloat(sh.querySelector('#ap-v').value));if(!d||!(v>0)){toast('Informe data e valor');return}
-      try{await S.db.collection('lanc').add({tipo:r.tipo||'despesa',pend:true,conta:r.conta||contaPadrao(),data:d,valor:v,desc:pv.nome,categoria:r.categoria||'',subcategoria:r.subcategoria||'',divisao:r.divisao||'pessoal',tags:r.tags||[],para:r.para||'',rec:r.id,recYm:pv.ym,criadoEm:new Date().toISOString()});closeSheet();toast(`Previsão ajustada · ${brl(v)} em ${fdate(d).slice(0,5)}`)}catch(err){toast(writeErr(err))}};
+      try{await S.db.collection('lanc').add({tipo:r.tipo||'despesa',pend:true,conta:r.conta||contaPadrao(),data:d,valor:v,desc:pv.nome,categoria:r.categoria||'',subcategoria:r.subcategoria||'',divisao:r.divisao||'pessoal',tags:r.tags||[],para:r.para||'',rec:r.id,recYm:pv.ym,criadoEm:new Date().toISOString(),...(sh.querySelector('#ap-o').value.trim()?{obs:sh.querySelector('#ap-o').value.trim()}:{})});closeSheet();toast(`Previsão ajustada · ${brl(v)} em ${fdate(d).slice(0,5)}`)}catch(err){toast(writeErr(err))}};
     confirmBtn(sh.querySelector('#ap-x'),'Toque de novo para confirmar',async()=>{try{const n=Object.assign({},r);delete n.id;n.pula=[...new Set([...(r.pula||[]),pv.ym])];await S.db.doc('recorrentes/'+r.id).set(n);closeSheet();toast('Ocorrência retirada da previsão')}catch(err){toast(writeErr(err))}})})}
 function openPagarG(x){
   const l=x.l,r=x.prev&&x.prev.r,cur=(l&&l.conta)||(r&&r.conta)||'',acs=S.contas.filter(a=>a.ativo!==false&&!isBen(a)&&(a.tipo||'corrente')!=='investimento'&&(a.tipo||'corrente')!=='reserva'||a.id===cur);
-  let sel=cur;const rc=(l&&l.tipo==='receita')||(r&&r.tipo==='receita');
-  openSheet(`<h2>${rc?(x.paid?'Recebimento':'Marcar como recebido'):(x.paid?'Pagamento':'Marcar como pago')}</h2><div class="pgh">${catBubble(x.cat||'Outros','lg')}<div><strong>${esc(descSemParc(x.desc))} ${parcBadge(x.desc)}</strong><small>${rc?'previsto para':'vence'} ${fdate(x.due)}${x.paid?` · ${rc?'recebido':'pago'} em ${fdate(x.pagoEm)}`:''}${x.prev?' · previsto':''}</small></div></div>
-    <form class="form" id="fpg" novalidate>
-    <div class="field"><span class="flab">${rc?'Entrou na conta':'Saiu da conta'}</span><div class="pk pgk">${acs.map(a=>`<button type="button" class="pki" data-pc="${esc(a.id)}" aria-pressed="${a.id===sel}">${bankBadge(a,a.tipo)}<span>${esc(a.nome)}</span></button>`).join('')}</div></div>
-    <div class="f2"><div class="field"><label for="pg-d">${rc?'Recebido em':'Pago em'}</label><input id="pg-d" type="date" value="${x.paid?x.pagoEm:today()}"></div><div class="field"><label for="pg-v">${rc?'Valor recebido (R$)':'Valor pago (R$)'}</label><input id="pg-v" type="number" inputmode="decimal" step="0.01" value="${x.v}"></div></div>
-    <p class="note" id="pg-n"></p>
-    <div class="btnrow"><button class="btn primary" type="submit">${x.paid?'Salvar':rc?'Confirmar recebimento':'Confirmar pagamento'}</button>${x.prev&&!x.paid?'<button class="btn" type="button" id="pg-aj">Ajustar previsão</button>':''}${x.paid?'<button class="btn" type="button" id="pg-u">Desfazer pagamento</button>':''}${l?'<button class="btn" type="button" id="pg-e">Editar lançamento</button>':''}</div></form>`,sh=>{
-    const note=()=>{const a=conta(sel);sh.querySelector('#pg-n').textContent=rc?`O valor entra no saldo de ${a?a.nome:'—'} nesta data. Se veio diferente do previsto, corrija o valor.`:`Só a partir desta data o valor sai do saldo de ${a?a.nome:'—'}.`};note();
-    sh.querySelectorAll('[data-pc]').forEach(b=>b.onclick=()=>{sel=b.dataset.pc;sh.querySelectorAll('[data-pc]').forEach(o=>o.setAttribute('aria-pressed',String(o===b)));note()});
+  let sel=cur||(acs[0]||{}).id||'';const rc=(l&&l.tipo==='receita')||(r&&r.tipo==='receita'),prev0=r2(+x.v||0),st={v:prev0};
+  const acOrd=[...acs].sort((a,b)=>(b.id===sel)-(a.id===sel));
+  openSheet(`<h2>${rc?(x.paid?'Recebimento':'Marcar como recebido'):(x.paid?'Pagamento':'Marcar como pago')}</h2>
+    <div class="pgh pgc">${catBubble(x.cat||'Outros')}<div><strong>${esc(descSemParc(x.desc))} ${parcBadge(x.desc)}</strong><small>${rc?'previsto':'vence'} ${fdate(x.due).slice(0,5)} · ${brl(prev0)}${x.paid?` · ${rc?'recebido':'pago'} em ${fdate(x.pagoEm).slice(0,5)}`:''}</small></div></div>
+    <form class="form pgf" id="fpg" novalidate>
+    <button type="button" class="pgval" id="pg-v" aria-label="${rc?'Valor recebido':'Valor pago'}"><small>${rc?'Valor recebido':'Valor pago'}</small><b class="n" id="pg-vb">${brl(st.v)}</b><span class="pgdif" id="pg-df"></span></button>
+    <div class="pgrow"><div class="field"><label for="pg-d">${rc?'Recebido em':'Pago em'}</label><input id="pg-d" type="date" value="${x.paid?x.pagoEm:today()}"></div></div>
+    <div class="field"><span class="flab">${rc?'Entrou na conta':'Saiu da conta'}</span><div class="pgacc" role="radiogroup">${acOrd.map(a=>`<button type="button" class="pga" role="radio" data-pc="${esc(a.id)}" aria-pressed="${a.id===sel}">${bankBadge(a,a.tipo)}<span>${esc(a.nome)}</span></button>`).join('')}</div></div>
+    <div class="field"><label for="pg-o">Observação <span class="opt">opcional</span></label><textarea id="pg-o" rows="2" maxlength="300" placeholder="${rc?'Ex.: adiantamento menor por causa das férias, que caem dia 17':'Ex.: paguei com desconto, negociado por telefone'}">${esc((l&&l.obs)||'')}</textarea></div>
+    <div class="btnrow"><button class="btn primary" type="submit">${x.paid?'Salvar':rc?'Confirmar recebimento':'Confirmar pagamento'}</button>${x.prev&&!x.paid?'<button class="btn" type="button" id="pg-aj">Ajustar previsão</button>':''}${x.paid?'<button class="btn" type="button" id="pg-u">Desfazer</button>':''}${l?'<button class="btn" type="button" id="pg-e">Editar lançamento</button>':''}</div></form>`,sh=>{
+    const vb=sh.querySelector('#pg-vb'),df=sh.querySelector('#pg-df');
+    const draw=()=>{vb.textContent=brl(st.v);const d=r2(st.v-prev0);df.className='pgdif '+(Math.abs(d)<.005?'':(d>0)===!!rc?'pos':'neg');df.textContent=Math.abs(d)<.005?'igual ao previsto':`${brl(Math.abs(d))} ${d>0?'acima':'abaixo'} do previsto`};draw();
+    const setV=v=>{st.v=r2(v);draw()};const V=sh.querySelector('#pg-v');V.onclick=()=>openCalc(st.v,setV);
+    V.onkeydown=e=>{if(/^\d$|^Enter$/.test(e.key)){e.preventDefault();openCalc(/^\d$/.test(e.key)?+e.key:st.v,setV)}};
+    sh.querySelectorAll('[data-pc]').forEach(b=>b.onclick=()=>{sel=b.dataset.pc;sh.querySelectorAll('[data-pc]').forEach(o=>o.setAttribute('aria-pressed',String(o===b)))});
     const aj=sh.querySelector('#pg-aj');if(aj)aj.onclick=()=>openAjustePrev(x.prev);const e=sh.querySelector('#pg-e');if(e)e.onclick=()=>openLanc(S.lanc.find(z=>z.id===l.id)||l,{edit:true});
     const u=sh.querySelector('#pg-u');if(u)u.onclick=async()=>{try{const n=Object.assign({},l);delete n.id;n.data=l.venc||l.data;n.pend=true;delete n.venc;delete n.pagoEm;await save('lanc',l.id,n);backSheet();toast('Voltou para em aberto')}catch(err){toast(writeErr(err))}};
-    sh.querySelector('#fpg').onsubmit=async ev=>{ev.preventDefault();const d=sh.querySelector('#pg-d').value,v=r2(parseFloat(sh.querySelector('#pg-v').value));if(!d||!(v>0)){toast('Informe data e valor');return}if(!sel){toast('Escolha a conta');return}
-      try{if(l){const n=Object.assign({},l,{conta:sel,data:d,valor:v,venc:l.venc||(l.pend?l.data:(x.due||l.data)),pagoEm:d,atualizadoEm:new Date().toISOString()});delete n.id;delete n.pend;await save('lanc',l.id,n)}
-        else{await S.db.collection('lanc').add({tipo:rc?'receita':'despesa',conta:sel,data:d,venc:x.prev.date,pagoEm:d,valor:v,desc:x.prev.nome,categoria:r.categoria||'',subcategoria:r.subcategoria||'',divisao:r.divisao||'pessoal',tags:r.tags||[],para:r.para||'',rec:r.id,recYm:x.prev.ym,origem:'repasse',criadoEm:new Date().toISOString()})}
+    sh.querySelector('#fpg').onsubmit=async ev=>{ev.preventDefault();const d=sh.querySelector('#pg-d').value,v=r2(st.v),obs=sh.querySelector('#pg-o').value.trim();if(!d||!(v>0)){toast('Informe data e valor');return}if(!sel){toast('Escolha a conta');return}
+      try{if(l){const n=Object.assign({},l,{conta:sel,data:d,valor:v,venc:l.venc||(l.pend?l.data:(x.due||l.data)),pagoEm:d,atualizadoEm:new Date().toISOString()});delete n.id;delete n.pend;if(obs)n.obs=obs;else delete n.obs;await save('lanc',l.id,n)}
+        else{const n={tipo:rc?'receita':'despesa',conta:sel,data:d,venc:x.prev.date,pagoEm:d,valor:v,desc:x.prev.nome,categoria:r.categoria||'',subcategoria:r.subcategoria||'',divisao:r.divisao||'pessoal',tags:r.tags||[],para:r.para||'',rec:r.id,recYm:x.prev.ym,origem:'repasse',criadoEm:new Date().toISOString()};if(obs)n.obs=obs;await S.db.collection('lanc').add(n)}
         backSheet();toast(rc?`Recebido · entrou em ${(conta(sel)||{}).nome||'conta'} em ${fdate(d).slice(0,5)}`:`Pago · saiu de ${(conta(sel)||{}).nome||'conta'} em ${fdate(d).slice(0,5)}`)}catch(err){toast(writeErr(err))}};
   },true);
 }
