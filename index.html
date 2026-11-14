@@ -2083,6 +2083,9 @@ main{padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))!important}
 .faqi summary::-webkit-details-marker{display:none}.faqi summary .ic{width:16px;height:16px;flex:none;color:var(--faint);transition:transform .2s}.faqi[open] summary .ic{transform:rotate(180deg)}
 .faqr{padding:0 0 14px}.faqr p{margin:0 0 10px;font-size:14px;line-height:1.55;color:var(--muted)}.faqr p b{color:var(--ink,inherit);font-weight:600}
 .tkd.wn{color:var(--warn,#C8913A)}.tkd.nt{color:var(--accent,#E2BA6E);font-size:9px}
+.rvtab{margin:2px 0 10px}.rvtab button{display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.rvc{min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--sunk,rgba(127,127,127,.15));font-size:11px;font-weight:650;display:inline-grid;place-items:center;font-variant-numeric:tabular-nums}.rvc.neg{background:var(--crit-soft,rgba(220,80,80,.16));color:var(--crit,#E0705F)}
+.rvnt{margin:10px 0 0;font-size:12.5px}
 </style>
 </head>
 <body>
@@ -2331,7 +2334,7 @@ const recN=(r,ym)=>r.parcelas?(+r.parcelaIni||1)+mdiff(r.inicio||ym,ym):0;
 const recNome=(r,ym)=>r.nome+(r.parcelas?` ${recN(r,ym)}/${r.parcelas}`:'');
 function recPrevistos(fromYm,toYm){
   const out=[],cur=today().slice(0,7);S.recs.filter(r=>r.ativo!==false).forEach(r=>{let ym=fromYm<cur?cur:fromYm;while(ym<=toYm){
-    if((!r.inicio||ym>=r.inicio)&&(!r.fim||ym<=r.fim)&&!(r.parcelas&&recN(r,ym)>+r.parcelas)&&!S.lanc.some(l=>l.rec===r.id&&l.recYm===ym)){const d=recDia(r,ym);out.push({r,ym,date:d,per:perOf(d),valor:+r.valor||0,tipo:r.tipo,dono:r.dono||ME(),nome:recNome(r,ym),n:recN(r,ym),N:+r.parcelas||0})}
+    if((!r.inicio||ym>=r.inicio)&&(!r.fim||ym<=r.fim)&&!(r.parcelas&&recN(r,ym)>+r.parcelas)&&!(r.pula||[]).includes(ym)&&!S.lanc.some(l=>l.rec===r.id&&l.recYm===ym)){const d=recDia(r,ym);out.push({r,ym,date:d,per:perOf(d),valor:+r.valor||0,tipo:r.tipo,dono:r.dono||ME(),nome:recNome(r,ym),n:recN(r,ym),N:+r.parcelas||0})}
     ym=ymAdd(ym,1)}});return out;
 }
 
@@ -2626,6 +2629,7 @@ function agendaPessoal(pid,ate,de,o){
   DVX().forEach(d=>{const s=sched(d),pt=((d.parte||{})[pid]??100)/100;s.rows.filter(r=>!r.pg&&r.date&&r.date>=t&&r.date<=ate).forEach(r=>out.push({k:'div',d:r.date,t:d.nome,s:'parcela '+r.n+' · sua parte',v:-r.enc*pt,cor:'var(--crit)',nav:'dv:'+d.id}))});
   const pids=new Set(S.contas.filter(a=>!isBen(a)&&fracOf(a.dono,pid)>0).map(a=>a.id));
   S.lanc.filter(l=>l.pend&&(l.tipo||'despesa')==='despesa'&&pids.has(l.conta)&&(l.data||'')<=ate).forEach(l=>out.push({k:'pend',d:l.data,t:l.desc||'Pendente',s:l.data<t?'pendente · em atraso':'pendente',v:-(+l.valor||0)*fracOf((conta(l.conta)||{}).dono,pid),cor:'var(--warn)',nav:'l:'+l.id}));
+  S.lanc.filter(l=>l.pend&&l.tipo==='receita'&&pids.has(l.conta)&&(l.data||'')<=ate).forEach(l=>out.push({k:'pendr',d:l.data,t:l.desc||'Receita pendente',s:l.data<t?'a receber · em atraso':'a receber',v:(+l.valor||0)*fracOf((conta(l.conta)||{}).dono,pid),cor:'var(--good)',nav:'l:'+l.id}));
   /* acerto do casal: na mesma data em que entra no repasse (relatório Pagar), para os dois números baterem */
   if(pid===ME()&&gabId()){try{const on=other(pid).nome;gabItems().filter(x=>x.acerto&&!x.paid&&qDate(nextP(x.acerto))<=ate&&Math.abs(x.v)>.005).forEach(x=>out.push({k:'ac',d:qDate(nextP(x.acerto)),t:'Acerto com '+on,s:x.v<0?'você recebe':'você transfere',v:-x.v,cor:'var(--g)',nav:'ac:'+x.acerto}))}catch(e){}}
   else{let k=perOf(t);for(let n=0;n<80;n++){const qd=qDate(k);if(qd>ate)break;if(qd>=t){const A=acerto(k);if(A.net&&!A.done&&(A.de===pid||A.para===pid))out.push({k:'ac',d:qd,t:'Acerto com '+other(pid).nome,s:A.de===pid?'você transfere':'você recebe',v:A.de===pid?-A.net:A.net,cor:'var(--g)',nav:'ac:'+k})}k=nextP(k)}}
@@ -2790,36 +2794,49 @@ function iniAcoes(){
   const A=[['despesa','out','Despesa','crit'],['receita','in','Receita','good'],['transf','swap','Transferir','accent'],['sim','spark','Comprar?','warn'],...(((cfg().pessoas||[]).length>1)?[['gab','heartpay','Acerto','g']]:[]),['import','doc','Ler documento','inv']];
   return `<div class="qa">${A.map(([k,i,n,c])=>`<button type="button" class="qab" data-qa="${k}" style="--qc:var(--${c})"><span>${ic(i)}</span><small>${esc(n)}</small></button>`).join('')}</div>`;
 }
-let RVH=+LS('pt-rvh','7')||7;
+let RVH=+LS('pt-rvh','7')||7,RVT=LS('pt-rvt','pagar')==='receber'?'receber':'pagar';
 function iniResolver(X){
-  const {me,t,F}=X,lim=addD(t,RVH),rows=[],seen=new Set();
-  agendaPessoal(me,lim).filter(x=>x.v<0).forEach(x=>{seen.add(x.nav+x.d);rows.push(x)});
+  const {me,t,F}=X,lim=addD(t,RVH),rows=[],seen=new Set(),AG=agendaPessoal(me,lim);
+  AG.filter(x=>x.v<0).forEach(x=>{seen.add(x.nav+x.d);rows.push(x)});
   F.venc.forEach(x=>{if(!seen.has(x.nav+x.d))rows.push(x)});
   const pend=rows.filter(x=>!(x.k==='pend'&&isGab(S.lanc.find(l=>'l:'+l.id===x.nav)||{})));
   pend.sort((a,b)=>a.d.localeCompare(b.d)||a.v-b.v);
-  const ent=agendaPessoal(me,lim).filter(x=>x.v>0),tot=sum(pend,x=>-x.v),atr=pend.filter(x=>x.d<t);
+  const tot=sum(pend,x=>-x.v),atr=pend.filter(x=>x.d<t);
+  /* a receber: receitas previstas e pendentes no horizonte + previstas deste mês que passaram sem confirmação */
+  const ym=t.slice(0,7),recAtr=recPrevistos(ym,ym).filter(x=>x.tipo==='receita'&&x.dono===me&&x.date<t).map(x=>({k:'rec',d:x.date,t:x.nome,s:'não confirmada',v:x.valor,nav:`rec:${x.r.id}|${x.ym}`,atr:1}));
+  const ent=recAtr.concat(AG.filter(x=>x.v>0).map(x=>Object.assign({},x,{atr:x.d<t}))).sort((a,b)=>a.d.localeCompare(b.d)),totE=sum(ent,x=>x.v),atrE=ent.filter(x=>x.atr);
   const STP=stopStatus(me).filter(x=>x.st!=='ok').sort((a,b)=>b.pct-a.pct).slice(0,3),stH=STP.length?`<div class="rvstp">${STP.map(x=>`<button type="button" class="rvs ${x.st}" data-plano="1">${catBubble(x.c,'sm')}<span><b>${esc(x.c)}${x.st==='stop'?' passou do stop':` em ${pctf(x.pct)} do stop`}</b><small>${x.st==='stop'?`${brl(-x.disp)} acima do limite de ${brl0(x.lim)}`:`resta ${brl(x.disp)} · ≈ ${brl(x.dia)}/dia`}</small></span><span class="go">›</span></button>`).join('')}</div>`:'';
-  const fH=iniFecha(X),gid=gabId();let acH='';if(gid){try{const C=credGab();if(C.cred>1)acH=`<button type="button" class="rvo rvac" data-acab="1">${ic('heartpay')}<span><b>${esc(P(gid).nome.split(' ')[0])} te deve ${brl(C.cred)}</b><small>compras comuns que você pagou · abater no próximo repasse</small></span><span class="go">›</span></button>`}catch(e){}}
-  const OP=ordensProntas(me),opH=fH+stH+acH+(OP.length?`<div class="rvord">${OP.map(o=>`<button type="button" class="rvo" data-ordp="${esc(o.id)}">${ic('spark')}<span><b>${esc(o.desc||'Compra planejada')} já cabe</b><small>${brl(o.v)} · ${esc(simForma(o.f))} · toque para conferir e lançar</small></span><span class="go">›</span></button>`).join('')}</div>`:'');
+  const fH=iniFecha(X),gid=gabId();let acH='',acV=0;if(gid){try{const C=credGab();if(C.cred>1){acV=C.cred;acH=`<button type="button" class="rvo rvac" data-acab="1">${ic('heartpay')}<span><b>${esc(P(gid).nome.split(' ')[0])} te deve ${brl(C.cred)}</b><small>compras comuns que você pagou · abater no próximo repasse</small></span><span class="go">›</span></button>`}}catch(e){}}
+  const OP=ordensProntas(me),opH=fH+stH+(OP.length?`<div class="rvord">${OP.map(o=>`<button type="button" class="rvo" data-ordp="${esc(o.id)}">${ic('spark')}<span><b>${esc(o.desc||'Compra planejada')} já cabe</b><small>${brl(o.v)} · ${esc(simForma(o.f))} · toque para conferir e lançar</small></span><span class="go">›</span></button>`).join('')}</div>`:'');
   const hz=`<div class="seg rvhz" role="group" aria-label="Horizonte">${[7,15,30].map(n=>`<button type="button" data-rvh="${n}" aria-pressed="${RVH===n}">${n}d</button>`).join('')}</div>`;
-  if(!pend.length&&!ent.length)return `<div class="card rsv2"><div class="ch"><h2>Para resolver</h2>${hz}</div>${opH}${opH?'':`<div class="okall0"><span class="oki">${ic('check')}</span><div><strong>Tudo em dia</strong><small>Nada vencido e nada a pagar nos próximos ${RVH} dias.</small></div></div>`}</div>`;
-  const act=x=>x.k==='pend'?'Pagar':x.k==='fat'?'Ver fatura':x.k==='gab'?'Abrir':x.k==='ac'?'Acertar':x.k==='fix'?'Ver':'Ver';
+  const rcv=RVT==='receber',nE=ent.length+(acV?1:0);
+  const tabs=`<div class="seg rvtab" role="tablist" aria-label="Pagar ou receber"><button type="button" role="tab" data-rvt="pagar" aria-pressed="${!rcv}">A pagar${pend.length?` <span class="rvc">${pend.length}</span>`:''}</button><button type="button" role="tab" data-rvt="receber" aria-pressed="${rcv}">A receber${nE?` <span class="rvc ${atrE.length?'neg':''}">${nE}</span>`:''}</button></div>`;
+  const head=`<div class="ch"><h2>Para resolver</h2>${hz}</div>${tabs}`;
   const dd=d=>{const n=diffD(t,d);return n<0?`${-n}d atrás`:n===0?'hoje':n===1?'amanhã':`em ${n}d`};
-  return `<div class="card rsv2"><div class="ch"><h2>Para resolver</h2>${hz}</div><p class="rvsum"><b class="n">${brl0(tot)}</b> a pagar em ${RVH} dias${atr.length?` · <span class="neg">${atr.length} em atraso</span>`:''}</p>
-    ${opH}<div class="rvl">${pend.slice(0,RVH>7?10:6).map(x=>{const late=x.d<t,today0=x.d===t;return `<button type="button" class="rvr ${late?'late':today0?'now':''}" data-rv="${esc(x.nav)}"><span class="rvd"><b>${pad(+x.d.slice(8))}</b><small>${MES[+x.d.slice(5,7)-1]}</small></span><span class="lxm"><b>${esc(x.t)}</b><small>${late||today0?`<span class="${late?'neg':'warn'}">${dd(x.d)}</span> · `:dd(x.d)+' · '}${esc(x.s||'')}</small></span><span class="rvv"><b class="n">${brl0(-x.v)}</b><small>${act(x)} ›</small></span></button>`}).join('')}</div>
-    ${pend.length>(RVH>7?10:6)?`<button class="lk" type="button" data-go="relatorios" data-rp="fluxo">e mais ${pend.length-(RVH>7?10:6)} · ver fluxo ›</button>`:''}
-    ${ent.length?`<div class="rvin">${ic('in')}<span>Entra em breve: <b class="n pos">${brl0(sum(ent,x=>x.v))}</b> · ${ent.slice(0,2).map(x=>`${esc(x.t)} ${fdate(x.d).slice(0,5)}`).join(', ')}</span></div>`:''}</div>`;
+  const row=(x,act,pos)=>{const late=x.d<t,today0=x.d===t;return `<button type="button" class="rvr ${late?'late':today0?'now':''}" data-rv="${esc(x.nav)}"><span class="rvd"><b>${pad(+x.d.slice(8))}</b><small>${MES[+x.d.slice(5,7)-1]}</small></span><span class="lxm"><b>${esc(x.t)}</b><small>${late||today0?`<span class="${late?'neg':'warn'}">${dd(x.d)}</span> · `:dd(x.d)+' · '}${esc(x.s||'')}</small></span><span class="rvv"><b class="n ${pos?'pos':''}">${pos?'+':''}${brl0(Math.abs(x.v))}</b><small>${act} ›</small></span></button>`};
+  const N=RVH>7?10:6;
+  if(rcv){
+    const actR=x=>x.k==='abt'?'Ver':x.atr?'Confirmar':'Recebi';
+    return `<div class="card rsv2">${head}<p class="rvsum"><b class="n pos">${brl0(totE)}</b> a receber em ${RVH} dias${atrE.length?` · <span class="neg">${atrE.length} sem confirmação</span>`:''}</p>
+      ${acH}${ent.length?`<div class="rvl">${ent.slice(0,N).map(x=>row(x,actR(x),1)).join('')}</div>${ent.length>N?`<button class="lk" type="button" data-go="relatorios" data-rp="fluxo">e mais ${ent.length-N} · ver fluxo ›</button>`:''}`:acH?'':`<div class="okall0"><span class="oki">${ic('in')}</span><div><strong>Nada previsto para entrar</strong><small>Nenhuma receita prevista nos próximos ${RVH} dias. Receitas fixas cadastradas em Recorrentes aparecem aqui.</small></div></div>`}
+      ${recAtr.length?`<p class="note rvnt">Receita prevista que passou da data e não foi confirmada não entra na projeção do caixa. Toque para confirmar o que entrou ou ajustar a data.</p>`:''}</div>`}
+  const act=x=>x.k==='pend'?'Pagar':x.k==='fat'?'Ver fatura':x.k==='gab'?'Abrir':x.k==='ac'?'Acertar':'Ver';
+  if(!pend.length)return `<div class="card rsv2">${head}${opH}${opH?'':`<div class="okall0"><span class="oki">${ic('check')}</span><div><strong>Tudo em dia</strong><small>Nada vencido e nada a pagar nos próximos ${RVH} dias.</small></div></div>`}</div>`;
+  return `<div class="card rsv2">${head}<p class="rvsum"><b class="n">${brl0(tot)}</b> a pagar em ${RVH} dias${atr.length?` · <span class="neg">${atr.length} em atraso</span>`:''}</p>
+    ${opH}<div class="rvl">${pend.slice(0,N).map(x=>row(x,act(x))).join('')}</div>
+    ${pend.length>N?`<button class="lk" type="button" data-go="relatorios" data-rp="fluxo">e mais ${pend.length-N} · ver fluxo ›</button>`:''}</div>`;
 }
 function wireIni4(el){
   el.querySelectorAll('[data-qa]').forEach(b=>b.onclick=()=>{const k=b.dataset.qa;if(k==='sim')openSimCompra();else if(k==='despesa')openLanc({tipo:'despesa'});else if(k==='receita')openLanc({tipo:'receita',conta:(S.contas.find(a=>a.tipo==='corrente'&&a.dono===ME())||S.contas[0]||{}).id,categoria:'Salário'});else if(k==='transf')openLanc({tipo:'transf',conta:(S.contas.find(a=>a.tipo==='corrente'&&a.dono===ME())||S.contas[0]||{}).id});else if(k==='gab'){const r=S.reps.find(isAcRep);if(r){RSEL=r.id;RP='rel';ROFF=0}else RP='salvos';go('relatorios')}else openSmartImport()});
   el.querySelectorAll('[data-rvh]').forEach(b=>b.onclick=()=>{RVH=+b.dataset.rvh;LSset('pt-rvh',String(RVH));vInicio()});
+  el.querySelectorAll('[data-rvt]').forEach(b=>b.onclick=()=>{RVT=b.dataset.rvt;LSset('pt-rvt',RVT);vInicio()});
   el.querySelectorAll('[data-acab]').forEach(b=>b.onclick=()=>openAbater(0,'',()=>renderView()));
   el.querySelectorAll('[data-ordp]').forEach(b=>b.onclick=()=>{const o=(cfg().ordens||[]).find(z=>z.id===b.dataset.ordp);if(o)openSimCompra({v:o.v,desc:o.desc,cat:o.cat,f:o.f,ordem:o.id})});
   el.querySelectorAll('[data-rv]').forEach(b=>b.onclick=()=>{const [k,v]=b.dataset.rv.split(/:(.*)/s);
     if(k==='l'){const l=S.lanc.find(x=>x.id===v);l&&l.pend?openPagar(l):openLanc(l)}
     else if(k==='fat'){const [c,y]=v.split('|');openPagFat(card(c),y)}
     else if(k==='gab'){GWSEL=v;RP='salvos';go('relatorios')}
-    else if(k==='dv')openDividaDet(S.dividas.find(d=>d.id===v));else if(k==='ac')openAcerto(v);
+    else if(k==='dv')openDividaDet(S.dividas.find(d=>d.id===v));else if(k==='ac')openAcerto(v);else if(k==='ab'){const r=S.reps.find(isAcRep);if(r){RSEL=r.id;RP='rel';ROFF=0}else RP='salvos';go('relatorios')}
     else if(k==='rec'){const [id,ym]=v.split('|');const r=S.recs.find(x=>x.id===id);if(r)openPagarG({prev:{r,date:recDia(r,ym),ym,nome:recNome(r,ym)},desc:recNome(r,ym),v:+r.valor||0,due:recDia(r,ym),paid:false,cat:r.categoria||'Outros'})}});
 }
 
@@ -3655,23 +3672,31 @@ function openPendentes(){
   openSheet(`<h2>Pagamentos pendentes</h2><div id="pdx" class="det"></div>`,draw);
 }
 function openPagar(l){if(l)openPagarG({l,desc:l.desc,v:+l.valor||0,due:l.venc||l.data,paid:!l.pend,pagoEm:l.pend?'':(l.pagoEm||l.data),cat:l.categoria||'Outros'})}
+/* ajusta só uma ocorrência de recorrência: vira um lançamento pendente com valor/data próprios, ou é pulada */
+function openAjustePrev(pv){const r=pv.r,rc=r.tipo==='receita';
+  openSheet(`<h2>Ajustar previsão</h2><p class="note">${esc(pv.nome)} · só ${MES[+pv.ym.slice(5)-1].toLowerCase()}/${pv.ym.slice(2,4)}. A recorrência continua igual nos outros meses.</p>
+    <form class="form" id="fap" novalidate><div class="f2"><div class="field"><label for="ap-d">${rc?'Nova data prevista':'Novo vencimento'}</label><input id="ap-d" type="date" value="${pv.date}"></div><div class="field"><label for="ap-v">Valor previsto (R$)</label><input id="ap-v" type="number" inputmode="decimal" step="0.01" value="${+r.valor||0}"></div></div>
+    <div class="btnrow"><button class="btn primary" type="submit">Salvar previsão</button><button class="btn" type="button" id="ap-x">${rc?'Não vai entrar este mês':'Não vai sair este mês'}</button></div></form>`,sh=>{
+    sh.querySelector('#fap').onsubmit=async ev=>{ev.preventDefault();const d=sh.querySelector('#ap-d').value,v=r2(parseFloat(sh.querySelector('#ap-v').value));if(!d||!(v>0)){toast('Informe data e valor');return}
+      try{await S.db.collection('lanc').add({tipo:r.tipo||'despesa',pend:true,conta:r.conta||contaPadrao(),data:d,valor:v,desc:pv.nome,categoria:r.categoria||'',subcategoria:r.subcategoria||'',divisao:r.divisao||'pessoal',tags:r.tags||[],para:r.para||'',rec:r.id,recYm:pv.ym,criadoEm:new Date().toISOString()});closeSheet();toast(`Previsão ajustada · ${brl(v)} em ${fdate(d).slice(0,5)}`)}catch(err){toast(writeErr(err))}};
+    confirmBtn(sh.querySelector('#ap-x'),'Toque de novo para confirmar',async()=>{try{const n=Object.assign({},r);delete n.id;n.pula=[...new Set([...(r.pula||[]),pv.ym])];await S.db.doc('recorrentes/'+r.id).set(n);closeSheet();toast('Ocorrência retirada da previsão')}catch(err){toast(writeErr(err))}})})}
 function openPagarG(x){
   const l=x.l,r=x.prev&&x.prev.r,cur=(l&&l.conta)||(r&&r.conta)||'',acs=S.contas.filter(a=>a.ativo!==false&&!isBen(a)&&(a.tipo||'corrente')!=='investimento'&&(a.tipo||'corrente')!=='reserva'||a.id===cur);
-  let sel=cur;
-  openSheet(`<h2>${x.paid?'Pagamento':'Marcar como pago'}</h2><div class="pgh">${catBubble(x.cat||'Outros','lg')}<div><strong>${esc(descSemParc(x.desc))} ${parcBadge(x.desc)}</strong><small>vence ${fdate(x.due)}${x.paid?` · pago em ${fdate(x.pagoEm)}`:''}${x.prev?' · previsto':''}</small></div></div>
+  let sel=cur;const rc=(l&&l.tipo==='receita')||(r&&r.tipo==='receita');
+  openSheet(`<h2>${rc?(x.paid?'Recebimento':'Marcar como recebido'):(x.paid?'Pagamento':'Marcar como pago')}</h2><div class="pgh">${catBubble(x.cat||'Outros','lg')}<div><strong>${esc(descSemParc(x.desc))} ${parcBadge(x.desc)}</strong><small>${rc?'previsto para':'vence'} ${fdate(x.due)}${x.paid?` · ${rc?'recebido':'pago'} em ${fdate(x.pagoEm)}`:''}${x.prev?' · previsto':''}</small></div></div>
     <form class="form" id="fpg" novalidate>
-    <div class="field"><span class="flab">Saiu da conta</span><div class="pk pgk">${acs.map(a=>`<button type="button" class="pki" data-pc="${esc(a.id)}" aria-pressed="${a.id===sel}">${bankBadge(a,a.tipo)}<span>${esc(a.nome)}</span></button>`).join('')}</div></div>
-    <div class="f2"><div class="field"><label for="pg-d">Pago em</label><input id="pg-d" type="date" value="${x.paid?x.pagoEm:today()}"></div><div class="field"><label for="pg-v">Valor pago (R$)</label><input id="pg-v" type="number" inputmode="decimal" step="0.01" value="${x.v}"></div></div>
+    <div class="field"><span class="flab">${rc?'Entrou na conta':'Saiu da conta'}</span><div class="pk pgk">${acs.map(a=>`<button type="button" class="pki" data-pc="${esc(a.id)}" aria-pressed="${a.id===sel}">${bankBadge(a,a.tipo)}<span>${esc(a.nome)}</span></button>`).join('')}</div></div>
+    <div class="f2"><div class="field"><label for="pg-d">${rc?'Recebido em':'Pago em'}</label><input id="pg-d" type="date" value="${x.paid?x.pagoEm:today()}"></div><div class="field"><label for="pg-v">${rc?'Valor recebido (R$)':'Valor pago (R$)'}</label><input id="pg-v" type="number" inputmode="decimal" step="0.01" value="${x.v}"></div></div>
     <p class="note" id="pg-n"></p>
-    <div class="btnrow"><button class="btn primary" type="submit">${x.paid?'Salvar':'Confirmar pagamento'}</button>${x.paid?'<button class="btn" type="button" id="pg-u">Desfazer pagamento</button>':''}${l?'<button class="btn" type="button" id="pg-e">Editar lançamento</button>':''}</div></form>`,sh=>{
-    const note=()=>{const a=conta(sel);sh.querySelector('#pg-n').textContent=`Só a partir desta data o valor sai do saldo de ${a?a.nome:'—'}.`};note();
+    <div class="btnrow"><button class="btn primary" type="submit">${x.paid?'Salvar':rc?'Confirmar recebimento':'Confirmar pagamento'}</button>${x.prev&&!x.paid?'<button class="btn" type="button" id="pg-aj">Ajustar previsão</button>':''}${x.paid?'<button class="btn" type="button" id="pg-u">Desfazer pagamento</button>':''}${l?'<button class="btn" type="button" id="pg-e">Editar lançamento</button>':''}</div></form>`,sh=>{
+    const note=()=>{const a=conta(sel);sh.querySelector('#pg-n').textContent=rc?`O valor entra no saldo de ${a?a.nome:'—'} nesta data. Se veio diferente do previsto, corrija o valor.`:`Só a partir desta data o valor sai do saldo de ${a?a.nome:'—'}.`};note();
     sh.querySelectorAll('[data-pc]').forEach(b=>b.onclick=()=>{sel=b.dataset.pc;sh.querySelectorAll('[data-pc]').forEach(o=>o.setAttribute('aria-pressed',String(o===b)));note()});
-    const e=sh.querySelector('#pg-e');if(e)e.onclick=()=>openLanc(S.lanc.find(z=>z.id===l.id)||l,{edit:true});
+    const aj=sh.querySelector('#pg-aj');if(aj)aj.onclick=()=>openAjustePrev(x.prev);const e=sh.querySelector('#pg-e');if(e)e.onclick=()=>openLanc(S.lanc.find(z=>z.id===l.id)||l,{edit:true});
     const u=sh.querySelector('#pg-u');if(u)u.onclick=async()=>{try{const n=Object.assign({},l);delete n.id;n.data=l.venc||l.data;n.pend=true;delete n.venc;delete n.pagoEm;await save('lanc',l.id,n);backSheet();toast('Voltou para em aberto')}catch(err){toast(writeErr(err))}};
     sh.querySelector('#fpg').onsubmit=async ev=>{ev.preventDefault();const d=sh.querySelector('#pg-d').value,v=r2(parseFloat(sh.querySelector('#pg-v').value));if(!d||!(v>0)){toast('Informe data e valor');return}if(!sel){toast('Escolha a conta');return}
       try{if(l){const n=Object.assign({},l,{conta:sel,data:d,valor:v,venc:l.venc||(l.pend?l.data:(x.due||l.data)),pagoEm:d,atualizadoEm:new Date().toISOString()});delete n.id;delete n.pend;await save('lanc',l.id,n)}
-        else{await S.db.collection('lanc').add({tipo:'despesa',conta:sel,data:d,venc:x.prev.date,pagoEm:d,valor:v,desc:x.prev.nome,categoria:r.categoria||'',subcategoria:r.subcategoria||'',divisao:'pessoal',tags:r.tags||[],para:r.para||'',rec:r.id,recYm:x.prev.ym,origem:'repasse',criadoEm:new Date().toISOString()})}
-        backSheet();toast(`Pago · saiu de ${(conta(sel)||{}).nome||'conta'} em ${fdate(d).slice(0,5)}`)}catch(err){toast(writeErr(err))}};
+        else{await S.db.collection('lanc').add({tipo:rc?'receita':'despesa',conta:sel,data:d,venc:x.prev.date,pagoEm:d,valor:v,desc:x.prev.nome,categoria:r.categoria||'',subcategoria:r.subcategoria||'',divisao:r.divisao||'pessoal',tags:r.tags||[],para:r.para||'',rec:r.id,recYm:x.prev.ym,origem:'repasse',criadoEm:new Date().toISOString()})}
+        backSheet();toast(rc?`Recebido · entrou em ${(conta(sel)||{}).nome||'conta'} em ${fdate(d).slice(0,5)}`:`Pago · saiu de ${(conta(sel)||{}).nome||'conta'} em ${fdate(d).slice(0,5)}`)}catch(err){toast(writeErr(err))}};
   },true);
 }
 function openDespDet(ym0){
@@ -4855,7 +4880,8 @@ const FAQ=[
   ['O que é o “stop” de uma categoria?','É o limite do mês para a categoria, como um stop na bolsa. Ao lançar, o app mostra quanto já foi usado do stop daquela categoria. Para definir, abra a categoria no Início e toque em <b>Usar como stop</b>.'],
   ['O que mostram as Categorias (bolsa, plano e mapa)?','<b>Bolsa</b>: as categorias como ações, com alta ou queda contra a média. <b>Plano</b>: quanto do stop já foi usado. <b>Mapa</b>: o tamanho de cada categoria no mês. Toque numa categoria para abrir a ficha com média, maior mês e tendência.'],
   ['O que é o Spread?','Compara o juro que suas dívidas cobram com o rendimento do que você tem investido. Se a dívida custa mais do que o investimento rende, o app mostra quanto você ganharia antecipando parcelas — sem tocar na reserva mínima.'],
-  ['O que é “Para resolver”?','A lista do que precisa da sua ação: contas a vencer, faturas, pendências, stops estourados, ordens prontas e acertos. Escolha 7, 15 ou 30 dias de horizonte.'],
+  ['O que é “Para resolver”?','A lista do que precisa da sua ação, em duas abas. <b>A pagar</b>: contas a vencer, faturas, pendências, stops e ordens prontas. <b>A receber</b>: receitas previstas, o que a outra pessoa te deve e receitas que passaram da data sem confirmação. Escolha 7, 15 ou 30 dias de horizonte.'],
+  ['A receita caiu com valor ou data diferente, e agora?','Em Para resolver → <b>A receber</b>, toque na receita. Em <b>Recebi</b> você corrige o valor, a data e a conta do que entrou de fato. Se ainda não entrou, use <b>Ajustar previsão</b> para mudar valor ou data só deste mês — ou marque que não vai entrar. A recorrência continua igual nos outros meses.'],
   ['E a faixa de cotações que corre no topo?','Um resumo do mês no estilo pregão: patrimônio, caixa e categorias com a variação contra o mês anterior. Toque para pausar.'],
   ['Posso mudar a ordem ou esconder blocos do Início?','Sim. No fim de cada tela, toque em <b>Organizar esta tela</b> para ligar, desligar e reordenar os blocos.','org','Organizar o Início']]],
  ['Cartões',[
