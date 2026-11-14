@@ -2099,6 +2099,20 @@ main{padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))!important}
 .rvob{font-style:normal;color:var(--ink,inherit);opacity:.8}
 .kcc{display:inline-block;width:2px;height:.9em;margin-left:3px;vertical-align:-.08em;background:var(--accent,#E2BA6E);border-radius:1px;animation:kcbl 1s steps(1) infinite}
 @keyframes kcbl{50%{opacity:0}}.kcph{opacity:.35}#cx b{color:var(--accent,#E2BA6E);font-weight:700}
+.mkv{display:flex;flex-direction:column;gap:12px;margin:14px 0 12px}
+.mkb{border:1px solid var(--sep,var(--hair));border-radius:16px;padding:12px 14px}
+.mkh{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:8px}.mkh b{font-size:14px;font-weight:650}.mkh span{font-size:11.5px;color:var(--muted);text-align:right}
+.mkq{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px}.mkq i{font-style:normal;color:var(--faint,var(--muted))}
+.mkq small,.mkw small{display:block;font-size:11.5px;color:var(--muted)}.mkq b,.mkw b{font-size:19px;font-weight:650;letter-spacing:-.01em}
+.mkw{display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));gap:10px}.mkw em{display:block;font-style:normal;font-size:11.5px;color:var(--muted)}
+.mkt{margin:10px 0 0;font-size:13px;line-height:1.5;color:var(--muted)}.mkt b{color:var(--ink,inherit)}.mkt b.pos{color:var(--good)}.mkt b.neg{color:var(--crit,#E0705F)}
+.mkbar{position:relative;height:8px;border-radius:4px;background:var(--sunk,rgba(127,127,127,.15));margin-top:10px;overflow:hidden}.mkbar i{position:absolute;left:0;top:0;bottom:0;background:color-mix(in srgb,var(--muted) 45%,transparent);border-radius:4px}.mkbar i.me{background:var(--accent,#E2BA6E)}
+.mkcal{margin-top:12px}.mkcal>small{display:block;font-size:11.5px;color:var(--muted);margin-bottom:4px}
+.mkr{display:grid;grid-template-columns:54px minmax(0,1fr) auto;gap:8px;align-items:center;padding:6px 0;border-top:1px solid var(--sep,var(--hair));font-size:13px}.mkr:first-of-type{border-top:0}
+.mky{font-weight:600}.mkn{color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.mkr.on .mky,.mkr.on .mkn{color:var(--accent,#E2BA6E)}
+.mkbars{display:flex;align-items:flex-end;gap:4px;height:46px;margin-top:10px}.mkbars i{flex:1;border-radius:3px 3px 1px 1px;background:color-mix(in srgb,var(--muted) 40%,transparent)}.mkbars i.mx{background:var(--crit,#E0705F)}.mkbars i.mn{background:var(--good)}
+.mkl{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:4px}
+.mkgap{padding:0;border:0;color:var(--muted)}
 </style>
 </head>
 <body>
@@ -5599,6 +5613,51 @@ function moneyInput(el,onChange){el.addEventListener('input',()=>{const d=el.val
 /* ---------- lançamento: formulário ---------- */
 
 /* ---------- lançamento: visualizar antes de editar ---------- */
+/* ---------- visões de mercado no detalhe de parcelas e recorrentes ---------- */
+const cdiMes=()=>Math.pow(1+cdiAA()/100,1/12)-1;
+/* todas as séries parceladas em aberto (recorrências parceladas, compras parceladas e dívidas), sua parte por mês */
+function seriesAtivas(){const me=ME(),out=[],seen=new Set(),t=today();
+  S.recs.filter(r=>r.ativo!==false&&r.tipo!=='receita'&&+r.parcelas>1&&fracOf(r.dono||me,me)>0).forEach(r=>out.push('rec:'+r.id));
+  S.lanc.filter(l=>l.tipo==='despesa'&&+l.parcelas>1&&!l.rec).forEach(l=>{const k=[descSemParc(l.desc),l.cartao||l.conta,r2(+l.valor||0),l.parcelas].join('|');if(seen.has(k))return;seen.add(k);out.push('l:'+l.id)});
+  S.dividas.filter(d=>d.status!=='quitada').forEach(d=>out.push('dv:'+d.id));
+  return out.map(k=>{try{return debtPlan(k)}catch(e){return null}}).filter(D=>D&&D.falt&&D.falt.length&&D.status!=='ignorada'&&D.status!=='prevista').map(D=>({D,v:r2(D.falt[D.falt.length-1].v),fim:D.fim}))}
+function mktParc(D){if(!D||!D.falt||!D.falt.length)return '';const t=today(),im=cdiMes();
+  /* 1. quanto vale quitar hoje: parcelas restantes trazidas a valor presente pelo CDI */
+  const pv=r2(sum(D.falt,x=>{const m=Math.max(0,diffD(t,x.date))/30.44;return x.v/Math.pow(1+im,m)})),desc=r2(D.falta-pv),dp=D.falta?desc/D.falta:0;
+  const rende=r2(sum(D.falt,x=>{const m=Math.max(0,diffD(t,x.date))/30.44;return x.v*(Math.pow(1+im,m)-1)}));
+  const juros=D.taxa>0&&D.taxa/100>im;
+  const q1=`<div class="mkb"><div class="mkh"><b>Quanto vale quitar hoje</b><span>CDI ${cdiAA().toLocaleString('pt-BR',{maximumFractionDigits:2})}% a.a.</span></div>
+    <div class="mkq"><div><small>Falta pagar</small><b class="n">${brl0(D.falta)}</b></div><i>→</i><div><small>Valor presente</small><b class="n">${brl0(pv)}</b></div></div>
+    <p class="mkt">${juros?`Esta dívida cobra <b>${pctf(D.taxa/100)} a.m.</b>, mais que o CDI (${pctf(im)} a.m.): antecipar parcelas tende a compensar. Peça o desconto de juros ao quitar.`
+      :`Só vale quitar hoje com desconto <b>acima de ${brl0(desc)}</b> (${pctf(dp)}). Sem desconto, manter parcelado e deixar o dinheiro no CDI rende ≈ <b class="pos">${brl0(rende)}</b> até ${ymS(D.fim)} (antes do IR).`}</p></div>`;
+  /* 2. peso no orçamento e calendário de alívio */
+  const ym=t.slice(0,7);let renda=0;try{renda=planoCalc(ym,ME()).renda||0}catch(e){}renda=renda||D.renda||0;
+  const SA=seriesAtivas(),tot=r2(sum(SA,x=>x.v)),v=r2(D.falt[D.falt.length-1].v);
+  const fins={};SA.forEach(x=>{if(!x.fim)return;const y=ymAdd(x.fim,1);(fins[y]=fins[y]||{v:0,n:[]}).v+=x.v;fins[y].n.push(x.D.nome)});
+  const esta=ymAdd(D.fim,1),all=Object.entries(fins).filter(([y])=>y>ym).sort((a,b)=>a[0].localeCompare(b[0]));let cal=all.slice(0,4);if(!cal.some(([y])=>y===esta)){const e=all.find(([y])=>y===esta);if(e)cal=all.filter(([y])=>y<=esta).slice(0,3).concat(all.filter(([y])=>y<esta).length>3?[['…',null]]:[],[e])}let acc=0;
+  const q2=`<div class="mkb"><div class="mkh"><b>Peso no orçamento</b><span>${renda?'renda '+brl0(renda)+'/mês':'sem renda cadastrada'}</span></div>
+    <div class="mkw"><div><small>Esta parcela</small><b class="n">${brl0(v)}</b>${renda?`<em>${pctf(v/renda)} da renda</em>`:''}</div><div><small>Parcelas e dívidas</small><b class="n">${brl0(tot)}</b>${renda?`<em>${pctf(tot/renda)} da renda</em>`:''}</div></div>
+    ${renda?`<div class="mkbar"><i style="width:${Math.min(100,tot/renda*100)}%"></i><i class="me" style="left:${Math.min(100,(tot-v)/renda*100)}%;width:${Math.min(100,v/renda*100)}%"></i></div>`:''}
+    ${cal.length?`<div class="mkcal"><small>Calendário de alívio</small>${cal.map(([y,o])=>{if(!o)return '<div class="mkr mkgap"><span class="mky">…</span></div>';acc+=o.v;return `<div class="mkr ${y===esta?'on':''}"><span class="mky">${ymS(y)}</span><span class="mkn">${esc(o.n.slice(0,2).join(', '))}${o.n.length>2?` +${o.n.length-2}`:''}</span><b class="n pos">+${brl0(o.v)}/mês</b></div>`}).join('')}<p class="mkt">Até ${ymS(cal[cal.length-1][0])} sobram <b class="pos">${brl0(r2(sum(all.filter(([y])=>y<=cal[cal.length-1][0]),([,o])=>o.v)))}/mês</b> a mais no seu orçamento${cal.some(([y])=>y===esta)?`, incluindo os ${brl0(v)} desta compra em ${ymS(esta)}`:''}.</p></div>`:''}</div>`;
+  return `<div class="mkv">${q1}${q2}</div>`}
+/* 3 e 4. recorrentes fixas: reajuste contra a inflação, custo anual e custo de oportunidade */
+function mktRec(r){if(!r||+r.parcelas>1)return '';const bv=x=>Math.abs(x)<100?brl(x):brl0(x),me=ME(),fr=fracOf(r.dono||me,me)||1,rc=r.tipo==='receita';
+  const H=S.lanc.filter(x=>x.rec===r.id&&!x.pend&&x.recYm).sort((a,b)=>a.recYm.localeCompare(b.recYm)),by={};H.forEach(x=>{by[x.recYm]=(by[x.recYm]||0)+(+x.valor||0)});
+  const ks=Object.keys(by).sort().slice(-12),vs=ks.map(k=>by[k]),ip=ipca12();
+  let q3='';if(ks.length>=2){const a=vs[0],b=vs[vs.length-1],meses=Math.max(1,(+ks.at(-1).slice(0,4)-+ks[0].slice(0,4))*12+(+ks.at(-1).slice(5)-+ks[0].slice(5))),var_=a?(b-a)/a:0,ipP=Math.pow(1+ip.v/100,meses/12)-1;
+    const mx=Math.max(...vs),mn=Math.min(...vs),md=sum(vs,x=>x)/vs.length,acima=var_-ipP;
+    const bars=ks.map((k,i)=>`<i title="${ymS(k)}: ${brl(vs[i])}" style="height:${mx>mn?Math.round(18+82*(vs[i]-mn)/(mx-mn)):60}%" class="${vs[i]===mx?'mx':vs[i]===mn?'mn':''}"></i>`).join('');
+    q3=`<div class="mkb"><div class="mkh"><b>${rc?'Reajuste contra a inflação':'Reajuste contra a inflação'}</b><span>${ymS(ks[0])} → ${ymS(ks.at(-1))}</span></div>
+      <div class="mkw"><div><small>${rc?'Esta receita':'Esta conta'}</small><b class="n ${(var_>ipP+.005)!==rc?'neg':'pos'}">${var_>=0?'+':''}${pctf(var_)}</b></div><div><small>IPCA no período</small><b class="n">${pctf(ipP)}</b></div></div>
+      <div class="mkbars">${bars}</div><div class="mkl"><span>mín ${bv(mn)}</span><span>média ${bv(md)}</span><span>máx ${bv(mx)}</span></div>
+      <p class="mkt">${Math.abs(acima)<.01?'Acompanhou a inflação.':rc?(acima>0?`Cresceu <b class="pos">${(acima*100).toLocaleString('pt-BR',{maximumFractionDigits:1})} p.p.</b> acima da inflação.`:`Ficou <b class="neg">${(-acima*100).toLocaleString('pt-BR',{maximumFractionDigits:1})} p.p.</b> abaixo da inflação: perdeu poder de compra.`):(acima>0?`Subiu <b class="neg">${(acima*100).toLocaleString('pt-BR',{maximumFractionDigits:1})} p.p.</b> acima da inflação — vale renegociar ou trocar.`:`Subiu menos que a inflação: ficou mais barata em termos reais.`)}</p></div>`}
+  else q3=`<div class="mkb"><div class="mkh"><b>Reajuste contra a inflação</b><span>IPCA 12m ${ip.v.toLocaleString('pt-BR',{maximumFractionDigits:2})}%</span></div><p class="mkt">Assim que houver pagamentos confirmados em meses diferentes, o app compara o reajuste desta ${rc?'receita':'conta'} com a inflação.</p></div>`;
+  if(rc)return `<div class="mkv">${q3}</div>`;
+  const v=r2((+r.valor||0)*fr),ano=r2(v*12),im=cdiMes(),fv5=r2(v*((Math.pow(1+im,60)-1)/im)),fv1=r2(v*((Math.pow(1+im,12)-1)/im));
+  const q4=`<div class="mkb"><div class="mkh"><b>Custo anual e de oportunidade</b><span>sua parte</span></div>
+    <div class="mkw"><div><small>Por mês</small><b class="n">${bv(v)}</b></div><div><small>Por ano</small><b class="n">${bv(ano)}</b></div><div><small>5 anos no CDI</small><b class="n">${bv(fv5)}</b></div></div>
+    <p class="mkt">Se esse valor fosse aplicado todo mês no CDI, viraria <b>${bv(fv1)}</b> em 1 ano e <b>${bv(fv5)}</b> em 5 anos (antes do IR). É o preço real de manter este compromisso.</p></div>`;
+  return `<div class="mkv">${q3}${q4}</div>`}
 function openLancView(l){
   if(!l)return;const me=ME(),O={transf:['swap','Transferência'],pagfat:['receipt','Pagamento de fatura'],ajuste:['coin','Ajuste de saldo']}[l.tipo];
   const T={despesa:'Despesa',receita:'Receita',transf:'Transferência',pagfat:'Pagamento de fatura',ajuste:'Ajuste de saldo'}[l.tipo]||'Lançamento';
@@ -5628,7 +5687,7 @@ function openLancView(l){
     <div class="lvh">${O?`<span class="lxi lvi">${ic(O[0])}</span>`:catBubble(l.categoria||'Outros','lvi')}<div><b>${esc(descSemParc(l.desc||(O&&O[1])||''))}${N>1?` <span class="pq">${k}/${N}</span>`:''}</b>${stt}</div></div>
     <div class="lvv n ${l.tipo==='receita'?'pos':''}">${sign}${brl(Math.abs(v))}</div>
     <div class="lvl">${rows.join('')}</div>${(()=>{const rr=l.rec&&S.recs.find(x=>x.id===l.rec&&+x.parcelas>1),key=N>1&&l.tipo==='despesa'?'l:'+l.id:rr?'rec:'+rr.id:'';if(!key)return '';const D=debtPlan(key);if(!D||!D.rows.length)return '';const pc=D.total?D.pago/D.total:0;
-      return `<div class="lvp"><div class="lvph"><b>Evolução da compra</b><span>${D.pagas.length}/${D.rows.length} parcelas · termina ${ymS(D.fim)}</span></div><div class="dpb"><i style="width:${pc*100}%"></i></div><div class="dpl"><span><b class="n pos">${brl0(D.pago)}</b> pago</span><span>${pctf(pc)}</span><span><b class="n neg">${brl0(D.falta)}</b> falta</span></div>${dpSaldoChart(D)}<button class="btn" type="button" id="lv-dr" data-dk="${esc(key)}">${ic('chart')} Relatório completo</button></div>`})()}${tags}${anx}
+      return `<div class="lvp"><div class="lvph"><b>Evolução da compra</b><span>${D.pagas.length}/${D.rows.length} parcelas · termina ${ymS(D.fim)}</span></div><div class="dpb"><i style="width:${pc*100}%"></i></div><div class="dpl"><span><b class="n pos">${brl0(D.pago)}</b> pago</span><span>${pctf(pc)}</span><span><b class="n neg">${brl0(D.falta)}</b> falta</span></div>${dpSaldoChart(D)}${mktParc(D)}<button class="btn" type="button" id="lv-dr" data-dk="${esc(key)}">${ic('chart')} Relatório completo</button></div>`})()}${(()=>{const r=l.rec&&S.recs.find(x=>x.id===l.rec);return r&&!(+r.parcelas>1)?`<div class="lvp"><div class="lvph"><b>Recorrência</b><span>${esc(r.nome)}</span></div>${mktRec(r)}</div>`:''})()}${tags}${anx}
     <div class="lva">${l.pend?`<button class="btn primary" type="button" id="lv-pg">${ic('check')} Marcar como pago</button>`:''}<button class="btn ${l.pend?'':'primary'}" type="button" id="lv-ed">${ic('edit')} Editar</button><button class="btn" type="button" id="lv-dp">${ic('copy')} Duplicar</button><button class="btn danger" type="button" id="lv-del">${ic('trash')} Excluir</button></div></div>`,sh=>{
     const dr=sh.querySelector('#lv-dr');if(dr)dr.onclick=()=>openDebtReport(dr.dataset.dk);
     const fm=mesFechado(l),ed=sh.querySelector('#lv-ed');if(fm)confirmBtn(ed,`${MES[+fm.slice(5)-1]} está fechado · toque de novo`,()=>openLanc(l,{edit:true}));else ed.onclick=()=>openLanc(l,{edit:true});
