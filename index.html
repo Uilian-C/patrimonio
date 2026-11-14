@@ -2046,6 +2046,31 @@ input.czr{-webkit-appearance:auto!important;appearance:auto!important;height:28p
 .cfg>div{display:grid;gap:1px}.cfg span{font-size:11px;color:var(--muted);letter-spacing:.02em;text-transform:uppercase}.cfg b{font-size:15px;font-weight:600}.cfg small{font-size:11px;color:var(--faint)}
 .cfst{display:grid;gap:3px;margin:12px 0}.cfst span{font-size:14px}.cfst b{font-weight:650;color:var(--accent)}.cfst small{font-size:12px;color:var(--muted);line-height:1.45}
 .vbl>span:first-child{white-space:nowrap}
+
+/* ===================== v8 · navegação =====================
+   Topo compacto que se recolhe ao rolar para baixo; menu inferior encaixado na borda (não flutua sobre o conteúdo),
+   com o botão + dentro da própria barra. */
+.top{padding-block:8px 6px!important;transition:transform .25s cubic-bezier(.2,.8,.2,1)}
+.top h1{font-size:21px!important;font-weight:650!important;letter-spacing:-.03em!important;line-height:1.15!important}
+.top .sub{font-size:11.5px!important}
+.top.hide{transform:translateY(calc(-100% - env(safe-area-inset-top,0px)))}
+.live #livet{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}.live:not(.on) #livet{position:static;width:auto;height:auto;clip:auto}
+.live{gap:6px}.live i{width:7px!important;height:7px!important}
+.chips.rp{top:calc(env(safe-area-inset-top,0px) + 44px)!important;transition:top .25s cubic-bezier(.2,.8,.2,1)}body.tophide .chips.rp{top:env(safe-area-inset-top,0px)!important}
+nav.tabs{left:0!important;right:0!important;transform:none!important;bottom:0!important;width:100%!important;max-width:none!important;border-radius:0!important;border:0!important;border-top:1px solid var(--sep)!important;box-shadow:none!important;
+  display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr)) 64px!important;align-items:center;gap:0;
+  padding:6px max(8px,calc((100% - 760px)/2)) calc(6px + env(safe-area-inset-bottom,0px))!important;
+  background:color-mix(in srgb,var(--bg) 88%,transparent)!important;backdrop-filter:blur(20px) saturate(1.4)!important;-webkit-backdrop-filter:blur(20px) saturate(1.4)!important}
+nav.tabs a{position:relative;display:grid!important;justify-items:center;gap:3px!important;padding:4px 0 2px!important;font-size:10px!important;font-weight:550!important;color:var(--faint)!important;border-radius:0!important;background:none!important}
+nav.tabs a::before{display:none!important}
+nav.tabs a svg,nav.tabs a svg.ic{width:22px!important;height:22px!important;margin:0!important;transition:transform .2s}
+nav.tabs a[aria-current="page"]{color:var(--ink)!important}nav.tabs a[aria-current="page"] svg{stroke:var(--accent)!important;transform:translateY(-1px)}
+nav.tabs a[aria-current="page"]::after{content:"";position:absolute;top:-7px;left:50%;width:18px;height:2.5px;border-radius:0 0 3px 3px;transform:translateX(-50%);background:var(--accent)}
+nav.tabs .fab{order:9;position:static!important;transform:none!important;justify-self:center;width:48px!important;height:40px!important;border-radius:14px!important;box-shadow:0 6px 16px -8px color-mix(in srgb,var(--fab-bg,var(--accent)) 80%,#000)!important;background:var(--fab-bg,var(--accent))!important}
+nav.tabs .fab svg.ic{width:22px!important;height:22px!important}
+nav.tabs .fab:active{transform:scale(.94)!important}
+main{padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))!important}
+.toast{bottom:calc(76px + env(safe-area-inset-bottom,0px))!important}
 </style>
 </head>
 <body>
@@ -6020,6 +6045,7 @@ function navBack(){const e=NAV.pop();if(!e)return;BACKING=e;if(location.hash.sli
 function route(){let h=location.hash.slice(1);if(h==='acertos'){RP='acertos';h='relatorios'}if(h==='ajustes')h='carteira';const v=VIEWS[h]?h:'inicio';if(!$('#overlay').hidden)closeSheet(true);S.view=v;
   Object.keys(VIEWS).forEach(k=>$('#v-'+k).hidden=k!==v);$('#ttl').textContent=VIEWS[v][0];$('#sub').textContent=VIEWS[v][1];
   document.querySelectorAll('nav.tabs a').forEach(a=>{if(a.dataset.v===v)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current')});
+  {const tp=document.querySelector('.top');if(tp){tp.classList.remove('hide');document.body.classList.remove('tophide')}}
   renderView();
   const nb=$('#navback'),top=NAV[NAV.length-1];nb.hidden=!top;if(top)$('#navbl').textContent=({inicio:'Início'})[top.v]||VIEWS[top.v][0];
   const bk=BACKING;BACKING=null;
@@ -6067,6 +6093,11 @@ document.querySelectorAll('nav.tabs a').forEach(a=>a.addEventListener('click',e=
   let t=0;new MutationObserver(()=>{clearTimeout(t);t=setTimeout(apply,30)}).observe(document.body,{childList:true,subtree:true});apply();
 })();
 {const _vC=vCart,_vR=vRel;vCart=function(){_vC();try{orgApply()}catch(e){}};vRel=function(){_vR();try{orgApply()}catch(e){}}}
+/* topo se recolhe ao rolar para baixo e volta ao rolar para cima */
+(()=>{let y0=window.scrollY,acc=0;window.addEventListener('scroll',()=>{const tp=document.querySelector('.top');if(!tp)return;const y=window.scrollY,dy=y-y0;y0=y;
+  if(document.querySelector('#overlay:not([hidden])'))return;acc=(Math.sign(dy)===Math.sign(acc)?acc:0)+dy;
+  if(y<60||acc<-24){tp.classList.remove('hide');document.body.classList.remove('tophide');acc=0}else if(acc>24){tp.classList.add('hide');document.body.classList.add('tophide');acc=0}},{passive:true})})();
+
 route();
 const live=(t,on)=>{$('#livet').textContent=t;$('#live').classList.toggle('on',!!on)};
 const tm=setTimeout(()=>{if(!ready())live('Sem conexão')},10000);
