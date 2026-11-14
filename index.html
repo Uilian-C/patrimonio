@@ -2076,6 +2076,12 @@ main{padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))!important}
 .bkl{display:flex;flex-direction:column;gap:2px;margin:6px 0 10px}
 .bkt{width:100%;border-collapse:collapse;font-size:14px;margin:4px 0 8px}.bkt th{font-size:11.5px;font-weight:500;color:var(--muted);text-align:right;padding:4px 6px}.bkt th:first-child{text-align:left}
 .bkt td{padding:7px 6px;border-top:1px solid var(--sep,var(--line))}.bkt td.n{text-align:right;font-variant-numeric:tabular-nums}.bkt td.warn{color:var(--warn,#C8913A);font-weight:600}
+.faqs{margin:4px 0 6px}.faqs input{width:100%}
+.faqg{margin:14px 0 2px}.faqg h3{font-size:11.5px;font-weight:650;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin:0 0 4px}
+.faqi{border-top:1px solid var(--sep,var(--line))}.faqg .faqi:first-of-type{border-top:0}
+.faqi summary{list-style:none;display:flex;justify-content:space-between;gap:12px;align-items:center;padding:13px 0;font-size:15px;font-weight:550;cursor:pointer}
+.faqi summary::-webkit-details-marker{display:none}.faqi summary .ic{width:16px;height:16px;flex:none;color:var(--faint);transition:transform .2s}.faqi[open] summary .ic{transform:rotate(180deg)}
+.faqr{padding:0 0 14px}.faqr p{margin:0 0 10px;font-size:14px;line-height:1.55;color:var(--muted)}.faqr p b{color:var(--ink,inherit);font-weight:600}
 </style>
 </head>
 <body>
@@ -4831,6 +4837,58 @@ function openFechamento(ym,re){if(re===true)CUR=null;
 const mesFechado=l=>{const ym=(l.fatura&&l.cartao?l.fatura:(l.data||'')).slice(0,7),f=FECH()[ym];return f&&f.em?ym:null};
 
 /* =================== PREMISSAS =================== */
+/* ---------- ajuda e dúvidas (FAQ) ---------- */
+const FAQ=[
+ ['Primeiros passos',[
+  ['Como faço um lançamento?','Toque no botão dourado <b>+</b> no menu de baixo e escolha despesa, receita ou transferência. No Início, as <b>ações rápidas</b> levam direto para cada tipo. Valor, data, conta ou cartão e categoria são o essencial; o resto é opcional.'],
+  ['Qual a diferença entre “Comum” e “Só sua”?','“Comum” divide a despesa meio a meio entre as duas pessoas; “Só sua” fica 100% com quem lançou. Todos os totais pessoais (caixa, margem, relatórios) usam sempre a sua parte.'],
+  ['Por que o saldo não mudou depois que lancei?','O caixa só muda quando o lançamento está <b>pago</b>. Itens pendentes ficam previstos na agenda até você marcar como pago, com data e conta. Compras no cartão entram no caixa quando a fatura é paga.'],
+  ['Como uso a calculadora?','Ao lançar, toque no campo de valor: a calculadora abre. Faça a conta (tem %, 00 e AC/C) e toque em <b>Usar</b> para levar o resultado ao lançamento.'],
+  ['Como escondo os valores?','No cartão principal do Início, toque no <b>olho</b>. Os valores ficam borrados até você tocar de novo — útil em lugares públicos.']]],
+ ['Início e decisões',[
+  ['O que significam “Veio de”, “Hoje” e “Vira para”?','É o caixa do mês em três pontos: quanto você trouxe do mês anterior, quanto tem hoje e com quanto vira para o próximo mês se tudo o que está registrado acontecer.'],
+  ['Como leio o gráfico do caixa?','Linha cheia é o que já aconteceu; tracejada é a projeção com o que está lançado. A linha “zero” mostra onde o dinheiro acaba e “menor” marca o dia mais apertado. Use <b>Mês, 3M, 6M e 1A</b> para mudar o período e arraste o dedo no gráfico para ver cada dia. As barras de baixo são as saídas de cada dia.'],
+  ['O que é a Margem do mês?','Quanto ainda dá para gastar sem apertar: renda − compromissos fixos − colchão. Se o caixa estiver mais curto que o orçamento, a margem respeita o caixa. O ponteiro mostra o quanto já foi usado e a marca, em que ponto do mês você está.','colchao','Ajustar o colchão'],
+  ['O que é o colchão de segurança?','Uma parte da renda (10% por padrão) que fica sempre guardada. Ela sai da margem e o “Posso comprar?” não deixa nenhuma compra encostar nela.','colchao','Ajustar o colchão'],
+  ['Como funciona o “Posso comprar?”','Informe valor e forma (à vista ou parcelado). O app simula a compra no seu caixa futuro e diz se cabe, quando cabe e qual forma pesa menos. Se ainda não cabe, você pode salvar como <b>ordem</b> e o app avisa em “Para resolver” quando ficar pronta.','sim','Simular uma compra'],
+  ['O que é o “stop” de uma categoria?','É o limite do mês para a categoria, como um stop na bolsa. Ao lançar, o app mostra quanto já foi usado do stop daquela categoria. Para definir, abra a categoria no Início e toque em <b>Usar como stop</b>.'],
+  ['O que mostram as Categorias (bolsa, plano e mapa)?','<b>Bolsa</b>: as categorias como ações, com alta ou queda contra a média. <b>Plano</b>: quanto do stop já foi usado. <b>Mapa</b>: o tamanho de cada categoria no mês. Toque numa categoria para abrir a ficha com média, maior mês e tendência.'],
+  ['O que é o Spread?','Compara o juro que suas dívidas cobram com o rendimento do que você tem investido. Se a dívida custa mais do que o investimento rende, o app mostra quanto você ganharia antecipando parcelas — sem tocar na reserva mínima.'],
+  ['O que é “Para resolver”?','A lista do que precisa da sua ação: contas a vencer, faturas, pendências, stops estourados, ordens prontas e acertos. Escolha 7, 15 ou 30 dias de horizonte.'],
+  ['E a faixa de cotações que corre no topo?','Um resumo do mês no estilo pregão: patrimônio, caixa e categorias com a variação contra o mês anterior. Toque para pausar.'],
+  ['Posso mudar a ordem ou esconder blocos do Início?','Sim. No fim de cada tela, toque em <b>Organizar esta tela</b> para ligar, desligar e reordenar os blocos.','org','Organizar o Início']]],
+ ['Cartões',[
+  ['Quando a compra no cartão aparece?','A fatura é dívida desde a compra. Ela entra no caixa no dia do pagamento da fatura e nas categorias no mês da compra. Parcelas futuras já viram compromisso nos meses seguintes.'],
+  ['Como importo uma fatura?','Abra o cartão em <b>Cartões</b> e use <b>Importar fatura</b> (OFX ou CSV do banco). O app classifica pelas suas regras e mostra a diferença para o total da fatura.'],
+  ['O app guarda o número do cartão?','Não. Só os 4 últimos dígitos, para identificar o cartão.']]],
+ ['Casal, quinzenas e acerto',[
+  ['O que é o acerto?','O saldo entre as duas pessoas: quanto uma deve repassar à outra pelas despesas comuns que cada uma pagou. Acerto não é receita — é só a devolução da parte do outro.'],
+  ['Abatimento ou entrada: qual escolher?','<b>Entrada</b>: o dinheiro do repasse caiu na conta e o saldo aumenta. <b>Abatimento</b>: em vez de transferir, vocês descontam de algo que a outra pessoa devia — o saldo não muda, só a dívida entre vocês diminui. Na tela de acerto você escolhe quais itens compõem o abatimento.'],
+  ['Errei um abatimento, como desfaço?','No painel do acerto, toque em <b>Selecionar</b>, marque os itens quitados e use <b>Voltar para em aberto</b>. Eles voltam a ficar em aberto, em massa.'],
+  ['Como mando o relatório de repasse?','Em Relatórios, abra o repasse e exporte. Vai com resumo, grupos (incluindo o abatimento no final), composição e imagem do gráfico.'],
+  ['Onde mudo as pessoas e os dias das quinzenas?','Em Carteira → Ajustes → <b>Pessoas e quinzenas</b>.','pes','Abrir pessoas e quinzenas']]],
+ ['Relatórios e números',[
+  ['Por que o total de categorias é diferente do caixa do mês?','São duas visões. O <b>caixa</b> conta pela data em que o dinheiro saiu (a fatura paga). As <b>categorias</b> contam pela data da compra, para você ver o que gastou em cada coisa naquele mês. Os dois estão certos; respondem a perguntas diferentes.'],
+  ['Por que a projeção não inclui meus gastos do dia a dia?','O app só projeta o que está registrado: receitas e contas fixas, parcelas, faturas e pendentes. Gastos ainda não lançados não entram — assim nenhum número é inventado.'],
+  ['Onde vejo todas as regras de cálculo?','Em <b>Premissas do app</b>: caixa, patrimônio, projeção, saúde financeira e mais.','prem','Ver premissas']]],
+ ['Dados, cópias e sem internet',[
+  ['Meus dados ficam salvos onde?','No banco na nuvem, ligados à sua conta Google. Celular e computador mostram sempre os mesmos dados.'],
+  ['Como funcionam as cópias automáticas?','Uma vez por dia, ao abrir o app com internet, uma cópia completa é salva no banco. Ficam as 30 mais recentes. Você pode comparar e restaurar qualquer uma; antes de restaurar o app guarda o estado atual, então dá para desfazer.','bk','Ver cópias'],
+  ['Preciso baixar backup também?','É recomendado de vez em quando (por exemplo, ao fechar o mês): em Ajustes → <b>Baixar backup</b>. Guarde o arquivo fora do app, como no Drive. Ele pode ser restaurado em <b>Cópias automáticas → Restaurar de arquivo</b>.'],
+  ['Funciona sem internet?','Sim. O app abre e você pode lançar e editar normalmente. No topo aparece “Offline · N a enviar”; quando a internet volta, tudo é enviado sozinho — mesmo se você fechou o app. Só o login e a cópia diária precisam de internet.'],
+  ['Como instalo no celular?','No Chrome, abra o link do app, toque em ⋮ → <b>Instalar app</b>. Ele ganha ícone próprio e abre em tela cheia. Prefira essa versão ao APK.'],
+  ['As cores ficaram estranhas no celular, e agora?','Confira se o celular não está forçando modo escuro em apps (Configurações → Tela → Modo escuro) e se, no Chrome, “Escurecer sites” está desligado. O app já tem tema escuro próprio, que segue o do celular.']]]
+];
+function openAjuda(q0){
+  const run={colchao:()=>openColchao(),sim:()=>openSimCompra(),org:()=>{closeSheet();location.hash='inicio';setTimeout(()=>{const b=$('#orgbtn');b?b.click():toast('Role até o fim do Início e toque em Organizar esta tela')},350)},pes:()=>openPessoas(),prem:()=>openPremissas(),bk:()=>openBackups()};
+  const norm=s=>String(s).normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
+  openSheet(`<h2>Ajuda</h2><p class="note">Dúvidas comuns sobre o app. Toque numa pergunta para ver a resposta.</p>
+    <div class="field faqs"><input id="fq-q" type="search" placeholder="Buscar: margem, acerto, offline…" autocomplete="off" value="${esc(q0||'')}"></div>
+    <div id="fq-l">${FAQ.map(([g,L],gi)=>`<section class="faqg" data-g="${gi}"><h3>${esc(g)}</h3>${L.map(([p,r,a,al],i)=>`<details class="faqi" data-t="${esc(norm(g+' '+p+' '+r.replace(/<[^>]+>/g,'')))}"><summary>${esc(p)}${ic('down')}</summary><div class="faqr"><p>${r}</p>${a?`<button class="btn sm" type="button" data-fa="${a}">${esc(al)}</button>`:''}</div></details>`).join('')}</section>`).join('')}
+    <p class="note" id="fq-0" hidden>Nada encontrado. Tente outra palavra.</p></div>`,sh=>{
+    const Q=sh.querySelector('#fq-q'),f=()=>{const t=norm(Q.value.trim());let n=0;sh.querySelectorAll('.faqg').forEach(g=>{let k=0;g.querySelectorAll('.faqi').forEach(d=>{const ok=!t||t.split(/\s+/).every(w=>d.dataset.t.includes(w));d.hidden=!ok;if(ok)k++;if(t&&ok&&k<=2)d.open=true;if(!t)d.open=false});g.hidden=!k;n+=k});sh.querySelector('#fq-0').hidden=!!n};
+    Q.oninput=f;if(q0)f();
+    sh.querySelectorAll('[data-fa]').forEach(b=>b.onclick=()=>{const fn=run[b.dataset.fa];fn&&fn()})})}
 function openPremissas(){
   const P2=[['Caixa','O saldo em conta só muda quando o lançamento é efetivado. Itens pendentes ficam previstos até você marcar como pago, com data e conta.'],
     ['Resultado do mês','Receitas menos despesas do mês de referência. Compras no cartão contam no mês da fatura; parcelas, uma por mês.'],
@@ -5038,6 +5096,7 @@ function vCart(){
     `<button class="cxr" type="button" id="edTags"><span class="bk bk-g">${I('<path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="8.5" r="1.2"/>')}</span><span class="cxm"><strong>Categorias e etiquetas</strong><small>${CATS.length} de despesa, ${CATR.length} de receita, ${cfg().tags.length} etiquetas</small></span>${'<span class="go">›</span>'}</button>
     <button class="cxr" type="button" data-fech=""><span class="bk bk-g">${ic('calcheck')}</span><span class="cxm"><strong>Fechamento do mês</strong><small>conferência, resultado e histórico de meses fechados</small></span><span class="go">›</span></button>
     <button class="cxr" type="button" data-org="1"><span class="bk bk-g">${ic('tag')}</span><span class="cxm"><strong>Regras de categorização</strong><small>organizar “Outros” e regras automáticas</small></span><span class="go">›</span></button>
+    <button class="cxr" type="button" id="ajuda"><span class="bk bk-g">${I('<circle cx="12" cy="12" r="8.5"/><path d="M9.6 9.4a2.5 2.5 0 0 1 4.8.9c0 1.7-2.4 2.1-2.4 3.6"/><circle cx="12" cy="17" r=".6"/>')}</span><span class="cxm"><strong>Ajuda</strong><small>dúvidas comuns e como aproveitar o app</small></span><span class="go">›</span></button>
     <button class="cxr" type="button" data-prem="1"><span class="bk bk-g">${ic('info')}</span><span class="cxm"><strong>Premissas do app</strong><small>como cada número é calculado</small></span><span class="go">›</span></button>
     <button class="cxr" type="button" id="edIco"><span class="bk bk-g">${I('<path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4z"/><circle cx="16.5" cy="16.5" r="3.5"/>')}</span><span class="cxm"><strong>Book de ícones</strong><small>marca, ícones, categorias e bancos do app</small></span><span class="go">›</span></button>
     <button class="cxr" type="button" id="edPes"><span class="bk bk-g">${I('<circle cx="9" cy="8" r="3.2"/><path d="M3 20c.8-3.4 3.2-5 6-5s5.2 1.6 6 5M16 4.5a3 3 0 0 1 0 6M18 15c1.6.6 2.6 2.2 3 5"/>')}</span><span class="cxm"><strong>Pessoas e quinzenas</strong><small>${cfg().pessoas.map(p=>esc(p.nome)).join(' e ')} · dias ${Q().q1.dia} e ${Q().q2.dia}</small></span><span class="go">›</span></button>
@@ -5055,7 +5114,7 @@ function vCart(){
   const ad=$('#addDv');if(ad)ad.onclick=()=>openDivida(null);
   const ar=$('#addRec');if(ar)ar.onclick=()=>openRec(null);el.querySelectorAll('[data-rc]').forEach(b=>b.onclick=()=>openRec(S.recs.find(r=>r.id===b.dataset.rc)));
   $('#edTags').onclick=()=>openCategorias();$('#edIco').onclick=openIconBook;$('#edPes').onclick=openPessoas;
-  const bk=$('#bkp');if(bk)bk.onclick=backup;{const ba=$('#bkauto');if(ba)ba.onclick=openBackups}const sr=$('#sair');if(sr)sr.onclick=()=>window.__fbSair();const cv=$('#csv');if(cv)cv.onclick=exportCSV;
+  const bk=$('#bkp');if(bk)bk.onclick=backup;{const ba=$('#bkauto');if(ba)ba.onclick=openBackups}{const aj=$('#ajuda');if(aj)aj.onclick=()=>openAjuda()}const sr=$('#sair');if(sr)sr.onclick=()=>window.__fbSair();const cv=$('#csv');if(cv)cv.onclick=exportCSV;
   wireCommon(el);
 }
 
