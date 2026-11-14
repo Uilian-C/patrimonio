@@ -1896,6 +1896,16 @@ nav.tabs .fab{background:var(--fab-bg);box-shadow:0 10px 24px -12px rgba(0,0,0,.
 .sheet{background:var(--surface)!important;box-shadow:0 -20px 50px -30px rgba(0,0,0,.5);border-top:0}
 .btn.primary{background:var(--ink);box-shadow:none}
 .view>.card,.view>section,.view>.qa{animation-duration:.35s}
+
+/* linhas: separação por tom, não por traço forte */
+:root{--line:#ECE8E0;--hair:#F1EEE8;--sep:rgba(28,27,24,.07)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--line:#24252A;--hair:#1F2024;--sep:rgba(236,232,224,.06)}}
+:root[data-theme="dark"]{--line:#24252A;--hair:#1F2024;--sep:rgba(236,232,224,.06)}
+.card *{border-color:var(--sep)}
+.card hr,.card .sep{background:var(--sep);border:0;height:1px}
+.blpl{border-top:1px solid color-mix(in srgb,var(--ink) 16%,transparent)!important;padding-top:14px}
+.kpis>div+div,.dpk>div+div,.h2m>div+div,.hsplit>div+div{border-left-color:var(--sep)!important}
+.lr,.lrt,.lday,.ldh,.lxh,.lxs,.mfx,.mfx>*{border-color:var(--sep)!important}
 </style>
 </head>
 <body>
