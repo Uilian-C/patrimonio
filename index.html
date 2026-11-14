@@ -1999,6 +1999,41 @@ nav.tabs .fab{background:var(--fab-bg);box-shadow:0 10px 24px -12px rgba(0,0,0,.
 .spq{display:flex;gap:6px;align-items:baseline;flex-wrap:wrap;width:100%;margin-top:12px;padding:10px 12px;border:0;border-radius:12px;background:var(--sunk);color:var(--muted);font:inherit;font-size:12.5px;text-align:left}.spq b{color:var(--ink)}.spq b.neg{color:var(--crit)}.spq .go{margin-left:auto}
 .mesx .kpi{border:0!important;background:var(--sunk)!important;box-shadow:none!important}.mesx .kpg{gap:8px}
 .cdlg{display:block;margin-top:4px;font-size:11px;color:var(--faint)}
+
+/* margem do mês */
+.mgb{display:grid;grid-template-columns:132px minmax(0,1fr);gap:14px;align-items:center}
+.mgg{position:relative;display:grid;justify-items:center}.mgg svg{width:132px;height:auto}.mgg>b{position:absolute;top:44px;font-size:17px;font-weight:650;letter-spacing:-.02em}.mgg>small{font-size:11.5px;font-weight:600;margin-top:2px}
+.mgg small.ok{color:var(--good)}.mgg small.warn{color:var(--warn)}.mgg small.crit{color:var(--crit)}
+.gau path{fill:none;stroke-linecap:round}.gau .gtk{stroke:var(--sunk);stroke-width:9}.gau .gz1{stroke:color-mix(in srgb,var(--good) 22%,transparent);stroke-width:9}.gau .gz2{stroke:color-mix(in srgb,var(--warn) 24%,transparent);stroke-width:9}.gau .gz3{stroke:color-mix(in srgb,var(--crit) 26%,transparent);stroke-width:9}
+.gau .gvl{stroke-width:9;stroke:var(--good)}.gau.atencao .gvl{stroke:var(--warn)}.gau.stop .gvl,.gau.sem .gvl{stroke:var(--crit)}
+.gau .gnd{stroke:var(--ink);stroke-width:2.2;stroke-linecap:round}.gau .gnc{fill:var(--ink)}.gau .grt{stroke:var(--muted);stroke-width:1.6}
+.mgk{display:grid;gap:10px}.mgk>div:first-child{display:grid;gap:2px}.mgk span{font-size:11.5px;color:var(--muted)}.mgk>div>b{font-size:22px;font-weight:650;letter-spacing:-.03em}.mgk small{font-size:11.5px;color:var(--muted)}
+.mgk2{display:flex;gap:14px;flex-wrap:wrap}.mgk2 b{color:var(--ink);font-weight:600;margin-left:4px;font-size:13px}
+.mgn{font-size:11.5px;color:var(--faint);margin:10px 0 0;line-height:1.45}
+.czr{width:100%;accent-color:var(--accent);height:28px;background:transparent!important;border:0!important;padding:0!important}.czt{display:flex;justify-content:space-between;font-size:11px;color:var(--faint)}
+.czg{display:grid;grid-template-columns:120px minmax(0,1fr);gap:12px;align-items:center;margin:4px 0 14px}.czg svg{width:120px}.czg span{font-size:11.5px;color:var(--muted)}.czg b{display:block;font-size:22px;font-weight:650}.czg small{font-size:11.5px;color:var(--muted)}
+/* período do gráfico do caixa */
+.hper{grid-column:1/-1;display:flex;gap:2px;justify-self:start;margin:6px 0 -2px;padding:2px;border-radius:10px;background:var(--hero-glass)}
+.hper button{border:0;background:none;color:var(--hero-mut);font:inherit;font-size:11.5px;font-weight:600;padding:4px 10px;border-radius:8px}.hper button[aria-pressed="true"]{background:color-mix(in srgb,var(--hero-ink) 10%,transparent);color:var(--hero-ink)}
+.pchw{position:relative;display:block}.pch{width:100%;height:96px;display:block;touch-action:pan-y;overflow:visible}.pch.up{color:var(--hero-good)}.pch.dn{color:var(--hero-neg)}
+.pch .pl{fill:none;stroke:currentColor;stroke-width:2;vector-effect:non-scaling-stroke}.pch .pz{stroke:color-mix(in srgb,var(--hero-neg) 50%,transparent);stroke-dasharray:3 3;vector-effect:non-scaling-stroke}
+.pch .psc{stroke:var(--hero-ink);stroke-width:1;vector-effect:non-scaling-stroke;opacity:.6}
+.pcht{position:absolute;top:-6px;transform:translateX(-50%);padding:4px 8px;border-radius:8px;background:var(--hero-ink);color:var(--hero-bg);font-size:11px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .15s}.pcht.on{opacity:1}.pcht b{font-weight:650}.pcht b.neg{color:#F7B1A8}
+.hfn b{color:var(--hero-ink);font-weight:600}.hfn b.neg{color:var(--hero-neg)}
+
+.ctgs{grid-template-columns:repeat(3,1fr)!important}
+.wtabs{display:flex;gap:6px;margin:0 0 6px;overflow-x:auto;scrollbar-width:none}.wtabs button{border:0;background:none;color:var(--muted);font:inherit;font-size:13px;font-weight:600;padding:6px 12px;border-radius:10px;white-space:nowrap}.wtabs button[aria-pressed="true"]{background:var(--sunk);color:var(--ink)}
+.wl{display:grid}.wr{display:grid;grid-template-columns:auto minmax(0,1fr) 64px auto;gap:10px;align-items:center;padding:10px 0;border:0;background:none;color:inherit;font:inherit;text-align:left;width:100%}.wr+.wr{border-top:1px solid var(--sep)}
+.wn{display:grid;min-width:0}.wn b{font-size:14.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.wn small{font-size:11.5px;color:var(--muted)}
+.wsp svg{display:block;width:64px;height:24px}.wv{display:grid;justify-items:end;gap:3px}.wv b{font-size:14.5px;font-weight:600}
+.wpl{font-size:11.5px;font-weight:650;padding:2px 7px;border-radius:7px;font-variant-numeric:tabular-nums;color:#fff}.wpl.up{background:color-mix(in srgb,var(--good) 85%,#000 0%)}.wpl.dn{background:var(--crit)}.wpl.n0{background:var(--sunk);color:var(--muted)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .wpl.up,:root:not([data-theme="light"]) .wpl.dn{color:#111}}
+:root[data-theme="dark"] .wpl.up,:root[data-theme="dark"] .wpl.dn{color:#111}
+.sxr .sxv .cpl{display:block;text-align:right}.sxsp{display:grid;justify-items:center;gap:2px}.sxsp svg{width:56px;height:22px;display:block}
+.cpl{display:inline-block;font-size:10.5px;font-weight:650;font-variant-numeric:tabular-nums;margin-top:1px}.cpl.up{color:var(--good)}.cpl.dn{color:var(--crit)}.sxp>span{display:grid}
+.wsp svg,.sxsp svg,.wsp .spk,.sxsp .spk{position:static!important;width:100%!important;height:100%!important}.wsp,.sxsp{position:relative}.wsp{height:24px}.sxsp>span:first-child,.sxsp svg{height:22px}
+.mgg>b{position:static!important;margin-top:-4px}
+input.czr{-webkit-appearance:auto!important;appearance:auto!important;height:28px!important;min-height:0!important;border:0!important;background:none!important;box-shadow:none!important;padding:0!important}
 </style>
 </head>
 <body>
@@ -2684,7 +2719,7 @@ function openRecarga(a){
 }
 
 /* ---------- INÍCIO: painel montável ---------- */
-const SECS=[['ticker','Cotações (faixa que corre)'],['hero','Em caixa hoje'],['acoes','Ações rápidas'],['alertas','Para resolver'],['mesx','Mês (candles e resultado)'],['cats','Categorias (plano, stop e mapa)'],['saude','Saúde financeira'],['beneficios','Benefícios'],['ultimos','Últimos lançamentos'],['fecha','Fechamento do mês (avulso)'],['spread','Dívida × aplicação (avulso)'],['kpis','Indicadores do mês'],['plano','Plano do mês'],['contas','Contas'],['dre','Resultado do mês'],['agenda','Próximos 15 dias'],['credito','Crédito'],['gastos','Gastos por categoria'],['planejado','Pagamentos planejados'],['fluxo6','Evolução'],['quinzenas','Quinzenas e acerto'],['patrimonio','Patrimônio']];
+const SECS=[['ticker','Cotações (faixa que corre)'],['hero','Em caixa hoje'],['acoes','Ações rápidas'],['alertas','Para resolver'],['margem','Margem do mês'],['mesx','Mês (candles e resultado)'],['cats','Categorias (plano, stop e mapa)'],['saude','Saúde financeira'],['beneficios','Benefícios'],['ultimos','Últimos lançamentos'],['fecha','Fechamento do mês (avulso)'],['spread','Dívida × aplicação (avulso)'],['kpis','Indicadores do mês'],['plano','Plano do mês'],['contas','Contas'],['dre','Resultado do mês'],['agenda','Próximos 15 dias'],['credito','Crédito'],['gastos','Gastos por categoria'],['planejado','Pagamentos planejados'],['fluxo6','Evolução'],['quinzenas','Quinzenas e acerto'],['patrimonio','Patrimônio']];
 /* layout v4: Início enxuto (8 seções). Migra a personalização anterior: mantém a ordem, recolhe as seções que foram unificadas */
 const OFF4=['orcamento','mes','fecha','spread','kpis','dre','plano','gastos','agenda','planejado','contas','credito','fluxo6','quinzenas','patrimonio'];
 let LAY=(()=>{try{const v4=JSON.parse(localStorage.getItem('pt-ini4')||'null');if(v4)return v4;const v3=JSON.parse(localStorage.getItem('pt-ini3')||'null');if(v3){const off=[...new Set([...(v3.off||[]),...OFF4])].filter(k=>k!=='acoes');return {order:[],off}}}catch(e){}return null})()||{order:[],off:OFF4.slice()};
@@ -2790,8 +2825,9 @@ function iniHero(X){
       <span class="hfc"><small>Veio de ${pm}</small><b class="n ${F.inicial<0?'neg':''}">${brl0(F.inicial)}</b></span><span class="hfa">›</span>
       <span class="hfc"><small>Hoje</small><b class="n ${saldo<0?'neg':''}">${brl0(saldo)}</b></span><span class="hfa">›</span>
       <span class="hfc hfe"><small>Vira para ${nm}</small><b class="n ${F.final<0?'neg':''}">${brl0(F.final)}</b></span>
-      <span class="hfs">${heroChart(F,ym)}</span>
-      <span class="hfn"><span class="${dv>=0?'up':'dn'}">${dv>=0?'↑':'↓'} ${brl0(Math.abs(dv))} no mês</span> · projeção com tudo que entra e sai até ${lastDay(ym)}/${ym.slice(5)}</span>
+      <span class="hper" role="group" aria-label="Período do gráfico">${[['m','Mês'],['3m','3M'],['6m','6M'],['1a','1A']].map(([k,l])=>`<button type="button" data-hper="${k}" aria-pressed="${HPER===k}">${l}</button>`).join('')}</span>
+      ${HPER==='m'?`<span class="hfs">${heroChart(F,ym)}</span>
+      <span class="hfn"><span class="${dv>=0?'up':'dn'}">${dv>=0?'↑':'↓'} ${brl0(Math.abs(dv))} no mês</span> · projeção com tudo que entra e sai até ${lastDay(ym)}/${ym.slice(5)}</span>`:heroPeriodo(me)}
       ${heroComp(F,me,ym)}</div>`})()}
     <div class="hsplit">
       <button type="button" data-go="relatorios" data-rp="fluxo"><small>A pagar até ${E?fdate(E.d).slice(0,5):'o fim do mês'}</small><b class="n">${brl0(comp)}</b><em>${out.length} ite${out.length===1?'m':'ns'}${cAtr>.5?` · <span class="atr">${brl0(cAtr)} em atraso</span>`:''}</em></button>
@@ -2828,9 +2864,71 @@ function iniBen(X){
   if(!bs.length)return `<button type="button" class="setup bcta" data-addc="beneficio"><span class="ali">${ICN.ben}</span><span><b>Controle seu VR, VA ou flexível</b><small>saldo, quanto pode gastar por dia e quando cai a recarga</small></span><span class="go">›</span></button>`;
   return `<div class="card"><div class="ch"><h2>Benefícios</h2><span class="aside n">${brl0(sum(bs,a=>saldoConta(a)))}</span></div>${bs.map(a=>{const C=benCiclo(a);return `<button type="button" class="bnr" data-ct="${esc(a.id)}">${bankBadge(a,'beneficio')}<span class="bnm"><strong>${esc(a.nome)}</strong><small>${brl0(Math.max(C.porDia,0))} por dia${C.util?' útil':''} · recarga ${fdate(C.prox).slice(0,5)}</small><span class="bbar sm"><i style="width:${Math.min(C.uPct,1)*100}%"></i><em style="left:${C.tPct*100}%"></em></span></span><span class="bnv"><b class="n">${brl(C.saldo)}</b><small class="tg ${C.proj<0&&C.gasto?'warn':'ok'}">${C.proj<0&&C.gasto?'falta '+brl0(-C.proj):'sobra '+brl0(Math.max(C.proj,0))}</small></span></button>`}).join('')}</div>`;
 }
+/* ===================== Lista de acompanhamento (categorias) =====================
+   Cada categoria como um ativo: minigráfico de 6 meses, gasto do mês e variação contra a média (no mesmo ponto do mês). */
+let WTAB=LS('pt-wtab','altas');
+function catWatch(me,ym){const t=today(),fr=ym===t.slice(0,7)?Math.min(+t.slice(8)/lastDay(ym),1):1,ms=[5,4,3,2,1,0].map(k=>ymAdd(ym,-k)).filter(m=>dayIn(m,31)>=histIni()),mp={};ms.forEach(m=>mp[m]=catMesMap(m,me));
+  const ok=mesesOk(ym,3),cats=new Set();ms.forEach(m=>Object.keys(mp[m]).forEach(c=>cats.add(c)));
+  return [...cats].map(c=>{const ser=ms.map(m=>r2(mp[m][c]||0)),v=ser[ser.length-1],avg=ok.length?sum(ok,m=>(catMesMap(m,me)[c]||0))/ok.length:0,a=avg*fr,d=a>20?v/a-1:null;return {c,ser,v,avg,a,d,delta:r2(v-a)}}).filter(x=>x.v>0||x.avg>0)}
+function watchRows(L,mode){const pill=x=>x.d==null?(mode==='nb'?'':'<span class="wpl n0">novo</span>'):`<span class="wpl ${x.d>0?'dn':'up'}">${x.d>0?'+':'−'}${pctf(Math.abs(x.d))}</span>`;
+  return L.map(x=>`<button type="button" class="wr" data-wcat="${esc(x.c)}">${catBubble(x.c,'sm')}<span class="wn"><b>${esc(x.c)}</b><small>${x.avg>0?`média ${brl0(x.avg)}`:mode==='nb'?'gasto do mês':'sem histórico'}</small></span>${x.ser.length>1?`<span class="wsp">${sparkL(x.ser,x.d>0?'var(--crit)':'var(--good)',64,24)}</span>`:'<span></span>'}<span class="wv"><b class="n">${brl0(x.v)}</b>${pill(x)}</span></button>`).join('')}
+function watchHTML(me,ym){const W=catWatch(me,ym),hasBase=mesesOk(ym,3).length>0;
+  const alt=W.filter(x=>x.d!=null&&x.d>0).sort((a,b)=>b.delta-a.delta),bai=W.filter(x=>x.d!=null&&x.d<0).sort((a,b)=>a.delta-b.delta),ati=W.slice().sort((a,b)=>b.v-a.v);
+  const tab=hasBase?WTAB:'ativo',L=tab==='baixas'?bai:tab==='ativo'?ati:alt;
+  return `<div class="card wlc"><div class="ch"><h2>Categorias</h2><span class="aside">vs média, no mesmo ponto do mês</span></div>
+    <div class="wtabs">${[['ativo','Todas'],['altas','Maiores altas'],['baixas','Maiores baixas']].map(([k,l])=>`<button type="button" data-wtab="${k}" aria-pressed="${tab===k}" ${!hasBase&&k!=='ativo'?'disabled title="precisa de 1 mês completo de histórico"':''}>${l}</button>`).join('')}</div>
+    ${!hasBase?'<p class="note wnb">Altas e baixas liberam com 1 mês completo de histórico. Por enquanto, os gastos do mês por categoria.</p>':''}${L.length?`<div class="wl">${watchRows(L.slice(0,8),hasBase?'':'nb')}</div>`:'<p class="note">Nada fora da média por enquanto.</p>'}</div>`}
+/* ===================== Margem do mês =====================
+   Dinheiro livre do mês = renda − compromissos (fixas, parcelas, faturas) − colchão.
+   O velocímetro mostra quanto desse livre os gastos variáveis já usaram, comparando com o ritmo do mês. */
+let COLM={k:'',v:0};
+function colchaoPct(){const v=cfg().colchaoPct;return v==null?0.10:Math.max(0,Math.min(+v||0,0.5))}
+function margemCalc(me,ym){ym=ym||today().slice(0,7);const P=planoCalc(ym,me),renda=P.renda||0,cz=r2(renda*colchaoPct()),livre=r2(renda-P.fixo-cz),usado=r2(P.varT||0);
+  const t=today(),nd=lastDay(ym),dia=ym===t.slice(0,7)?+t.slice(8):nd,ritmo=dia/nd,uso=livre>0?usado/livre:(usado>0?9:0),resta=r2(livre-usado),dr=Math.max(nd-dia+1,1);
+  const st=livre<=0?'sem':uso>1?'stop':uso>ritmo*1.1&&uso>.5?'atencao':'ok';
+  return {renda,fixo:P.fixo,cz,livre,usado,uso,ritmo,resta,porDia:resta>0?r2(resta/dr):0,st,pct:colchaoPct()}}
+/* colchão em reais para o simulador: mesma regra (percentual da renda do mês) */
+const colchao=()=>{const k=today()+'|'+(cfg().colchaoPct??'')+'|'+S.lanc.length;if(COLM.k!==k){try{COLM={k,v:margemCalc(ME()).cz}}catch(e){COLM={k,v:+cfg().colchao||0}}}return COLM.v};
+function gaugeSVG(uso,ritmo,st){const R=46,cx=60,cy=56,a=v=>Math.PI*(1-Math.max(0,Math.min(v,1))),pt=v=>[cx+R*Math.cos(a(v)),cy-R*Math.sin(a(v))];
+  const arc=(v0,v1)=>{const [x0,y0]=pt(v0),[x1,y1]=pt(v1);return `M${x0.toFixed(1)} ${y0.toFixed(1)} A${R} ${R} 0 0 1 ${x1.toFixed(1)} ${y1.toFixed(1)}`};
+  const u=Math.max(0,Math.min(uso,1)),[nx,ny]=pt(u),[rx,ry]=pt(ritmo),nl=.78;
+  return `<svg class="gau ${st}" viewBox="0 0 120 66" aria-hidden="true"><path d="${arc(0,1)}" class="gtk"/><path d="${arc(0,.6)}" class="gz1"/><path d="${arc(.6,.85)}" class="gz2"/><path d="${arc(.85,1)}" class="gz3"/>${u>0?`<path d="${arc(0,u)}" class="gvl"/>`:''}
+    <line x1="${rx}" y1="${ry}" x2="${cx+(rx-cx)*.82}" y2="${cy+(ry-cy)*.82}" class="grt"/><line x1="${cx}" y1="${cy}" x2="${cx+(nx-cx)*nl}" y2="${cy+(ny-cy)*nl}" class="gnd"/><circle cx="${cx}" cy="${cy}" r="3.6" class="gnc"/></svg>`}
+const MGT={ok:['Ok','ok'],atencao:['Acima do ritmo','warn'],stop:['Passou da margem','crit'],sem:['Sem margem','crit']};
+function iniMargem(X){let M;try{M=margemCalc(X.me,X.ym)}catch(e){return ''}if(!M.renda)return '';const [tt,tc]=MGT[M.st];
+  return `<div class="card mgc"><div class="ch"><h2>Margem do mês</h2><button class="lk" type="button" data-colch="1">Colchão ${Math.round(M.pct*100)}% ›</button></div>
+    <div class="mgb"><div class="mgg">${gaugeSVG(M.uso,M.ritmo,M.st)}<b class="n">${M.livre>0?Math.round(M.uso*100)+'%':'—'}</b><small class="${tc}">● ${tt}</small></div>
+      <div class="mgk"><div><span>Pode gastar ainda</span><b class="n ${M.resta<0?'neg':''}">${brl0(M.resta)}</b><small>${M.porDia?`≈ ${brl0(M.porDia)} por dia até o fim do mês`:M.resta<0?'acima do livre do mês':''}</small></div>
+        <div class="mgk2"><span>Livre <b class="n">${brl0(M.livre)}</b></span><span>Usado <b class="n">${brl0(M.usado)}</b></span></div></div></div>
+    <p class="mgn">Ritmo do mês: ${Math.round(M.ritmo*100)}% dos dias já passaram (traço no arco). Livre = renda ${brl0(M.renda)} − compromissos ${brl0(M.fixo)} − colchão ${brl0(M.cz)}.</p></div>`}
+function openColchao(){const me=ME();let pct=colchaoPct();
+  openSheet(`<h2>Colchão de segurança</h2><p class="note">Parte da renda que fica sempre guardada no caixa. Ela sai da margem do mês e o "Posso comprar?" não deixa a compra encostar nela.</p>
+    <div id="cz-g"></div>
+    <div class="field"><label for="cz-r">Percentual da renda: <b id="cz-p"></b></label><input id="cz-r" type="range" min="0" max="30" step="1" value="${Math.round(pct*100)}" class="czr"><div class="czt"><span>0%</span><span>10%</span><span>20%</span><span>30%</span></div></div>
+    <div class="btnrow"><button class="btn primary" type="button" id="cz-s">Salvar</button></div>`,sh=>{
+    const R=sh.querySelector('#cz-r'),draw=()=>{pct=+R.value/100;const P=planoCalc(today().slice(0,7),me),cz=r2(P.renda*pct),livre=r2(P.renda-P.fixo-cz),uso=livre>0?(P.varT||0)/livre:9;
+      sh.querySelector('#cz-p').textContent=`${R.value}% · ${brl0(cz)}`;sh.querySelector('#cz-g').innerHTML=`<div class="czg">${gaugeSVG(uso,Math.min(+today().slice(8)/lastDay(today().slice(0,7)),1),uso>1?'stop':'ok')}<div><span>Margem livre do mês</span><b class="n ${livre<0?'neg':''}">${brl0(livre)}</b><small>renda ${brl0(P.renda)} − compromissos ${brl0(P.fixo)} − colchão ${brl0(cz)}</small></div></div>`};
+    R.oninput=draw;draw();
+    sh.querySelector('#cz-s').onclick=async()=>{try{await S.db.doc('config/app').set(Object.assign({},S.cfg||{},{colchaoPct:pct}));COLM.k='';closeSheet();toast('Colchão salvo: '+Math.round(pct*100)+'% da renda')}catch(err){toast(writeErr(err))}};
+  })}
+/* ===================== Gráfico do caixa por período (com toque) ===================== */
+let HPER=LS('pt-hper','m');
+function serieCaixa(me,dias){const t=today(),pts=[],step=dias>200?2:1;let d0=addD(t,-dias);if(d0<addD(histIni(),-1))d0=addD(histIni(),-1);
+  for(let d=d0;d<=t;d=addD(d,step))pts.push([d,r2(realBal(me,d))]);if(pts[pts.length-1][0]!==t)pts.push([t,r2(realBal(me,t))]);return pts}
+function lineSVG(pts,cls){if(pts.length<2)return '';const W=320,H=90,vs=pts.map(p=>p[1]),mn=Math.min(...vs),mx=Math.max(...vs),rg=(mx-mn)||1,X=i=>i/(pts.length-1)*W,Y=v=>6+(mx-v)/rg*(H-12);
+  const up=vs[vs.length-1]>=vs[0],d=pts.map((p,i)=>`${i?'L':'M'}${X(i).toFixed(1)} ${Y(p[1]).toFixed(1)}`).join(''),z=mn<0?`<line x1="0" x2="${W}" y1="${Y(0)}" y2="${Y(0)}" class="pz"/>`:'';
+  return `<svg class="pch ${up?'up':'dn'} ${cls||''}" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" data-pts='${JSON.stringify(pts.map(p=>[p[0],p[1]]))}'><defs><linearGradient id="pg${up?'u':'d'}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="currentColor" stop-opacity=".22"/><stop offset="1" stop-color="currentColor" stop-opacity="0"/></linearGradient></defs>${z}<path d="${d}L${W} ${H}L0 ${H}Z" fill="url(#pg${up?'u':'d'})"/><path d="${d}" class="pl"/><line class="psc" x1="0" x2="0" y1="0" y2="${H}" style="display:none"/></svg>`}
+function heroPeriodo(me){const dias={'3m':91,'6m':182,'1a':365}[HPER]||91,P=serieCaixa(me,dias),vs=P.map(p=>p[1]),mn=Math.min(...vs),mx=Math.max(...vs),i0=vs.indexOf(mn),i1=vs.indexOf(mx),dv=vs[vs.length-1]-vs[0];
+  return `<span class="hfs pchw">${lineSVG(P)}<span class="pcht" aria-live="polite"></span></span>
+    <span class="hfn"><span class="${dv>=0?'up':'dn'}">${dv>=0?'▲':'▼'} ${brl0(Math.abs(dv))} em ${HPER==='1a'?'12 meses':HPER.replace('m',' meses')}</span> · mín. <b class="n ${mn<0?'neg':''}">${brl0(mn)}</b> ${fdate(P[i0][0]).slice(0,5)} · máx. <b class="n">${brl0(mx)}</b> ${fdate(P[i1][0]).slice(0,5)}</span>`}
+function wireScrub(el){el.querySelectorAll('.pchw').forEach(w=>{const sv=w.querySelector('svg.pch');if(!sv)return;const pts=JSON.parse(sv.dataset.pts||'[]'),tip=w.querySelector('.pcht'),ln=sv.querySelector('.psc');if(!pts.length)return;
+  const show=e=>{const r=sv.getBoundingClientRect(),x=Math.max(0,Math.min((e.clientX-r.left)/r.width,1)),i=Math.round(x*(pts.length-1)),p=pts[i];ln.style.display='';ln.setAttribute('x1',x*320);ln.setAttribute('x2',x*320);
+    tip.innerHTML=`<b class="n ${p[1]<0?'neg':''}">${brl(p[1])}</b> ${fdate(p[0])}`;tip.style.left=Math.min(Math.max(x*100,14),86)+'%';tip.classList.add('on')};
+  const hide=()=>{ln.style.display='none';tip.classList.remove('on')};
+  sv.addEventListener('pointerdown',e=>{show(e);sv.setPointerCapture&&sv.setPointerCapture(e.pointerId)});sv.addEventListener('pointermove',e=>{if(e.pressure>0||e.pointerType==='mouse')show(e)});sv.addEventListener('pointerup',()=>setTimeout(hide,1600));sv.addEventListener('pointerleave',()=>setTimeout(hide,1600))})}
 /* ===================== Visões de mercado =====================
    Faixa de cotações (os números que mais mudam suas decisões, com variação) e candles mensais do caixa. */
-function catMesMap(ym,me){const m={};movs().forEach(i=>{if(i.ym!==ym||i.tipo!=='despesa'||(i.l.rec&&false))return;const v=share(i,me);if(v>0){const c=i.l.categoria||'Outros';m[c]=(m[c]||0)+v}});return m}
+function catMesMap(ym,me){const m={};movs().forEach(i=>{if((i.cym||i.ym)!==ym||i.tipo!=='despesa'||(i.l.rec&&false))return;const v=share(i,me);if(v>0){const c=i.l.categoria||'Outros';m[c]=(m[c]||0)+v}});return m}
 function catMovers(me,ym){const cur=catMesMap(ym,me),ms=mesesOk(ym,3);if(!ms.length)return [];const avg={};ms.forEach(m=>{const x=catMesMap(m,me);Object.entries(x).forEach(([c,v])=>avg[c]=(avg[c]||0)+v/ms.length)});
   /* mês corrente comparado com a média proporcional ao dia (evita "queda" falsa no começo do mês) */
   const t=today(),fr=ym===t.slice(0,7)?Math.min(+t.slice(8)/lastDay(ym),1):1;
@@ -2868,12 +2966,12 @@ function iniMesX(X){const {me,ym}=X;let C=[];try{C=candlesCaixa(me,6)}catch(e){c
     ${C.length?`<div class="cdw">${candleSVG(C)}<p class="cdn">${cur?`Neste mês o caixa ${cur.l<0?`<b class="neg">fica negativo</b>: mínimo de ${brl0(cur.l)} em ${fdate(cur.lod).slice(0,5)}`:`tem mínimo de <b>${brl0(cur.l)}</b> em ${fdate(cur.lod).slice(0,5)}`}. `:''}${C.length>1&&neg?`Em ${neg} dos últimos ${C.length} meses o caixa ficou abaixo de zero em algum dia. `:''}<span class="cdlg">Corpo: de onde o mês abriu até onde fecha (tracejado = projeção). Pavio: menor e maior saldo do mês.</span></p></div>`:''}
     ${kp}${dre?`<details class="mxd"><summary>Resultado detalhado</summary>${dre}</details>`:''}</div>`}
 /* categorias: plano e stops (decisão do dia) ou mapa de gastos (onde foi o dinheiro), no mesmo lugar */
-let CATV=LS('pt-catv','plano');
+let CATV=LS('pt-catv','bolsa');
 function iniCats(X){const pl=(()=>{try{return iniPlano(X)||''}catch(e){return ''}})(),mp=(()=>{try{return iniGastos2(X)||''}catch(e){return ''}})();
   let mv=[];try{mv=catMovers(X.me,X.ym).slice(0,6)}catch(e){}
   const tape=mv.length?`<div class="cmv">${mv.map(x=>`<span class="${x.d>0?'dn':'up'}"><b>${esc(x.c)}</b> ${x.d>0?'▲':'▼'} ${pctf(Math.abs(x.d))}</span>`).join('')}<small>vs média de 3 meses, no mesmo ponto do mês</small></div>`:'';
-  const body=CATV==='mapa'?mp:pl;if(!body)return '';
-  return `<div class="ctg"><div class="seg ctgs"><button type="button" data-catv="plano" aria-pressed="${CATV!=='mapa'}">Plano e stops</button><button type="button" data-catv="mapa" aria-pressed="${CATV==='mapa'}">Mapa de gastos</button></div>${tape}${body}</div>`}
+  const body=CATV==='mapa'?mp:CATV==='bolsa'?watchHTML(X.me,X.ym):pl;if(!body)return '';
+  return `<div class="ctg"><div class="seg ctgs">${[['bolsa','Altas e baixas'],['plano','Plano e stops'],['mapa','Mapa']].map(([k,l])=>`<button type="button" data-catv="${k}" aria-pressed="${CATV===k}">${l}</button>`).join('')}</div>${body}</div>`}
 function saudeSpread(me){try{const Z=spreadCalc(me);if(!Z.dv.length)return '';const top=Z.plano[0];
   return top?`<button type="button" class="spg" data-spread="1" style="margin-top:12px">${ic('trend')}<span><b>Antecipar parcelas rende ${brl(Z.ganho)}</b><small>dívida a ${pcm(Z.dv[0].i)} × aplicação a ${pcm(Z.rInv)} · use ${brl0(Z.usar)} acima da reserva</small></span><span class="go">›</span></button>`
     :`<button type="button" class="spq" data-spread="1">Dívidas custam até <b class="neg">${pcm(Z.dv[0].i)}</b> · aplicações rendem <b>${Z.tot?pcm(Z.rInv):'—'}</b><span class="go">›</span></button>`}catch(e){return ''}}
@@ -2923,7 +3021,6 @@ function stopHint(cat,v,data,editing,com){try{if(!cat)return '';const ym=(data||
 /* ===================== Posso comprar? =====================
    Simula a compra no caixa projetado (mesma agenda do Início) e compara as formas de pagamento.
    Regime de caixa: no cartão, cada parcela sai no vencimento da fatura em que cai. */
-const colchao=()=>Math.max(+cfg().colchao||0,0);
 function simEventos(f,v,dt){if(!(v>0))return [];if(f.k==='conta')return [{d:dt,v:-v}];
   const c=card(f.c);if(!c)return [];const n=Math.max(1,Math.min(+f.n||1,48)),y0=baseDue({data:dt},c),pv=r2(v/n),out=[];
   for(let k=0;k<n;k++)out.push({d:dayIn(ymAdd(y0,k),c.vencimento),v:-(k===n-1?r2(v-pv*(n-1)):pv)});return out}
@@ -3086,7 +3183,7 @@ function vInicio(){
   const ok=setup.filter(s=>s[0]).length,nx=setup.find(s=>!s[0]);
   if(nx&&!SETUPX)h+=`<div class="setup"><span class="sp">${setup.map(s=>`<i class="${s[0]?'on':''}"></i>`).join('')}</span><button class="lk" type="button" data-setup="${nx[2]}">${ok}/${setup.length} · ${nx[1]} ›</button><button class="sx2" type="button" id="stx" aria-label="Ocultar">×</button></div>`;
   const X={me,t,ym,saldo:realBal(me,t),M:mesCalc(ym,me),F:mesFluxo(ym,me)};
-  const B={ticker:iniTicker,mesx:iniMesX,cats:iniCats,hero:iniHero,acoes:iniAcoes,alertas:iniResolver,ultimos:iniUltimos,spread:iniSpread,contas:iniContas,beneficios:iniBen,mes:()=>mesCard(me),agenda:iniAgenda,credito:()=>creditoDash(true),gastos:iniGastos2,planejado:iniPlan,fluxo6:iniEvo,kpis:iniKpis,orcamento:()=>'',plano:iniPlano,dre:iniDre,saude:iniSaude,fecha:iniFecha,quinzenas:iniQuin,patrimonio:iniPat};
+  const B={margem:iniMargem,ticker:iniTicker,mesx:iniMesX,cats:iniCats,hero:iniHero,acoes:iniAcoes,alertas:iniResolver,ultimos:iniUltimos,spread:iniSpread,contas:iniContas,beneficios:iniBen,mes:()=>mesCard(me),agenda:iniAgenda,credito:()=>creditoDash(true),gastos:iniGastos2,planejado:iniPlan,fluxo6:iniEvo,kpis:iniKpis,orcamento:()=>'',plano:iniPlano,dre:iniDre,saude:iniSaude,fecha:iniFecha,quinzenas:iniQuin,patrimonio:iniPat};
   layOrder().forEach(k=>{if((LAY.off||[]).includes(k))return;try{h+=B[k](X)||''}catch(e){console.error('início/'+k,e)}});
   h+=`<button class="custom" type="button" id="pers">${ic('edit')}<span>Personalizar início</span></button>`;
   el.innerHTML=h;wireIni(el);wireIni4(el);
@@ -3097,6 +3194,11 @@ function vInicio(){
   el.querySelectorAll('[data-ct]').forEach(b=>b.onclick=()=>openContaDet(conta(b.dataset.ct)));
   el.querySelectorAll('[data-pends]').forEach(b=>b.onclick=openPendentes);
   el.querySelectorAll('[data-spread]').forEach(b=>b.onclick=openSpread);
+  el.querySelectorAll('[data-colch]').forEach(b=>b.onclick=openColchao);
+  el.querySelectorAll('[data-wtab]').forEach(b=>b.onclick=()=>{WTAB=b.dataset.wtab;LSset('pt-wtab',WTAB);vInicio()});
+  el.querySelectorAll('[data-wcat]').forEach(b=>b.onclick=()=>{const c=b.dataset.wcat;LF={ym:today().slice(0,7),card:'',div:'todos',tag:'',q:'',cat:c};go('lanc')});
+  el.querySelectorAll('[data-hper]').forEach(b=>b.onclick=e=>{e.stopPropagation();HPER=b.dataset.hper;LSset('pt-hper',HPER);vInicio()});
+  wireScrub(el);
   el.querySelectorAll('[data-catv]').forEach(b=>b.onclick=()=>{CATV=b.dataset.catv;LSset('pt-catv',CATV);vInicio()});
   el.querySelectorAll('[data-tk]').forEach(b=>b.onclick=()=>{const v=b.dataset.tk,[k,a]=v.split(/:(.*)/s);if(k==='go')go(a);else if(k==='plano')openPlano();else if(k==='ind'){RP='patrimonio';go('relatorios')}else if(k==='cat'){CATV='mapa';LSset('pt-catv','mapa');vInicio()}else if(k==='nav'){const [kk,vv]=a.split(/:(.*)/s);if(kk==='fat'){const [c,y]=vv.split('|');openPagFat(card(c),y)}}});
   {const tw=el.querySelector('.tkw');if(tw){const tg=()=>tw.classList.toggle('pause');tw.addEventListener('touchstart',()=>tw.classList.add('pause'),{passive:true});tw.addEventListener('touchend',()=>setTimeout(()=>tw.classList.remove('pause'),2500),{passive:true})}}
@@ -4711,14 +4813,17 @@ let CONFREAL={};
 function confTxt(a){const c=a.conf;if(!c||!c.d)return [esc(a.instituicao||TCONTA[a.tipo||'corrente']||''),''];const n=diffD(c.d,today());return [`${ic('check')} conferido ${n<=0?'hoje':n===1?'ontem':fdate(c.d).slice(0,5)}`,'ok']}
 /* conferência pendente: quando o saldo do app chegar ao valor digitado (depois de lançar a diferença), marca sozinho */
 function confAuto(){Object.entries(CONFREAL).forEach(([id,x])=>{const a=conta(id);if(!a){delete CONFREAL[id];return}if(Math.abs(saldoConta(a)-x.v)<.01){delete CONFREAL[id];if(!(a.conf&&a.conf.d===today()&&Math.abs(a.conf.v-x.v)<.01))markConf(a,x.v)}})}
+/* variação da conta no mês (como a cotação do dia de um ativo) */
+function contaMov(a){const t=today(),d0=dayIn(ymAdd(t.slice(0,7),-1),31),v0=saldoConta(a,d0),v=saldoConta(a),ser=[];for(let k=29;k>=0;k-=3)ser.push(saldoConta(a,addD(t,-k)));return {v0,v,d:r2(v-v0),ser}}
+function contaPill(a){try{const m=contaMov(a);if(Math.abs(m.d)<.5)return '';return `<span class="cpl ${m.d>0?'up':'dn'}">${m.d>0?'▲':'▼'} ${brl0(Math.abs(m.d))} no mês</span>`}catch(e){return ''}}
 function saldoContas(me){
   try{confAuto()}catch(e){}
   const cs=S.contas.filter(a=>isCaixa(a)&&fracOf(a.dono,me)>0).map(a=>({a,v:saldoConta(a)})).sort((x,y)=>Math.abs(y.v)-Math.abs(x.v));
   const vis=cs.filter(x=>Math.abs(x.v)>=.005||(x.a.conf&&x.a.conf.d)),zer=cs.filter(x=>!vis.includes(x)),tot=sum(cs,x=>x.v*fracOf(x.a.dono,me));
-  const row=({a,v})=>{const [t,c]=confTxt(a);let pv=null;try{pv=periodoConta(a,today().slice(0,7)).prevFim}catch(e){}return `<button class="sxr" type="button" data-cf2="${esc(a.id)}">${bankBadge(a,a.tipo)}<span class="sxm"><strong>${esc(a.nome)}${a.dono!==me?' '+whoChip(a.dono):''}</strong><small class="${c}">${t}</small></span><span class="sxv"><b class="n ${v<0?'neg':''}">${brl(v)}</b>${pv!=null&&Math.abs(pv-v)>=.01?`<small class="n ${pv<0?'neg':''}">previsto ${brl(pv)}</small>`:''}</span></button>`};
+  const row=({a,v})=>{const [t,c]=confTxt(a);let pv=null;try{pv=periodoConta(a,today().slice(0,7)).prevFim}catch(e){}return `<button class="sxr" type="button" data-cf2="${esc(a.id)}">${bankBadge(a,a.tipo)}<span class="sxm"><strong>${esc(a.nome)}${a.dono!==me?' '+whoChip(a.dono):''}</strong><small class="${c}">${t}</small></span><span class="sxv"><b class="n ${v<0?'neg':''}">${brl(v)}</b>${contaPill(a)}${pv!=null&&Math.abs(pv-v)>=.01?`<small class="n ${pv<0?'neg':''}">previsto ${brl(pv)}</small>`:''}</span></button>`};
   const tg=`<button class="sxmin" type="button" id="sxmin" aria-label="${SXMIN?'Expandir':'Minimizar'} contas" aria-expanded="${!SXMIN}">${ic('down')}</button>`;
   if(SXMIN){const all=vis.concat(SXALL?zer:[]);return `<div class="card sxc min"><div class="ch"><h2>Saldo por conta</h2><span class="sxtot n ${tot<0?'neg':''}">${brl(tot)}</span>${tg}</div>
-    <div class="sxg">${all.map(({a,v})=>`<button class="sxp" type="button" data-cf2="${esc(a.id)}">${bankBadge(a,a.tipo)}<span><small>${esc(a.nome)}</small><b class="n ${v<0?'neg':''}">${Math.abs(v)>=10000?brl0(v):brl(v)}</b></span>${a.conf&&a.conf.d?`<i class="sxok" title="conferido">${ic('check')}</i>`:''}</button>`).join('')}</div></div>`}
+    <div class="sxg">${all.map(({a,v})=>`<button class="sxp" type="button" data-cf2="${esc(a.id)}">${bankBadge(a,a.tipo)}<span><small>${esc(a.nome)}</small><b class="n ${v<0?'neg':''}">${Math.abs(v)>=10000?brl0(v):brl(v)}</b>${contaPill(a)}</span>${a.conf&&a.conf.d?`<i class="sxok" title="conferido">${ic('check')}</i>`:''}</button>`).join('')}</div></div>`}
   return `<div class="card sxc"><div class="ch"><h2>Saldo por conta</h2><span class="aside">toque para abrir</span>${tg}</div>
     <div class="sxl">${vis.map(row).join('')}${SXALL?zer.map(row).join(''):''}</div>
     ${zer.length?`<button class="sxz" type="button" id="sxz">${SXALL?'Ocultar contas zeradas':`+ ${zer.length} conta${zer.length>1?'s':''} zerada${zer.length>1?'s':''}`}</button>`:''}
