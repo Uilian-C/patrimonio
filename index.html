@@ -1837,7 +1837,7 @@ nav.tabs a[aria-current="page"]{color:var(--ink)}nav.tabs a[aria-current="page"]
 nav.tabs .fab{background:radial-gradient(120% 120% at 30% 20%,color-mix(in srgb,var(--fab-bg) 80%,#fff) 0%,var(--fab-bg) 55%);box-shadow:0 0 0 5px color-mix(in srgb,var(--fab-bg) 12%,transparent),0 14px 28px -12px color-mix(in srgb,var(--fab-bg) 60%,#000)}
 /* barra superior: vidro sem linha dura */
 .top{background:transparent!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;isolation:isolate}
-.top::before{content:"";position:absolute;z-index:-1;top:0;bottom:-14px;left:-50vw;right:-50vw;background:color-mix(in srgb,var(--bg) 78%,transparent);backdrop-filter:blur(18px) saturate(1.3);-webkit-backdrop-filter:blur(18px) saturate(1.3);-webkit-mask-image:linear-gradient(#000 62%,transparent);mask-image:linear-gradient(#000 62%,transparent);pointer-events:none}
+.top::before{content:"";position:absolute;z-index:-1;top:0;bottom:-14px;left:0;right:0;background:color-mix(in srgb,var(--bg) 78%,transparent);backdrop-filter:blur(18px) saturate(1.3);-webkit-backdrop-filter:blur(18px) saturate(1.3);-webkit-mask-image:linear-gradient(#000 62%,transparent);mask-image:linear-gradient(#000 62%,transparent);pointer-events:none}
 /* botões, campos e segmentos */
 .btn{border-radius:14px;transition:transform .12s ease,filter .15s}.btn:active{transform:scale(.97)}
 .btn.primary{background:linear-gradient(180deg,color-mix(in srgb,var(--ink) 92%,#fff) 0%,var(--ink) 100%);color:var(--surface);border:0;box-shadow:0 8px 18px -12px rgba(0,0,0,.6)}
@@ -1868,6 +1868,34 @@ nav.tabs .fab{background:radial-gradient(120% 120% at 30% 20%,color-mix(in srgb,
 /* com as abas fixas dos relatórios, o vidro do topo se estende por baixo delas */
 body:has(.chips.rp) .top::before{bottom:-58px}
 .cbub{background:linear-gradient(160deg,color-mix(in srgb,var(--cb) 15%,var(--surface)) 0%,color-mix(in srgb,var(--cb) 7%,var(--surface)) 100%)!important;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--cb) 14%,transparent)}
+
+/* ===================== v7.1 · minimalista =====================
+   Menos caixa: superfícies planas, sem bordas nem sombras, separação por espaço e por linhas finas.
+   Nenhum elemento pode passar da largura da tela. */
+html,body{overflow-x:clip;max-width:100%}
+body{background:var(--bg)!important}
+.card{background:var(--surface)!important;border:0!important;box-shadow:none!important;border-radius:22px}
+@media (prefers-color-scheme: light){:root:not([data-theme="dark"]) .card{box-shadow:0 1px 2px rgba(40,32,18,.04)!important}}
+:root[data-theme="light"] .card{box-shadow:0 1px 2px rgba(40,32,18,.04)!important}
+.view>.card+.card{margin-top:14px}
+/* cartão principal sem moldura, só o brilho dourado discreto */
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .hero{background:radial-gradient(80% 60% at 100% 0%,rgba(221,182,115,.10) 0%,transparent 60%),var(--surface)!important;border:0!important;box-shadow:none!important}}
+:root[data-theme="dark"] .hero{background:radial-gradient(80% 60% at 100% 0%,rgba(221,182,115,.10) 0%,transparent 60%),var(--surface)!important;border:0!important;box-shadow:none!important}
+/* caixas dentro de caixas viram listas leves */
+.sxg{gap:2px 14px}
+.sxp{border:0!important;background:transparent!important;padding:10px 2px!important;border-radius:12px}
+.sxp:active{background:var(--sunk)!important}
+.rcard{background:var(--surface)!important;border:0!important;box-shadow:none!important}
+.rcard.rnew{border:1.5px dashed color-mix(in srgb,var(--muted) 28%,transparent)!important;background:transparent!important}
+.agd{border-color:color-mix(in srgb,var(--hair) 90%,transparent)!important}
+.best{background:transparent!important;border:1px solid var(--hair)!important}
+.qa .qab>span{background:color-mix(in srgb,var(--qc) 10%,transparent)!important;border:0!important;box-shadow:none!important}
+.cbub{background:color-mix(in srgb,var(--cb) 12%,transparent)!important;box-shadow:none!important}
+nav.tabs{background:color-mix(in srgb,var(--surface) 80%,transparent);border:0;box-shadow:0 12px 32px -18px rgba(0,0,0,.6)}
+nav.tabs .fab{background:var(--fab-bg);box-shadow:0 10px 24px -12px rgba(0,0,0,.6)}
+.sheet{background:var(--surface)!important;box-shadow:0 -20px 50px -30px rgba(0,0,0,.5);border-top:0}
+.btn.primary{background:var(--ink);box-shadow:none}
+.view>.card,.view>section,.view>.qa{animation-duration:.35s}
 </style>
 </head>
 <body>
