@@ -2082,6 +2082,7 @@ main{padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))!important}
 .faqi summary{list-style:none;display:flex;justify-content:space-between;gap:12px;align-items:center;padding:13px 0;font-size:15px;font-weight:550;cursor:pointer}
 .faqi summary::-webkit-details-marker{display:none}.faqi summary .ic{width:16px;height:16px;flex:none;color:var(--faint);transition:transform .2s}.faqi[open] summary .ic{transform:rotate(180deg)}
 .faqr{padding:0 0 14px}.faqr p{margin:0 0 10px;font-size:14px;line-height:1.55;color:var(--muted)}.faqr p b{color:var(--ink,inherit);font-weight:600}
+.tkd.wn{color:var(--warn,#C8913A)}.tkd.nt{color:var(--accent,#E2BA6E);font-size:9px}
 </style>
 </head>
 <body>
@@ -3028,7 +3029,7 @@ function iniTicker(X){const {me,t,ym,F}=X,its=[];const pm=ymAdd(ym,-1),eop=dayIn
   try{agendaPessoal(me,addD(t,20)).filter(x=>x.k==='fat').slice(0,3).forEach(x=>q(x.t.replace(/^Fatura /,'').toUpperCase(),brl0(-x.v),null,null,'nav:'+x.nav,'vence '+fdate(x.d).slice(0,5)))}catch(e){}
   try{if(CDI.em!==today())cdiLoad();q('CDI',cdiAA().toLocaleString('pt-BR',{maximumFractionDigits:2})+'% a.a.',null,null,'ind');const ip=ipca12();if(ip&&ip.v)q('IPCA 12M',ip.v.toLocaleString('pt-BR',{maximumFractionDigits:2})+'%',null,null,'ind')}catch(e){}
   if(its.length<3)return '';
-  const one=x=>`<button type="button" class="tki" data-tk="${esc(x.nav||'')}"><span class="tkl">${esc(x.lab)}</span><b class="n">${esc(x.val)}</b>${x.d!=null?`<span class="tkd ${x.good?'up':'dn'}">${x.d>=0?'▲':'▼'} ${pctf(Math.abs(x.d))}</span>`:x.good===false?'<span class="tkd dn">●</span>':''}${x.sub?`<small>${esc(x.sub)}</small>`:''}</button>`;
+  const one=x=>`<button type="button" class="tki" data-tk="${esc(x.nav||'')}"><span class="tkl">${esc(x.lab)}</span><b class="n">${esc(x.val)}</b>${x.d!=null?`<span class="tkd ${x.good?'up':'dn'}">${x.d>=0?'▲':'▼'} ${pctf(Math.abs(x.d))}</span>`:x.good===false?'<span class="tkd dn">●</span>':String(x.nav).startsWith('nav:')?'<span class="tkd wn">◷</span>':x.nav==='ind'?'<span class="tkd nt">◆</span>':''}${x.sub?`<small>${esc(x.sub)}</small>`:''}</button>`;
   const row=its.map(one).join('<i class="tks" aria-hidden="true"></i>');
   return `<div class="tkw" role="marquee" aria-label="Cotações do seu dinheiro"><div class="tkt" style="--tkdur:${Math.max(its.length*4.5,24)}s">${row}<i class="tks" aria-hidden="true"></i><span class="tkcp" aria-hidden="true">${row}<i class="tks"></i></span></div></div>`}
 /* candles: abertura = saldo no início do mês, fechamento = fim do mês (projetado no mês atual), pavio = menor e maior saldo */
