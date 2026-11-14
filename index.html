@@ -1866,7 +1866,7 @@ nav.tabs .fab{background:radial-gradient(120% 120% at 30% 20%,color-mix(in srgb,
 .rcard.rnew{background:transparent!important;box-shadow:none!important;border:1.5px dashed color-mix(in srgb,var(--muted) 35%,transparent)!important}
 .chips.rp{background:transparent!important;z-index:6}
 /* com as abas fixas dos relatórios, o vidro do topo se estende por baixo delas */
-body:has(.chips.rp) .top::before{bottom:-58px}
+body:has(.view:not([hidden]) .chips.rp) .top::before{bottom:-58px}
 .cbub{background:linear-gradient(160deg,color-mix(in srgb,var(--cb) 15%,var(--surface)) 0%,color-mix(in srgb,var(--cb) 7%,var(--surface)) 100%)!important;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--cb) 14%,transparent)}
 
 /* ===================== v7.1 · minimalista =====================
