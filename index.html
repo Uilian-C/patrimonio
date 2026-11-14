@@ -2034,6 +2034,18 @@ nav.tabs .fab{background:var(--fab-bg);box-shadow:0 10px 24px -12px rgba(0,0,0,.
 .wsp svg,.sxsp svg,.wsp .spk,.sxsp .spk{position:static!important;width:100%!important;height:100%!important}.wsp,.sxsp{position:relative}.wsp{height:24px}.sxsp>span:first-child,.sxsp svg{height:22px}
 .mgg>b{position:static!important;margin-top:-4px}
 input.czr{-webkit-appearance:auto!important;appearance:auto!important;height:28px!important;min-height:0!important;border:0!important;background:none!important;box-shadow:none!important;padding:0!important}
+
+/* saídas por dia */
+.vbars{display:block;width:100%;height:34px;margin-top:4px;overflow:visible}.vbars rect{fill:color-mix(in srgb,var(--hero-mut) 45%,transparent);cursor:pointer}.vbars rect.big{fill:color-mix(in srgb,var(--hero-neg) 70%,transparent)}
+.vbars rect.fut{fill:none;stroke:color-mix(in srgb,var(--hero-mut) 60%,transparent);stroke-width:.8;stroke-dasharray:2 1.5}.vbars rect.fut.big{stroke:color-mix(in srgb,var(--hero-neg) 70%,transparent)}.vbars rect.sel{fill:var(--hero-acc)!important;stroke:none}
+.vbl{display:flex;justify-content:space-between;gap:8px;font-size:11px;color:var(--hero-mut);margin-top:2px}.vbl b{color:var(--hero-ink)}.vbt{text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* ficha da categoria */
+.cfh{display:flex;gap:12px;align-items:center;margin-bottom:6px}.cfh h2{margin:0;font-size:18px}.cfv{font-size:24px;font-weight:650;letter-spacing:-.03em;margin-right:8px}.cfh .wpl{vertical-align:4px}
+.cfs{margin:8px 0 12px}.cfs svg{position:static!important;width:100%!important;height:70px!important;display:block}.cfsl{display:flex;justify-content:space-between;font-size:10.5px;color:var(--faint);margin-top:2px}
+.cfg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px 10px;padding:12px 0;border-top:1px solid var(--sep);border-bottom:1px solid var(--sep)}
+.cfg>div{display:grid;gap:1px}.cfg span{font-size:11px;color:var(--muted);letter-spacing:.02em;text-transform:uppercase}.cfg b{font-size:15px;font-weight:600}.cfg small{font-size:11px;color:var(--faint)}
+.cfst{display:grid;gap:3px;margin:12px 0}.cfst span{font-size:14px}.cfst b{font-weight:650;color:var(--accent)}.cfst small{font-size:12px;color:var(--muted);line-height:1.45}
+.vbl>span:first-child{white-space:nowrap}
 </style>
 </head>
 <body>
@@ -2826,7 +2838,7 @@ function iniHero(X){
       <span class="hfc"><small>Hoje</small><b class="n ${saldo<0?'neg':''}">${brl0(saldo)}</b></span><span class="hfa">›</span>
       <span class="hfc hfe"><small>Vira para ${nm}</small><b class="n ${F.final<0?'neg':''}">${brl0(F.final)}</b></span>
       <span class="hper" role="group" aria-label="Período do gráfico">${[['m','Mês'],['3m','3M'],['6m','6M'],['1a','1A']].map(([k,l])=>`<button type="button" data-hper="${k}" aria-pressed="${HPER===k}">${l}</button>`).join('')}</span>
-      ${HPER==='m'?`<span class="hfs">${heroChart(F,ym)}</span>
+      ${HPER==='m'?`<span class="hfs">${heroChart(F,ym)}${(()=>{try{return barsSaidas(me,dayIn(ym,1),dayIn(ym,31),(i,n)=>3+i*314/Math.max(n-1,1))}catch(e){return ''}})()}</span>
       <span class="hfn"><span class="${dv>=0?'up':'dn'}">${dv>=0?'↑':'↓'} ${brl0(Math.abs(dv))} no mês</span> · projeção com tudo que entra e sai até ${lastDay(ym)}/${ym.slice(5)}</span>`:heroPeriodo(me)}
       ${heroComp(F,me,ym)}</div>`})()}
     <div class="hsplit">
@@ -2864,6 +2876,45 @@ function iniBen(X){
   if(!bs.length)return `<button type="button" class="setup bcta" data-addc="beneficio"><span class="ali">${ICN.ben}</span><span><b>Controle seu VR, VA ou flexível</b><small>saldo, quanto pode gastar por dia e quando cai a recarga</small></span><span class="go">›</span></button>`;
   return `<div class="card"><div class="ch"><h2>Benefícios</h2><span class="aside n">${brl0(sum(bs,a=>saldoConta(a)))}</span></div>${bs.map(a=>{const C=benCiclo(a);return `<button type="button" class="bnr" data-ct="${esc(a.id)}">${bankBadge(a,'beneficio')}<span class="bnm"><strong>${esc(a.nome)}</strong><small>${brl0(Math.max(C.porDia,0))} por dia${C.util?' útil':''} · recarga ${fdate(C.prox).slice(0,5)}</small><span class="bbar sm"><i style="width:${Math.min(C.uPct,1)*100}%"></i><em style="left:${C.tPct*100}%"></em></span></span><span class="bnv"><b class="n">${brl(C.saldo)}</b><small class="tg ${C.proj<0&&C.gasto?'warn':'ok'}">${C.proj<0&&C.gasto?'falta '+brl0(-C.proj):'sobra '+brl0(Math.max(C.proj,0))}</small></span></button>`}).join('')}</div>`;
 }
+/* ===================== Saídas por dia (o "volume" do caixa) =====================
+   Realizado: despesas, faturas pagas e transferências para fora das suas contas, na data em que saíram.
+   Futuro: o que está previsto na agenda. Entradas não entram (não "escondem" as saídas do dia). */
+function saidasDia(me,d0,d1){const t=today(),cs=scopeContas(me),ids=new Set(cs.map(a=>a.id)),fr=id=>{const a=conta(id);return a?fracOf(a.dono,me):1},out={};
+  const add=(d,v,desc,fut)=>{if(d<d0||d>d1||!(v>0))return;const o=out[d]=out[d]||{v:0,n:0,fut:0,its:[]};o.v+=v;o.n++;if(fut)o.fut+=v;o.its.push([desc,v])};
+  S.lanc.forEach(l=>{if(l.pend||!l.conta||!ids.has(l.conta))return;const d=l.data||'';if(d>t)return;const tp=l.tipo||'despesa',v=(+l.valor||0)*fr(l.conta);
+    if(tp==='despesa'||tp==='pagfat')add(d,v,l.desc||l.categoria||'Saída');else if(tp==='transf'&&!(l.destino&&ids.has(l.destino)))add(d,v,l.desc||'Transferência')});
+  S.acertos.forEach(x=>{const xd=acD(x);if(!xd||xd>t||!x.conta||!ids.has(x.conta))return;const a=conta(x.conta);if(a&&x.de===a.dono)add(xd,(+x.valor||0)*fr(x.conta),'Acerto')});
+  if(d1>t)agendaPessoal(me,d1,addD(t,1)).filter(x=>x.v<0&&x.d>t).forEach(x=>add(x.d,-x.v,x.t,true));
+  return out}
+function barsSaidas(me,d0,d1,xOf){const S0=saidasDia(me,d0,d1),ks=Object.keys(S0);if(!ks.length)return '';const mx=Math.max(...ks.map(k=>S0[k].v)),H=34,t=today();
+  const days=[];for(let d=d0;d<=d1;d=addD(d,1))days.push(d);const bw=Math.max(Math.min(314/days.length*.62,7),1.2);
+  return `<svg class="vbars" viewBox="0 0 320 ${H}" preserveAspectRatio="none" aria-label="Saídas por dia">${days.map((d,i)=>{const o=S0[d];if(!o)return '';const h=Math.max(o.v/mx*(H-4),1.5),x=xOf(i,days.length);
+    return `<rect x="${(x-bw/2).toFixed(1)}" y="${(H-h).toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" rx="1" class="${d>t?'fut':''} ${o.v>=mx*.6?'big':''}" data-vb="${d}|${r2(o.v)}|${o.n}|${esc(o.its.sort((a,b)=>b[1]-a[1]).slice(0,2).map(z=>z[0]).join(', '))}"/>`}).join('')}</svg>
+    <span class="vbl"><span>Saídas por dia</span><span class="vbt" aria-live="polite">maior: ${brl0(mx)} em ${fdate(ks.reduce((a,k)=>S0[k].v>S0[a].v?k:a,ks[0])).slice(0,5)}</span></span>`}
+function wireBars(el){el.querySelectorAll('.vbars rect').forEach(r=>r.addEventListener('click',e=>{e.stopPropagation();const [d,v,n,its]=r.dataset.vb.split('|'),tt=r.closest('.hflow,.pchw,.hfs')?.parentElement?.querySelector('.vbt')||el.querySelector('.vbt');
+  el.querySelectorAll('.vbars rect.sel').forEach(x=>x.classList.remove('sel'));r.classList.add('sel');if(tt)tt.innerHTML=`<b>${fdate(d).slice(0,5)}</b> ${d>today()?'previsto':'saiu'} ${brl0(+v)} · ${n} ${+n>1?'itens':'item'}${its?' · '+its:''}`}))}
+/* ===================== Ficha da categoria =====================
+   Como a ficha de um ativo: o mês, a média, o maior e o menor mês, ticket médio e frequência; sugere um stop realista. */
+function catFicha(me,c){const t=today(),cym=t.slice(0,7),ms=[];for(let k=12;k>=0;k--){const m=ymAdd(cym,-k);if(dayIn(m,31)>=histIni())ms.push(m)}
+  const its=movs().filter(i=>i.tipo==='despesa'&&(i.l.categoria||'Outros')===c&&share(i,me)>0),by={},cnt={};its.forEach(i=>{const m=i.cym||i.ym;by[m]=(by[m]||0)+share(i,me);cnt[m]=(cnt[m]||0)+1});
+  const comp=mesesOk(cym,12).slice().sort(),vals=comp.map(m=>r2(by[m]||0)),n=vals.length,avg=n?sum(vals,v=>v)/n:0;
+  const mxI=n?vals.indexOf(Math.max(...vals)):-1,mnI=n?vals.indexOf(Math.min(...vals)):-1,nC=sum(comp,m=>cnt[m]||0),tick=nC?sum(comp,m=>by[m]||0)/nC:((cnt[cym]||0)?(by[cym]||0)/cnt[cym]:0);
+  const cur=r2(by[cym]||0),fr=Math.min(+t.slice(8)/lastDay(cym),1),proj=fr>0&&(cnt[cym]||0)>=3?r2(cur/fr):cur,ritmo=(cnt[cym]||0)>=3,P=planoCalc(cym,me),pc=P.cats.find(x=>x.c===c),stop=pc&&pc.d?r2(pc.d+pc.ro):0;
+  const sug=avg>0?Math.ceil(avg/10)*10:Math.ceil(proj/10)*10;
+  return {ritmo,c,ms,ser:ms.map(m=>r2(by[m]||0)),cur,proj,avg,n,max:mxI>=0?{m:comp[mxI],v:vals[mxI]}:null,min:mnI>=0?{m:comp[mnI],v:vals[mnI]}:null,tick:r2(tick),freq:n?nC/n:(cnt[cym]||0),cntCur:cnt[cym]||0,stop,sug,pc}}
+function openCatFicha(c){const me=ME(),F=catFicha(me,c),ym=today().slice(0,7),d=F.avg>20?F.proj/F.avg-1:null;
+  const cell=(k,v,s)=>`<div><span>${k}</span><b class="n">${v}</b>${s?`<small>${s}</small>`:''}</div>`;
+  openSheet(`<div class="cfh">${catBubble(c)}<div><h2>${esc(c)}</h2><span class="n cfv">${brl(F.cur)}</span>${d!=null?`<span class="wpl ${d>0?'dn':'up'}">${d>0?'+':'−'}${pctf(Math.abs(d))} vs média</span>`:''}</div></div>
+    <p class="note">${F.ritmo?`No ritmo atual, ${MESL[+ym.slice(5)-1].toLowerCase()} fecha em torno de <b>${brl0(F.proj)}</b> nesta categoria.`:`Até agora em ${MESL[+ym.slice(5)-1].toLowerCase()}: <b>${brl0(F.cur)}</b> em ${F.cntCur} lançamento${F.cntCur===1?'':'s'} (poucos para projetar o mês).`}</p>
+    ${F.ser.length>1?`<div class="cfs">${sparkL(F.ser,d!=null&&d>0?'var(--crit)':'var(--accent)',320,70)}<div class="cfsl">${F.ms.map((m,i)=>i%Math.ceil(F.ms.length/6)===0||i===F.ms.length-1?`<span>${MES[+m.slice(5)-1]}</span>`:'').join('')}</div></div>`:''}
+    <div class="cfg">${cell('Média mensal',F.n?brl0(F.avg):'—',F.n?`${F.n} ${F.n===1?'mês completo':'meses completos'}`:'sem mês completo')}${cell('Maior mês',F.max?brl0(F.max.v):'—',F.max?MESL[+F.max.m.slice(5)-1]:'')}${cell('Menor mês',F.min?brl0(F.min.v):'—',F.min?MESL[+F.min.m.slice(5)-1]:'')}
+      ${cell('Ticket médio',F.tick?brl0(F.tick):'—','por compra')}${cell('Compras por mês',F.n?F.freq.toLocaleString('pt-BR',{maximumFractionDigits:1}):String(F.cntCur),F.n?'média':'neste mês')}${cell('Stop do mês',F.stop?brl0(F.stop):'sem stop',F.stop?`resta ${brl0(F.pc.disp)}`:'')}</div>
+    <div class="cfst"><span>Stop sugerido: <b class="n">${brl0(F.sug)}</b></span><small>${F.n?'arredondado a partir da média dos meses completos':'com base no ritmo deste mês (ainda sem histórico)'}${F.max&&F.min&&F.max.v>F.min.v*1.5?` · esta categoria oscila (${brl0(F.min.v)} a ${brl0(F.max.v)}): avalie uma folga`:''}</small></div>
+    <div class="btnrow"><button class="btn primary" type="button" id="cf-st">${F.stop?'Atualizar stop para '+brl0(F.sug):'Usar como stop'}</button><button class="btn" type="button" id="cf-l">Ver lançamentos</button></div>`,sh=>{
+    sh.querySelector('#cf-l').onclick=()=>{closeSheet();LF={ym,card:'',div:'todos',tag:'',q:'',cat:c};setTimeout(()=>go('lanc'),200)};
+    sh.querySelector('#cf-st').onclick=async()=>{const plano=Object.assign({},cfg().plano||{}),p=Object.assign({cats:{},guardar:0},plano[ym]||{});p.cats=Object.assign({},p.cats||{},{[c]:F.sug});plano[ym]=p;
+      try{await S.db.doc('config/app').set(Object.assign({},S.cfg||{},{plano}));closeSheet();toast(`Stop de ${c}: ${brl0(F.sug)} em ${MESL[+ym.slice(5)-1].toLowerCase()}`)}catch(err){toast(writeErr(err))}};
+  })}
 /* ===================== Lista de acompanhamento (categorias) =====================
    Cada categoria como um ativo: minigráfico de 6 meses, gasto do mês e variação contra a média (no mesmo ponto do mês). */
 let WTAB=LS('pt-wtab','altas');
@@ -2919,7 +2970,7 @@ function lineSVG(pts,cls){if(pts.length<2)return '';const W=320,H=90,vs=pts.map(
   const up=vs[vs.length-1]>=vs[0],d=pts.map((p,i)=>`${i?'L':'M'}${X(i).toFixed(1)} ${Y(p[1]).toFixed(1)}`).join(''),z=mn<0?`<line x1="0" x2="${W}" y1="${Y(0)}" y2="${Y(0)}" class="pz"/>`:'';
   return `<svg class="pch ${up?'up':'dn'} ${cls||''}" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" data-pts='${JSON.stringify(pts.map(p=>[p[0],p[1]]))}'><defs><linearGradient id="pg${up?'u':'d'}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="currentColor" stop-opacity=".22"/><stop offset="1" stop-color="currentColor" stop-opacity="0"/></linearGradient></defs>${z}<path d="${d}L${W} ${H}L0 ${H}Z" fill="url(#pg${up?'u':'d'})"/><path d="${d}" class="pl"/><line class="psc" x1="0" x2="0" y1="0" y2="${H}" style="display:none"/></svg>`}
 function heroPeriodo(me){const dias={'3m':91,'6m':182,'1a':365}[HPER]||91,P=serieCaixa(me,dias),vs=P.map(p=>p[1]),mn=Math.min(...vs),mx=Math.max(...vs),i0=vs.indexOf(mn),i1=vs.indexOf(mx),dv=vs[vs.length-1]-vs[0];
-  return `<span class="hfs pchw">${lineSVG(P)}<span class="pcht" aria-live="polite"></span></span>
+  return `<span class="hfs pchw">${lineSVG(P)}<span class="pcht" aria-live="polite"></span>${(()=>{try{return barsSaidas(me,P[0][0],today(),(i,n)=>i/Math.max(n-1,1)*320)}catch(e){return ''}})()}</span>
     <span class="hfn"><span class="${dv>=0?'up':'dn'}">${dv>=0?'▲':'▼'} ${brl0(Math.abs(dv))} em ${HPER==='1a'?'12 meses':HPER.replace('m',' meses')}</span> · mín. <b class="n ${mn<0?'neg':''}">${brl0(mn)}</b> ${fdate(P[i0][0]).slice(0,5)} · máx. <b class="n">${brl0(mx)}</b> ${fdate(P[i1][0]).slice(0,5)}</span>`}
 function wireScrub(el){el.querySelectorAll('.pchw').forEach(w=>{const sv=w.querySelector('svg.pch');if(!sv)return;const pts=JSON.parse(sv.dataset.pts||'[]'),tip=w.querySelector('.pcht'),ln=sv.querySelector('.psc');if(!pts.length)return;
   const show=e=>{const r=sv.getBoundingClientRect(),x=Math.max(0,Math.min((e.clientX-r.left)/r.width,1)),i=Math.round(x*(pts.length-1)),p=pts[i];ln.style.display='';ln.setAttribute('x1',x*320);ln.setAttribute('x2',x*320);
@@ -3196,7 +3247,8 @@ function vInicio(){
   el.querySelectorAll('[data-spread]').forEach(b=>b.onclick=openSpread);
   el.querySelectorAll('[data-colch]').forEach(b=>b.onclick=openColchao);
   el.querySelectorAll('[data-wtab]').forEach(b=>b.onclick=()=>{WTAB=b.dataset.wtab;LSset('pt-wtab',WTAB);vInicio()});
-  el.querySelectorAll('[data-wcat]').forEach(b=>b.onclick=()=>{const c=b.dataset.wcat;LF={ym:today().slice(0,7),card:'',div:'todos',tag:'',q:'',cat:c};go('lanc')});
+  el.querySelectorAll('[data-wcat]').forEach(b=>b.onclick=()=>openCatFicha(b.dataset.wcat));
+  wireBars(el);
   el.querySelectorAll('[data-hper]').forEach(b=>b.onclick=e=>{e.stopPropagation();HPER=b.dataset.hper;LSset('pt-hper',HPER);vInicio()});
   wireScrub(el);
   el.querySelectorAll('[data-catv]').forEach(b=>b.onclick=()=>{CATV=b.dataset.catv;LSset('pt-catv',CATV);vInicio()});
