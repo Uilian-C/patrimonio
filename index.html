@@ -1913,6 +1913,24 @@ nav.tabs .fab{background:var(--fab-bg);box-shadow:0 10px 24px -12px rgba(0,0,0,.
 .ulm{display:grid;gap:2px;min-width:0}.ulm strong{font-size:14.5px;font-weight:550;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ulm strong small{color:var(--faint);font-weight:500;font-size:12px}
 .ulm>small{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .uli>b{font-size:14.5px;font-weight:600;letter-spacing:-.02em}.uli>b.neg{color:var(--ink)}.uli>b.pos{color:var(--good)}
+
+/* revisão geral de linhas (v7.2): todas as divisórias no mesmo tom suave, inclusive no cartão principal e nas folhas */
+:root{--sep:rgba(28,27,24,.055);--hero-line:rgba(28,27,24,.06)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--sep:rgba(236,232,224,.05);--hero-line:rgba(236,232,224,.06)}}
+:root[data-theme="dark"]{--sep:rgba(236,232,224,.05);--hero-line:rgba(236,232,224,.06)}
+.hero .hcomp,.hero .hflow,.hero .hsplit{border-top-color:var(--hero-line)!important}.hero .hsplit>div+div{border-left-color:var(--hero-line)!important}
+.hero .eye{border-color:var(--hero-line)!important}
+.sheet *{border-color:var(--sep)}
+.sheet .field input,.sheet .field select,.sheet .field textarea{border-color:transparent}
+.agd{border-color:var(--sep)!important}.agd.soon{border-color:color-mix(in srgb,var(--warn) 30%,transparent)!important}
+.chip:not([aria-pressed="true"]){border-color:var(--sep)!important}
+.rcard.rnew{border-color:color-mix(in srgb,var(--muted) 20%,transparent)!important}
+.blpl{border-top-color:color-mix(in srgb,var(--ink) 11%,transparent)!important}
+.navb,.lxq,.kpi,.tile,.setup .bcta{border-color:var(--sep)!important}
+
+/* cores de marca e de cartão um pouco mais calmas no escuro (sem perder o reconhecimento) */
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .bk,:root:not([data-theme="light"]) .cmini,:root:not([data-theme="light"]) .cdot{filter:saturate(.82) brightness(.92)}}
+:root[data-theme="dark"] .bk,:root[data-theme="dark"] .cdot{filter:saturate(.82) brightness(.92)}
 </style>
 </head>
 <body>
