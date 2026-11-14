@@ -2114,6 +2114,21 @@ main{padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))!important}
 .mkl{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:4px}
 .mkgap{padding:0;border:0;color:var(--muted)}
 .mgx{display:flex;flex-direction:column;align-items:flex-start;gap:6px;margin:12px 0 0;padding:10px 12px;border-radius:12px;background:var(--sunk,rgba(127,127,127,.1));font-size:13px;line-height:1.5;color:var(--muted)}.mgx b{color:var(--ink,inherit)}.mgx .lk{padding:0;font-size:13px}
+.mgseg{margin:2px 0 12px}
+.mgcx{display:grid;gap:2px;align-content:center;justify-items:start}.mgcx small{font-size:11.5px;color:var(--muted)}.mgcx b{font-size:19px;font-weight:650;margin-bottom:6px}
+.mgpj{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:12px}.mgpj small{font-size:12px;color:var(--muted)}
+.mgtg{display:inline-flex;align-items:center;gap:8px;border:0;background:none;color:inherit;font-size:13.5px;padding:4px 0}.mgtg i{width:32px;height:19px;border-radius:10px;background:var(--sunk,rgba(127,127,127,.25));position:relative;transition:background .2s}
+.mgtg i::after{content:"";position:absolute;top:2px;left:2px;width:15px;height:15px;border-radius:50%;background:#fff;transition:transform .2s}.mgtg[aria-pressed="true"] i{background:var(--accent,#E2BA6E)}.mgtg[aria-pressed="true"] i::after{transform:translateX(13px)}
+.mgsim{margin-top:14px;padding-top:14px;border-top:1px solid var(--sep,var(--hair))}
+.mgin{display:grid;grid-template-columns:auto 1fr;grid-template-rows:auto auto;column-gap:12px;align-items:center;width:100%;text-align:left;padding:12px 14px;border:1px dashed color-mix(in srgb,var(--accent,#E2BA6E) 55%,transparent);border-radius:14px;background:none;color:inherit}
+.mgin span{grid-row:1/3;font-size:13.5px;color:var(--muted)}.mgin b{font-size:22px;font-weight:650;text-align:right}.mgin small{font-size:11.5px;color:var(--muted);text-align:right}
+.mgsl{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.mgo{display:grid;grid-template-columns:34px minmax(0,1fr) auto;gap:10px;align-items:center;padding:10px 12px;border:1px solid var(--sep,var(--hair));border-radius:14px}
+.mgo.best{border-color:var(--accent,#E2BA6E);background:color-mix(in srgb,var(--accent,#E2BA6E) 8%,transparent)}.mgo.no{opacity:.6}
+.mgo .bk{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;font-size:11px;font-weight:700;color:#fff}.mgo .bk-g{color:inherit}
+.mgom{display:grid;gap:1px;min-width:0}.mgom b{font-size:14px}.mgom b em{font-style:normal;font-size:10.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--accent,#E2BA6E);margin-left:6px}.mgom small{font-size:12px;color:var(--muted);line-height:1.35}.mgom small.neg{color:var(--crit,#E0705F)}
+.mgmore summary{list-style:none;cursor:pointer;font-size:13px;color:var(--accent,#E2BA6E);padding:4px 2px}.mgmore summary::-webkit-details-marker{display:none}.mgmore[open]{display:flex;flex-direction:column;gap:8px}
+.mgw{display:block;margin-top:4px;line-height:1.35}
 </style>
 </head>
 <body>
@@ -3028,14 +3043,51 @@ function gaugeSVG(uso,ritmo,st){const R=46,cx=60,cy=56,a=v=>Math.PI*(1-Math.max(
   return `<svg class="gau ${st}" viewBox="0 0 120 66" aria-hidden="true"><path d="${arc(0,1)}" class="gtk"/><path d="${arc(0,.6)}" class="gz1"/><path d="${arc(.6,.85)}" class="gz2"/><path d="${arc(.85,1)}" class="gz3"/>${u>0?`<path d="${arc(0,u)}" class="gvl"/>`:''}
     <line x1="${rx}" y1="${ry}" x2="${cx+(rx-cx)*.82}" y2="${cy+(ry-cy)*.82}" class="grt"/><line x1="${cx}" y1="${cy}" x2="${cx+(nx-cx)*nl}" y2="${cy+(ny-cy)*nl}" class="gnd"/><circle cx="${cx}" cy="${cy}" r="3.6" class="gnc"/></svg>`}
 const MGT={ok:['Ok','ok'],atencao:['Acima do ritmo','warn'],stop:['Passou da margem','crit'],sem:['Sem margem','crit'],caixa:['Caixa apertado','crit']};
-function iniMargem(X){let M;try{M=margemCalc(X.me,X.ym)}catch(e){return ''}if(!M.renda)return '';const [tt,tc]=MGT[M.st];
-  return `<div class="card mgc"><div class="ch"><h2>Margem do mês</h2><button class="lk" type="button" data-colch="1">Colchão ${Math.round(M.pct*100)}% ›</button></div>
-    <div class="mgb"><div class="mgg">${gaugeSVG(M.uso,M.ritmo,M.st)}<b class="n">${M.livre>0?Math.round(M.uso*100)+'%':'—'}</b><small class="${tc}">● ${tt}</small></div>
-      <div class="mgk"><div><span>Pode gastar ainda</span><b class="n ${M.pode<=0?'neg':''}">${!M.limCx&&M.resta<0?'−'+brl0(-M.resta):brl0(Math.max(M.pode,0))}</b><small>${M.limCx?(()=>{const q=M.cx.prox?`a próxima entrada (${fdate(M.cx.prox).slice(0,5)})`:'o fim do mês';return M.pode>0?`limitado pelo caixa até ${q} · ≈ ${brl0(M.porDia)}/dia`:`o caixa até ${q} não comporta: sobra ${brl0(M.cx.livre)}, colchão ${brl0(M.cz)}`})():M.porDia?`≈ ${brl0(M.porDia)} por dia até o fim do mês`:M.resta<0?'acima do livre do mês':''}</small></div>
-        <div class="mgk2"><span>Livre <b class="n">${brl0(M.livre)}</b></span><span>Usado <b class="n">${brl0(M.usado)}</b></span>${M.limCx?`<span>Pelo orçamento <b class="n">${brl0(M.resta)}</b></span>`:''}</div></div></div>
-    ${(()=>{const pm=MES[+ymAdd(X.ym,-1).slice(5)-1].toLowerCase();if(M.sobraOn)return `<div class="mgx"><span>Inclui a sobra de ${pm}: <b class="n">${brl0(M.sobra)}</b></span><button class="lk" type="button" data-msob="0">Não contar ›</button></div>`;
-      if(M.sobraIni>1&&(M.st==='stop'||M.resta<M.livre*.15))return `<div class="mgx"><span>Você começou o mês com <b class="n">${brl0(M.sobraIni)}</b> que sobrou de ${pm}. A margem conta só a renda deste mês — por isso o caixa pode virar positivo mesmo com a margem estourada.</span><button class="lk" type="button" data-msob="1">Contar a sobra de ${pm} ›</button></div>`;return ''})()}
-    <p class="mgn">Ritmo do mês: ${Math.round(M.ritmo*100)}% dos dias já passaram (traço no arco). Livre = renda ${brl0(M.renda)}${M.sobra?` + sobra ${brl0(M.sobra)}`:''} − compromissos ${brl0(M.fixo)} − colchão ${brl0(M.cz)}. Gastos no cartão contam no mês da compra, mesmo que a fatura seja paga no mês seguinte.</p></div>`}
+/* ===================== Quanto posso gastar: três visões × projetado/só o que entrou ===================== */
+let MGL=LS('pt-mgl','sobra'),MGP=LS('pt-mgp','1')!=='0',MGV=0;
+const MGLAB={orc:'Orçamento',sobra:'Com sobra',caixa:'Caixa real'};
+function gastoLentes(me,ym){ym=ym||today().slice(0,7);const t=today(),fim=dayIn(ym,31),P=planoCalc(ym,me),cz=r2((P.renda||0)*colchaoPct()),usado=r2(P.varT||0);
+  const recJa=r2(sum(movs().filter(i=>i.ym===ym&&i.src==='conta'&&i.tipo==='receita'&&!i.ben&&!(i.l&&i.l.pend)&&(i.l.data||'')<=t),i=>share(i,me)));
+  /* sobra útil: saldo com que o mês começou, menos as faturas deste mês de compras feitas antes (já contadas no orçamento do mês da compra) */
+  let sobraIni=0,fatAnt=0;try{sobraIni=r2(realBal(me,dayIn(ymAdd(ym,-1),31)));fatAnt=r2(sum(movs().filter(i=>i.src==='card'&&(i.due||'').slice(0,7)===ym&&(i.cym||i.ym)<ym),i=>(i.tipo==='receita'?-1:1)*share(i,me)))}catch(e){}
+  const sobra=r2(Math.max(0,sobraIni-fatAnt));
+  const orc=p=>r2((p?P.renda:recJa)-P.fixo-cz-usado),livre=p=>r2((p?P.renda:recJa)-P.fixo-cz);
+  /* caixa: menor saldo previsto até o fim do mês (saídas do dia antes das entradas), menos o colchão */
+  const bal0=realBal(me,t),AG=fim>=t?agendaPessoal(me,fim).filter(x=>x.d<=fim).sort((a,b)=>a.d.localeCompare(b.d)||a.v-b.v):[];
+  const cxf=p=>{let b=bal0,mn=bal0,md=t;AG.forEach(x=>{if(!p&&x.v>0)return;b+=x.v;if(b<mn){mn=b;md=x.d<t?t:x.d}});return {pode:r2(mn-cz),min:r2(mn),md,fim:r2(b)}};
+  const C={1:cxf(true),0:cxf(false)};
+  const L={orc:{1:orc(1),0:orc(0)},sobra:{1:r2(orc(1)+sobra),0:r2(orc(0)+sobra)},caixa:{1:C[1].pode,0:C[0].pode}};
+  const nd=lastDay(ym),dia=ym===t.slice(0,7)?+t.slice(8):nd;
+  return {P,cz,usado,recJa,sobra,sobraIni,fatAnt,L,C,livre,bal0,ritmo:dia/nd,dr:Math.max(nd-dia+1,1),fim,renda:P.renda,fixo:P.fixo}}
+function mgSim(G,v,me){if(!(v>0))return '';const t=today(),cx=G.L.caixa[MGP?1:0],ob=MGL==='caixa'?G.L.sobra[MGP?1:0]:G.L[MGL][MGP?1:0];
+  const opts=[{k:'pix',nome:'Pix ou débito',sub:'sai do caixa hoje',dias:0,ok:cx-v>=0,cx:r2(cx-v),mes:true}];
+  const st=S.cards.filter(c=>c.ativo!==false&&(c.dono||ME())===me).map(c=>{try{return cardStats(c)}catch(e){return null}}).filter(x=>x&&x.lim);
+  st.forEach(x=>{const ym=baseDue({data:t},x.c),due=dayIn(ym,x.c.vencimento),dias=diffD(t,due),mes=due<=G.fim,lim=x.disp>=v;
+    opts.push({k:'card',c:x.c,due,nome:x.c.nome,sub:`fatura de ${ymS(ym)} · paga em ${fdate(due).slice(0,5)} (${dias} dias)`,dias,lim,disp:x.disp,mes,ok:lim&&(!mes||cx-v>=0),cx:mes?r2(cx-v):null})});
+  const best=[...opts].filter(o=>o.ok).sort((a,b)=>b.dias-a.dias)[0];
+  const row=o=>`<div class="mgo ${o===best?'best':''} ${o.ok?'':'no'}">${o.k==='pix'?`<span class="bk bk-g">${ic('swap')}</span>`:`<span class="bk mgcb" style="background:${esc(o.c.cor||'var(--sunk)')}">${esc(String(o.nome).slice(0,2))}</span>`}
+    <span class="mgom"><b>${esc(o.nome)}${o===best?' <em>melhor opção</em>':''}</b><small>${esc(o.sub)}</small><small class="${o.ok?'':'neg'}">${o.k==='card'&&!o.lim?`limite disponível ${brl0(o.disp)} não cobre`:o.mes?(o.cx>=0?`caixa do mês fica em ${brl0(o.cx)}`:`faltaria ${brl0(-o.cx)} no caixa do mês`):`não sai do caixa deste mês · vai para ${MES[+o.due.slice(5,7)-1].toLowerCase()}`}${o.k==='card'&&o.lim?` · limite ${brl0(o.disp)}`:''}</small></span>
+    <button class="btn sm ${o===best?'primary':''}" type="button" data-mgl="${o.k==='pix'?'pix':esc(o.c.id)}">Lançar</button></div>`;
+  const O=opts.sort((a,b)=>(b===best)-(a===best)||(b.ok-a.ok)||b.dias-a.dias),pix=O.find(o=>o.k==='pix'),top=O.filter(o=>o!==pix).slice(0,2),rest=O.filter(o=>o!==pix&&!top.includes(o));
+  return `<div class="mgsl">${top.concat(pix).map(row).join('')}${rest.length?`<details class="mgmore"><summary>outros ${rest.length} cartões</summary>${rest.map(row).join('')}</details>`:''}</div>
+    <p class="mgn">${ob-v>=0?`No orçamento do mês (${MGLAB[MGL==='caixa'?'sobra':MGL].toLowerCase()}) ainda sobram <b class="n">${brl0(ob-v)}</b> depois deste gasto.`:`Este gasto passa <b class="n neg">${brl0(v-ob)}</b> do orçamento do mês (${MGLAB[MGL==='caixa'?'sobra':MGL].toLowerCase()}).`}${best?'':` Nenhuma forma cabe agora — veja no <button class="lk" type="button" data-mgsim="1">Posso comprar?</button> quando passa a caber.`}</p>`}
+function iniMargem(X){let G;try{G=gastoLentes(X.me,X.ym)}catch(e){return ''}if(!G.renda&&!G.bal0)return '';
+  const p=MGP?1:0,v=G.L[MGL][p],pm=MES[+ymAdd(X.ym,-1).slice(5)-1].toLowerCase(),C=G.C[p];
+  const lv=MGL==='caixa'?null:r2(G.livre(p)+(MGL==='sobra'?G.sobra:0)),uso=lv>0?G.usado/lv:(G.usado>0?9:0);
+  const st=v<0?'stop':MGL!=='caixa'&&uso>G.ritmo*1.1&&uso>.5?'atencao':'ok',[tt,tc]=MGT[st];
+  const sub=MGL==='orc'?`renda ${p?'prevista':'que já entrou'} ${brl0(p?G.renda:G.recJa)} − compromissos ${brl0(G.fixo)} − colchão ${brl0(G.cz)} − já gasto ${brl0(G.usado)}`
+    :MGL==='sobra'?`orçamento ${brl0(G.L.orc[p])} + sobra livre de ${pm} ${brl0(G.sobra)} (começou com ${brl0(G.sobraIni)}${G.fatAnt>0?`, menos ${brl0(G.fatAnt)} de faturas de compras de ${pm} que vencem agora`:''})`
+    :`menor saldo até ${fdate(G.fim).slice(0,5)}: ${brl0(C.min)} em ${fdate(C.md).slice(0,5)} − colchão ${brl0(G.cz)}`;
+  const vis=MGL!=='caixa'?`<div class="mgg">${gaugeSVG(uso,G.ritmo,st==='stop'?'stop':st)}<b class="n">${lv>0?Math.round(uso*100)+'%':'—'}</b><small class="${tc}">● ${tt}</small></div>`
+    :`<div class="mgg mgcx"><small>Saldo hoje</small><b class="n">${brl0(G.bal0)}</b><small>vira o mês com</small><b class="n ${C.fim<0?'neg':''}">${brl0(C.fim)}</b></div>`;
+  return `<div class="card mgc"><div class="ch"><h2>Quanto posso gastar</h2><button class="lk" type="button" data-colch="1">Colchão ${Math.round(colchaoPct()*100)}% ›</button></div>
+    <div class="seg mgseg" role="tablist">${Object.keys(MGLAB).map(k=>`<button type="button" data-mgk="${k}" aria-pressed="${MGL===k}">${MGLAB[k]}</button>`).join('')}</div>
+    <div class="mgb">${vis}<div class="mgk"><div><span>Pode gastar em ${MES[+X.ym.slice(5)-1].toLowerCase()}</span><b class="n ${v<0?'neg':''}">${v<0?'−'+brl0(-v):brl0(v)}</b><small>${v>0?`≈ ${brl0(v/G.dr)} por dia até o fim do mês`:v<0?'acima do disponível nesta visão':''}</small>${MGL!=='caixa'&&v>0&&G.L.caixa[p]<v?`<small class="warn mgw">no caixa, até ${fdate(C.md).slice(0,5)}, cabem só ${G.L.caixa[p]>0?brl0(G.L.caixa[p]):'R$ 0'} — o resto depende do que entra depois</small>`:''}</div>
+      <div class="mgk2">${Object.keys(MGLAB).filter(k=>k!==MGL).map(k=>`<span>${MGLAB[k]} <b class="n ${G.L[k][p]<0?'neg':''}">${G.L[k][p]<0?'−'+brl0(-G.L[k][p]):brl0(G.L[k][p])}</b></span>`).join('')}</div></div></div>
+    <div class="mgpj"><button type="button" class="mgtg" data-mgp="1" aria-pressed="${MGP}"><i></i>Contar o que ainda vai entrar</button><small>${p?`inclui ${brl0(r2(G.renda-G.recJa))} previstos no mês`:`só o que já caiu: ${brl0(G.recJa)}`}</small></div>
+    <p class="mgn">${sub}.</p>
+    <div class="mgsim"><button type="button" class="mgin" id="mg-v"><span>Vou gastar</span><b class="n">${MGV?brl(MGV):'R$ —'}</b><small>${MGV?'toque para mudar':'toque e digite o valor'}</small></button>${MGV?`<button class="lk" type="button" data-mgx="1">limpar</button>`:''}
+    <div id="mg-sim">${mgSim(G,MGV,X.me)}</div></div></div>`}
 function openColchao(){const me=ME();let pct=colchaoPct();
   openSheet(`<h2>Colchão de segurança</h2><p class="note">Parte da renda que fica sempre guardada no caixa. Ela sai da margem do mês e o "Posso comprar?" não deixa a compra encostar nela.</p>
     <div id="cz-g"></div>
@@ -3320,7 +3372,13 @@ function vInicio(){
   el.querySelectorAll('[data-ct]').forEach(b=>b.onclick=()=>openContaDet(conta(b.dataset.ct)));
   el.querySelectorAll('[data-pends]').forEach(b=>b.onclick=openPendentes);
   el.querySelectorAll('[data-spread]').forEach(b=>b.onclick=openSpread);
-  el.querySelectorAll('[data-colch]').forEach(b=>b.onclick=openColchao);el.querySelectorAll('[data-msob]').forEach(b=>b.onclick=async()=>{try{await S.db.doc('config/app').set(Object.assign({},S.cfg||{},{margemSobra:b.dataset.msob==='1'}));COLM.k='';toast(b.dataset.msob==='1'?'A margem agora conta a sobra do mês anterior':'A margem volta a contar só a renda do mês')}catch(err){toast(writeErr(err))}});
+  el.querySelectorAll('[data-colch]').forEach(b=>b.onclick=openColchao);el.querySelectorAll('[data-mgk]').forEach(b=>b.onclick=()=>{MGL=b.dataset.mgk;LSset('pt-mgl',MGL);vInicio()});
+  el.querySelectorAll('[data-mgp]').forEach(b=>b.onclick=()=>{MGP=!MGP;LSset('pt-mgp',MGP?'1':'0');vInicio()});
+  el.querySelectorAll('[data-mgx]').forEach(b=>b.onclick=()=>{MGV=0;vInicio()});
+  {const mv=el.querySelector('#mg-v');if(mv)mv.onclick=()=>openCalc(MGV||'',v=>{MGV=r2(v);vInicio();setTimeout(()=>{const s2=document.getElementById('mg-sim');s2&&s2.scrollIntoView({behavior:'smooth',block:'nearest'})},120)})}
+  el.querySelectorAll('[data-mgsim]').forEach(b=>b.onclick=()=>openSimCompra({v:MGV}));
+  el.querySelectorAll('[data-mgl]').forEach(b=>b.onclick=()=>{const k=b.dataset.mgl;openLanc(k==='pix'?{tipo:'despesa',valor:MGV,conta:contaPadrao()}:{tipo:'despesa',valor:MGV,cartao:k})});
+  el.querySelectorAll('[data-msob]').forEach(b=>b.onclick=async()=>{try{await S.db.doc('config/app').set(Object.assign({},S.cfg||{},{margemSobra:b.dataset.msob==='1'}));COLM.k='';toast(b.dataset.msob==='1'?'A margem agora conta a sobra do mês anterior':'A margem volta a contar só a renda do mês')}catch(err){toast(writeErr(err))}});
   el.querySelectorAll('[data-wtab]').forEach(b=>b.onclick=()=>{WTAB=b.dataset.wtab;LSset('pt-wtab',WTAB);vInicio()});
   el.querySelectorAll('[data-wcat]').forEach(b=>b.onclick=()=>openCatFicha(b.dataset.wcat));
   wireBars(el);
@@ -4913,7 +4971,7 @@ const FAQ=[
  ['Início e decisões',[
   ['O que significam “Veio de”, “Hoje” e “Vira para”?','É o caixa do mês em três pontos: quanto você trouxe do mês anterior, quanto tem hoje e com quanto vira para o próximo mês se tudo o que está registrado acontecer.'],
   ['Como leio o gráfico do caixa?','Linha cheia é o que já aconteceu; tracejada é a projeção com o que está lançado. A linha “zero” mostra onde o dinheiro acaba e “menor” marca o dia mais apertado. Use <b>Mês, 3M, 6M e 1A</b> para mudar o período e arraste o dedo no gráfico para ver cada dia. As barras de baixo são as saídas de cada dia.'],
-  ['O que é a Margem do mês?','Quanto ainda dá para gastar sem apertar: renda − compromissos fixos − colchão. Se o caixa estiver mais curto que o orçamento, a margem respeita o caixa. O ponteiro mostra o quanto já foi usado e a marca, em que ponto do mês você está.','colchao','Ajustar o colchão'],
+  ['O que é o “Quanto posso gastar”?','Três visões do mesmo mês. <b>Orçamento</b>: só a renda do mês, menos compromissos, colchão e o que já gastou. <b>Com sobra</b>: soma o que sobrou do mês anterior (descontadas as faturas de compras antigas que vencem agora). <b>Caixa real</b>: o dinheiro que existe de fato, pelo menor saldo previsto até o fim do mês. O botão <b>Contar o que ainda vai entrar</b> liga ou desliga as receitas previstas. Em <b>Vou gastar</b>, digite um valor e veja qual cartão ou Pix é a melhor forma de pagar.','colchao','Ajustar o colchão'],
   ['O que é o colchão de segurança?','Uma parte da renda (10% por padrão) que fica sempre guardada. Ela sai da margem e o “Posso comprar?” não deixa nenhuma compra encostar nela.','colchao','Ajustar o colchão'],
   ['Como funciona o “Posso comprar?”','Informe valor e forma (à vista ou parcelado). O app simula a compra no seu caixa futuro e diz se cabe, quando cabe e qual forma pesa menos. Se ainda não cabe, você pode salvar como <b>ordem</b> e o app avisa em “Para resolver” quando ficar pronta.','sim','Simular uma compra'],
   ['O que é o “stop” de uma categoria?','É o limite do mês para a categoria, como um stop na bolsa. Ao lançar, o app mostra quanto já foi usado do stop daquela categoria. Para definir, abra a categoria no Início e toque em <b>Usar como stop</b>.'],
