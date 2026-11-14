@@ -2097,6 +2097,8 @@ main{padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))!important}
 .pgf textarea{width:100%;min-height:58px;resize:vertical;font:inherit;font-size:14.5px}
 .opt{font-weight:400;color:var(--faint,var(--muted));font-size:11.5px;margin-left:4px}
 .rvob{font-style:normal;color:var(--ink,inherit);opacity:.8}
+.kcc{display:inline-block;width:2px;height:.9em;margin-left:3px;vertical-align:-.08em;background:var(--accent,#E2BA6E);border-radius:1px;animation:kcbl 1s steps(1) infinite}
+@keyframes kcbl{50%{opacity:0}}.kcph{opacity:.35}#cx b{color:var(--accent,#E2BA6E);font-weight:700}
 </style>
 </head>
 <body>
@@ -5568,12 +5570,19 @@ function openCalc(ini,onOk){
     <button type="button" class="kcok" data-k="✓">Usar <b class="n" id="cu"></b></button></div>`;
   document.body.appendChild(w);requestAnimationFrame(()=>w.classList.add('on'));
   const hasOp=()=>/[+−×÷]/.test(ex.slice(1));
-  const upd=()=>{const r=calcEval(ex),ok=!isNaN(r);w.querySelector('#cx').innerHTML=hasOp()?esc(ex.replace(/([+−×÷])/g,' $1 ')):'&nbsp;';const cr=w.querySelector('#cr');cr.textContent=ex?(ok?brl(r):'—'):brl(0);cr.classList.toggle('sm',cr.textContent.length>13);w.querySelector('#cu').textContent=ok&&r>=0?brl(r):'';w.querySelector('.kcok').disabled=!(ok&&r>=0);w.querySelector('[data-k="C"]').textContent=ex?'C':'AC'};upd();
+  /* mostra o número exatamente como digitado (milhar com ponto, vírgula só quando você digita) */
+  const fN=n=>{const m=/^(−?)(\d*)(,?)(\d*)$/.exec(n);if(!m)return n;return m[1]+(m[2]?(+m[2]).toLocaleString('pt-BR'):(m[3]?'0':''))+m[3]+m[4]};
+  const fEx=e=>e.split(/([+−×÷])/).map((t,i)=>i%2?' '+t+' ':fN(t)).join('');
+  let fresh=!!ex;
+  const upd=()=>{const r=calcEval(ex),ok=!isNaN(r),op=hasOp(),seg=ex.split(/[+−×÷]/).pop();
+    w.querySelector('#cx').innerHTML=op?esc(fEx(ex))+(ok?' =':''):(ex&&!fresh?(seg.includes(',')?'&nbsp;':'digite <b>,</b> para os centavos'):fresh?'toque um número para substituir':'&nbsp;');
+    const cr=w.querySelector('#cr');cr.innerHTML=!ex?'<span class="kcph">R$ 0</span><i class="kcc"></i>':op?(ok?esc(brl(r)):'—'):'R$ '+esc(fN(ex))+(fresh?'':'<i class="kcc"></i>');cr.classList.toggle('sm',cr.textContent.length>13);w.querySelector('#cu').textContent=ok&&r>=0?brl(r):'';w.querySelector('.kcok').disabled=!(ok&&r>=0);w.querySelector('[data-k="C"]').textContent=ex?'C':'AC'};upd();
   const close=()=>{w.classList.remove('on');document.removeEventListener('keydown',kd,true);setTimeout(()=>w.remove(),180)};
   const press=t=>{const last=ex.slice(-1),isOp=c=>'+−×÷'.includes(c),seg=ex.split(/[+−×÷]/).pop();
     if(navigator.vibrate)try{navigator.vibrate(6)}catch(e){}
+    if(fresh&&(/^\d/.test(t)||t===','))ex='';if(t!=='%')fresh=false;
     if(t==='C'||t==='AC')ex='';else if(t==='⌫')ex=ex.slice(0,-1);
-    else if(t==='='){const r=calcEval(ex);if(!isNaN(r))ex=String(r2(r)).replace('.',',')}
+    else if(t==='='){const r=calcEval(ex);if(!isNaN(r)){ex=String(r2(r)).replace('.',',');upd();fresh=true}}
     else if(t==='✓'||t==='Usar'){const r=calcEval(ex);if(!isNaN(r)&&r>=0){onOk(r2(r));close()}return}
     else if(t==='%'){if(!seg)return;const v=parseFloat(seg.replace(',','.'))/100;ex=ex.slice(0,ex.length-seg.length)+String(+v.toFixed(4)).replace('.',',')}
     else if(isOp(t)){if(!ex&&t!=='−')return;ex=isOp(last)?ex.slice(0,-1)+t:ex+t}
