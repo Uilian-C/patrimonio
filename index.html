@@ -2129,6 +2129,7 @@ main{padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))!important}
 .mgom{display:grid;gap:1px;min-width:0}.mgom b{font-size:14px}.mgom b em{font-style:normal;font-size:10.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--accent,#E2BA6E);margin-left:6px}.mgom small{font-size:12px;color:var(--muted);line-height:1.35}.mgom small.neg{color:var(--crit,#E0705F)}
 .mgmore summary{list-style:none;cursor:pointer;font-size:13px;color:var(--accent,#E2BA6E);padding:4px 2px}.mgmore summary::-webkit-details-marker{display:none}.mgmore[open]{display:flex;flex-direction:column;gap:8px}
 .mgw{display:block;margin-top:4px;line-height:1.35}
+.mgom small.warn{color:var(--warn,#C8913A)}
 </style>
 </head>
 <body>
@@ -3054,19 +3055,20 @@ function gastoLentes(me,ym){ym=ym||today().slice(0,7);const t=today(),fim=dayIn(
   const orc=p=>r2((p?P.renda:recJa)-P.fixo-cz-usado),livre=p=>r2((p?P.renda:recJa)-P.fixo-cz);
   /* caixa: menor saldo previsto até o fim do mês (saídas do dia antes das entradas), menos o colchão */
   const bal0=realBal(me,t),AG=fim>=t?agendaPessoal(me,fim).filter(x=>x.d<=fim).sort((a,b)=>a.d.localeCompare(b.d)||a.v-b.v):[];
-  const cxf=p=>{let b=bal0,mn=bal0,md=t;AG.forEach(x=>{if(!p&&x.v>0)return;b+=x.v;if(b<mn){mn=b;md=x.d<t?t:x.d}});return {pode:r2(mn-cz),min:r2(mn),md,fim:r2(b)}};
+  /* saldo ao fim de cada dia (entradas e saídas do mesmo dia se compensam) */
+  const cxf=p=>{let b=bal0,mn=bal0,md=t;const byD={};AG.forEach(x=>{if(!p&&x.v>0)return;const d=x.d<t?t:x.d;byD[d]=(byD[d]||0)+x.v});Object.keys(byD).sort().forEach(d=>{b+=byD[d];if(b<mn){mn=b;md=d}});return {pode:r2(mn-cz),min:r2(mn),md,fim:r2(b)}};
   const C={1:cxf(true),0:cxf(false)};
   const L={orc:{1:orc(1),0:orc(0)},sobra:{1:r2(orc(1)+sobra),0:r2(orc(0)+sobra)},caixa:{1:C[1].pode,0:C[0].pode}};
   const nd=lastDay(ym),dia=ym===t.slice(0,7)?+t.slice(8):nd;
   return {P,cz,usado,recJa,sobra,sobraIni,fatAnt,L,C,livre,bal0,ritmo:dia/nd,dr:Math.max(nd-dia+1,1),fim,renda:P.renda,fixo:P.fixo}}
 function mgSim(G,v,me){if(!(v>0))return '';const t=today(),cx=G.L.caixa[MGP?1:0],ob=MGL==='caixa'?G.L.sobra[MGP?1:0]:G.L[MGL][MGP?1:0];
-  const opts=[{k:'pix',nome:'Pix ou débito',sub:'sai do caixa hoje',dias:0,ok:cx-v>=0,cx:r2(cx-v),mes:true}];
+  const opts=[{k:'pix',nome:'Pix ou débito',sub:'sai do caixa hoje',dias:0,ok:cx-v>=0,cx:r2(cx-v),mes:true,cz:G.cz}];
   const st=S.cards.filter(c=>c.ativo!==false&&(c.dono||ME())===me).map(c=>{try{return cardStats(c)}catch(e){return null}}).filter(x=>x&&x.lim);
   st.forEach(x=>{const ym=baseDue({data:t},x.c),due=dayIn(ym,x.c.vencimento),dias=diffD(t,due),mes=due<=G.fim,lim=x.disp>=v;
     opts.push({k:'card',c:x.c,due,nome:x.c.nome,sub:`fatura de ${ymS(ym)} · paga em ${fdate(due).slice(0,5)} (${dias} dias)`,dias,lim,disp:x.disp,mes,ok:lim&&(!mes||cx-v>=0),cx:mes?r2(cx-v):null})});
   const best=[...opts].filter(o=>o.ok).sort((a,b)=>b.dias-a.dias)[0];
-  const row=o=>`<div class="mgo ${o===best?'best':''} ${o.ok?'':'no'}">${o.k==='pix'?`<span class="bk bk-g">${ic('swap')}</span>`:`<span class="bk mgcb" style="background:${esc(o.c.cor||'var(--sunk)')}">${esc(String(o.nome).slice(0,2))}</span>`}
-    <span class="mgom"><b>${esc(o.nome)}${o===best?' <em>melhor opção</em>':''}</b><small>${esc(o.sub)}</small><small class="${o.ok?'':'neg'}">${o.k==='card'&&!o.lim?`limite disponível ${brl0(o.disp)} não cobre`:o.mes?(o.cx>=0?`caixa do mês fica em ${brl0(o.cx)}`:`faltaria ${brl0(-o.cx)} no caixa do mês`):`não sai do caixa deste mês · vai para ${MES[+o.due.slice(5,7)-1].toLowerCase()}`}${o.k==='card'&&o.lim?` · limite ${brl0(o.disp)}`:''}</small></span>
+  const row=o=>`<div class="mgo ${o===best?'best':''} ${o.ok?'':o.mes&&o.cx!=null&&o.cx+G.cz>=0&&o.lim!==false?'wn':'no'}">${o.k==='pix'?`<span class="bk bk-g">${ic('swap')}</span>`:`<span class="bk mgcb" style="background:${esc(o.c.cor||'var(--sunk)')}">${esc(String(o.nome).slice(0,2))}</span>`}
+    <span class="mgom"><b>${esc(o.nome)}${o===best?' <em>melhor opção</em>':''}</b><small>${esc(o.sub)}</small><small class="${o.ok?'':o.mes&&o.cx!=null&&o.cx+G.cz>=0&&o.lim!==false?'warn':'neg'}">${o.k==='card'&&!o.lim?`limite disponível ${brl0(o.disp)} não cobre`:o.mes?(o.cx>=0?`no ponto mais baixo do mês ainda sobram ${brl0(o.cx)} além do colchão`:o.cx+G.cz>=0?`cabe, mas usa ${brl0(-o.cx)} dos ${brl0(G.cz)} do colchão`:`o saldo ficaria negativo em ${brl0(-(o.cx+G.cz))} no dia ${fdate(G.C[MGP?1:0].md).slice(0,5)}`):`não sai do caixa deste mês · vai para ${MES[+o.due.slice(5,7)-1].toLowerCase()}`}${o.k==='card'&&o.lim?` · limite ${brl0(o.disp)}`:''}</small></span>
     <button class="btn sm ${o===best?'primary':''}" type="button" data-mgl="${o.k==='pix'?'pix':esc(o.c.id)}">Lançar</button></div>`;
   const O=opts.sort((a,b)=>(b===best)-(a===best)||(b.ok-a.ok)||b.dias-a.dias),pix=O.find(o=>o.k==='pix'),top=O.filter(o=>o!==pix).slice(0,2),rest=O.filter(o=>o!==pix&&!top.includes(o));
   return `<div class="mgsl">${top.concat(pix).map(row).join('')}${rest.length?`<details class="mgmore"><summary>outros ${rest.length} cartões</summary>${rest.map(row).join('')}</details>`:''}</div>
