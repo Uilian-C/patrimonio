@@ -2254,6 +2254,20 @@ html.locked main,html.locked nav.tabs,html.locked .top{visibility:hidden}
 @keyframes lkshk{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
 .lkp{display:grid;grid-template-columns:repeat(3,72px);gap:14px}.lkp button{height:72px;border-radius:50%;border:1px solid var(--sep,var(--hair));background:var(--surface,transparent);color:inherit;font-size:24px;font-weight:500;display:grid;place-items:center}.lkp button .ic{width:26px;height:26px;color:var(--accent,#E2BA6E)}
 .sdot{flex:none}.pna .rvs .go{white-space:nowrap;width:auto}
+.rvcd .ch{margin-bottom:6px}
+.rvh0{display:grid;grid-template-columns:auto minmax(0,1fr);gap:12px;align-items:center;margin-bottom:10px}.rvh0 b{display:block}.rvh0 small{color:var(--muted);font-size:12.5px;line-height:1.35;display:block;margin-top:2px}
+.rvalert{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:center;width:100%;padding:10px 12px;margin:10px 0 4px;border:0;border-radius:14px;color:inherit;font:inherit;text-align:left;background:color-mix(in srgb,var(--warn) 11%,transparent)}.rvalert svg{color:var(--warn)}.rvalert b{display:block}.rvalert small{color:var(--muted);font-size:12px}
+.rvok{display:flex;gap:8px;align-items:flex-start;font-size:12.5px;color:var(--muted);margin:10px 0 2px;line-height:1.4}.rvok svg{color:var(--good);flex:none;margin-top:1px}
+.rvbb{display:grid;gap:7px;margin-top:6px}.rvb{display:grid;grid-template-columns:96px minmax(0,1fr) 78px;gap:8px;align-items:center;font-size:12.5px}.rvb>span{color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.rvb.me>span{color:inherit;font-weight:650}
+.rvb>i{height:8px;border-radius:4px;background:var(--sunk);overflow:hidden;display:block}.rvb>i>b{display:block;height:100%;border-radius:4px;background:var(--muted);opacity:.55}.rvb.me>i>b{background:var(--accent,#E2BA6E);opacity:1}.rvb>i>b.ng{background:var(--crit,#E0705F);opacity:.8}.rvb>em{font-style:normal;text-align:right;font-weight:600}
+.rval{display:grid;gap:8px;margin-top:6px}.rvar{display:grid;grid-template-columns:92px minmax(0,1fr) auto;gap:8px;align-items:center;font-size:12.5px}.rvar>span:first-child{display:flex;gap:6px;align-items:center;white-space:nowrap}.rvar>span:first-child i{width:8px;height:8px;border-radius:2px;flex:none}
+.rvat{position:relative;height:8px;border-radius:4px;background:var(--sunk);display:block}.rvat>i{position:absolute;left:0;top:0;bottom:0;border-radius:4px}.rvat>u{position:absolute;top:-3px;bottom:-3px;width:2px;margin-left:-1px;background:var(--ink,#222);border-radius:1px;text-decoration:none}
+.rvar>em{font-style:normal;font-weight:600;text-align:right;white-space:nowrap}.rvar>em small{font-weight:500;margin-left:4px;color:var(--muted)}.rvar>em small.pos{color:var(--good)}.rvar>em small.warn{color:var(--warn)}
+.rvsug{font-size:12.5px;line-height:1.5;margin:10px 0 0;color:var(--muted)}.rvsug b{color:var(--ink,inherit)}
+.rvai{display:grid;grid-template-columns:minmax(0,1fr) 84px auto;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--sep,var(--hair))}.rvai>span{display:flex;gap:8px;align-items:center}.rvai>span i{width:10px;height:10px;border-radius:3px}.rvai small{color:var(--muted);font-size:11.5px;margin-left:4px}.rvai input{text-align:right}
+.rvt td small{display:block;color:var(--muted);font-size:11px;font-weight:400}.rvt td .lk{font-size:11.5px;padding:0}.rvt td,.rvt th{vertical-align:top}
+.rvfe>summary,.rvcfg>summary{cursor:pointer;font-weight:600;padding:6px 0}
+.rvbn{color:var(--muted);font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 </style>
 </head>
 <body>
@@ -2420,7 +2434,7 @@ function writeErr(e){const c=e&&e.code;if(c==='not_granted'||c==='revoked')retur
 const CATS=['Mercado','Casa','Contas da casa','Restaurante','Delivery','Transporte','Combustível','Saúde','Farmácia','Educação','Lazer','Viagem','Assinaturas','Compras','Vestuário','Pets','Presentes','Eventos','Obra','Serviços','Pix a pessoas','Impostos e taxas','Dívidas','Outros'];
 const CATR=['Salário','Adiantamento','13º e férias','Renda extra','Rendimentos','Reembolso','Outras receitas'];
 const TCONTA={corrente:'Conta corrente',dinheiro:'Dinheiro',reserva:'Reserva',investimento:'Investimento',beneficio:'Benefício (VR, VA, flex)'};
-const S={cfg:null,cards:[],contas:[],lanc:[],dividas:[],recs:[],acertos:[],reps:[],ok:{c:0,k:0,l:0,n:0,d:0,r:0,a:0},db:null,assets:null,sample:null,downloads:null,canImg:false,maxImgs:4,view:'inicio'};
+const S={cfg:null,cards:[],contas:[],lanc:[],dividas:[],recs:[],acertos:[],reps:[],rv:{},ok:{c:0,k:0,l:0,n:0,d:0,r:0,a:0},db:null,assets:null,sample:null,downloads:null,canImg:false,maxImgs:4,view:'inicio'};
 const DEF={pessoas:[{id:'p1',nome:'Você',ini:'V'},{id:'p2',nome:'Parceiro(a)',ini:'P'}],eu:'p1',quinzenas:{q1:{dia:15,nome:'Adiantamento'},q2:{dia:30,nome:'Salário'}},tags:[]};
 const cfg=()=>{const c=Object.assign({},DEF,S.cfg||{});const e=(S.cfg||{}).entradas;c.quinzenas=Object.assign({},DEF.quinzenas,e?{q1:{dia:e.q1.dia,nome:e.q1.nome},q2:{dia:e.q2.dia,nome:e.q2.nome}}:{},(S.cfg||{}).quinzenas||{});c.tags=c.tags||[];return c};
 const ME=()=>cfg().eu;
@@ -2628,9 +2642,10 @@ function patrimonio(pid,ate){
   /* acerto com o parceiro: metade das compras comuns que você pagou é um direito (a receber); se for o contrário, é uma obrigação */
   let acr=0;if(pid===ME()&&gabId()){try{const L=acertoLedger(null,ate||null);acr=r2(L.open+L.pendAb)}catch(e){}}
   const acR=Math.max(acr,0),acP=Math.max(-acr,0);
-  const ativos=sum(contas,x=>x.v)+acR,liqHoje=r2(ativos-fat-div-acP),liqComp=r2(liqHoje-parcT);
+  let rvV=0;try{rvV=rvCalc(pid,ate).v}catch(e){}
+  const ativos=sum(contas,x=>x.v)+acR+rvV,liqHoje=r2(ativos-fat-div-acP),liqComp=r2(liqHoje-parcT);
   const comp=PATM!=='hoje',passivos=fat+div+acP+(comp?parcT:0);
-  return {acR,acP,contas,ativos,passivos,liq:comp?liqComp:liqHoje,liqHoje,liqComp,comp,corr:by('corrente')+by('dinheiro'),ben:by('beneficio'),res:by('reserva'),inv:by('investimento'),div,ag,divs,fat,fatCards,parc,parcT};
+  return {acR,acP,contas,ativos,passivos,liq:comp?liqComp:liqHoje,liqHoje,liqComp,comp,corr:by('corrente')+by('dinheiro'),ben:by('beneficio'),res:by('reserva'),inv:by('investimento')+rvV,rv:rvV,div,ag,divs,fat,fatCards,parc,parcT};
 }
 document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-patm]');if(!b)return;PATM=b.dataset.patm;try{localStorage.setItem('pt-patm',PATM)}catch(_){}renderView()});
 /* bloco "o que compõe" — mesmo cálculo na Carteira e em Relatórios */
@@ -2656,7 +2671,7 @@ function patComp(Pt,me){
   h+=`<div class="blc"><div class="blch"><span>Ativo</span><b class="n pos">${brl(B.AT)}</b></div>
     ${grp('Circulante','disponível, aplicações e valores a receber',B.AT,
       sub('Disponível',B.at.disp,ct(['corrente','dinheiro','beneficio']).map(x=>it(esc(x.a.nome),x.v,x.a.tipo==='beneficio'?'benefício':'')).join(''))+
-      sub('Aplicações',B.at.apl,ct(['reserva','investimento']).map(x=>it(esc(x.a.nome),x.v,x.a.tipo==='reserva'?'reserva':'')).join(''))+
+      sub('Aplicações',B.at.apl,ct(['reserva','investimento']).map(x=>it(esc(x.a.nome),x.v,x.a.tipo==='reserva'?'reserva':'')).join('')+it('Renda variável',Pt.rv||0,'ações, FIIs, ETFs e BDRs pela cotação'))+
       sub('A receber',B.at.rec,it(esc(P(gabId()||me).nome.split(' ')[0]),B.at.rec,'metade das compras comuns que você pagou, ainda não acertada')))}</div>`;
   h+=`<div class="blc"><div class="blch"><span>Passivo</span><b class="n neg">${brl(PAS)}</b></div>
     ${grp('Circulante','vence em até 12 meses',B.PC,
@@ -2834,6 +2849,7 @@ function agendaPessoal(pid,ate,de,o){
   const pids=new Set(S.contas.filter(a=>!isBen(a)&&fracOf(a.dono,pid)>0).map(a=>a.id));
   S.lanc.filter(l=>l.pend&&(l.tipo||'despesa')==='despesa'&&pids.has(l.conta)&&(l.data||'')<=ate).forEach(l=>out.push({k:'pend',d:l.data,t:l.desc||'Pendente',s:l.data<t?'pendente · em atraso':'pendente',v:-(+l.valor||0)*fracOf((conta(l.conta)||{}).dono,pid),cor:'var(--warn)',nav:'l:'+l.id}));
   S.lanc.filter(l=>l.pend&&l.tipo==='receita'&&pids.has(l.conta)&&(l.data||'')<=ate).forEach(l=>out.push({k:'pendr',d:l.data,t:l.desc||'Receita pendente',s:l.data<t?'a receber · em atraso':'a receber',v:(+l.valor||0)*fracOf((conta(l.conta)||{}).dono,pid),cor:'var(--good)',nav:'l:'+l.id}));
+  try{rvDarfAberto(pid).forEach(m=>{const d=m.venc<t?t:m.venc;if(d<=ate)out.push({k:'darf',d,t:'DARF renda variável · '+ymS(m.ym),s:m.venc<t?'em atraso · código 6015':'código 6015',v:-m.pagar,cor:'var(--warn)',nav:'rvir:'+m.ym})})}catch(e){}
   /* acerto do casal: na mesma data em que entra no repasse (relatório Pagar), para os dois números baterem */
   if(pid===ME()&&gabId()){try{const on=other(pid).nome;gabItems().filter(x=>x.acerto&&!x.paid&&qDate(nextP(x.acerto))<=ate&&Math.abs(x.v)>.005).forEach(x=>out.push({k:'ac',d:qDate(nextP(x.acerto)),t:'Acerto com '+on,s:x.v<0?'você recebe':'você transfere',v:-x.v,cor:'var(--g)',nav:'ac:'+x.acerto}))}catch(e){}}
   else{let k=perOf(t);for(let n=0;n<80;n++){const qd=qDate(k);if(qd>ate)break;if(qd>=t){const A=acerto(k);if(A.net&&!A.done&&(A.de===pid||A.para===pid))out.push({k:'ac',d:qd,t:'Acerto com '+other(pid).nome,s:A.de===pid?'você transfere':'você recebe',v:A.de===pid?-A.net:A.net,cor:'var(--g)',nav:'ac:'+k})}k=nextP(k)}}
@@ -3040,6 +3056,7 @@ function wireIni4(el){
     if(k==='l'){const l=S.lanc.find(x=>x.id===v);l&&l.pend?openPagar(l):openLanc(l)}
     else if(k==='fat'){const [c,y]=v.split('|');openPagFat(card(c),y)}
     else if(k==='gab'){GWSEL=v;RP='salvos';go('relatorios')}
+    else if(k==='rvir')openRVIR();
     else if(k==='dv')openDividaDet(S.dividas.find(d=>d.id===v));else if(k==='ac')openAcerto(v);else if(k==='ab'){const r=S.reps.find(isAcRep);if(r){RSEL=r.id;RP='rel';ROFF=0}else RP='salvos';go('relatorios')}
     else if(k==='rec'){const [id,ym]=v.split('|');const r=S.recs.find(x=>x.id===id);if(r)openPagarG({prev:{r,date:recDia(r,ym),ym,nome:recNome(r,ym)},desc:recNome(r,ym),v:+r.valor||0,due:recDia(r,ym),paid:false,cat:r.categoria||'Outros'})}});
 }
@@ -3291,6 +3308,229 @@ function invMini(a){const i=taxaMesInv(a);if(!i)return '';const E=rendEst(a),v0=
     <div class="rndv"><div><small>Em 6 meses</small><b class="n">${brl(P[6])}</b><em class="pos">+${brl(P[6]-v0)}</em></div><div><small>Em 12 meses</small><b class="n">${brl(P[12])}</b><em class="pos">+${brl(P[12]-v0)}</em></div></div>
     <svg viewBox="0 0 ${W} ${H}" class="sfc" role="img" aria-label="Projeção de 12 meses"><path d="${L}L${X(12)},${H-24}L${X(0)},${H-24}Z" class="ivpa"/><path d="${L}" class="ivpp"/>${[0,3,6,9,12].map(k=>`<text x="${X(k)}" y="${H-8}" class="sfl" text-anchor="${k===0?'start':k===12?'end':'middle'}">${k===0?'hoje':ymS(ymAdd(ym,k))}</text>`).join('')}</svg>
     <p class="note">Bruto, juros compostos, sem novos aportes. Líquido de IR em 12 meses ≈ ${brl((P[12]-v0)*(1-IRF(12)))} de rendimento.</p></div>`}
+/* ===================== Renda variável: ações, FIIs, ETFs e BDRs =====================
+   Dados em config/rv: ops (compras e vendas), prov (proventos), tipos, man (cotação manual), alvo (alocação), tok (chave brapi), ibov (pontos do índice).
+   Cotação: brapi.dev (atraso de ~30 min no plano grátis); sem resposta, vale o preço manual ou o preço médio. */
+const RVTP={acao:'Ação',fii:'FII',etf:'ETF',bdr:'BDR'};
+const RVCL={rf:'Renda fixa',acao:'Ações',fii:'FIIs',etf:'ETFs',bdr:'BDRs'};
+const RVCOR={rf:'var(--good)',acao:'var(--accent,#E2BA6E)',fii:'#5DA9E9',etf:'var(--inv,#8C7AE6)',bdr:'#C77DBA'};
+const RVPROV={div:'Dividendo',jcp:'JCP',rend:'Rendimento de FII',out:'Outro'};
+const RVETF=/^(BOVA|BOVV|BOVX|IVVB|SMAL|SPXI|HASH|XINA|DIVO|NASD|GOLD|ACWI|B5P2|IMAB|FIXA|IRFM|ECOO|BRAX|PIBB|SMAC|EURP|WRLD|QBTC|ETHE|BITH|TECK|NDIV|DEFI|META|USAL|SPXB|ALUG|HTEK|CRPT|LFTS|IB5M|NTNS)11$/;
+const RVUNIT=/^(TAEE|KLBN|SANB|ALUP|BPAC|ENGI|SAPR|TIET|BRBI|IGTI|AESB|ITSA|CPLE|SULA|STBP|PSSA|RNEW|BIDI|ENEV|CMIG|GOAU|BPAN|MULT|BRAP)11$/;
+const rvD=()=>S.rv||{};
+const rvTk=s=>String(s||'').toUpperCase().replace(/[^A-Z0-9^]/g,'').replace(/^([A-Z]{4}\d{1,2})F$/,'$1');
+function rvTipo(tk){const t=(rvD().tipos||{})[tk];if(t)return t;if(/3[2-5]$/.test(tk))return 'bdr';if(RVETF.test(tk))return 'etf';if(RVUNIT.test(tk))return 'acao';if(/11$/.test(tk))return 'fii';return 'acao'}
+async function rvSave(patch){await S.db.doc('config/rv').set(Object.assign({},S.rv||{},patch))}
+/* ---- cotações ---- */
+let COT=(()=>{try{return JSON.parse(localStorage.getItem('pt-cot')||'{}')}catch(e){return {}}})(),COTRUN=false,COTERR='',COTTRY={};
+const COTTTL=30*60e3;
+function rvCot(tk){const a=COT[tk],m=(rvD().man||{})[tk],tm=m&&m.em?new Date(m.em+'T18:00:00').getTime():0;
+  if(a&&a.p>0&&(!m||a.t>=tm))return {p:a.p,t:a.t,src:'brapi',vp:a.vp,nm:a.nm,velho:Date.now()-a.t>36e5*20};
+  if(m&&m.p>0)return {p:m.p,t:tm,src:'manual',velho:Date.now()-tm>864e5*7};
+  return null}
+async function rvFetch(tk,qs){const tok=(rvD().tok||'').trim(),u=`https://brapi.dev/api/quote/${encodeURIComponent(tk)}?${qs||''}${tok?(qs?'&':'')+'token='+encodeURIComponent(tok):''}`;
+  const r=await fetch(u);if(!r.ok)throw new Error(r.status===401||r.status===403?'chave':r.status===404?'ticker':r.status===429?'limite':'rede');const js=await r.json(),x=(js.results||[])[0];if(!x)throw new Error('ticker');return x}
+async function cotBusca(tks,force){if(COTRUN||!navigator.onLine||!tks.length)return {ok:0,fail:0};COTRUN=true;let ok=0,fail=0;COTERR='';
+  for(const tk of tks){const c=COT[tk];if(!force&&((c&&Date.now()-c.t<COTTTL)||COTTRY[tk]))continue;COTTRY[tk]=1;
+    try{const x=await rvFetch(tk);if(!(x.regularMarketPrice>0))throw new Error('ticker');COT[tk]={p:+x.regularMarketPrice,t:Date.now(),vp:+x.regularMarketChangePercent||0,nm:x.shortName||x.longName||''};ok++}
+    catch(e){fail++;COTERR=e.message||'rede'}}
+  try{localStorage.setItem('pt-cot',JSON.stringify(COT))}catch(e){}
+  COTRUN=false;if(ok)re();rvIbovLoad();return {ok,fail}}
+/* Ibovespa: série guardada no banco (um ponto por dia); a fonte grátis traz só 3 meses de histórico */
+let IBTRY=false;
+async function rvIbovLoad(){const D=rvD(),ib=D.ibov||{},t=today();if(IBTRY||ib[t]||!navigator.onLine)return;IBTRY=true;
+  try{const vazio=!Object.keys(ib).length,x=await rvFetch('^BVSP',vazio?'range=3mo&interval=1d':'');const add={};
+    (x.historicalDataPrice||[]).forEach(h=>{if(h&&h.close>0&&h.date){const d=new Date(h.date*1000).toISOString().slice(0,10);add[d]=Math.round(h.close)}});
+    if(x.regularMarketPrice>0)add[t]=Math.round(x.regularMarketPrice);
+    if(Object.keys(add).length)await rvSave({ibov:Object.assign({},ib,add)})}catch(e){}}
+/* ---- posições, resultado e vendas (preço médio com custos) ---- */
+function rvCalc(me,ate){const D=rvD(),hj=!ate||ate>=today(),ops=(D.ops||[]).filter(o=>o&&o.tk&&fracOf(o.dono||ME(),me)>0&&(hj||(o.d||'')<=ate)).slice().sort((a,b)=>(a.d||'').localeCompare(b.d||'')||(a.t==='c'?-1:1));
+  const P={},V=[],F=[];const pos=tk=>P[tk]||(P[tk]={tk,tipo:rvTipo(tk),q:0,custo:0,inv:0,vend:0,real:0,prov:0,prov12:0,ini:null,ops:0});
+  ops.forEach(o=>{const fr=fracOf(o.dono||ME(),me),q=(+o.q||0)*fr,tx=(+o.tx||0)*fr,x=pos(o.tk);x.ops++;
+    if(o.t==='c'){const v=q*(+o.p||0)+tx;x.q+=q;x.custo+=v;x.inv+=v;x.ini=x.ini||o.d;F.push({d:o.d,v})}
+    else{const pm=x.q>0?x.custo/x.q:0,qq=Math.min(q,x.q),bruto=q*(+o.p||0),liq=bruto-tx,lucro=liq-pm*qq;x.custo-=pm*qq;x.q-=qq;x.vend+=liq;x.real+=lucro;
+      V.push({o,tk:o.tk,tipo:x.tipo,d:o.d,ym:(o.d||'').slice(0,7),bruto,liq,lucro,q:qq,pm});F.push({d:o.d,v:-liq})}
+    if(x.q<1e-9){x.q=0;x.custo=0}});
+  const y12=addD(today(),-365);
+  (D.prov||[]).filter(p=>p&&fracOf(p.dono||ME(),me)>0&&(hj||(p.d||'')<=ate)).forEach(p=>{const v=(+p.v||0)*fracOf(p.dono||ME(),me),x=pos(p.tk);x.prov+=v;if((p.d||'')>y12)x.prov12+=v;F.push({d:p.d,v:-v})});
+  const L=Object.values(P).map(x=>{x.pm=x.q?x.custo/x.q:0;x.cot=hj?rvCot(x.tk):null;x.preco=x.cot?x.cot.p:x.pm;x.v=r2(x.q*x.preco);x.res=r2(x.v-x.custo);x.resP=x.custo?x.res/x.custo:0;x.tot=r2(x.res+x.real+x.prov);return x});
+  const ab=L.filter(x=>x.q>0).sort((a,b)=>b.v-a.v),fe=L.filter(x=>!x.q);
+  const v=r2(sum(ab,x=>x.v)),custo=r2(sum(ab,x=>x.custo)),real=r2(sum(L,x=>x.real)),prov=r2(sum(L,x=>x.prov)),prov12=r2(sum(L,x=>x.prov12)),inv=r2(sum(L,x=>x.inv));
+  const semCot=ab.filter(x=>!x.cot).length,velha=ab.filter(x=>x.cot&&x.cot.velho).length;
+  return {L,ab,fe,V,F:F.filter(f=>f.d).sort((a,b)=>a.d.localeCompare(b.d)),v,custo,res:r2(v-custo),real,prov,prov12,inv,ganho:r2(v-custo+real+prov),semCot,velha}}
+/* ---- comparação: o mesmo dinheiro, nas mesmas datas, em CDI, IPCA e Ibovespa ---- */
+function fatCDI(d0){const t=today();if(!d0||d0>=t)return {f:1,aprox:false};const dias=CDI.dias||{},ks=Object.keys(dias).sort(),k0=ks[0];let f=1,aprox=false;
+  ks.forEach(k=>{if(k>d0&&k<=t)f*=1+dias[k]/100});
+  if(!k0||d0<k0){const fim=k0&&k0<t?k0:t;f*=Math.pow(1+cdiAA()/100,Math.max(diffD(d0,fim),0)/365);aprox=true}
+  const last=ks.at(-1);if(last&&last<t&&diffD(last,t)>4){f*=Math.pow(1+cdiAA()/100,diffD(last,t)/365)}
+  return {f,aprox}}
+let IPCAH=(()=>{try{return JSON.parse(localStorage.getItem('pt-ipcah')||'null')}catch(e){return null}})()||{m:{},em:'',de:''};let IPHTRY=false;
+async function rvIpcaLoad(d0){if(!d0||IPHTRY||(IPCAH.em===today()&&IPCAH.de<=d0))return;IPHTRY=true;const f=d=>'01/'+d.slice(5,7)+'/'+d.slice(0,4);
+  try{const r=await fetch(`https://api.bcb.gov.br/dados/serie/bcdata.sgs.433/dados?formato=json&dataInicial=${f(d0)}&dataFinal=${f(today())}`);if(!r.ok)throw 0;const js=await r.json(),m={};
+    js.forEach(x=>{const [,mm,yy]=x.data.split('/');m[`${yy}-${mm}`]=+x.valor});if(Object.keys(m).length){IPCAH={m,em:today(),de:d0.slice(0,7)+'-01'};try{localStorage.setItem('pt-ipcah',JSON.stringify(IPCAH))}catch(e){}re()}}catch(e){}}
+function fatIPCA(d0){const t=today();if(!d0||d0>=t)return {f:1,aprox:false};const m=Object.assign({},IPCAH.m||{});(IPCA.m||[]).forEach(x=>{const [mm,yy]=x.d.split('/');m[`${yy}-${mm}`]=x.v});
+  const anoM=Math.pow(1+ipca12().v/100,1/12)-1;let f=1,aprox=false,ym=d0.slice(0,7);const ymT=t.slice(0,7);
+  for(let g=0;ym<=ymT&&g<600;g++,ym=ymAdd(ym,1)){const ld=lastDay(ym),de=ym===d0.slice(0,7)?(ld-+d0.slice(8))/ld:1,ate=ym===ymT?+t.slice(8)/ld:1,fr=Math.max(Math.min(de,ate,de+ate-1),0);
+    const v=m[ym]!=null?m[ym]/100:(aprox=true,anoM);f*=Math.pow(1+v,fr)}
+  return {f,aprox}}
+function ibovEm(d){const ib=rvD().ibov||{},ks=Object.keys(ib).sort();if(!ks.length||d<ks[0])return null;let v=null;for(const k of ks){if(k>d)break;v=ib[k]}return v}
+function rvBench(R){const F=R.F;if(!F.length)return null;const liq=r2(sum(F,f=>f.v)),hoje=R.v,d0=F[0].d;
+  const sim=fn=>{let ap=false,tot=0;for(const f of F){const k=fn(f.d);if(k==null)return null;if(k.aprox)ap=true;tot+=f.v*k.f}return {v:r2(tot),aprox:ap}};
+  const ibT=ibovEm(today())||(()=>{const ib=rvD().ibov||{},ks=Object.keys(ib).sort();return ks.length?ib[ks.at(-1)]:null})();
+  const B=[{k:'cdi',n:'CDI',...(sim(fatCDI)||{})},{k:'ipca',n:'IPCA',...(sim(fatIPCA)||{})},{k:'ibov',n:'Ibovespa',...((ibT&&sim(d=>{const a=ibovEm(d);return a?{f:ibT/a,aprox:false}:null}))||{v:null})}];
+  const ibIni=(()=>{const ks=Object.keys(rvD().ibov||{}).sort();return ks[0]||''})();
+  return {liq,hoje,d0,eu:r2(hoje-liq),B:B.map(b=>Object.assign(b,{g:b.v==null?null:r2(b.v-liq)})),ibIni}}
+/* ---- alocação: renda fixa (contas de investimento e reserva) + classes da bolsa ---- */
+function rvAloc(me,R){const rf=r2(sum(invCarteira(me),x=>x.v)),at={rf,acao:0,fii:0,etf:0,bdr:0};R.ab.forEach(x=>at[x.tipo]=r2((at[x.tipo]||0)+x.v));
+  const T=r2(sum(Object.values(at),v=>v)),alvo=rvD().alvo||null;return {at,T,alvo}}
+function rvSugere(A,ap){if(!A.alvo||!(ap>0))return null;const T2=A.T+ap,ks=Object.keys(RVCL),gap={};ks.forEach(k=>gap[k]=Math.max((+A.alvo[k]||0)/100*T2-(A.at[k]||0),0));
+  const G=sum(ks,k=>gap[k]),out={};if(G<=0){ks.forEach(k=>out[k]=ap*(+A.alvo[k]||0)/100)}else if(G>=ap){ks.forEach(k=>out[k]=ap*gap[k]/G)}else{const rest=ap-G;ks.forEach(k=>out[k]=gap[k]+rest*(+A.alvo[k]||0)/100)}
+  return ks.map(k=>({k,v:r2(out[k])})).filter(x=>x.v>=1).sort((a,b)=>b.v-a.v)}
+/* ---- IR de renda variável (operações comuns; day trade fora) ----
+   ações: vendas do mês até R$ 20 mil → lucro isento; acima, 15%. ETF e BDR: 15% sem isenção. FII: 20%, prejuízo em separado.
+   Prejuízo acumulado compensa lucros futuros da mesma "caixa" (comum ou FII). DARF 6015 até o último dia útil do mês seguinte; abaixo de R$ 10 acumula. */
+function rvIR(me,R){const V=R.V,ms=[...new Set(V.map(v=>v.ym))].sort();let pc=0,pf=0,acum=0;const out=[];
+  ms.forEach(ym=>{const vs=V.filter(v=>v.ym===ym),va=vs.filter(v=>v.tipo==='acao'),vendasA=r2(sum(va,v=>v.bruto)),isento=vendasA<=20000;
+    const lA=r2(sum(va,v=>v.lucro)),lEB=r2(sum(vs.filter(v=>v.tipo==='etf'||v.tipo==='bdr'),v=>v.lucro)),lF=r2(sum(vs.filter(v=>v.tipo==='fii'),v=>v.lucro));
+    let baseC=(isento?Math.min(lA,0):lA)+lEB,isentoL=isento&&lA>0?lA:0;
+    if(baseC<0){pc+=-baseC;baseC=0}else if(baseC>0){const u=Math.min(pc,baseC);pc-=u;baseC-=u}
+    let baseF=lF;if(baseF<0){pf+=-baseF;baseF=0}else if(baseF>0){const u=Math.min(pf,baseF);pf-=u;baseF-=u}
+    const irrf=r2(sum(vs.filter(v=>v.tipo!=='acao'||!isento),v=>v.bruto)*.00005);
+    let imp=r2(baseC*.15+baseF*.2-irrf);imp=Math.max(imp,0);const dev=r2(imp+acum);let pagar=0;if(dev>=10){pagar=dev;acum=0}else acum=dev;
+    out.push({ym,vendasA,vendas:r2(sum(vs,v=>v.bruto)),isento,isentoL:r2(isentoL),lA,lEB,lF,baseC:r2(baseC),baseF:r2(baseF),irrf,imp,pagar,acum:r2(acum),pc:r2(pc),pf:r2(pf),venc:ultUtil(ymAdd(ym,1)),pago:!!((rvD().darf||{})[ym])})});
+  return {M:out,pc:r2(pc),pf:r2(pf)}}
+function rvDarfAberto(me){try{const R=rvCalc(me);return rvIR(me,R).M.filter(m=>m.pagar>0&&!m.pago)}catch(e){return []}}
+/* ---- telas ---- */
+const pctS=v=>(v>=0?'+':'−')+Math.abs(v*100).toLocaleString('pt-BR',{maximumFractionDigits:1})+'%';
+const qtdS=q=>(+q||0).toLocaleString('pt-BR',{maximumFractionDigits:4});
+const brlS=v=>(v>=0?'+':'−')+brl0(Math.abs(v));
+function cotTxt(c){if(!c)return 'sem cotação';const h=new Date(c.t);return (c.src==='manual'?'manual · ':'')+(Date.now()-c.t<864e5&&h.toISOString().slice(0,10)===today()?'hoje '+h.toTimeString().slice(0,5):fdate(h.toISOString().slice(0,10)))}
+function rvBenchBars(B){if(!B)return '';const its=[{n:'Sua carteira',g:B.eu,me:1}].concat(B.B.filter(b=>b.g!=null).map(b=>({n:b.n+(b.aprox?' ≈':''),g:b.g})));const mx=Math.max(...its.map(i=>Math.abs(i.g)),1);const ib=B.B.find(b=>b.k==='ibov'),ibx=ib&&ib.g==null?`<div class="rvb"><span>Ibovespa</span><small class="rvbn">${B.ibIni?'série do app desde '+fdate(B.ibIni):'aguardando a cotação do índice'}</small><em class="n">—</em></div>`:'';
+  return `<div class="rvbb">${its.map(i=>`<div class="rvb ${i.me?'me':''}"><span>${esc(i.n)}</span><i><b class="${i.g<0?'ng':''}" style="width:${Math.max(Math.abs(i.g)/mx*100,1.5).toFixed(1)}%"></b></i><em class="n ${i.g<0?'neg':'pos'}">${brlS(i.g)}</em></div>`).join('')}${ibx}</div>`}
+function rvCard(me){const D=rvD(),R=rvCalc(me);
+  const tks=R.ab.map(x=>x.tk);if(tks.length)setTimeout(()=>cotBusca(tks),400);
+  if(R.F.length)setTimeout(()=>{rvIpcaLoad(R.F[0].d);if(CDI.em!==today())cdiLoad()},600);
+  if(!R.L.length)return `<div class="card dcc rvcd ivd"><div class="rvh0"><span class="bk bk-g">${ic('trend')}</span><span><b>Ações, FIIs, ETFs e BDRs</b><small>registre suas compras e o app calcula preço médio, resultado, proventos, IR do mês e compara com CDI, IPCA e Ibovespa</small></span></div>
+    <div class="btnrow"><button class="btn primary sm" type="button" data-rvop="c">${ic('plus')} Registrar compra</button><button class="lk" type="button" data-rvall="1">Como funciona ›</button></div></div>`;
+  const B=rvBench(R),A=rvAloc(me,R),dar=rvIR(me,R).M.filter(m=>m.pagar>0&&!m.pago),ym=today().slice(0,7),irM=rvIR(me,R).M.find(m=>m.ym===ym);
+  const sug=rvSugere(A,APM||0);
+  return `<div class="card dcc rvcd ivd">
+    <div class="ch"><h2>Renda variável</h2><button class="lk" type="button" data-rvall="1">Abrir ›</button></div>
+    <div class="dcinv"><div><small>Valor de mercado</small><b class="n">${brl0(R.v)}</b><em>${R.ab.length} ativo${R.ab.length===1?'':'s'}${R.semCot?` · ${R.semCot} sem cotação`:''}</em></div><div><small>Resultado</small><b class="n ${R.ganho<0?'neg':'pos'}">${brlS(R.ganho)}</b><em>${R.custo?`${pctS(R.res/R.custo)} na cotação`:''}${R.prov?` · proventos ${brl0(R.prov)}`:''}</em></div></div>
+    ${dar.length?`<button type="button" class="rvalert" data-rvir="1">${ic('alert')}<span><b>DARF de ${esc(ymS(dar[0].ym))}: ${brl(dar[0].pagar)}</b><small>${dar[0].venc<today()?'venceu':'vence'} ${fdate(dar[0].venc)} · código 6015 · toque para ver o cálculo</small></span></button>`:irM&&irM.vendasA>0?`<p class="rvok">${ic('check')} Vendas de ações em ${MES[+ym.slice(5)-1].toLowerCase()}: <b class="n">${brl0(irM.vendasA)}</b> de R$ 20.000 isentos${irM.vendasA>20000?' — passou do limite':` · ainda cabem <b class="n">${brl0(20000-irM.vendasA)}</b>`}</p>`:''}
+    <div class="ivab">${R.ab.slice(0,5).map(x=>`<button type="button" class="ivar" data-rvtk="${esc(x.tk)}"><i style="background:${RVCOR[x.tipo]}"></i><span class="ivam"><b>${esc(x.tk)}</b><small>${qtdS(x.q)} × ${x.cot?brl(x.preco):'<span class="warn">sem cotação</span>'} · PM ${brl(x.pm)}</small></span><span class="ivav"><b class="n">${brl0(x.v)}</b><small class="${x.res<0?'neg':'pos'}">${brlS(x.res)} · ${pctS(x.resP)}</small></span></button>`).join('')}
+      ${R.ab.length>5?`<button type="button" class="lk" data-rvall="1">mais ${R.ab.length-5} ›</button>`:''}</div>
+    ${B&&R.v>0?`<div class="sfx"><div class="sfh"><b>Ganho contra o mesmo dinheiro em…</b><span>desde ${fdate(B.d0)}</span></div>${rvBenchBars(B)}</div>`:''}
+    ${A.alvo?`<div class="sfx"><div class="sfh"><b>Alocação</b><span>atual × alvo</span></div>${rvAlocBar(A)}${sug?`<p class="rvsug">Próximo aporte de <b class="n">${brl0(APM)}</b>: ${sug.map(s=>`<b>${RVCL[s.k]}</b> <span class="n">${brl0(s.v)}</span>`).join(' · ')}</p>`:'<p class="rvsug">Defina "Aportar por mês" acima para o app sugerir onde colocar.</p>'}</div>`:`<button type="button" class="lk" data-rvalvo="1">Definir alocação-alvo e receber sugestão de aporte ›</button>`}
+    <div class="btnrow"><button class="btn sm" type="button" data-rvop="c">${ic('plus')} Compra</button><button class="btn sm" type="button" data-rvop="v">Venda</button><button class="btn sm" type="button" data-rvprov="1">Provento</button></div>
+  </div>`}
+function rvAlocBar(A){const ks=Object.keys(RVCL).filter(k=>(A.at[k]||0)>0||(+((A.alvo||{})[k])||0)>0);
+  return `<div class="rval">${ks.map(k=>{const p=A.T?A.at[k]/A.T:0,al=(+((A.alvo||{})[k])||0)/100,d=p-al;return `<div class="rvar"><span><i style="background:${RVCOR[k]}"></i>${RVCL[k]}</span><span class="rvat"><i style="width:${Math.min(p*100,100).toFixed(1)}%;background:${RVCOR[k]}"></i>${al?`<u style="left:${Math.min(al*100,100).toFixed(1)}%"></u>`:''}</span><em class="n">${pctf(p)}${al?` <small class="${Math.abs(d)<.02?'':d<0?'pos':'warn'}">alvo ${pctf(al)}</small>`:''}</em></div>`}).join('')}</div>`}
+function wireRV(el,rr){
+  el.querySelectorAll('[data-rvop]').forEach(b=>b.onclick=()=>openRVOp({t:b.dataset.rvop,tk:b.dataset.tk||''}));
+  el.querySelectorAll('[data-rvprov]').forEach(b=>b.onclick=()=>openRVProv({tk:b.dataset.tk||''}));
+  el.querySelectorAll('[data-rvall]').forEach(b=>b.onclick=()=>openRV());
+  el.querySelectorAll('[data-rvtk]').forEach(b=>b.onclick=()=>openRVAtivo(b.dataset.rvtk));
+  el.querySelectorAll('[data-rvir]').forEach(b=>b.onclick=()=>openRVIR());
+  el.querySelectorAll('[data-rvalvo]').forEach(b=>b.onclick=()=>openRVAlvo());
+}
+function openRV(){const draw=sh=>{const me=ME(),R=rvCalc(me),D=rvD(),B=rvBench(R),A=rvAloc(me,R),IR=rvIR(me,R),box=sh.querySelector('#rvx');
+    const grp=Object.keys(RVTP).map(k=>[k,R.ab.filter(x=>x.tipo===k)]).filter(([,L])=>L.length);
+    box.innerHTML=`${R.L.length?`<div class="ivh"><span class="k">Valor de mercado</span><div class="big n">${brl(R.v)}</div>
+        <span class="ivp">${ic('trend')}<span>Custo <b class="n">${brl0(R.custo)}</b> · na cotação <b class="n ${R.res<0?'neg':'pos'}">${brlS(R.res)}</b> · vendas <b class="n ${R.real<0?'neg':'pos'}">${brlS(R.real)}</b> · proventos <b class="n pos">${brl0(R.prov)}</b></span></span></div>
+      <div class="ivk"><div><small>Resultado total</small><b class="n ${R.ganho<0?'neg':'pos'}">${brlS(R.ganho)}</b></div><div><small>Proventos 12 meses</small><b class="n pos">${brl0(R.prov12)}</b></div><div><small>Rende ao mês (proventos)</small><b class="n">${R.v?(R.prov12/12/R.v*100).toLocaleString('pt-BR',{maximumFractionDigits:2})+'%':'—'}</b></div></div>
+      ${grp.map(([k,L])=>`<section class="ivs"><div class="ivsh"><h3>${RVCL[k]}</h3><small>${brl0(sum(L,x=>x.v))} · ${pctf(R.v?sum(L,x=>x.v)/R.v:0)}</small></div><div class="ivl">${L.map(x=>`<button class="ivr" type="button" data-rvtk="${esc(x.tk)}"><i style="background:${RVCOR[k]}"></i><span class="ivm"><strong>${esc(x.tk)}</strong><small>${qtdS(x.q)} cotas · PM ${brl(x.pm)} · ${x.cot?`${brl(x.preco)} (${cotTxt(x.cot)})`:'<span class="warn">sem cotação — usando PM</span>'}</small></span><span class="ivv"><b class="n">${brl0(x.v)}</b><small class="${x.res<0?'neg':'pos'}">${brlS(x.res)} · ${pctS(x.resP)}</small></span></button>`).join('')}</div></section>`).join('')}
+      ${R.fe.length?`<details class="ivs rvfe"><summary>Posições encerradas (${R.fe.length})</summary><div class="ivl">${R.fe.map(x=>`<button class="ivr" type="button" data-rvtk="${esc(x.tk)}"><i style="background:var(--muted)"></i><span class="ivm"><strong>${esc(x.tk)}</strong><small>vendas ${brlS(x.real)} · proventos ${brl0(x.prov)}</small></span><span class="ivv"><b class="n ${x.tot<0?'neg':'pos'}">${brlS(x.tot)}</b></span></button>`).join('')}</div></details>`:''}
+      ${B?`<section class="ivs"><div class="ivsh"><h3>Contra CDI, IPCA e Ibovespa</h3><small>mesmo dinheiro, mesmas datas</small></div>${rvBenchBars(B)}
+        <p class="note">Cada compra, venda e provento é replicado no índice na mesma data: é o ganho que você teria hoje se o dinheiro tivesse seguido o índice. Aplicado líquido <b class="n">${brl0(B.liq)}</b> desde ${fdate(B.d0)}.${B.B.some(b=>b.aprox)?' ≈ = parte do período usa a taxa atual (série do Banco Central ainda carregando ou sem dados).':''}${B.B.find(b=>b.k==='ibov').g==null?` Ibovespa: ${B.ibIni?`a série do app começa em ${fdate(B.ibIni)}; compras anteriores ficam sem comparação`:'ainda sem dados (precisa da cotação do índice)'}.`:''}</p></section>`:''}
+      <section class="ivs"><div class="ivsh"><h3>Alocação</h3><small>inclui renda fixa e reservas</small></div>${rvAlocBar(A)}
+        ${A.alvo?(()=>{const ap=APM||0,sg=rvSugere(A,ap);return sg?`<p class="rvsug">Próximo aporte de <b class="n">${brl0(ap)}</b> para aproximar do alvo: ${sg.map(s=>`<b>${RVCL[s.k]}</b> <span class="n">${brl0(s.v)}</span>`).join(' · ')}</p>`:'<p class="note">Defina quanto aporta por mês em Decidir › Investir para receber a sugestão.</p>'})():''}
+        <button class="lk" type="button" id="rv-alvo">${A.alvo?'Ajustar alocação-alvo ›':'Definir alocação-alvo ›'}</button></section>
+      <section class="ivs"><div class="ivsh"><h3>Imposto de renda</h3><small>operações comuns</small></div>${rvIRResumo(IR)}<button class="lk" type="button" data-rvir="1">Ver mês a mês ›</button></section>`
+      :`<div class="empty"><strong>Nenhuma operação ainda</strong>Registre compras (e vendas) com quantidade, preço e data — como na nota de corretagem. O app calcula preço médio, resultado e IR.</div>`}
+      <div class="btnrow"><button class="btn primary sm" type="button" data-rvop="c">${ic('plus')} Compra</button><button class="btn sm" type="button" data-rvop="v">Venda</button><button class="btn sm" type="button" data-rvprov="1">Provento</button><button class="btn sm" type="button" id="rv-up">Atualizar cotações</button></div>
+      <details class="ivs rvcfg"><summary>Fonte das cotações</summary>
+        <p class="note">Cotações da <b>brapi.dev</b> com atraso de cerca de 30 minutos. Sem chave, só PETR4, VALE3, ITUB4 e MGLU3 respondem; crie uma chave grátis em brapi.dev e cole aqui para todos os ativos. Sem internet ou sem resposta, vale a cotação que você informar no ativo (ou o preço médio).</p>
+        <div class="field"><label for="rv-tok">Chave da brapi (opcional)</label><input id="rv-tok" autocomplete="off" value="${esc(D.tok||'')}" placeholder="cole a chave"></div>
+        <div class="btnrow"><button class="btn sm" type="button" id="rv-tks">Salvar chave</button></div>${COTERR?`<p class="note warn">Última tentativa: ${COTERR==='chave'?'a fonte pediu chave para algum ativo':COTERR==='limite'?'limite de consultas atingido':COTERR==='ticker'?'algum código não foi encontrado':'sem resposta da fonte'}.</p>`:''}</details>`;
+    wireRV(box,()=>draw(sh));
+    const up=box.querySelector('#rv-up');up.onclick=async()=>{up.disabled=true;up.textContent='Buscando…';const tk=R.ab.map(x=>x.tk);COTTRY={};const r=await cotBusca(tk,true);toast(r.ok?`${r.ok} cotaç${r.ok===1?'ão atualizada':'ões atualizadas'}${r.fail?` · ${r.fail} sem resposta`:''}`:tk.length?'Fonte sem resposta — informe a cotação no ativo':'Nada para atualizar');draw(sh)};
+    box.querySelector('#rv-tks').onclick=async()=>{try{await rvSave({tok:box.querySelector('#rv-tok').value.trim()});COTTRY={};IBTRY=false;toast('Chave salva');const r=await cotBusca(R.ab.map(x=>x.tk),true);draw(sh)}catch(e){toast(writeErr(e))}};
+    const al=box.querySelector('#rv-alvo');if(al)al.onclick=()=>openRVAlvo();
+  };
+  openSheet(`<h2>Renda variável</h2><div id="rvx" class="ivx"></div>`,sh=>{draw(sh);const R=rvCalc(ME());cotBusca(R.ab.map(x=>x.tk)).then(r=>{if(r&&r.ok&&sh.isConnected)draw(sh)});if(R.F.length)rvIpcaLoad(R.F[0].d)})}
+function rvIRResumo(IR){const ym=today().slice(0,7),ab=IR.M.filter(m=>m.pagar>0&&!m.pago),cur=IR.M.find(m=>m.ym===ym);
+  return `<div class="ivk"><div><small>DARF em aberto</small><b class="n ${ab.length?'neg':''}">${ab.length?brl(sum(ab,m=>m.pagar)):'nenhum'}</b>${ab.length?`<em class="${ab[0].venc<today()?'neg':''}">${ab[0].venc<today()?'venceu':'vence'} ${fdate(ab[0].venc)}</em>`:''}</div><div><small>Vendas de ações no mês</small><b class="n">${brl0(cur?cur.vendasA:0)}</b><em>${(cur?cur.vendasA:0)<=20000?`isento até R$ 20 mil · cabem ${brl0(20000-(cur?cur.vendasA:0))}`:'acima da isenção'}</em></div><div><small>Prejuízo a compensar</small><b class="n">${brl0(IR.pc+IR.pf)}</b>${IR.pf?`<em>FII ${brl0(IR.pf)}</em>`:''}</div></div>`}
+function openRVIR(){const draw=sh=>{const me=ME(),R=rvCalc(me),IR=rvIR(me,R),box=sh.querySelector('#rvi');
+    box.innerHTML=`${rvIRResumo(IR)}${IR.M.length?`<table class="bkt rvt"><thead><tr><th>Mês</th><th>Vendas</th><th>Lucro</th><th>DARF</th></tr></thead><tbody>${IR.M.slice().reverse().map(m=>`<tr><td>${esc(ymS(m.ym))}</td><td class="n">${brl0(m.vendas)}${m.vendasA&&m.isento?'<small>ações isentas</small>':''}</td><td class="n ${m.lA+m.lEB+m.lF<0?'neg':'pos'}">${brlS(m.lA+m.lEB+m.lF)}${m.isentoL?`<small>isento ${brl0(m.isentoL)}</small>`:''}</td><td class="n">${m.pagar?`<b>${brl(m.pagar)}</b><small>${m.pago?'pago':(m.venc<today()?'venceu ':'vence ')+fdate(m.venc)}</small>${m.pago?'':`<button class="lk" type="button" data-pg="${m.ym}">marcar pago</button>`}`:m.imp>0?`<small>${brl(m.imp)} acumula (< R$ 10)</small>`:'—'}</td></tr>`).join('')}</tbody></table>`:'<p class="note">Sem vendas registradas. O IR só aparece quando há venda com lucro.</p>'}
+      <p class="note">Regras usadas: ações com vendas até R$ 20 mil no mês têm lucro isento; acima disso, 15% sobre o lucro. ETFs e BDRs: 15%, sem isenção. FIIs: 20%. Prejuízos são compensados nos meses seguintes (FII separado). Desconta o IR retido de 0,005% nas vendas tributáveis. Day trade não entra. DARF código 6015, até o último dia útil do mês seguinte; abaixo de R$ 10 acumula. Proventos: dividendos e rendimentos de FII são isentos; JCP já vem com 15% retido. Dividendos acima de R$ 50 mil por mês de uma mesma empresa têm 10% retido (Lei 15.270/2025). Estimativa — confira com a nota de corretagem e o informe da corretora.</p>`;
+    box.querySelectorAll('[data-pg]').forEach(b=>b.onclick=async()=>{try{await rvSave({darf:Object.assign({},rvD().darf||{},{[b.dataset.pg]:today()})});toast('DARF marcado como pago');setTimeout(()=>draw(sh),250)}catch(e){toast(writeErr(e))}})};
+  openSheet(`<h2>IR · renda variável</h2><div id="rvi"></div>`,draw)}
+function openRVAtivo(tk){const draw=sh=>{const me=ME(),R=rvCalc(me),x=R.L.find(z=>z.tk===tk),D=rvD(),box=sh.querySelector('#rva');if(!x){closeSheet();return}
+    const ops=(D.ops||[]).filter(o=>o.tk===tk).sort((a,b)=>(b.d||'').localeCompare(a.d||'')),pv=(D.prov||[]).filter(p=>p.tk===tk).sort((a,b)=>(b.d||'').localeCompare(a.d||''));
+    const yoc=x.custo?x.prov12/x.custo:0;
+    box.innerHTML=`<div class="ivh"><span class="k">${esc(RVTP[x.tipo])}${x.cot&&x.cot.nm?' · '+esc(x.cot.nm):''}</span><div class="big n">${brl(x.v)}</div>
+      <span class="ivp">${ic('trend')}<span>${x.cot?`Cotação <b class="n">${brl(x.preco)}</b> · ${cotTxt(x.cot)}${x.cot.src==='brapi'&&x.cot.vp?` · dia <b class="n ${x.cot.vp<0?'neg':'pos'}">${x.cot.vp>=0?'+':''}${x.cot.vp.toLocaleString('pt-BR',{maximumFractionDigits:2})}%</b>`:''}`:'<span class="warn">Sem cotação — valor pelo preço médio</span>'}</span></span></div>
+      <div class="ivk"><div><small>Quantidade</small><b class="n">${qtdS(x.q)}</b></div><div><small>Preço médio</small><b class="n">${brl(x.pm)}</b><small>custo ${brl0(x.custo)}</small></div><div><small>Na cotação</small><b class="n ${x.res<0?'neg':'pos'}">${brlS(x.res)}</b><small>${pctS(x.resP)}</small></div></div>
+      <div class="ivk"><div><small>Vendas (realizado)</small><b class="n ${x.real<0?'neg':'pos'}">${brlS(x.real)}</b></div><div><small>Proventos</small><b class="n pos">${brl0(x.prov)}</b><small>12m ${brl0(x.prov12)}${yoc?` · ${(yoc*100).toLocaleString('pt-BR',{maximumFractionDigits:1})}% s/ custo`:''}</small></div><div><small>Resultado total</small><b class="n ${x.tot<0?'neg':'pos'}">${brlS(x.tot)}</b></div></div>
+      <div class="btnrow"><button class="btn sm" type="button" data-rvop="c" data-tk="${esc(tk)}">${ic('plus')} Compra</button><button class="btn sm" type="button" data-rvop="v" data-tk="${esc(tk)}">Venda</button><button class="btn sm" type="button" data-rvprov="1" data-tk="${esc(tk)}">Provento</button><button class="btn sm" type="button" id="rv-man">Informar cotação</button></div>
+      <div class="field"><label for="rv-tp">Classe</label><select id="rv-tp">${opts(Object.entries(RVTP),x.tipo)}</select></div>
+      <section class="ivs"><div class="ivsh"><h3>Operações</h3><small>${ops.length}</small></div><div class="ivl">${ops.map(o=>`<button class="ivr" type="button" data-op="${esc(o.id)}"><i style="background:${o.t==='c'?'var(--good)':'var(--warn,#C8913A)'}"></i><span class="ivm"><strong>${o.t==='c'?'Compra':'Venda'} · ${qtdS(o.q)} × ${brl(o.p)}</strong><small>${fdate(o.d)}${+o.tx?` · custos ${brl(o.tx)}`:''}${o.dono&&o.dono!==ME()?' · '+esc(P(o.dono).nome):''}</small></span><span class="ivv"><b class="n">${brl0(o.q*o.p)}</b></span></button>`).join('')}</div></section>
+      ${pv.length?`<section class="ivs"><div class="ivsh"><h3>Proventos</h3><small>${pv.length}</small></div><div class="ivl">${pv.map(p=>`<button class="ivr" type="button" data-pv="${esc(p.id)}"><i style="background:var(--good)"></i><span class="ivm"><strong>${esc(RVPROV[p.k]||'Provento')}</strong><small>${fdate(p.d)}</small></span><span class="ivv"><b class="n pos">${brl(p.v)}</b></span></button>`).join('')}</div></section>`:''}`;
+    wireRV(box,()=>draw(sh));
+    box.querySelector('#rv-tp').onchange=async e=>{try{await rvSave({tipos:Object.assign({},D.tipos||{},{[tk]:e.target.value})});toast('Classe salva');setTimeout(()=>draw(sh),200)}catch(err){toast(writeErr(err))}};
+    box.querySelector('#rv-man').onclick=()=>openCalc(x.cot?x.preco:'',async v=>{if(!(v>0))return;try{await rvSave({man:Object.assign({},D.man||{},{[tk]:{p:r2(v),em:today()}})});toast('Cotação de '+tk+' salva');setTimeout(()=>draw(sh),200)}catch(err){toast(writeErr(err))}});
+    box.querySelectorAll('[data-op]').forEach(b=>b.onclick=()=>openRVOp((D.ops||[]).find(o=>o.id===b.dataset.op)));
+    box.querySelectorAll('[data-pv]').forEach(b=>b.onclick=()=>openRVProv((D.prov||[]).find(p=>p.id===b.dataset.pv)))};
+  openSheet(`<h2>${esc(tk)}</h2><div id="rva" class="ivx"></div>`,draw)}
+function openRVOp(o){o=o||{};const isNew=!o.id;const st={t:o.t||'c',q:+o.q||0,p:+o.p||0,tx:+o.tx||0};const me=ME();
+  const tks=[...new Set((rvD().ops||[]).map(z=>z.tk))].sort();
+  openSheet(`<h2>${isNew?(st.t==='v'?'Registrar venda':'Registrar compra'):'Editar operação'}</h2>
+    <form class="form" id="fro" novalidate>
+      <div class="lt" role="tablist">${[['c','Compra'],['v','Venda']].map(([k,n])=>`<button type="button" role="tab" data-ot="${k}" aria-selected="${st.t===k}">${n}</button>`).join('')}</div>
+      <div class="f2"><div class="field"><label for="ro-tk">Código</label><input id="ro-tk" list="ro-tkl" autocapitalize="characters" autocomplete="off" value="${esc(o.tk||'')}" placeholder="PETR4, HGLG11…"><datalist id="ro-tkl">${tks.map(t=>`<option value="${esc(t)}">`).join('')}</datalist></div><div class="field"><label for="ro-d">Data do pregão</label><input id="ro-d" type="date" value="${esc(o.d||today())}"></div></div>
+      <div class="f2"><div class="field"><label for="ro-q">Quantidade</label><input id="ro-q" type="text" inputmode="decimal" value="${st.q?String(st.q).replace('.',','):''}" placeholder="100"></div><div class="field"><label for="ro-p">Preço unitário (R$)</label><input id="ro-p" type="text" inputmode="decimal" value="${st.p?String(st.p).replace('.',','):''}" placeholder="38,50"></div></div>
+      <div class="f2"><div class="field"><label for="ro-tx">Custos e taxas (R$)</label><input id="ro-tx" type="text" inputmode="decimal" value="${st.tx?String(st.tx).replace('.',','):''}" placeholder="0,00"></div><div class="field"><label for="ro-dn">De quem</label><select id="ro-dn">${pessoasOpts(o.dono||me,true)}</select></div></div>
+      <p class="note" id="ro-res"></p>
+      <p class="note">Registre como na nota de corretagem. O dinheiro que saiu ou entrou na corretora você ajusta no saldo da conta, como já faz hoje — aqui fica só a posição.</p>
+      <div class="btnrow"><button class="btn primary" type="submit">Salvar</button>${isNew?'':'<button class="btn danger" type="button" id="ro-del">Excluir</button>'}</div></form>`,sh=>{
+    const $q=s=>sh.querySelector(s);
+    const calc=()=>{const tk=rvTk($q('#ro-tk').value),q=brNum($q('#ro-q').value)||0,p=brNum($q('#ro-p').value)||0,tx=brNum($q('#ro-tx').value)||0,el=$q('#ro-res');if(!(q>0&&p>0)){el.textContent='';return}
+      const tot=q*p+(st.t==='c'?tx:-tx);let s=`Total ${st.t==='c'?'pago':'recebido'}: ${brl(tot)}`;
+      if(tk){const x=rvCalc(me).L.find(z=>z.tk===tk);if(st.t==='c'&&x&&x.q>0)s+=` · novo preço médio ≈ ${brl((x.custo+q*p+tx)/(x.q+q))}`;
+        if(st.t==='v'){if(!x||!x.q)s+=' · sem posição registrada neste código';else{const lu=(q*p-tx)-x.pm*Math.min(q,x.q);s+=` · lucro ≈ ${brlS(lu)} (PM ${brl(x.pm)})`;if(q>x.q+1e-9)s+=` · você tem ${qtdS(x.q)}`}}}
+      el.textContent=s};
+    sh.querySelectorAll('[data-ot]').forEach(b=>b.onclick=()=>{st.t=b.dataset.ot;sh.querySelectorAll('[data-ot]').forEach(z=>z.setAttribute('aria-selected',String(z===b)));calc()});
+    ['#ro-tk','#ro-q','#ro-p','#ro-tx'].forEach(s=>$q(s).oninput=calc);calc();
+    $q('#fro').onsubmit=async e=>{e.preventDefault();const tk=rvTk($q('#ro-tk').value),q=brNum($q('#ro-q').value),p=brNum($q('#ro-p').value),tx=brNum($q('#ro-tx').value)||0,d=$q('#ro-d').value;
+      if(!tk||tk.length<4){toast('Informe o código do ativo');return}if(!(q>0)){toast('Informe a quantidade');return}if(!(p>0)){toast('Informe o preço');return}if(!d){toast('Informe a data');return}
+      const rec={id:o.id||('r'+Date.now().toString(36)),tk,t:st.t,q:+q,p:r2(p*100)/100,tx:r2(tx),d,dono:$q('#ro-dn').value};
+      const ops=(rvD().ops||[]).filter(z=>z.id!==rec.id).concat([rec]);
+      try{await rvSave({ops});closeSheet();toast(`${st.t==='c'?'Compra':'Venda'} de ${tk} salva`);COTTRY[tk]=0;cotBusca([tk])}catch(err){toast(writeErr(err))}};
+    const del=$q('#ro-del');if(del)confirmBtn(del,'Toque de novo para excluir',async()=>{try{await rvSave({ops:(rvD().ops||[]).filter(z=>z.id!==o.id)});closeSheet();toast('Operação excluída')}catch(err){toast(writeErr(err))}});
+  })}
+function openRVProv(p){p=p||{};const isNew=!p.id,me=ME(),tks=[...new Set((rvD().ops||[]).map(z=>z.tk))].sort();
+  openSheet(`<h2>${isNew?'Registrar provento':'Editar provento'}</h2><form class="form" id="frp" novalidate>
+    <div class="f2"><div class="field"><label for="rp-tk">Código</label><select id="rp-tk">${opts(tks.length?tks:[''],p.tk||tks[0]||'')}</select></div><div class="field"><label for="rp-k">Tipo</label><select id="rp-k">${opts(Object.entries(RVPROV),p.k||(rvTipo(p.tk||tks[0]||'')==='fii'?'rend':'div'))}</select></div></div>
+    <div class="f2"><div class="field"><label for="rp-v">Valor recebido (R$, líquido)</label><input id="rp-v" type="text" inputmode="decimal" value="${p.v?String(p.v).replace('.',','):''}" placeholder="0,00"></div><div class="field"><label for="rp-d">Data do pagamento</label><input id="rp-d" type="date" value="${esc(p.d||today())}"></div></div>
+    <div class="field"><label for="rp-dn">De quem</label><select id="rp-dn">${pessoasOpts(p.dono||me,true)}</select></div>
+    <p class="note">Entra no resultado do ativo. Se o dinheiro caiu na conta da corretora, ajuste o saldo dela como de costume.</p>
+    <div class="btnrow"><button class="btn primary" type="submit">Salvar</button>${isNew?'':'<button class="btn danger" type="button" id="rp-del">Excluir</button>'}</div></form>`,sh=>{
+    const $q=s=>sh.querySelector(s);if(!tks.length){$q('#frp').innerHTML='<p class="note">Registre primeiro uma compra.</p>';return}
+    $q('#rp-tk').onchange=e=>{$q('#rp-k').value=rvTipo(e.target.value)==='fii'?'rend':'div'};
+    $q('#frp').onsubmit=async e=>{e.preventDefault();const v=brNum($q('#rp-v').value),d=$q('#rp-d').value;if(!(v>0)){toast('Informe o valor');return}
+      const rec={id:p.id||('p'+Date.now().toString(36)),tk:$q('#rp-tk').value,k:$q('#rp-k').value,v:r2(v),d,dono:$q('#rp-dn').value};
+      try{await rvSave({prov:(rvD().prov||[]).filter(z=>z.id!==rec.id).concat([rec])});closeSheet();toast('Provento salvo')}catch(err){toast(writeErr(err))}};
+    const del=$q('#rp-del');if(del)confirmBtn(del,'Toque de novo para excluir',async()=>{try{await rvSave({prov:(rvD().prov||[]).filter(z=>z.id!==p.id)});closeSheet();toast('Provento excluído')}catch(err){toast(writeErr(err))}});
+  })}
+function openRVAlvo(){const me=ME(),R=rvCalc(me),A=rvAloc(me,R),cur=Object.assign({rf:0,acao:0,fii:0,etf:0,bdr:0},A.alvo||{});
+  if(!A.alvo&&A.T>0)Object.keys(cur).forEach(k=>cur[k]=Math.round((A.at[k]||0)/A.T*100));
+  openSheet(`<h2>Alocação-alvo</h2><p class="note">Quanto de cada classe você quer ter no total investido. O app compara com o atual e sugere onde colocar o próximo aporte, sem precisar vender nada.</p>
+    <form class="form" id="fal" novalidate>${Object.keys(RVCL).map(k=>`<div class="rvai"><span><i style="background:${RVCOR[k]}"></i>${RVCL[k]}<small>hoje ${pctf(A.T?(A.at[k]||0)/A.T:0)}</small></span><input type="number" inputmode="numeric" min="0" max="100" step="1" data-k="${k}" value="${cur[k]||0}"><b>%</b></div>`).join('')}
+    <p class="note" id="al-s"></p><div class="btnrow"><button class="btn primary" type="submit">Salvar</button>${A.alvo?'<button class="btn danger" type="button" id="al-x">Remover alvo</button>':''}</div></form>`,sh=>{
+    const ins=[...sh.querySelectorAll('[data-k]')],tot=()=>sum(ins,i=>+i.value||0),up=()=>{const t=tot();sh.querySelector('#al-s').innerHTML=`Soma: <b class="${t===100?'pos':'neg'}">${t}%</b>${t===100?'':' — precisa fechar 100%'}`};ins.forEach(i=>i.oninput=up);up();
+    sh.querySelector('#fal').onsubmit=async e=>{e.preventDefault();if(tot()!==100){toast('A soma precisa ser 100%');return}const alvo={};ins.forEach(i=>alvo[i.dataset.k]=+i.value||0);try{await rvSave({alvo});closeSheet();toast('Alocação-alvo salva')}catch(err){toast(writeErr(err))}};
+    const x=sh.querySelector('#al-x');if(x)confirmBtn(x,'Toque de novo para remover',async()=>{try{await rvSave({alvo:null});closeSheet();toast('Alvo removido')}catch(err){toast(writeErr(err))}})})}
 function wireMg(el,rr){
   el.querySelectorAll('[data-colch]').forEach(b=>b.onclick=openColchao);
   el.querySelectorAll('[data-mgimg]').forEach(b=>b.onclick=()=>snapExport(b.closest('.mgc'),'Quanto posso gastar · '+MGLAB[MGL],'quanto-posso-gastar-'+today(),b));
@@ -3319,10 +3559,10 @@ function vDecidir(){
     ${ords.length?`<div class="dcol"><small>Ordens salvas</small>${ords.map(o=>`<button type="button" class="cxr" data-dord="${esc(o.id)}"><span class="bk ${prontas.has(o.id)?'bk-g':''}">${ic(prontas.has(o.id)?'check':'clock')}</span><span class="cxm"><strong>${esc(o.desc||'Compra planejada')}</strong><small>${brl(o.v)} · ${esc(simForma(o.f))} · ${prontas.has(o.id)?'<span class="pos">já cabe</span>':'aguardando caber'}</small></span><span class="go">›</span></button>`).join('')}</div>`:''}</div>`;
   /* investir: abertura e projeção */
   let G=null;try{G=gastoLentes(me,ym)}catch(e){}const sob=G?Math.max(0,Math.min(G.L.sobra[1],G.L.caixa[1])):0,im=cdiMes();
-  h+=`<h3 class="dch">Investir</h3>${iniInvest(me)}
+  h+=`<h3 class="dch">Investir</h3>${iniInvest(me)}${(()=>{try{return rvCard(me)}catch(e){console.error('rv',e);return ''}})()}
     ${sob>50?`<div class="card dcc"><div class="dcsob" style="margin:0"><span>Se aplicar o que está livre agora (<b class="n">${brl0(sob)}</b>), renderia ≈ <b class="n pos">${brl0(sob*im)}/mês</b> e <b class="n pos">${brl0(sob*(Math.pow(1+im,12)-1))}</b> em 1 ano no CDI (antes do IR).</span></div></div>`:''}
     ${iniSpread(X)||''}`;
-  el.innerHTML=h;wireMg(el,vDecidir);
+  el.innerHTML=h;wireMg(el,vDecidir);wireRV(el,vDecidir);
   el.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>go(b.dataset.go));
   el.querySelectorAll('[data-dsim]').forEach(b=>b.onclick=()=>openSimCompra());
   el.querySelectorAll('[data-dord]').forEach(b=>b.onclick=()=>{const o=(cfg().ordens||[]).find(z=>z.id===b.dataset.dord);if(o)openSimCompra({v:o.v,desc:o.desc,cat:o.cat,f:o.f,ordem:o.id})});
@@ -3721,7 +3961,7 @@ function vInicio(){
   const x=$('#stx');if(x)x.onclick=()=>{SETUPX=true;LSset('pt-setup','x');vInicio()};
   el.querySelectorAll('[data-mym]').forEach(b=>b.onclick=()=>{MYM=ymAdd(MYM,+b.dataset.mym);vInicio()});
   el.querySelectorAll('[data-st]').forEach(b=>b.onclick=()=>{RP='fluxo';go('relatorios')});
-  el.querySelectorAll('[data-ag]').forEach(b=>b.onclick=()=>{const [k,v]=b.dataset.ag.split(/:(.*)/s);if(k==='fat'){const [c,y]=v.split('|');LF={ym:y,card:c,div:'todos',tag:'',q:''};go('lanc')}else if(k==='dv')openDividaDet(S.dividas.find(d=>d.id===v));else if(k==='ac')openAcerto(v);else if(k==='ab'){const d=S.acertos.find(a=>a.id===v);if(d)openAbater(0,'',null,{doc:d})}else if(k==='gab'){GWSEL=v;RP='salvos';go('relatorios')}else if(k==='rec'){const [id]=v.split('|');openRec(S.recs.find(r=>r.id===id))}else if(k==='l'){const l=S.lanc.find(l=>l.id===v);l&&l.pend?openPagar(l):openLanc(l)}});
+  el.querySelectorAll('[data-ag]').forEach(b=>b.onclick=()=>{const [k,v]=b.dataset.ag.split(/:(.*)/s);if(k==='fat'){const [c,y]=v.split('|');LF={ym:y,card:c,div:'todos',tag:'',q:''};go('lanc')}else if(k==='dv')openDividaDet(S.dividas.find(d=>d.id===v));else if(k==='ac')openAcerto(v);else if(k==='ab'){const d=S.acertos.find(a=>a.id===v);if(d)openAbater(0,'',null,{doc:d})}else if(k==='rvir')openRVIR();else if(k==='gab'){GWSEL=v;RP='salvos';go('relatorios')}else if(k==='rec'){const [id]=v.split('|');openRec(S.recs.find(r=>r.id===id))}else if(k==='l'){const l=S.lanc.find(l=>l.id===v);l&&l.pend?openPagar(l):openLanc(l)}});
   el.querySelectorAll('[data-ct]').forEach(b=>b.onclick=()=>openContaDet(conta(b.dataset.ct)));
   el.querySelectorAll('[data-pends]').forEach(b=>b.onclick=openPendentes);
   el.querySelectorAll('[data-spread]').forEach(b=>b.onclick=openSpread);
@@ -5715,6 +5955,13 @@ const FAQ=[
   ['Errei um abatimento, como desfaço?','No painel do acerto, toque em <b>Selecionar</b>, marque os itens quitados e use <b>Voltar para em aberto</b>. Eles voltam a ficar em aberto, em massa.'],
   ['Como mando o relatório de repasse?','Em Relatórios, abra o repasse e exporte. Vai com resumo, grupos (incluindo o abatimento no final), composição e imagem do gráfico.'],
   ['Onde mudo as pessoas e os dias das quinzenas?','Em Carteira → Ajustes → <b>Pessoas e quinzenas</b>.','pes','Abrir pessoas e quinzenas']]],
+ ['Ações, FIIs e IR',[
+  ['Como registro minhas ações, FIIs, ETFs e BDRs?','Em <b>Decidir › Investir › Renda variável</b>, toque em <b>Compra</b> e informe código, data, quantidade, preço e custos, como na nota de corretagem. O app calcula o preço médio (com custos), o resultado na cotação e o resultado das vendas. A classe (ação, FII, ETF, BDR) é sugerida pelo código e pode ser trocada no ativo.','rv','Abrir renda variável'],
+  ['De onde vem a cotação?','Da <b>brapi.dev</b>, com atraso de cerca de 30 minutos. Sem chave só PETR4, VALE3, ITUB4 e MGLU3 respondem; crie uma chave grátis no site e cole em <b>Renda variável › Fonte das cotações</b>. Sem internet ou sem resposta, use <b>Informar cotação</b> no ativo; sem nenhuma cotação, o ativo vale pelo preço médio (e o app avisa).'],
+  ['O que é “contra CDI, IPCA e Ibovespa”?','O app repete cada compra, venda e provento no índice, na mesma data, e mostra quanto você teria ganho hoje. Assim a comparação é justa mesmo com aportes em datas diferentes. ≈ indica que parte do período usa a taxa atual. O Ibovespa começa quando o app passa a guardar o índice (a fonte grátis traz só 3 meses).'],
+  ['Como funciona a alocação-alvo?','Você define quanto quer em renda fixa, ações, FIIs, ETFs e BDRs. O app compara com o atual e divide o <b>aporte do mês</b> entre as classes que estão abaixo do alvo, sem precisar vender nada.','rvalvo','Definir alocação'],
+  ['Como o app calcula o IR das vendas?','Ações: se as vendas do mês somam até R$ 20 mil, o lucro é isento; acima, 15%. ETFs e BDRs: 15% sem isenção. FIIs: 20%. Prejuízos compensam lucros dos meses seguintes (FII separado) e o IR retido de 0,005% é descontado. O DARF (código 6015) vence no último dia útil do mês seguinte e entra no seu caixa previsto. Day trade não é calculado. É uma estimativa: confira com o informe da corretora.','rvir','Ver IR do mês'],
+  ['As compras de ações tiram dinheiro da conta?','Não automaticamente. A posição fica na renda variável e entra no patrimônio pela cotação. O dinheiro que saiu ou entrou na corretora você ajusta no saldo da conta, como já faz hoje — assim nada é contado duas vezes.']]],
  ['Relatórios e números',[
   ['Por que o total de categorias é diferente do caixa do mês?','São duas visões. O <b>caixa</b> conta pela data em que o dinheiro saiu (a fatura paga). As <b>categorias</b> contam pela data da compra, para você ver o que gastou em cada coisa naquele mês. Os dois estão certos; respondem a perguntas diferentes.'],
   ['Por que a projeção não inclui meus gastos do dia a dia?','O app só projeta o que está registrado: receitas e contas fixas, parcelas, faturas e pendentes. Gastos ainda não lançados não entram — assim nenhum número é inventado.'],
@@ -5728,7 +5975,7 @@ const FAQ=[
   ['As cores ficaram estranhas no celular, e agora?','Confira se o celular não está forçando modo escuro em apps (Configurações → Tela → Modo escuro) e se, no Chrome, “Escurecer sites” está desligado. O app já tem tema escuro próprio, que segue o do celular.']]]
 ];
 function openAjuda(q0){
-  const run={colchao:()=>openColchao(),sim:()=>openSimCompra(),org:()=>{closeSheet();location.hash='inicio';setTimeout(()=>{const b=$('#orgbtn');b?b.click():toast('Role até o fim do Início e toque em Organizar esta tela')},350)},pes:()=>openPessoas(),prem:()=>openPremissas(),bk:()=>openBackups()};
+  const run={colchao:()=>openColchao(),sim:()=>openSimCompra(),org:()=>{closeSheet();location.hash='inicio';setTimeout(()=>{const b=$('#orgbtn');b?b.click():toast('Role até o fim do Início e toque em Organizar esta tela')},350)},pes:()=>openPessoas(),prem:()=>openPremissas(),bk:()=>openBackups(),rv:()=>openRV(),rvir:()=>openRVIR(),rvalvo:()=>openRVAlvo()};
   const norm=s=>String(s).normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
   openSheet(`<h2>Ajuda</h2><p class="note">Dúvidas comuns sobre o app. Toque numa pergunta para ver a resposta.</p>
     <div class="field faqs"><input id="fq-q" type="search" placeholder="Buscar: livre, acerto, offline…" autocomplete="off" value="${esc(q0||'')}"></div>
@@ -7048,12 +7295,12 @@ function openTransf(per){
 }
 
 /* ---------- backup / export ---------- */
-async function backup(){const data={app:'patrimonio',versao:3,geradoEm:new Date().toISOString(),config:S.cfg,contas:S.contas,cartoes:S.cards,lancamentos:S.lanc,dividas:S.dividas,recorrentes:S.recs,acertos:S.acertos,relatorios:S.reps};
+async function backup(){const data={app:'patrimonio',versao:3,geradoEm:new Date().toISOString(),config:S.cfg,contas:S.contas,cartoes:S.cards,lancamentos:S.lanc,dividas:S.dividas,recorrentes:S.recs,acertos:S.acertos,relatorios:S.reps,rv:S.rv||null};
   try{await S.downloads.save({filename:'patrimonio-backup-'+today()+'.json',data:new Blob([JSON.stringify(data,null,1)],{type:'application/json'})})}catch(e){}}
 /* ---------- cópias de segurança automáticas (no banco, uma por dia, 30 guardadas) ---------- */
 const BKC=[['contas','contas','contas'],['cartoes','cartoes','cards'],['lancamentos','lanc','lanc'],['dividas','dividas','dividas'],['recorrentes','recorrentes','recs'],['acertos','acertos','acertos'],['relatorios','relatorios','reps']];
 const BKMAX=30,BKPART=350000;let BKIDX=null,BKRUN=false,BKOFF=false;
-function bkData(){const d={app:'patrimonio',versao:3,geradoEm:new Date().toISOString(),config:S.cfg};BKC.forEach(([j,,k])=>d[j]=S[k]||[]);return d}
+function bkData(){const d={app:'patrimonio',versao:3,geradoEm:new Date().toISOString(),config:S.cfg,rv:S.rv||null};BKC.forEach(([j,,k])=>d[j]=S[k]||[]);return d}
 function bkLista(){return Object.entries((BKIDX&&BKIDX.datas)||{}).map(([k,v])=>Object.assign({k},v)).sort((a,b)=>b.k.localeCompare(a.k))}
 const bkDoc=(k,i)=>'backups/'+k+(i?'~'+i:'');
 async function bkSalvar(k,motivo){const d=bkData(),js=JSON.stringify(d),partes=Math.max(1,Math.ceil(js.length/BKPART));
@@ -7072,7 +7319,7 @@ async function bkRestaurar(data){const hm=new Date().toTimeString().slice(0,5).r
   for(const [j,col,k] of BKC){if(!Array.isArray(data[j]))continue;const ids=new Set(data[j].map(x=>x.id).filter(Boolean));
     (S[k]||[]).filter(x=>!ids.has(x.id)).forEach(x=>S.db.doc(col+'/'+x.id).delete());
     data[j].forEach(x=>{const d=Object.assign({},x);delete d.id;x.id?S.db.doc(col+'/'+x.id).set(d):S.db.collection(col).add(d)})}
-  if(data.config)await S.db.doc('config/app').set(data.config)}
+  if(data.config)await S.db.doc('config/app').set(data.config);if(data.rv)await S.db.doc('config/rv').set(data.rv)}
 const bkNome=x=>{const d=x.k.slice(0,10),hm=x.k.slice(11);return fdate(d)+(hm?' '+hm.slice(0,2)+':'+hm.slice(2):'')+(d===today()&&!hm?' · hoje':'')};
 function openBackups(){const L=bkLista();
   openSheet(`<h2>Cópias de segurança</h2><p class="note">Uma cópia completa é salva sozinha no banco, uma vez por dia, quando o app abre com internet. Ficam as ${BKMAX} mais recentes. Antes de qualquer restauração o app guarda uma cópia do estado atual — dá para voltar atrás.</p>
@@ -7175,6 +7422,7 @@ const tm=setTimeout(()=>{if(!ready())live('Sem conexão')},10000);
   const mark=()=>{if(ready()){clearTimeout(tm);syncUI();bkAuto()}};
   const col=(name,key,ok)=>db.collection(name).onSnapshot(s=>{S[key]=s.docs.map(d=>Object.assign({id:d.id},d.data()));S.ok[ok]=1;mark();re()},err);
   db.doc('config/app').onSnapshot(s=>{S.cfg=s.exists?s.data():null;applyCats();S.ok.c=1;mark();re()},err);
+  db.doc('config/rv').onSnapshot(s=>{S.rv=s.exists?(s.data()||{}):{};re()},()=>{});
   db.doc('meta/backups').onSnapshot(s=>{BKIDX=s.exists?s.data():{datas:{}};bkAuto()},e=>{if(e&&e.code==='permission-denied')BKOFF=true});
   col('cartoes','cards','k');col('contas','contas','n');col('lanc','lanc','l');col('dividas','dividas','d');col('recorrentes','recs','r');col('acertos','acertos','a');col('relatorios','reps','x');
   C.use('assets').then(a=>{S.assets=a});
