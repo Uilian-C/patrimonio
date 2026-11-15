@@ -2207,6 +2207,11 @@ main{padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))!important}
 .mgvr{display:block;margin-top:4px;line-height:1.4}.mgvr b.pos{color:var(--good)}.mgvr b.neg{color:var(--crit,#E0705F)}
 .vcard svg.sfc{background:none!important;border:0!important;padding:0!important;border-radius:0!important}
 .vmedt{fill:var(--good)!important}.vleg{display:flex;gap:12px;flex-wrap:wrap;margin:0 0 8px;font-size:11px;color:var(--muted)}.vleg i{display:inline-block;width:12px;height:4px;border-radius:2px;margin-right:5px;vertical-align:2px}.vleg i.g{background:var(--accent,#E2BA6E)}.vleg i.r{background:color-mix(in srgb,var(--good) 35%,transparent)}.vleg i.p{width:2px;height:9px;background:var(--ink,#ddd);vertical-align:-1px}
+.wpv{display:block;font-size:10.5px;color:var(--muted);margin-top:1px}
+.lcat{margin-top:14px}.lck{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:6px 0 4px}.lck small{display:block;font-size:11px;color:var(--muted)}.lck b{display:block;font-size:18px;font-weight:650}.lck b.neg{color:var(--crit,#E0705F)}.lck b.pos{color:var(--good)}.lck em{display:block;font-style:normal;font-size:11px;color:var(--muted);line-height:1.3}
+.lcm{stroke:var(--muted);stroke-dasharray:4 3;opacity:.8}.lcp{stroke:var(--accent,#E2BA6E);stroke-width:1.6;stroke-dasharray:4 3;fill:none}.lcl{stroke:var(--accent,#E2BA6E);stroke-dasharray:2 2;opacity:.7}.lcd{fill:var(--accent,#E2BA6E);stroke:var(--bg,#111);stroke-width:2}
+.sfg i.lcdI{background:var(--accent,#E2BA6E);border-radius:50%}
+.lcat svg.sfc{background:none!important;border:0!important;padding:0!important;border-radius:0!important}
 </style>
 </head>
 <body>
@@ -2962,7 +2967,7 @@ function iniResolver(X){
   /* a receber: receitas previstas e pendentes no horizonte + previstas deste mês que passaram sem confirmação */
   const ym=t.slice(0,7),recAtr=recPrevistos(ym,ym).filter(x=>x.tipo==='receita'&&x.dono===me&&x.date<t).map(x=>({k:'rec',d:x.date,t:x.nome,s:'não confirmada',v:x.valor,nav:`rec:${x.r.id}|${x.ym}`,atr:1}));
   const ent=recAtr.concat(AG.filter(x=>x.v>0).map(x=>Object.assign({},x,{atr:x.d<t}))).sort((a,b)=>a.d.localeCompare(b.d)),totE=sum(ent,x=>x.v),atrE=ent.filter(x=>x.atr);
-  const STP=stopStatus(me).filter(x=>x.st!=='ok').sort((a,b)=>b.pct-a.pct).slice(0,3),stH=STP.length?`<div class="rvstp">${STP.map(x=>`<button type="button" class="rvs ${x.st}" data-plano="1">${catBubble(x.c,'sm')}<span><b>${esc(x.c)}${x.st==='stop'?' passou do stop':` em ${pctf(x.pct)} do stop`}</b><small>${x.st==='stop'?`${brl(-x.disp)} acima do limite de ${brl0(x.lim)}`:`resta ${brl(x.disp)} · ≈ ${brl(x.dia)}/dia`}</small></span><span class="go">›</span></button>`).join('')}</div>`:'';
+  const STP=stopStatus(me).filter(x=>x.st!=='ok').sort((a,b)=>b.pct-a.pct).slice(0,3),stH=STP.length?`<div class="rvstp">${STP.map(x=>`<button type="button" class="rvs ${x.st}" data-plano="1">${catBubble(x.c,'sm')}<span><b>${esc(x.c)}${x.st==='stop'?' passou do stop':x.st==='risco'?' deve passar do stop':` em ${pctf(x.pct)} do stop`}</b><small>${x.st==='stop'?`${brl(-x.disp)} acima do limite de ${brl0(x.lim)}`:x.st==='risco'?`no ritmo, fecha ≈ ${brl0(x.proj)} · stop ${brl0(x.lim)} · resta ${brl(x.disp)}`:`resta ${brl(x.disp)} · ≈ ${brl(x.dia)}/dia${x.proj>x.lim?` · no ritmo fecha ≈ ${brl0(x.proj)}`:''}`}</small></span><span class="go">›</span></button>`).join('')}</div>`:'';
   const fH=iniFecha(X),gid=gabId();let acH='',acV=0;if(gid){try{const C=credGab();if(C.cred>1){acV=C.cred;acH=`<button type="button" class="rvo rvac" data-acab="1">${ic('heartpay')}<span><b>${esc(P(gid).nome.split(' ')[0])} te deve ${brl(C.cred)}</b><small>compras comuns que você pagou · abater no próximo repasse</small></span><span class="go">›</span></button>`}}catch(e){}}
   const OP=ordensProntas(me),opH=fH+stH+(OP.length?`<div class="rvord">${OP.map(o=>`<button type="button" class="rvo" data-ordp="${esc(o.id)}">${ic('spark')}<span><b>${esc(o.desc||'Compra planejada')} já cabe</b><small>${brl(o.v)} · ${esc(simForma(o.f))} · toque para conferir e lançar</small></span><span class="go">›</span></button>`).join('')}</div>`:'');
   const hz=`<div class="seg rvhz" role="group" aria-label="Horizonte">${[7,15,30].map(n=>`<button type="button" data-rvh="${n}" aria-pressed="${RVH===n}">${n}d</button>`).join('')}</div>`;
@@ -3102,7 +3107,7 @@ function catFicha(me,c){const t=today(),cym=t.slice(0,7),ms=[];for(let k=12;k>=0
   const comp=mesesOk(cym,12).slice().sort(),vals=comp.map(m=>r2(by[m]||0)),n=vals.length,avg=n?sum(vals,v=>v)/n:0;
   const mxI=n?vals.indexOf(Math.max(...vals)):-1,mnI=n?vals.indexOf(Math.min(...vals)):-1,nC=sum(comp,m=>cnt[m]||0),tick=nC?sum(comp,m=>by[m]||0)/nC:((cnt[cym]||0)?(by[cym]||0)/cnt[cym]:0);
   const cur=r2(by[cym]||0),fr=Math.min(+t.slice(8)/lastDay(cym),1),proj=fr>0&&(cnt[cym]||0)>=3?r2(cur/fr):cur,ritmo=(cnt[cym]||0)>=3,P=planoCalc(cym,me),pc=P.cats.find(x=>x.c===c),stop=pc&&pc.d?r2(pc.d+pc.ro):0;
-  const sug=avg>0?Math.ceil(avg/10)*10:Math.ceil(proj/10)*10;
+  const md=n?mediana(vals):0,sug=md>0?Math.ceil(md/10)*10:avg>0?Math.ceil(avg/10)*10:Math.ceil(proj/10)*10;
   return {ritmo,c,ms,ser:ms.map(m=>r2(by[m]||0)),cur,proj,avg,n,max:mxI>=0?{m:comp[mxI],v:vals[mxI]}:null,min:mnI>=0?{m:comp[mnI],v:vals[mnI]}:null,tick:r2(tick),freq:n?nC/n:(cnt[cym]||0),cntCur:cnt[cym]||0,stop,sug,pc}}
 function openCatFicha(c){const me=ME(),F=catFicha(me,c),ym=today().slice(0,7),d=F.avg>20?F.proj/F.avg-1:null;
   const cell=(k,v,s)=>`<div><span>${k}</span><b class="n">${v}</b>${s?`<small>${s}</small>`:''}</div>`;
@@ -3111,7 +3116,7 @@ function openCatFicha(c){const me=ME(),F=catFicha(me,c),ym=today().slice(0,7),d=
     ${F.ser.length>1?`<div class="cfs">${sparkL(F.ser,d!=null&&d>0?'var(--crit)':'var(--accent)',320,70)}<div class="cfsl">${F.ms.map((m,i)=>i%Math.ceil(F.ms.length/6)===0||i===F.ms.length-1?`<span>${MES[+m.slice(5)-1]}</span>`:'').join('')}</div></div>`:''}
     <div class="cfg">${cell('Média mensal',F.n?brl0(F.avg):'—',F.n?`${F.n} ${F.n===1?'mês completo':'meses completos'}`:'sem mês completo')}${cell('Maior mês',F.max?brl0(F.max.v):'—',F.max?MESL[+F.max.m.slice(5)-1]:'')}${cell('Menor mês',F.min?brl0(F.min.v):'—',F.min?MESL[+F.min.m.slice(5)-1]:'')}
       ${cell('Ticket médio',F.tick?brl0(F.tick):'—','por compra')}${cell('Compras por mês',F.n?F.freq.toLocaleString('pt-BR',{maximumFractionDigits:1}):String(F.cntCur),F.n?'média':'neste mês')}${cell('Stop do mês',F.stop?brl0(F.stop):'sem stop',F.stop?`resta ${brl0(F.pc.disp)}`:'')}</div>
-    <div class="cfst"><span>Stop sugerido: <b class="n">${brl0(F.sug)}</b></span><small>${F.n?'arredondado a partir da média dos meses completos':'com base no ritmo deste mês (ainda sem histórico)'}${F.max&&F.min&&F.max.v>F.min.v*1.5?` · esta categoria oscila (${brl0(F.min.v)} a ${brl0(F.max.v)}): avalie uma folga`:''}</small></div>
+    <div class="cfst"><span>Stop sugerido: <b class="n">${brl0(F.sug)}</b></span><small>${F.n?'arredondado a partir da mediana dos meses completos (um mês atípico não distorce)':'com base no ritmo deste mês (ainda sem histórico)'}${F.max&&F.min&&F.max.v>F.min.v*1.5?` · esta categoria oscila (${brl0(F.min.v)} a ${brl0(F.max.v)}): avalie uma folga`:''}</small></div>
     <div class="btnrow"><button class="btn primary" type="button" id="cf-st">${F.stop?'Atualizar stop para '+brl0(F.sug):'Usar como stop'}</button><button class="btn" type="button" id="cf-l">Ver lançamentos</button></div>`,sh=>{
     sh.querySelector('#cf-l').onclick=()=>{closeSheet();LF={ym,card:'',div:'todos',tag:'',q:'',cat:c};setTimeout(()=>go('lanc'),200)};
     sh.querySelector('#cf-st').onclick=async()=>{const plano=Object.assign({},cfg().plano||{}),p=Object.assign({cats:{},guardar:0},plano[ym]||{});p.cats=Object.assign({},p.cats||{},{[c]:F.sug});plano[ym]=p;
@@ -3122,9 +3127,10 @@ function openCatFicha(c){const me=ME(),F=catFicha(me,c),ym=today().slice(0,7),d=
 let WTAB=LS('pt-wtab','altas');
 function catWatch(me,ym){const t=today(),fr=ym===t.slice(0,7)?Math.min(+t.slice(8)/lastDay(ym),1):1,ms=[5,4,3,2,1,0].map(k=>ymAdd(ym,-k)).filter(m=>dayIn(m,31)>=histIni()),mp={};ms.forEach(m=>mp[m]=catMesMap(m,me));
   const ok=mesesOk(ym,3),cats=new Set();ms.forEach(m=>Object.keys(mp[m]).forEach(c=>cats.add(c)));
-  return [...cats].map(c=>{const ser=ms.map(m=>r2(mp[m][c]||0)),v=ser[ser.length-1],avg=ok.length?sum(ok,m=>(catMesMap(m,me)[c]||0))/ok.length:0,a=avg*fr,d=a>20?v/a-1:null;return {c,ser,v,avg,a,d,delta:r2(v-a)}}).filter(x=>x.v>0||x.avg>0)}
+  let V=null;try{V=ym===t.slice(0,7)?varModel(me,ym):null}catch(e){}
+  return [...cats].map(c=>{const ser=ms.map(m=>r2(mp[m][c]||0)),v=ser[ser.length-1],avg=ok.length?sum(ok,m=>(catMesMap(m,me)[c]||0))/ok.length:0,a=avg*fr,d=a>20?v/a-1:null,vc=V&&V.cats.find(z=>z.c===c);return {c,ser,v,avg,a,d,delta:r2(v-a),prev:vc?r2(v+vc.prev-vc.gasto):v}}).filter(x=>x.v>0||x.avg>0)}
 function watchRows(L,mode){const pill=x=>x.d==null?(mode==='nb'?'':'<span class="wpl n0">novo</span>'):`<span class="wpl ${x.d>0?'dn':'up'}">${x.d>0?'+':'−'}${pctf(Math.abs(x.d))}</span>`;
-  return L.map(x=>`<button type="button" class="wr" data-wcat="${esc(x.c)}">${catBubble(x.c,'sm')}<span class="wn"><b>${esc(x.c)}</b><small>${x.avg>0?`média ${brl0(x.avg)}`:mode==='nb'?'gasto do mês':'sem histórico'}</small></span>${x.ser.length>1?`<span class="wsp">${sparkL(x.ser,x.d>0?'var(--crit)':'var(--good)',64,24)}</span>`:'<span></span>'}<span class="wv"><b class="n">${brl0(x.v)}</b>${pill(x)}</span></button>`).join('')}
+  return L.map(x=>`<button type="button" class="wr" data-wcat="${esc(x.c)}">${catBubble(x.c,'sm')}<span class="wn"><b>${esc(x.c)}</b><small>${x.avg>0?`média ${brl0(x.avg)}`:mode==='nb'?'gasto do mês':'sem histórico'}</small></span>${x.ser.length>1?`<span class="wsp">${sparkL(x.ser,x.d>0?'var(--crit)':'var(--good)',64,24)}</span>`:'<span></span>'}<span class="wv"><b class="n">${brl0(x.v)}</b>${pill(x)}${x.prev>x.v+1?`<small class="wpv">fecha ≈ ${brl0(x.prev)}</small>`:''}</span></button>`).join('')}
 function watchHTML(me,ym){const W=catWatch(me,ym),hasBase=mesesOk(ym,3).length>0;
   const alt=W.filter(x=>x.d!=null&&x.d>0).sort((a,b)=>b.delta-a.delta),bai=W.filter(x=>x.d!=null&&x.d<0).sort((a,b)=>a.delta-b.delta),ati=W.slice().sort((a,b)=>b.v-a.v);
   const tab=hasBase?WTAB:'ativo',L=tab==='baixas'?bai:tab==='ativo'?ati:alt;
@@ -3397,7 +3403,8 @@ function openSpread(){const me=ME(),Z=spreadCalc(me);
    Usa os envelopes do Plano do mês como limite (stop). Mostra quanto ainda pode, o ritmo por dia
    e avisa aos 80% e ao estourar. */
 function stopStatus(me,ym){ym=ym||today().slice(0,7);const P=planoCalc(ym,me);if(!P.tem)return [];const t=today(),nd=lastDay(ym),rest=ym===t.slice(0,7)?Math.max(nd-+t.slice(8)+1,1):ym>t.slice(0,7)?nd:1;
-  return P.cats.filter(x=>x.d>0).map(x=>{const lim=r2(x.d+x.ro),pct=lim>0?x.g/lim:0;return {c:x.c,lim,g:x.g,disp:x.disp,pct,dia:x.disp>0?r2(x.disp/rest):0,st:x.disp<-.005?'stop':pct>=.8?'alerta':'ok'}})}
+  let V=null;try{V=ym===t.slice(0,7)?varModel(me,ym):null}catch(e){}
+  return P.cats.filter(x=>x.d>0).map(x=>{const lim=r2(x.d+x.ro),pct=lim>0?x.g/lim:0,vc=V&&V.cats.find(z=>z.c===x.c),proj=r2(x.g+(vc?vc.prev-vc.gasto:0));return {c:x.c,lim,g:x.g,disp:x.disp,pct,proj,dia:x.disp>0?r2(x.disp/rest):0,st:x.disp<-.005?'stop':pct>=.8?'alerta':proj>lim+.5&&pct>=.4?'risco':'ok'}})}
 function stopHint(cat,v,data,editing,com){try{if(!cat)return '';const ym=(data||today()).slice(0,7),x=stopStatus(ME(),ym).find(z=>z.c===cat);if(!x)return '';
   const dep=r2(x.disp-(editing?0:(+v||0)));
   return `<p class="lstop ${dep<0?'stop':dep<x.lim*.2?'alerta':''}">${ic('goal')}<span>Stop de ${esc(cat)}: ${editing||!(+v>0)?`resta <b>${brl(Math.max(x.disp,0))}</b> no mês${x.dia?` (≈ ${brl(x.dia)}/dia)`:''}${x.disp<0?` · já passou ${brl(-x.disp)}`:''}`:dep<0?`com esta compra <b>passa o stop em ${brl(-dep)}</b>`:`depois desta, restam <b>${brl(dep)}</b> no mês`}${com&&!editing&&+v>0?' (conta a sua metade)':''}</span></p>`}catch(e){return ''}}
@@ -6040,6 +6047,31 @@ function mktRec(r){if(!r||+r.parcelas>1)return '';const bv=x=>Math.abs(x)<100?br
     <div class="mkw"><div><small>Por mês</small><b class="n">${bv(v)}</b></div><div><small>Por ano</small><b class="n">${bv(ano)}</b></div><div><small>5 anos no CDI</small><b class="n">${bv(fv5)}</b></div></div>
     <p class="mkt">Se esse valor fosse aplicado todo mês no CDI, viraria <b>${bv(fv1)}</b> em 1 ano e <b>${bv(fv5)}</b> em 5 anos (antes do IR). É o preço real de manter este compromisso.</p></div>`;
   return `<div class="mkv">${q3}${q4}</div>`}
+/* previsão por categoria: gasto do mês (tudo) + o que ainda deve sair no dia a dia daquela categoria */
+function catPrev(me,c,ym){ym=ym||today().slice(0,7);const cur=r2((catMesMap(ym,me)||{})[c]||0);let V=null;try{V=varModel(me,ym)}catch(e){}
+  const x=V&&V.cats.find(z=>z.c===c),rest=x?r2(x.prev-x.gasto):0;return {cur,prev:r2(cur+rest),rest,med:x?x.med:0,min:x?x.min:0,max:x?x.max:0}}
+/* no lançamento: quanto ele pesa na categoria e o "pregão" da categoria no mês */
+function lancNaCat(l){if(l.tipo!=='despesa'||!l.categoria)return '';const me=ME(),c=l.categoria,ym=(l.data||today()).slice(0,7),t=today(),cur=ym===t.slice(0,7);
+  const its=movs().filter(i=>i.tipo==='despesa'&&(i.l.categoria||'Outros')===c&&(i.cym||i.ym)===ym&&!(i.l.ign&&i.l.ign.stats)),sv=i=>share(i,me);
+  const tot=r2(sum(its,sv)),mine=r2(sum(its.filter(i=>i.l.id===l.id),sv));if(!(tot>0)||!(mine>0))return '';
+  const nd=lastDay(ym),dOf=i=>{const d=i.l.data||'';return d.slice(0,7)===ym?+d.slice(8):1},by={};its.forEach(i=>{const d=dOf(i);by[d]=(by[d]||0)+sv(i)});
+  const P=cur?catPrev(me,c,ym):{cur:tot,prev:tot,med:0},med=P.med||(()=>{const ok=mesesOk(ym,3);return ok.length?mediana(ok.map(m=>(catMesMap(m,me)||{})[c]||0)):0})();
+  const rank=[...its].map(i=>({id:i.l.id,v:sv(i)})).sort((a,b)=>b.v-a.v).findIndex(x=>x.id===l.id)+1,nC=its.length;
+  const hoje=cur?+t.slice(8):nd,W=320,H=130,pad=14,X=d=>pad+(d-1)/(nd-1)*(W-pad*2),mx=Math.max(P.prev,med,tot,1)*1.08,Y=v=>12+(1-v/mx)*(H-34);
+  let acc=0;const pts=[[1,0]];for(let d=1;d<=hoje;d++){if(by[d]){pts.push([d,acc]);acc+=by[d];pts.push([d,acc])}}pts.push([hoje,acc]);
+  const L=pts.map((p,i)=>`${i?'L':'M'}${X(p[0]).toFixed(1)},${Y(p[1]).toFixed(1)}`).join(''),dl=+(l.data||'').slice(8)||1;
+  let accL=0;for(let d=1;d<=dl;d++)accL+=by[d]||0;
+  const up=med>0&&P.prev>med,col=up?'var(--crit,#E0705F)':'var(--good)';
+  const svg=`<svg viewBox="0 0 ${W} ${H}" class="sfc lcc" role="img" aria-label="Gasto acumulado da categoria no mês">
+    ${med>0?`<line x1="${X(1)}" x2="${X(nd)}" y1="${Y(0)}" y2="${Y(med)}" class="lcm"/><text x="${X(Math.round(nd*.45))}" y="${Y(med*.45)-16}" class="sfl" text-anchor="end">mediana ${brl0(med)}</text>`:''}
+    <path d="${L}L${X(hoje)},${Y(0)}L${X(1)},${Y(0)}Z" style="fill:color-mix(in srgb,${col} 13%,transparent)"/><path d="${L}" style="fill:none;stroke:${col};stroke-width:2"/>
+    ${cur&&P.prev>tot?`<path d="M${X(hoje)},${Y(tot)}L${X(nd)},${Y(P.prev)}" class="lcp"/><circle cx="${X(nd)}" cy="${Y(P.prev)}" r="3" class="sld"/><text x="${X(nd)-6}" y="${Y(P.prev)+(med>0&&Math.abs(Y(P.prev)-Y(med))<14&&P.prev<med?16:P.prev>=med?-7:16)}" class="sft" text-anchor="end">≈ ${brl0(P.prev)}</text>`:''}
+    <line x1="${X(dl)}" x2="${X(dl)}" y1="${Y(accL)}" y2="${Y(0)}" class="lcl"/><circle cx="${X(dl)}" cy="${Y(accL)}" r="4.5" class="lcd"/>
+    <text x="${X(1)}" y="${H-6}" class="sfl" text-anchor="start">01</text>${cur?`<text x="${X(hoje)}" y="${H-6}" class="sfl">hoje</text>`:''}<text x="${X(nd)}" y="${H-6}" class="sfl" text-anchor="end">${nd}</text></svg>`;
+  const d=med>0?(cur?P.prev:tot)/med-1:null;
+  return `<div class="lvp lcat"><div class="lvph"><b>Na categoria ${esc(c)}</b><span>${MESL[+ym.slice(5)-1].toLowerCase()}</span></div>
+    <div class="lck"><div><small>Esta compra</small><b class="n">${pctf(mine/tot)}</b><em>do mês na categoria · ${rank===1?`a maior de ${nC}`:`${rank}ª maior de ${nC}`}</em></div><div><small>${cur?'Até hoje':'No mês'}</small><b class="n">${brl0(tot)}</b><em>${cur?`fecha ≈ ${brl0(P.prev)}`:'fechado'}</em></div><div><small>vs mediana</small><b class="n ${d==null?'':d>0?'neg':'pos'}">${d==null?'—':(d>0?'▲ ':'▼ ')+pctf(Math.abs(d))}</b><em>${med>0?brl0(med):'sem histórico'}</em></div></div>
+    ${svg}<div class="sfg"><span><i class="lcdI"></i>esta compra</span><span><i style="background:${col}"></i>acumulado</span>${med>0?'<span><i class="slsI"></i>ritmo da mediana</span>':''}${cur&&P.prev>tot?'<span><i class="vprevI"></i>previsão</span>':''}</div></div>`}
 function openLancView(l){
   if(!l)return;const me=ME(),O={transf:['swap','Transferência'],pagfat:['receipt','Pagamento de fatura'],ajuste:['coin','Ajuste de saldo']}[l.tipo];
   const T={despesa:'Despesa',receita:'Receita',transf:'Transferência',pagfat:'Pagamento de fatura',ajuste:'Ajuste de saldo'}[l.tipo]||'Lançamento';
@@ -6070,6 +6102,7 @@ function openLancView(l){
     <div class="lvv n ${l.tipo==='receita'?'pos':''}">${sign}${brl(Math.abs(v))}</div>
     <div class="lvl">${rows.join('')}</div>${(()=>{const rr=l.rec&&S.recs.find(x=>x.id===l.rec&&+x.parcelas>1),key=N>1&&l.tipo==='despesa'?'l:'+l.id:rr?'rec:'+rr.id:'';if(!key)return '';const D=debtPlan(key);if(!D||!D.rows.length)return '';const pc=D.total?D.pago/D.total:0;
       return `<div class="lvp"><div class="lvph"><b>Evolução da compra</b><span>${D.pagas.length}/${D.rows.length} parcelas · termina ${ymS(D.fim)}</span></div><div class="dpb"><i style="width:${pc*100}%"></i></div><div class="dpl"><span><b class="n pos">${brl0(D.pago)}</b> pago</span><span>${pctf(pc)}</span><span><b class="n neg">${brl0(D.falta)}</b> falta</span></div>${dpSaldoChart(D)}${mktParc(D)}<button class="btn" type="button" id="lv-dr" data-dk="${esc(key)}">${ic('chart')} Relatório completo</button></div>`})()}${(()=>{const r=l.rec&&S.recs.find(x=>x.id===l.rec);return r&&!(+r.parcelas>1)?`<div class="lvp"><div class="lvph"><b>Recorrência</b><span>${esc(r.nome)}</span></div>${mktRec(r)}</div>`:''})()}${tags}${anx}
+    ${(()=>{try{return lancNaCat(l)}catch(e){console.error('lancNaCat',e);return ''}})()}
     <div class="lva">${l.pend?`<button class="btn primary" type="button" id="lv-pg">${ic('check')} Marcar como pago</button>`:''}<button class="btn ${l.pend?'':'primary'}" type="button" id="lv-ed">${ic('edit')} Editar</button><button class="btn" type="button" id="lv-dp">${ic('copy')} Duplicar</button><button class="btn danger" type="button" id="lv-del">${ic('trash')} Excluir</button></div></div>`,sh=>{
     const dr=sh.querySelector('#lv-dr');if(dr)dr.onclick=()=>openDebtReport(dr.dataset.dk);
     const fm=mesFechado(l),ed=sh.querySelector('#lv-ed');if(fm)confirmBtn(ed,`${MES[+fm.slice(5)-1]} está fechado · toque de novo`,()=>openLanc(l,{edit:true}));else ed.onclick=()=>openLanc(l,{edit:true});
