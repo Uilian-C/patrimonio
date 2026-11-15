@@ -2300,6 +2300,7 @@ pre.rules{font-size:10.5px;line-height:1.45;background:var(--sunk);padding:10px 
 .rtzf{font-size:11px;color:var(--muted);text-align:center;margin:0}
 .pfn{display:grid;gap:4px;margin:6px 0}
 html.zm nav.tabs{zoom:var(--unz,1)}
+.mgpc{margin-top:12px;border-top:1px solid var(--sep,var(--hair));padding-top:12px;width:100%}
 </style>
 </head>
 <body>
@@ -3298,8 +3299,7 @@ function iniMargem(X){let G;try{G=gastoLentes(X.me,X.ym)}catch(e){return ''}if(!
       <div class="mgk2">${Object.keys(MGLAB).filter(k=>k!==MGL).map(k=>`<span>${MGLAB[k]} <b class="n ${G.L[k][p]<0?'neg':''}">${G.L[k][p]<0?'−'+brl0(-G.L[k][p]):brl0(G.L[k][p])}</b></span>`).join('')}</div></div></div>
     <div class="mgpj"><button type="button" class="mgtg nosnap" data-mgp="1" aria-pressed="${MGP}"><i></i>Contar o que ainda vai entrar</button><small>${p?`inclui ${brl0(r2(G.renda-G.recJa))} previstos no mês`:`só o que já caiu: ${brl0(G.recJa)}`}</small></div>
     <p class="mgn">${sub}.</p>
-    <div class="mgsim ${MGV?'':'nosnap'}"><button type="button" class="mgin" id="mg-v"><span>Vou gastar</span><b class="n">${MGV?brl(MGV):'R$ —'}</b><small>${MGV?'toque para mudar':'toque e digite o valor'}</small></button>${MGV?`<button class="lk" type="button" data-mgx="1">limpar</button>`:''}
-    <div id="mg-sim">${mgSim(G,MGV,X.me)}</div></div></div>`}
+    <button type="button" class="dcbig mgpc nosnap" data-mgsim="1"><span class="bk bk-g">${ic('spark')}</span><span><b>Posso comprar?</b><small>digite o valor: o app compara Pix e cada cartão, diz se cabe agora ou parcelado e qual forma pesa menos</small></span><span class="go">›</span></button></div>`}
 /* ===================== Decidir: gastar, comprar maior, investir ===================== */
 /* ===================== Investimentos: abertura e projeção mês a mês ===================== */
 let APM=+LS('pt-apm','0')||0;
@@ -4022,7 +4022,7 @@ function wireMg(el,rr){
   el.querySelectorAll('[data-mgp]').forEach(b=>b.onclick=()=>{MGP=!MGP;LSset('pt-mgp',MGP?'1':'0');rr()});
   el.querySelectorAll('[data-mgx]').forEach(b=>b.onclick=()=>{MGV=0;rr()});
   {const mv=el.querySelector('#mg-v');if(mv)mv.onclick=()=>openCalc(MGV||'',v=>{MGV=r2(v);rr();setTimeout(()=>{const s2=document.getElementById('mg-sim');s2&&s2.scrollIntoView({behavior:'smooth',block:'nearest'})},120)})}
-  el.querySelectorAll('[data-mgsim]').forEach(b=>b.onclick=()=>openSimCompra({v:MGV}));
+  el.querySelectorAll('[data-mgsim]').forEach(b=>b.onclick=()=>openSimCompra());
   el.querySelectorAll('[data-mgl]').forEach(b=>b.onclick=()=>{const k=b.dataset.mgl;openLanc(k==='pix'?{tipo:'despesa',valor:MGV,conta:contaPadrao()}:{tipo:'despesa',valor:MGV,cartao:k})});
 }
 /* início: só os três velocímetros, um toque abre o Decidir */
@@ -4039,7 +4039,7 @@ function vDecidir(){
   let h=`<h3 class="dch">Gastar</h3>${iniMargem(X)||'<div class="card"><p class="note">Cadastre contas e receitas para ver quanto pode gastar.</p></div>'}${SIMPLES?'':(()=>{try{return iniVariaveis(me,ym)}catch(e){console.error('var',e);return ''}})()}`;
   /* comprar maior: simulador e ordens salvas */
   const ords=cfg().ordens||[],prontas=new Set(ordensProntas(me).map(o=>o.id));
-  h+=`<h3 class="dch">Comprar maior</h3><div class="card dcc"><button type="button" class="dcbig" data-dsim="1"><span class="bk bk-g">${ic('spark')}</span><span><b>Posso comprar?</b><small>simule à vista ou parcelado: o app diz se cabe, quando cabe e qual forma pesa menos</small></span><span class="go">›</span></button>
+  if(ords.length)h+=`<h3 class="dch">Compras planejadas</h3><div class="card dcc">
     ${ords.length?`<div class="dcol"><small>Ordens salvas</small>${ords.map(o=>`<button type="button" class="cxr" data-dord="${esc(o.id)}"><span class="bk ${prontas.has(o.id)?'bk-g':''}">${ic(prontas.has(o.id)?'check':'clock')}</span><span class="cxm"><strong>${esc(o.desc||'Compra planejada')}</strong><small>${brl(o.v)} · ${esc(simForma(o.f))} · ${prontas.has(o.id)?'<span class="pos">já cabe</span>':'aguardando caber'}</small></span><span class="go">›</span></button>`).join('')}</div>`:''}</div>`;
   /* investir: abertura e projeção */
   let G=null;try{G=gastoLentes(me,ym)}catch(e){}const sob=G?Math.max(0,Math.min(G.L.sobra[1],G.L.caixa[1])):0,im=cdiMes();
@@ -6416,7 +6416,7 @@ const FAQ=[
  ['Início e decisões',[
   ['O que significam “Veio de”, “Hoje” e “Vira para”?','É o caixa do mês em três pontos: quanto você trouxe do mês anterior, quanto tem hoje e com quanto vira para o próximo mês se tudo o que está registrado acontecer.'],
   ['Como leio o gráfico do caixa?','Linha cheia é o que já aconteceu; tracejada é a projeção com o que está lançado. A linha “zero” mostra onde o dinheiro acaba e “menor” marca o dia mais apertado. Use <b>Mês, 3M, 6M e 1A</b> para mudar o período e arraste o dedo no gráfico para ver cada dia. As barras de baixo são as saídas de cada dia.'],
-  ['O que é o “Quanto posso gastar”?','Três visões do mesmo mês. <b>Livre</b>: só a renda do mês, menos compromissos, colchão e o que já gastou. <b>Livre + sobra</b>: soma o que sobrou do mês anterior (descontadas as faturas de compras antigas que vencem agora). <b>Disponível</b>: o dinheiro que existe de fato, pelo menor saldo previsto até o fim do mês. Abaixo do valor aparece a <b>Folga</b>: o que sobra depois do dia a dia previsto. O botão <b>Contar o que ainda vai entrar</b> liga ou desliga as receitas previstas. Em <b>Vou gastar</b>, digite um valor e veja qual cartão ou Pix é a melhor forma de pagar.','colchao','Ajustar o colchão'],
+  ['O que é o “Quanto posso gastar”?','Três visões do mesmo mês. <b>Livre</b>: só a renda do mês, menos compromissos, colchão e o que já gastou. <b>Livre + sobra</b>: soma o que sobrou do mês anterior (descontadas as faturas de compras antigas que vencem agora). <b>Disponível</b>: o dinheiro que existe de fato, pelo menor saldo previsto até o fim do mês. Abaixo do valor aparece a <b>Folga</b>: o que sobra depois do dia a dia previsto. O botão <b>Contar o que ainda vai entrar</b> liga ou desliga as receitas previstas. Para um gasto específico, toque em <b>Posso comprar?</b> logo abaixo: o app compara Pix e cada cartão e diz se cabe.','colchao','Ajustar o colchão'],
   ['O que é o colchão de segurança?','Uma parte da renda (10% por padrão) que fica sempre guardada. Ela sai do Livre e o “Posso comprar?” não deixa nenhuma compra encostar nela.','colchao','Ajustar o colchão'],
   ['Como funciona o “Posso comprar?”','Informe valor e forma (à vista ou parcelado). O app simula a compra no seu caixa futuro e diz se cabe, quando cabe e qual forma pesa menos. Se ainda não cabe, você pode salvar como <b>ordem</b> e o app avisa em “Para resolver” quando ficar pronta.','sim','Simular uma compra'],
   ['O que é o cartão “Rotina”?','Mostra a tarefa da hora, uma por vez. <b>Revisão da semana</b> (≈ 4 min): gasto da semana × normal, lançamentos sem categoria, pendências vencidas, próximos 7 dias e conferência dos saldos. <b>Fechar o mês</b> (≈ 6 min, do dia 25 ao dia 15): classificação, pendências, faturas, repasses, saldos, rendimentos, stops do próximo mês e backup fora do app. O app marca sozinho o que já está em dia; o resto você marca como visto. Em “Todas” estão as rotinas e o histórico.'],
