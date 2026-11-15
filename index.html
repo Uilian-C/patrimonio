@@ -2268,6 +2268,21 @@ html.locked main,html.locked nav.tabs,html.locked .top{visibility:hidden}
 .rvt td small{display:block;color:var(--muted);font-size:11px;font-weight:400}.rvt td .lk{font-size:11.5px;padding:0}.rvt td,.rvt th{vertical-align:top}
 .rvfe>summary,.rvcfg>summary{cursor:pointer;font-weight:600;padding:6px 0}
 .rvbn{color:var(--muted);font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mtl{display:grid}.mtr{display:grid;gap:6px;width:100%;padding:11px 0;border:0;border-top:1px solid var(--sep,var(--hair));background:none;color:inherit;font:inherit;text-align:left}.mtr:first-child{border-top:0}
+.mth{display:flex;justify-content:space-between;gap:8px;align-items:baseline}.mts{font-size:11.5px;color:var(--muted)}.mts.ok{color:var(--good)}.mts.warn{color:var(--warn)}.mts.crit{color:var(--crit,#E0705F)}
+.mtb{position:relative;height:8px;border-radius:4px;background:var(--sunk);display:block}.mtb>i{position:absolute;left:0;top:0;bottom:0;border-radius:4px;background:var(--accent,#E2BA6E)}.mtb>u{position:absolute;top:-3px;bottom:-3px;width:2px;margin-left:-1px;background:var(--ink,#222);text-decoration:none;border-radius:1px}
+.mtf{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:var(--muted)}.mtf b{color:var(--ink,inherit)}
+.dcc .dcbig+.dcbig{margin-top:6px;border-top:1px solid var(--sep,var(--hair));padding-top:12px}
+.dqg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:12px 0 4px}.dqc{display:grid;gap:3px;align-content:start;padding:10px;border-radius:14px;background:var(--sunk)}.dqc small{color:var(--muted);font-size:11.5px}.dqc b{font-size:16px}.dqc span{font-size:11.5px;color:var(--muted);line-height:1.3}.dqc span.pos{color:var(--good)}.dqc span b{font-size:11.5px;color:var(--ink,inherit)}
+.dqo{display:grid;grid-template-columns:22px minmax(0,1fr) auto;gap:8px;align-items:center;padding:8px 0;border-top:1px solid var(--sep,var(--hair))}.dqo>i{font-style:normal;width:20px;height:20px;border-radius:10px;background:var(--sunk);display:grid;place-items:center;font-size:11px;font-weight:650}.dqo b{display:block;font-size:13.5px}.dqo small{color:var(--muted);font-size:11.5px}.dqo em{font-style:normal;font-weight:600;font-size:12.5px}
+details.ivs>summary{cursor:pointer;font-weight:600;padding:8px 0}
+.cnp{flex-wrap:wrap;gap:6px;margin-bottom:10px}.cnf{display:grid;gap:10px;margin-bottom:12px}.cnf label{display:grid;gap:4px;font-size:12.5px;color:var(--muted)}.cnf label b{color:var(--ink,inherit)}.cnf input[type=range]{width:100%;accent-color:var(--accent,#E2BA6E)}
+.cnb2{display:grid;grid-template-columns:1fr 1fr;gap:8px}.cnb2 .mgin{grid-template-columns:1fr;padding:10px 12px}.cnb2 .mgin small{font-size:11px}
+.cnc .cnb{fill:color-mix(in srgb,var(--accent,#E2BA6E) 16%,transparent)}.cnc .cna{fill:none;stroke:var(--accent,#E2BA6E);stroke-width:2;stroke-dasharray:5 4}.cnc .cnx{fill:none;stroke:var(--crit,#E0705F);stroke-width:2;stroke-dasharray:2 3}.cnc .cnz{stroke:var(--muted);stroke-width:1;opacity:.5}.cnc .cnxt{fill:var(--crit,#E0705F)}
+.cnxI{border-color:var(--crit,#E0705F)!important}.cnbI{display:inline-block;width:14px;height:8px;border-radius:2px;background:color-mix(in srgb,var(--accent,#E2BA6E) 22%,transparent);margin-right:4px;vertical-align:middle}
+.cnt td:first-child{color:var(--muted)}.cnt td{padding:7px 4px}
+.card.dcc{display:block;justify-items:normal}
+svg.sfc.cnc{background:none;padding:0;border-radius:0;height:auto}
 </style>
 </head>
 <body>
@@ -3531,6 +3546,166 @@ function openRVAlvo(){const me=ME(),R=rvCalc(me),A=rvAloc(me,R),cur=Object.assig
     const ins=[...sh.querySelectorAll('[data-k]')],tot=()=>sum(ins,i=>+i.value||0),up=()=>{const t=tot();sh.querySelector('#al-s').innerHTML=`Soma: <b class="${t===100?'pos':'neg'}">${t}%</b>${t===100?'':' — precisa fechar 100%'}`};ins.forEach(i=>i.oninput=up);up();
     sh.querySelector('#fal').onsubmit=async e=>{e.preventDefault();if(tot()!==100){toast('A soma precisa ser 100%');return}const alvo={};ins.forEach(i=>alvo[i.dataset.k]=+i.value||0);try{await rvSave({alvo});closeSheet();toast('Alocação-alvo salva')}catch(err){toast(writeErr(err))}};
     const x=sh.querySelector('#al-x');if(x)confirmBtn(x,'Toque de novo para remover',async()=>{try{await rvSave({alvo:null});closeSheet();toast('Alvo removido')}catch(err){toast(writeErr(err))}})})}
+/* ===================== Onda 3: planejar — metas com prazo, quitação de dívidas, cenários e relatório do mês ===================== */
+/* histórico de sobra (entradas − saídas) dos meses completos com controle */
+function sobraHist(me,n){const ym=today().slice(0,7);return mesesOk(ym,n||6).map(m=>{const c=mesCalc(m,me);return {ym:m,rec:r2(c.rec),desp:r2(c.desp),s:r2(c.rec-c.desp)}}).reverse()}
+function baseMes(me){const H=sobraHist(me,6),ym=today().slice(0,7);let R,D,est=false;
+  if(H.length){R=sum(H,h=>h.rec)/H.length;D=sum(H,h=>h.desp)/H.length}else{const c=mesCalc(ym,me);R=c.rec;D=Math.max(c.desp,(()=>{try{return custoVida(me).v}catch(e){return 0}})());est=true}
+  const s=R-D,m=H.length?sum(H,h=>h.s)/H.length:s,sd=H.length>=3?Math.sqrt(sum(H,h=>(h.s-m)*(h.s-m))/(H.length-1)):Math.max(Math.abs(s)*.25,D*.08);
+  return {R:r2(R),D:r2(D),s:r2(s),sd:r2(sd),n:H.length,H,est,sdEst:H.length<3}}
+/* ---------- metas com prazo ---------- */
+const METAS=()=>cfg().metasP||[];
+async function metasSave(L){await S.db.doc('config/app').set(Object.assign({},S.cfg||{},{metasP:L}))}
+function metaCalc(m,me){const t=today(),ym=t.slice(0,7),a=m.conta&&conta(m.conta);let v=+m.guardado||0,i=cdiMes()*.85;
+  if(a){const E=rendEst(a);v=r2((E?E.hoje:saldoConta(a))*fracOf(a.dono,me==null?ME():me)||(E?E.hoje:saldoConta(a)));i=taxaMesInv(a)||0}
+  const alvo=+m.valor||0,n=Math.max(mdiff(ym,m.prazo||ym),0),falta=r2(Math.max(alvo-v,0)),fv=v*Math.pow(1+i,n);
+  const pmt=falta<=0?0:n<=0?falta:i>0?Math.max((alvo-fv)*i/(Math.pow(1+i,n)-1),0):falta/n;
+  const ini=m.ini||t,tot=Math.max(diffD(ini,dayIn(m.prazo||ym,28)),1),dec=Math.min(Math.max(diffD(ini,t),0)/tot,1),esper=r2((+m.v0||0)+(alvo-(+m.v0||0))*dec);
+  const p=alvo?Math.min(v/alvo,1):0,st=v>=alvo?'ok':n<=0?'crit':v>=esper*.97?'ok':v>=esper*.8?'warn':'crit';
+  return {v:r2(v),alvo,n,falta,pmt:r2(pmt),p,st,esper,i,a}}
+function metasResumo(me){const L=METAS().map(m=>({m,c:metaCalc(m,me)}));const need=r2(sum(L.filter(x=>x.c.falta>0),x=>x.c.pmt));return {L,need}}
+function metaRow(x){const c=x.c,m=x.m,lab=c.v>=c.alvo?'concluída':c.n<=0?'prazo vencido':c.st==='ok'?'no ritmo':c.st==='warn'?'um pouco atrás':'atrasada';
+  return `<button type="button" class="mtr" data-meta="${esc(m.id)}"><span class="mth"><b>${esc(m.nome)}</b><small class="mts ${c.st}">${lab}</small></span>
+    <span class="mtb"><i style="width:${(c.p*100).toFixed(1)}%"></i>${c.alvo&&c.esper>0&&c.esper<c.alvo?`<u style="left:${Math.min(c.esper/c.alvo*100,100).toFixed(1)}%"></u>`:''}</span>
+    <span class="mtf"><span class="n">${brl0(c.v)} de ${brl0(c.alvo)}</span><span>${c.falta>0?(c.n>0?`guarde <b class="n">${brl0(c.pmt)}/mês</b> até ${ymS(m.prazo)}`:`faltam <b class="n">${brl0(c.falta)}</b>`):'meta atingida'}</span></span></button>`}
+function openMeta(m){m=m||{};const isNew=!m.id,me=ME(),inv=S.contas.filter(a=>a.ativo!==false&&(a.tipo==='investimento'||a.tipo==='reserva')&&fracOf(a.dono,me)>0);
+  const pz=m.prazo||ymAdd(today().slice(0,7),12);
+  openSheet(`<h2>${isNew?'Nova meta':'Editar meta'}</h2><form class="form" id="fmt" novalidate>
+    <div class="field"><label for="mt-n">Nome</label><input id="mt-n" value="${esc(m.nome||'')}" placeholder="Viagem, troca do carro, entrada do apartamento…"></div>
+    <div class="f2"><div class="field"><label for="mt-v">Quanto (R$)</label><input id="mt-v" type="text" inputmode="decimal" value="${m.valor?String(m.valor).replace('.',','):''}" placeholder="20.000"></div><div class="field"><label for="mt-p">Até quando</label><input id="mt-p" type="month" value="${esc(pz)}"></div></div>
+    <div class="field"><label for="mt-c">Onde o dinheiro fica</label><select id="mt-c">${opts([['','Não separei — informo quanto já tenho']].concat(inv.map(a=>[a.id,a.nome+(a.rend&&a.rend.tipo?' · '+rendLabel(a):'')])),m.conta||'')}</select></div>
+    <div class="field" id="mt-gw" ${m.conta?'hidden':''}><label for="mt-g">Quanto já tem (R$)</label><input id="mt-g" type="text" inputmode="decimal" value="${m.guardado?String(m.guardado).replace('.',','):''}" placeholder="0"></div>
+    <p class="note" id="mt-s"></p>
+    <div class="btnrow"><button class="btn primary" type="submit">Salvar</button>${isNew?'':'<button class="btn danger" type="button" id="mt-x">Excluir</button>'}</div>
+    <p class="note">Com uma aplicação vinculada, o progresso acompanha o saldo dela e o cálculo do aporte considera o rendimento. Sem vínculo, atualize o “quanto já tem” quando guardar.</p></form>`,sh=>{
+    const $q=s=>sh.querySelector(s),rd=()=>({id:m.id||('m'+Date.now().toString(36)),nome:$q('#mt-n').value.trim(),valor:r2(brNum($q('#mt-v').value)||0),prazo:$q('#mt-p').value,conta:$q('#mt-c').value,guardado:r2(brNum($q('#mt-g').value)||0),ini:m.ini||today(),v0:m.v0});
+    const up=()=>{$q('#mt-gw').hidden=!!$q('#mt-c').value;const x=rd();if(!(x.valor>0)||!x.prazo){$q('#mt-s').textContent='';return}const c=metaCalc(x,me),B=baseMes(me);
+      $q('#mt-s').innerHTML=c.falta<=0?'Você já tem o valor da meta.':`Precisa guardar <b>${brl(c.pmt)}/mês</b> por ${c.n} ${c.n===1?'mês':'meses'}${c.i?` (rendendo ≈ ${pcm(c.i)})`:''}. ${B.s>0?`Sua sobra média é ${brl0(B.s)}/mês: ${c.pmt<=B.s?`cabe, usando ${pctf(c.pmt/B.s)} dela.`:'<b class="neg">não cabe</b> — aumente o prazo ou reduza o valor.'}`:'Hoje não sobra dinheiro no mês — a meta depende de cortar gastos ou aumentar a renda.'}`};
+    ['#mt-v','#mt-p','#mt-c','#mt-g'].forEach(s=>{$q(s).oninput=up;$q(s).onchange=up});up();
+    $q('#fmt').onsubmit=async e=>{e.preventDefault();const x=rd();if(!x.nome){toast('Dê um nome');return}if(!(x.valor>0)){toast('Informe o valor');return}if(!x.prazo){toast('Informe o prazo');return}
+      if(x.v0==null)x.v0=metaCalc(Object.assign({},x,{v0:0}),me).v;
+      try{await metasSave(METAS().filter(z=>z.id!==x.id).concat([x]));closeSheet();toast('Meta salva')}catch(err){toast(writeErr(err))}};
+    const xb=$q('#mt-x');if(xb)confirmBtn(xb,'Toque de novo para excluir',async()=>{try{await metasSave(METAS().filter(z=>z.id!==m.id));closeSheet();toast('Meta excluída')}catch(err){toast(writeErr(err))}});
+  })}
+/* ---------- quitação de dívidas: avalanche × bola de neve ---------- */
+function divLista(me){const out=[];
+  DVX().filter(d=>d.status!=='quitada').forEach(d=>{const s=sched(d),pt=((d.parte||{})[me]??100)/100,un=s.rows.filter(r=>!r.pg);if(!un.length||pt<=0)return;const B=r2(sum(un,r=>r.amort)*pt);if(B<1)return;
+    out.push({nome:d.nome,B,i:d.sistema==='livre'?0:(+d.taxaAm||0)/100,m:r2(Math.max(un[0].enc*pt,1)),key:'dv:'+d.id})});
+  try{const o=PATM;PATM='comp';const Pt=patrimonio(me);PATM=o;Pt.parc.filter(x=>!x.pend&&x.n>0).forEach(x=>{if(x.v>=1)out.push({nome:x.nome,B:r2(x.v),i:x.tx||0,m:r2(x.val),key:x.key})})}catch(e){}
+  return out}
+function divSim(L,extra,ord,roll){const D=L.map(x=>Object.assign({},x,{b:x.B,j:0,fim:0}));let k=0,jt=0;const mesTot=[];
+  while(D.some(x=>x.b>.5)&&k<480){k++;let pool=roll?extra+sum(D.filter(x=>x.fim&&x.fim<k),x=>x.m):0,pg=0;
+    D.forEach(x=>{if(x.b<=.5)return;const j=x.b*x.i;x.b+=j;x.j+=j;jt+=j;const p=Math.min(x.m,x.b);x.b-=p;pg+=p;if(x.b<=.5)x.fim=k});
+    if(roll){for(const x of D.filter(z=>z.b>.5).sort(ord)){if(pool<=.5)break;const p=Math.min(pool,x.b);x.b-=p;pool-=p;pg+=p;if(x.b<=.5)x.fim=k}}
+    mesTot.push(r2(pg))}
+  return {k,juros:r2(jt),D,trava:k>=480,mesTot}}
+const ORD={ava:(a,b)=>b.i-a.i||a.b-b.b,bola:(a,b)=>a.b-b.b||b.i-a.i};
+let DXT=+LS('pt-dxt','0')||0;
+function divPlano(me,extra){const L=divLista(me);if(!L.length)return null;return {L,base:divSim(L,0,ORD.ava,false),ava:divSim(L,extra,ORD.ava,true),bola:divSim(L,extra,ORD.bola,true)}}
+const fimYm=k=>ymS(ymAdd(today().slice(0,7),k));
+function iniDividasPlano(me){const Z=divPlano(me,DXT);if(!Z)return '';const best=Z.ava.juros<=Z.bola.juros?Z.ava:Z.bola,eco=r2(Z.base.juros-best.juros);
+  return `<button type="button" class="dcbig" data-dvq="1"><span class="bk">${ic('debt')}</span><span><b>Quitar dívidas</b><small>${Z.L.length} em aberto · ${brl0(sum(Z.L,x=>x.B))} · livre em ${fimYm(Z.base.k)} só com as parcelas${DXT>0&&best.k<Z.base.k?` · com +${brl0(DXT)}/mês e reaproveitando as parcelas que terminam: ${fimYm(best.k)}, ${brl0(eco)} a menos de juros`:` · reaproveitando as parcelas que terminam: ${fimYm(best.k)}`}</small></span><span class="go">›</span></button>`}
+function openDividasPlano(){const me=ME();const draw=sh=>{const Z=divPlano(me,DXT),box=sh.querySelector('#dvq');if(!Z){box.innerHTML='<p class="note">Nenhuma dívida ou parcelamento em aberto.</p>';return}
+    const col=(t,R,sub)=>`<div class="dqc"><small>${t}</small><b class="n">${R.trava?'não quita':fimYm(R.k)}</b><span>${R.trava?'parcela menor que os juros':`${R.k} ${R.k===1?'mês':'meses'}`}</span><span>juros <b class="n">${brl0(R.juros)}</b></span>${sub||''}</div>`;
+    const ecoA=r2(Z.base.juros-Z.ava.juros),ecoB=r2(Z.base.juros-Z.bola.juros),dif=r2(Z.bola.juros-Z.ava.juros);
+    const p1=R=>{const x=R.D.filter(z=>z.fim).sort((a,b)=>a.fim-b.fim)[0];return x?`<span>1ª quitada: ${esc(x.nome)} em ${fimYm(x.fim)}</span>`:''};
+    const ordL=(R,ord)=>R.D.slice().sort((a,b)=>(a.fim||999)-(b.fim||999)).map((x,n)=>`<div class="dqo"><i>${n+1}</i><span><b>${esc(x.nome)}</b><small>${brl0(x.B)} · ${x.i?pcm(x.i):'sem juros'} · parcela ${brl0(x.m)}</small></span><em class="n">${x.fim?fimYm(x.fim):'—'}</em></div>`).join('');
+    const rec=DXT<=0?'Informe quanto pode colocar a mais por mês para comparar os dois métodos.':Math.abs(dif)<1?'Os dois métodos dão praticamente o mesmo resultado — escolha o que te motiva mais.':`<b>Avalanche</b> economiza ${brl0(dif)} a mais em juros. <b>Bola de neve</b> quita a primeira dívida mais cedo, o que ajuda a manter o ritmo.`;
+    box.innerHTML=`<button type="button" class="mgin" id="dq-x"><span>Colocar a mais por mês</span><b class="n">${DXT?brl(DXT):'R$ 0'}</b><small>toque para simular</small></button>
+      <div class="dqg">${col('Só as parcelas',Z.base)}${col('Avalanche',Z.ava,`<span class="pos">economia ${brl0(ecoA)}</span>`+p1(Z.ava))}${col('Bola de neve',Z.bola,`<span class="pos">economia ${brl0(ecoB)}</span>`+p1(Z.bola))}</div>
+      <p class="rvsug">${rec}</p><p class="note">Avalanche e bola de neve usam o valor extra <b>e</b> as parcelas das dívidas que forem terminando — em vez de esse dinheiro voltar para o dia a dia. Só isso já adianta a quitação, mesmo com R$ 0 a mais.</p>
+      <details class="ivs" open><summary>Ordem pela avalanche (maior juro primeiro)</summary>${ordL(Z.ava)}</details>
+      <details class="ivs"><summary>Ordem pela bola de neve (menor saldo primeiro)</summary>${ordL(Z.bola)}</details>
+      <p class="note">Simulação mês a mês com a sua parte: cada dívida paga a parcela atual; o valor extra e as parcelas das dívidas já quitadas vão para a próxima da fila. Parcelamentos com taxa usam o valor presente; sem taxa, o total das parcelas. Antecipar exige pedir ao credor o desconto dos juros (direito pelo CDC).</p>`;
+    box.querySelector('#dq-x').onclick=()=>openCalc(DXT||'',v=>{DXT=r2(Math.max(0,v));LSset('pt-dxt',String(DXT));draw(sh)})};
+  openSheet(`<h2>Quitar dívidas</h2><div id="dvq"></div>`,draw)}
+/* ---------- cenários, teste de estresse e previsão com faixa ---------- */
+function cenBase(me){const B=baseMes(me),t=today(),caixa=realBal(me,t),inv=sum(invCarteira(me),x=>x.v);let rv=0;try{rv=rvCalc(me).v}catch(e){}
+  const o=PATM;PATM='hoje';const Pt=patrimonio(me);PATM=o;const C=invCarteira(me),im=inv>0?sum(C,x=>x.v*x.i)/inv:cdiMes();
+  return {B,caixa:r2(caixa),inv:r2(inv),rv:r2(rv),liq:r2(caixa+inv+rv),pl:r2(Pt.liqHoje),im}}
+function cenProj(Z,o,N){const R=Z.B.R*(1+o.r/100),D=Z.B.D*(1+o.d/100)+(o.dv||0),s=R-D,out=[];let pl=Z.pl-(o.ch||0),liq=Z.liq-(o.ch||0),inv=Math.max(Z.inv+Z.rv-(o.ch||0)*0,0),zero=null;
+  for(let k=0;k<=N;k++){if(k){const rd=Math.max(liq,0)*Z.im;pl+=s+rd;liq+=s+rd}if(zero==null&&liq<0)zero=k;out.push({k,pl:r2(pl),liq:r2(liq),lo:r2(pl-1.2816*Z.B.sd*Math.sqrt(k)),hi:r2(pl+1.2816*Z.B.sd*Math.sqrt(k))})}
+  const fol=s>=0?null:Math.max((Z.liq-(o.ch||0))/(-s),0);return {R:r2(R),D:r2(D),s:r2(s),P:out,zero,fol}}
+function cenChart(A,Bc,N){const W=330,H=170,pad=16,all=A.P.map(p=>p.lo).concat(A.P.map(p=>p.hi),Bc.P.map(p=>p.pl)),lo=Math.min(...all,0),hi=Math.max(...all,0),X=k=>pad+k*(W-pad*2)/N,Y=v=>12+(hi-v)/((hi-lo)||1)*(H-38);
+  const L=(P,f)=>P.map((p,i)=>`${i?'L':'M'}${X(p.k).toFixed(1)},${Y(f(p)).toFixed(1)}`).join(''),kf=v=>(v<0?'−':'')+(Math.abs(v)>=1e6?(Math.abs(v)/1e6).toLocaleString('pt-BR',{maximumFractionDigits:1})+'mi':Math.abs(v)>=1000?Math.round(Math.abs(v)/1000)+'k':Math.round(Math.abs(v)));
+  const band=A.P.map((p,i)=>`${i?'L':'M'}${X(p.k).toFixed(1)},${Y(p.hi).toFixed(1)}`).join('')+A.P.slice().reverse().map(p=>`L${X(p.k).toFixed(1)},${Y(p.lo).toFixed(1)}`).join('')+'Z',ym=today().slice(0,7);
+  return `<svg viewBox="0 0 ${W} ${H}" class="sfc cnc" role="img" aria-label="Patrimônio projetado nos dois cenários"><path d="${band}" class="cnb"/>${lo<0?`<line x1="${pad}" x2="${W-pad}" y1="${Y(0)}" y2="${Y(0)}" class="cnz"/>`:''}
+    <path d="${L(A.P,p=>p.pl)}" class="cna"/><path d="${L(Bc.P,p=>p.pl)}" class="cnx"/>
+    <text x="${W-pad}" y="${Y(A.P[N].pl)-6}" class="sft" text-anchor="end">${kf(A.P[N].pl)}</text><text x="${W-pad}" y="${Y(Bc.P[N].pl)+13}" class="sft cnxt" text-anchor="end">${kf(Bc.P[N].pl)}</text>
+    <text x="${pad}" y="${H-8}" class="sfl" text-anchor="start">hoje</text><text x="${X(N/2)}" y="${H-8}" class="sfl">${ymS(ymAdd(ym,N/2))}</text><text x="${W-pad}" y="${H-8}" class="sfl" text-anchor="end">${ymS(ymAdd(ym,N))}</text></svg>`}
+const CENP=[['minha','Perder minha renda',{r:-100,d:0,ch:0}],['r30','Renda −30%',{r:-30,d:0,ch:0}],['d20','Despesas +20%',{r:0,d:20,ch:0}],['imp','Imprevisto (3 meses de despesa)',{r:0,d:0,ch:'3D'}]];
+let CENO=(()=>{try{return JSON.parse(localStorage.getItem('pt-ceno')||'null')}catch(e){return null}})()||{r:-100,d:0,ch:0,dv:0,N:24,preset:'minha'};
+function iniCenarios(me){let Z;try{Z=cenBase(me)}catch(e){return ''}const A=cenProj(Z,{r:0,d:0,ch:0},12),St=cenProj(Z,{r:-100,d:0,ch:0},12);
+  return `<button type="button" class="dcbig" data-cen="1"><span class="bk">${ic('shield')}</span><span><b>Cenários e teste de estresse</b><small>em 12 meses ≈ ${brl0(A.P[12].lo)} a ${brl0(A.P[12].hi)} de patrimônio${St.fol!=null?` · sem a sua renda, o dinheiro disponível dura ≈ ${St.fol.toLocaleString('pt-BR',{maximumFractionDigits:1})} meses`:''}</small></span><span class="go">›</span></button>`}
+function openCenarios(){const me=ME(),Z=cenBase(me);const draw=sh=>{const o=Object.assign({},CENO),N=o.N||24,A=cenProj(Z,{r:0,d:0,ch:0},N),Bc=cenProj(Z,o,N),box=sh.querySelector('#cnx'),ix=Math.min(12,N);
+    const lin=(n,a,b,f,inv)=>{const d=b-a;return `<tr><td>${n}</td><td class="n">${f(a)}</td><td class="n">${f(b)}</td></tr>`};
+    const fo=x=>x.fol==null?'cresce':x.fol>=600?'—':x.fol.toLocaleString('pt-BR',{maximumFractionDigits:1})+' meses',sg=v=>(v<0?'−':'')+brl0(Math.abs(v));
+    box.innerHTML=`<div class="chips cnp">${CENP.map(([k,n,p])=>`<button type="button" class="chip" aria-pressed="${o.preset===k}" data-cp="${k}">${n}</button>`).join('')}</div>
+      <div class="cnf"><label>Renda <b class="n">${o.r>0?'+':''}${o.r}%</b><input type="range" min="-100" max="50" step="5" value="${o.r}" data-cf="r"></label>
+        <label>Despesas <b class="n">${o.d>0?'+':''}${o.d}%</b><input type="range" min="-30" max="50" step="5" value="${o.d}" data-cf="d"></label>
+        <div class="cnb2"><button type="button" class="mgin" id="cn-ch"><span>Gasto único agora</span><b class="n">${o.ch?brl0(o.ch):'R$ 0'}</b><small>imprevisto, compra, viagem</small></button><button type="button" class="mgin" id="cn-dv"><span>Nova despesa por mês</span><b class="n">${o.dv?brl0(o.dv):'R$ 0'}</b><small>financiamento, escola…</small></button></div>
+        <div class="seg cnN">${[12,24,60].map(n=>`<button type="button" data-cn="${n}" aria-pressed="${N===n}">${n===60?'5 anos':n+' meses'}</button>`).join('')}</div></div>
+      <div class="sfx"><div class="sfh"><b>Patrimônio projetado</b><span>faixa provável do atual</span></div>${cenChart(A,Bc,N)}
+        <div class="sfg"><span><i class="slcI"></i>atual</span><span><i class="slsI cnxI"></i>cenário</span><span><i class="cnbI"></i>faixa (8 em 10 casos)</span></div></div>
+      <table class="bkt cnt"><thead><tr><th></th><th>Atual</th><th>Cenário</th></tr></thead><tbody>
+        ${lin('Entra por mês',A.R,Bc.R,brl0)}${lin('Sai por mês',A.D,Bc.D,brl0)}${lin('Sobra por mês',A.s,Bc.s,sg)}
+        ${lin(`Patrimônio em ${ymS(ymAdd(today().slice(0,7),ix))}`,A.P[ix].pl,Bc.P[ix].pl,sg)}${lin(`Patrimônio em ${ymS(ymAdd(today().slice(0,7),N))}`,A.P[N].pl,Bc.P[N].pl,sg)}
+        <tr><td>Dinheiro disponível dura</td><td class="n">${fo(A)}</td><td class="n ${Bc.fol!=null&&Bc.fol<6?'neg':''}">${fo(Bc)}</td></tr></tbody></table>
+      ${Bc.zero!=null?`<p class="rvalert" style="display:flex">${ic('alert')}<span><b>No cenário, o dinheiro disponível acaba em ${ymS(ymAdd(today().slice(0,7),Bc.zero))}</b><small>caixa + aplicações + bolsa (${brl0(Z.liq)} hoje) não cobrem a diferença. ${Bc.s<0?`Precisaria cortar ${brl0(-Bc.s)}/mês para empatar.`:''}</small></span></p>`:Bc.s<0?`<p class="rvok">${ic('check')} Mesmo no cenário, o disponível cobre o período simulado.</p>`:''}
+      <p class="note">Base: ${Z.B.n?`média dos últimos ${Z.B.n} ${Z.B.n===1?'mês':'meses'} completos`:'mês atual (ainda sem mês completo de histórico)'} — entra ${brl0(Z.B.R)}, sai ${brl0(Z.B.D)}, sua parte. Patrimônio de hoje ${sg(Z.pl)}; dinheiro disponível ${brl0(Z.liq)} (caixa ${brl0(Z.caixa)}, aplicações ${brl0(Z.inv)}${Z.rv?`, bolsa ${brl0(Z.rv)}`:''})${Z.im>0?` rendendo ≈ ${pcm(Z.im)}`:''}. A faixa usa a variação real da sua sobra mês a mês${Z.B.sdEst?' (estimada: menos de 3 meses de histórico)':''}. Estimativas (≈) — não é previsão garantida.</p>`;
+    box.querySelectorAll('[data-cp]').forEach(b=>b.onclick=()=>{const p=CENP.find(x=>x[0]===b.dataset.cp)[2];CENO=Object.assign({},CENO,{r:p.r,d:p.d,ch:p.ch==='3D'?r2(Z.B.D*3):0,chk:p.ch||0,dv:0,preset:b.dataset.cp});sv();draw(sh)});
+    box.querySelectorAll('[data-cf]').forEach(i=>{i.oninput=()=>{i.previousElementSibling.textContent=(+i.value>0?'+':'')+i.value+'%'};i.onchange=()=>{CENO[i.dataset.cf]=+i.value;CENO.preset='';sv();draw(sh)}});
+    box.querySelectorAll('[data-cn]').forEach(b=>b.onclick=()=>{CENO.N=+b.dataset.cn;sv();draw(sh)});
+    box.querySelector('#cn-ch').onclick=()=>openCalc(CENO.ch||'',v=>{CENO.ch=r2(Math.max(v,0));CENO.preset='';sv();draw(sh)});
+    box.querySelector('#cn-dv').onclick=()=>openCalc(CENO.dv||'',v=>{CENO.dv=r2(Math.max(v,0));CENO.preset='';sv();draw(sh)})};
+  const sv=()=>{try{localStorage.setItem('pt-ceno',JSON.stringify(CENO))}catch(e){}};
+  openSheet(`<h2>Cenários e estresse</h2><div id="cnx"></div>`,draw)}
+/* ---------- bloco Planejar no Decidir ---------- */
+function iniPlanejar(me){const R=metasResumo(me),B=baseMes(me);let dv='',cn='';try{dv=iniDividasPlano(me)}catch(e){console.error('dvq',e)}try{cn=iniCenarios(me)}catch(e){console.error('cen',e)}
+  return `<h3 class="dch">Planejar</h3><div class="card dcc mtc"><div class="ch"><h2>Metas</h2><button class="lk" type="button" data-meta="">${ic('plus')} Nova</button></div>
+    ${R.L.length?`<div class="mtl">${R.L.map(metaRow).join('')}</div><p class="rvsug">Para cumprir tudo no prazo: <b class="n">${brl0(R.need)}/mês</b>${B.s>0?` · sua sobra média é <b class="n">${brl0(B.s)}</b> — ${R.need<=B.s?`<span class="pos">cabe</span>`:`<span class="neg">faltam ${brl0(R.need-B.s)}/mês</span>`}`:''}.</p>`
+      :`<p class="note">Defina um objetivo com valor e prazo — viagem, carro, entrada do apartamento — e o app diz quanto guardar por mês e se cabe na sua sobra.</p>`}</div>
+    <div class="card dcc">${dv}${cn}<button type="button" class="dcbig" data-relm="1"><span class="bk">${ic('pdf')}</span><span><b>Relatório do mês em PDF</b><small>resumo, categorias, patrimônio, indicadores e metas — para guardar ou mostrar a quem decide junto</small></span><span class="go">›</span></button></div>`}
+function wirePlanejar(el){el.querySelectorAll('[data-meta]').forEach(b=>b.onclick=()=>openMeta(METAS().find(m=>m.id===b.dataset.meta)));
+  el.querySelectorAll('[data-dvq]').forEach(b=>b.onclick=openDividasPlano);el.querySelectorAll('[data-cen]').forEach(b=>b.onclick=openCenarios);el.querySelectorAll('[data-relm]').forEach(b=>b.onclick=()=>openRelMes())}
+/* ---------- relatório mensal em PDF ---------- */
+function openRelMes(){const ym=today().slice(0,7),L=[...Array(6)].map((_,k)=>ymAdd(ym,-k)),def=+today().slice(8)<=10?ymAdd(ym,-1):ym;
+  openSheet(`<h2>Relatório do mês</h2><p class="note">Um PDF de uma ou duas páginas com o fechamento do mês: entradas e saídas, categorias contra a sua mediana, patrimônio, indicadores, metas, investimentos e dívidas. O mês em andamento sai como parcial.</p>
+    <div class="field"><label for="rm-y">Mês</label><select id="rm-y">${opts(L.map(y=>[y,MES[+y.slice(5)-1]+'/'+y.slice(0,4)+(y===ym?' (parcial)':'')]),def)}</select></div>
+    <div class="btnrow"><button class="btn primary" type="button" id="rm-go">${ic('pdf')} Gerar PDF</button></div>`,sh=>{sh.querySelector('#rm-go').onclick=e=>relMesPDF(sh.querySelector('#rm-y').value,e.currentTarget)},true)}
+const pdfT=s=>String(s).replace(/−/g,'-').replace(/≈/g,'~').replace(/[  ]/g,' ').replace(/[^\x00-\xFF]/g,'');
+function relMesDados(ym,me){const c=mesCalc(ym,me),parc=ym===today().slice(0,7),cats=catMesMap(ym,me),prev=mesesOk(ym,3);
+  const med=c=>{const v=prev.map(m=>(catMesMap(m,me)||{})[c]||0);return v.length?mediana(v):null};
+  const C=Object.entries(cats).sort((a,b)=>b[1]-a[1]).slice(0,10).map(([k,v])=>({k,v:r2(v),m:med(k)}));
+  const ant=prev.length?prev.map(m=>mesCalc(m,me)):[],aR=ant.length?sum(ant,x=>x.rec)/ant.length:null,aD=ant.length?sum(ant,x=>x.desp)/ant.length:null;
+  let K=null;try{K=kpiVal(me)}catch(e){}const o=PATM;PATM='comp';const Pt=patrimonio(me);PATM=o;let R=null;try{R=rvCalc(me)}catch(e){}
+  const inv=invMes(invContas(me),ym),Mt=metasResumo(me),Dq=(()=>{try{return divPlano(me,0)}catch(e){return null}})();
+  return {ym,parc,c,C,aR,aD,K,Pt,R,inv,Mt,Dq,totCat:r2(sum(Object.values(cats),v=>v))}}
+async function relMesPDF(ym,btn){if(btn)btn.disabled=true;const me=ME();
+  try{const X=relMesDados(ym,me),J=await loadJsPDF(),doc=new J({unit:'mm',format:'a4'}),W=200,Lm=10;let y=18;
+    const T=(t,x,yy,o)=>doc.text(pdfT(t),x,yy,o||{}),fz=(s,b,c)=>{doc.setFontSize(s);doc.setFont('helvetica',b?'bold':'normal');doc.setTextColor(...(c||[25,25,25]))};
+    const brk=h=>{if(y+(h||8)>285){doc.addPage();y=18}};
+    const sec=t=>{brk(16);y+=4;fz(12,1);T(t,Lm,y);doc.setDrawColor(210);doc.line(Lm,y+2,W,y+2);y+=8};
+    const row=(a,b,c2,cor)=>{brk();fz(10,0);T(a,Lm,y);if(c2!=null){fz(9,0,[120,120,120]);T(c2,150,y,{align:'right'})}fz(10,1,cor);T(b,W,y,{align:'right'});y+=5.6};
+    const sg=v=>(v<0?'-':'')+brl(Math.abs(v)),nm=MES[+ym.slice(5)-1]+' de '+ym.slice(0,4);
+    fz(18,1);T('Relatório de '+nm.toLowerCase(),Lm,y);y+=7;fz(9,0,[110,110,110]);T(`${P(me).nome} · sua parte · gerado em ${fdate(today())}${X.parc?' · mês em andamento (parcial)':''} · Patrimônio`,Lm,y);y+=6;
+    const s=r2(X.c.rec-X.c.desp),tp=X.c.rec?s/X.c.rec:null;
+    sec('Resumo do mês');
+    row('Entradas',brl(X.c.rec),X.aR!=null?'média 3m '+brl0(X.aR):null);row('Saídas',brl(X.c.desp),X.aD!=null?'média 3m '+brl0(X.aD):null);
+    row('Sobra',sg(s),tp!=null?'taxa de poupança '+Math.round(tp*100)+'%':null,s<0?[190,60,50]:[30,120,80]);
+    fz(8.5,0,[120,120,120]);T('Regime de caixa: faturas entram no mês do vencimento; contas fixas previstas contam no mês.',Lm,y);y+=4;
+    if(X.C.length){sec('Onde foi o dinheiro (por data da compra)');fz(8.5,0,[120,120,120]);T('mediana 3m',150,y-2,{align:'right'});y+=2;
+      X.C.forEach(x=>{const d=x.m?x.v/x.m-1:null;row(x.k,brl(x.v),x.m!=null?brl0(x.m)+(d!=null&&Math.abs(d)>=.15?(d>0?'  +':'  ')+Math.round(d*100)+'%':''):null,d!=null&&d>.15?[190,60,50]:null)});
+      row('Total de categorias',brl(X.totCat))}
+    sec('Patrimônio (hoje)');row('Tem (contas, aplicações, bolsa, a receber)',brl(X.Pt.ativos));row('Deve (faturas, parcelas, dívidas)',brl(X.Pt.passivos));row('Patrimônio líquido',sg(X.Pt.liq),null,X.Pt.liq<0?[190,60,50]:null);
+    if(X.K){sec('Indicadores');Object.keys(KPID).filter(k=>X.K.v[k]!=null).forEach(k=>{const st=X.K.st[k];row(KPID[k].n,pdfT(kfmt(k,X.K.v[k])),'meta '+(KPID[k].inv?'>= ':'<= ')+pdfT(kfmt(k,X.K.M[k]))+'  ·  '+(st==='ok'?'na meta':st==='warn'?'atenção':'fora'),st==='ok'?[30,120,80]:st==='warn'?[170,120,40]:[190,60,50])})}
+    if(X.Mt.L.length){sec('Metas');X.Mt.L.forEach(x=>row(x.m.nome,`${brl0(x.c.v)} de ${brl0(x.c.alvo)}`,x.c.falta>0?(x.c.n>0?`guardar ${brl0(x.c.pmt)}/mês até ${ymS(x.m.prazo)}`:'prazo vencido'):'atingida'));row('Total a guardar por mês',brl0(X.Mt.need))}
+    sec('Investimentos');row('Renda fixa e reservas',brl(sum(invCarteira(me),x=>x.v)));row('Rendimento registrado no mês',sg(X.inv.rend||0));
+    if(X.R&&X.R.L.length){row('Bolsa (valor de mercado)',brl(X.R.v));row('Resultado da bolsa (cotação + vendas + proventos)',sg(X.R.ganho))}
+    if(X.Dq){sec('Dívidas e parcelamentos');row('Saldo em aberto',brl(sum(X.Dq.L,x=>x.B)));row('Livre de dívidas (só as parcelas)',X.Dq.base.trava?'não quita':fimYm(X.Dq.base.k));row('Juros ainda a pagar',brl(X.Dq.base.juros))}
+    brk(9);y+=4;fz(8,0,[130,130,130]);doc.splitTextToSize(pdfT('Valores registrados no app, na sua parte. Projeções e estimativas (~) usam o histórico e as taxas cadastradas; não são garantia. Gerado pelo Patrimônio.'),W-Lm).forEach(l=>{T(l,Lm,y);y+=4});
+    await S.downloads.save({filename:`relatorio-${ym}.pdf`,data:doc.output('blob')});
+  }catch(e){if(!(e&&(e.code==='cancelled'||e.code==='declined'))){console.error(e);toast('Não consegui gerar o PDF.')}}finally{if(btn)btn.disabled=false}}
 function wireMg(el,rr){
   el.querySelectorAll('[data-colch]').forEach(b=>b.onclick=openColchao);
   el.querySelectorAll('[data-mgimg]').forEach(b=>b.onclick=()=>snapExport(b.closest('.mgc'),'Quanto posso gastar · '+MGLAB[MGL],'quanto-posso-gastar-'+today(),b));
@@ -3562,7 +3737,8 @@ function vDecidir(){
   h+=`<h3 class="dch">Investir</h3>${iniInvest(me)}${(()=>{try{return rvCard(me)}catch(e){console.error('rv',e);return ''}})()}
     ${sob>50?`<div class="card dcc"><div class="dcsob" style="margin:0"><span>Se aplicar o que está livre agora (<b class="n">${brl0(sob)}</b>), renderia ≈ <b class="n pos">${brl0(sob*im)}/mês</b> e <b class="n pos">${brl0(sob*(Math.pow(1+im,12)-1))}</b> em 1 ano no CDI (antes do IR).</span></div></div>`:''}
     ${iniSpread(X)||''}`;
-  el.innerHTML=h;wireMg(el,vDecidir);wireRV(el,vDecidir);
+  try{h+=iniPlanejar(me)}catch(e){console.error('plan',e)}
+  el.innerHTML=h;wireMg(el,vDecidir);wireRV(el,vDecidir);wirePlanejar(el);
   el.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>go(b.dataset.go));
   el.querySelectorAll('[data-dsim]').forEach(b=>b.onclick=()=>openSimCompra());
   el.querySelectorAll('[data-dord]').forEach(b=>b.onclick=()=>{const o=(cfg().ordens||[]).find(z=>z.id===b.dataset.dord);if(o)openSimCompra({v:o.v,desc:o.desc,cat:o.cat,f:o.f,ordem:o.id})});
@@ -4930,7 +5106,8 @@ function vPainel(me){const K=kpiVal(me),I=K.I,Pt=I.Pt,ks=Object.keys(KPID).filte
       <div><small>Livre do mês</small><b class="n ${G&&G.L.orc[1]<0?'neg':''}">${G?brl0(G.L.orc[1]):'—'}</b><em>${folga!=null?`folga ${folga<0?'−':''}${brl0(Math.abs(folga))} após o dia a dia`:''}</em></div></div>
     ${alert.length?`<div class="pna">${alert.map(k=>`<button type="button" class="rvs ${K.st[k]==='crit'?'stop':''}" data-pna="${act[k][1]}"><span class="bk">${ic(K.st[k]==='crit'?'alert':'info')}</span><span><b>${KPID[k].n}: ${kfmt(k,K.v[k])}</b><small>${KPID[k].d} · meta ${KPID[k].inv?'≥':'≤'} ${kfmt(k,K.M[k])}</small></span><span class="go">${act[k][0]} ›</span></button>`).join('')}</div>`:''}
     <div class="png">${ks.map(tile).join('')}</div>
-    <p class="sdm">Indicadores calculados com o que está no app (sua parte). Toque num indicador para ver como é calculado.</p></div>`}
+    <p class="sdm">Indicadores calculados com o que está no app (sua parte). Toque num indicador para ver como é calculado.</p>
+    <div class="btnrow nosnap"><button class="btn sm" type="button" data-relm="1">${ic('pdf')} Relatório do mês (PDF)</button></div></div>`}
 function openMetasKpi(){const M=KPM();openSheet(`<h2>Metas dos indicadores</h2><p class="note">Ajuste ao seu momento. Verde quando atinge a meta, âmbar perto, vermelho longe.</p>
   <form class="form" id="mkf">${Object.entries(KPID).map(([k,d])=>`<div class="field"><label for="mk-${k}">${d.n} <span class="opt">${d.inv?'mínimo':'máximo'} · ${d.d}</span></label><input id="mk-${k}" type="number" step="any" inputmode="decimal" value="${['pct','pctm','pctc'].includes(d.f)?Math.round(M[k]*100):d.f==='pcta'?(M[k]*100):M[k]}"><small class="note">${['pct','pctm','pctc'].includes(d.f)?'em %':d.f==='pcta'?'em % ao mês':d.f==='mes'?'em meses':'em vezes'}</small></div>`).join('')}
   <button class="btn primary" type="submit">Salvar metas</button></form>`,sh=>{sh.querySelector('#mkf').onsubmit=async e=>{e.preventDefault();const o={};Object.entries(KPID).forEach(([k,d])=>{const v=parseFloat(sh.querySelector('#mk-'+k).value);if(isFinite(v))o[k]=['pct','pctm','pctc','pcta'].includes(d.f)?v/100:v});
@@ -4940,7 +5117,7 @@ function openKpi(k){const me=ME(),K=kpiVal(me),d=KPID[k],ser=k==='pou'||k==='res
     ${ser.length>1?`<div class="cfs">${sparkL(ser,'var(--accent)',320,70)}</div><p class="sdm">últimos ${ser.length} meses completos</p>`:''}
     <p class="note">${{pou:'Recomendação comum: guardar pelo menos 20% do que entra.',res:'Reserva de emergência: de 3 a 12 meses de despesas, conforme a estabilidade da renda.',com:'Acima de 50% da renda em fixos e parcelas, qualquer imprevisto aperta.',lim:'Usar até 30% do limite mantém folga e ajuda no score de crédito.',end:'Passivo acima de metade do ativo indica estrutura alavancada.',liq:'Abaixo de 1x, o que vence em 12 meses é maior do que o que você tem.',dia:'Acima de 100%: o mês caminha para gastar mais que o normal no dia a dia.',ren:'Abaixo de 100% do CDI, o dinheiro rende menos que a referência sem risco.',cdv:'Dívida acima do rendimento das aplicações: antecipar tende a compensar.'}[k]}</p>
     <div class="btnrow"><button class="btn" type="button" id="kp-m">Ajustar metas</button></div>`,sh=>{sh.querySelector('#kp-m').onclick=openMetasKpi})}
-function wirePainel(el){el.querySelectorAll('[data-kpi]').forEach(b=>b.onclick=()=>openKpi(b.dataset.kpi));el.querySelectorAll('[data-pnm]').forEach(b=>b.onclick=openMetasKpi);
+function wirePainel(el){el.querySelectorAll('[data-relm]').forEach(b=>b.onclick=()=>openRelMes());el.querySelectorAll('[data-kpi]').forEach(b=>b.onclick=()=>openKpi(b.dataset.kpi));el.querySelectorAll('[data-pnm]').forEach(b=>b.onclick=openMetasKpi);
   el.querySelectorAll('[data-pnimg]').forEach(b=>b.onclick=()=>snapExport(b.closest('.pnc'),'Painel de comando','painel-'+today(),b));
   el.querySelectorAll('[data-pna]').forEach(b=>b.onclick=()=>{const [t,v]=b.dataset.pna.split(':');if(t==='go')go(v);else if(t==='rp'){RP=v;vRel()}else if(v==='rec')openRevRec();else if(v==='inv')openInvestDash();else if(v==='spread')openSpread()})}
 /* ===================== Busca global ===================== */
@@ -5955,6 +6132,12 @@ const FAQ=[
   ['Errei um abatimento, como desfaço?','No painel do acerto, toque em <b>Selecionar</b>, marque os itens quitados e use <b>Voltar para em aberto</b>. Eles voltam a ficar em aberto, em massa.'],
   ['Como mando o relatório de repasse?','Em Relatórios, abra o repasse e exporte. Vai com resumo, grupos (incluindo o abatimento no final), composição e imagem do gráfico.'],
   ['Onde mudo as pessoas e os dias das quinzenas?','Em Carteira → Ajustes → <b>Pessoas e quinzenas</b>.','pes','Abrir pessoas e quinzenas']]],
+ ['Metas, dívidas e cenários',[
+  ['Como funcionam as metas com prazo?','Em <b>Decidir › Planejar</b>, crie uma meta com valor e mês. Vincule a aplicação onde o dinheiro fica (o progresso acompanha o saldo e o rendimento entra na conta) ou informe quanto já tem. O app mostra quanto guardar por mês, se você está no ritmo (o tracinho na barra é onde deveria estar hoje) e se o total das metas cabe na sua sobra média.','meta','Criar meta'],
+  ['Avalanche ou bola de neve?','São dois jeitos de usar um valor extra por mês para quitar dívidas. <b>Avalanche</b>: paga primeiro a de maior juro — economiza mais. <b>Bola de neve</b>: paga primeiro a de menor saldo — quita uma dívida mais cedo e dá ânimo. Nos dois, quando uma termina, a parcela dela vai para a próxima. O app mostra data de quitação e juros de cada caminho.','dvq','Simular quitação'],
+  ['O que é o teste de estresse?','Em <b>Cenários e estresse</b> você vê o que acontece com seu patrimônio se perder a renda, ganhar menos, gastar mais ou tiver um imprevisto — e por quantos meses o dinheiro disponível (caixa, aplicações e bolsa) aguenta. O cenário é comparado lado a lado com o atual.','cen','Abrir cenários'],
+  ['O que é a faixa no gráfico de cenários?','É a previsão com margem de erro: usa quanto a sua sobra variou de um mês para o outro. Em 8 de cada 10 casos o patrimônio deve ficar dentro dela. Com menos de 3 meses de histórico a faixa é estimada.'],
+  ['Como gero o relatório do mês?','Em <b>Relatórios › Painel</b> ou <b>Decidir › Planejar</b>, toque em <b>Relatório do mês (PDF)</b> e escolha o mês. Sai um PDF com entradas, saídas, categorias contra a mediana, patrimônio, indicadores, metas, investimentos e dívidas.','relm','Gerar relatório']]],
  ['Ações, FIIs e IR',[
   ['Como registro minhas ações, FIIs, ETFs e BDRs?','Em <b>Decidir › Investir › Renda variável</b>, toque em <b>Compra</b> e informe código, data, quantidade, preço e custos, como na nota de corretagem. O app calcula o preço médio (com custos), o resultado na cotação e o resultado das vendas. A classe (ação, FII, ETF, BDR) é sugerida pelo código e pode ser trocada no ativo.','rv','Abrir renda variável'],
   ['De onde vem a cotação?','Da <b>brapi.dev</b>, com atraso de cerca de 30 minutos. Sem chave só PETR4, VALE3, ITUB4 e MGLU3 respondem; crie uma chave grátis no site e cole em <b>Renda variável › Fonte das cotações</b>. Sem internet ou sem resposta, use <b>Informar cotação</b> no ativo; sem nenhuma cotação, o ativo vale pelo preço médio (e o app avisa).'],
@@ -5975,7 +6158,7 @@ const FAQ=[
   ['As cores ficaram estranhas no celular, e agora?','Confira se o celular não está forçando modo escuro em apps (Configurações → Tela → Modo escuro) e se, no Chrome, “Escurecer sites” está desligado. O app já tem tema escuro próprio, que segue o do celular.']]]
 ];
 function openAjuda(q0){
-  const run={colchao:()=>openColchao(),sim:()=>openSimCompra(),org:()=>{closeSheet();location.hash='inicio';setTimeout(()=>{const b=$('#orgbtn');b?b.click():toast('Role até o fim do Início e toque em Organizar esta tela')},350)},pes:()=>openPessoas(),prem:()=>openPremissas(),bk:()=>openBackups(),rv:()=>openRV(),rvir:()=>openRVIR(),rvalvo:()=>openRVAlvo()};
+  const run={colchao:()=>openColchao(),sim:()=>openSimCompra(),org:()=>{closeSheet();location.hash='inicio';setTimeout(()=>{const b=$('#orgbtn');b?b.click():toast('Role até o fim do Início e toque em Organizar esta tela')},350)},pes:()=>openPessoas(),prem:()=>openPremissas(),bk:()=>openBackups(),rv:()=>openRV(),rvir:()=>openRVIR(),rvalvo:()=>openRVAlvo(),meta:()=>openMeta(),dvq:()=>openDividasPlano(),cen:()=>openCenarios(),relm:()=>openRelMes()};
   const norm=s=>String(s).normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
   openSheet(`<h2>Ajuda</h2><p class="note">Dúvidas comuns sobre o app. Toque numa pergunta para ver a resposta.</p>
     <div class="field faqs"><input id="fq-q" type="search" placeholder="Buscar: livre, acerto, offline…" autocomplete="off" value="${esc(q0||'')}"></div>
