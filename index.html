@@ -3265,7 +3265,9 @@ function stopHint(cat,v,data,editing,com){try{if(!cat)return '';const ym=(data||
 /* ===================== Posso comprar? =====================
    Simula a compra no caixa projetado (mesma agenda do Início) e compara as formas de pagamento.
    Regime de caixa: no cartão, cada parcela sai no vencimento da fatura em que cai. */
-function simEventos(f,v,dt){if(!(v>0))return [];if(f.k==='conta')return [{d:dt,v:-v}];
+/* aplicações e reservas que podem ser resgatadas (sua parte), maior primeiro */
+function simInv(me){return S.contas.filter(a=>a.ativo!==false&&(a.tipo==='investimento'||a.tipo==='reserva')&&fracOf(a.dono,me)>0).map(a=>({a,v:r2(saldoConta(a)*fracOf(a.dono,me))})).filter(x=>x.v>0).sort((x,y)=>y.v-x.v)}
+function simEventos(f,v,dt){if(!(v>0))return [];if(f.k==='conta')return [{d:dt,v:-v}];if(f.k==='inv')return [{d:dt,v:-v}].concat(f.r>0?[{d:dt,v:+f.r,res:1}]:[]);
   const c=card(f.c);if(!c)return [];const n=Math.max(1,Math.min(+f.n||1,48)),y0=baseDue({data:dt},c),pv=r2(v/n),out=[];
   for(let k=0;k<n;k++)out.push({d:dayIn(ymAdd(y0,k),c.vencimento),v:-(k===n-1?r2(v-pv*(n-1)):pv)});return out}
 function simSerie(me,ext,ate){const t=today(),ag=agendaPessoal(me,ate,t,{cv:1}).concat(ext||[]),by={};
@@ -3276,8 +3278,10 @@ function simSerie(me,ext,ate){const t=today(),ag=agendaPessoal(me,ate,t,{cv:1}).
   const neg=pts.filter((x,i)=>x[1]<-.005).length;return {min:{v:r2(min.v),d:min.d},fim:r2(run),desde,neg}}
 function simAte(ev){const t=today();let a=lastDay2(ymAdd(t.slice(0,7),2));ev.forEach(e=>{const z=lastDay2(e.d.slice(0,7));if(z>a)a=z});return a}
 const lastDay2=ym=>dayIn(ym,31);
-function simForma(f){if(f.k==='conta')return 'À vista na conta';const c=card(f.c);return (c?c.nome:'Cartão')+(+f.n>1?` em ${f.n}x`:' à vista')}
-function simAvalia(me,v,f,dt){const ev=simEventos(f,v,dt),ate=simAte(ev),A=simSerie(me,[],ate),B=simSerie(me,ev,ate),cz=colchao();
+function simForma(f){if(f.k==='conta')return 'À vista na conta';if(f.k==='inv')return 'À vista com resgate dos investimentos';const c=card(f.c);return (c?c.nome:'Cartão')+(+f.n>1?` em ${f.n}x`:' à vista')}
+function simAvalia(me,v,f,dt){if(f.k==='inv'&&f.r==null){const base=simAvalia(me,v,{k:'conta',a:contaPadrao()},dt),cz=colchao(),tot=r2(sum(simInv(me),x=>x.v)),need=Math.max(0,Math.ceil((cz-base.b1.v)/10)*10);
+    const R=simAvalia(me,v,{k:'inv',a:contaPadrao(),r:Math.min(need,tot)},dt);R.f={k:'inv',a:contaPadrao()};R.res=Math.min(need,tot);R.invTot=tot;R.falta=r2(Math.max(0,need-tot));return R}
+  const ev=simEventos(f,v,dt),ate=simAte(ev),A=simSerie(me,[],ate),B=simSerie(me,ev,ate),cz=colchao();
   let lim=null;if(f.k==='card'){const st=cardStats(card(f.c));lim=st.disp}
   const p1=ev.length?ev[0].d:dt,a1=A.desde(addD(p1,-1)),b1=B.desde(addD(p1,-1));
   /* a compra só mexe no caixa a partir do primeiro pagamento: o veredito olha esse trecho */
@@ -3285,7 +3289,7 @@ function simAvalia(me,v,f,dt){const ev=simEventos(f,v,dt),ate=simAte(ev),A=simSe
   const antes=A.min.v<-.005&&A.min.d<p1?A.min:null;
   return {f,ev,A,B,a1,b1,st,lim,primeira:p1,antes}}
 function simOpcoes(me,v,dt,n){const out=[],cp=contaPadrao();if(cp)out.push({k:'conta',a:cp});
-  S.cards.filter(c=>c.ativo!==false&&(c.dono||ME())===me).forEach(c=>{out.push({k:'card',c:c.id,n:1});if(n>1)out.push({k:'card',c:c.id,n})});
+  S.cards.filter(c=>c.ativo!==false&&(c.dono||ME())===me).forEach(c=>{out.push({k:'card',c:c.id,n:1});if(n>1)out.push({k:'card',c:c.id,n})});if(simInv(me).length)out.push({k:'inv',a:cp});
   const R=out.map(f=>simAvalia(me,v,f,dt)).filter(r=>r.st!=='lim');
   return R.sort((a,b)=>(b.b1.v-a.b1.v)||(b.primeira.localeCompare(a.primeira)))}
 /* primeiro dia em que a compra cabe (sem passar do colchão), olhando até 120 dias */
@@ -3300,19 +3304,23 @@ function openSimCompra(pre){pre=pre||{};const me=ME();
     const quando=R.st==='ok'||R.st==='lim'?'':simQuando(me,st.v,f),C=simCat(st.cat,st.v);
     box.innerHTML=`<div class="simv ${tc}"><b>${tt}</b><small>${R.st==='lim'?`limite livre ${brl(R.lim)}`:R.st==='neg'?`em ${fdate(R.b1.d).slice(0,5)} o saldo ficaria em ${brl(R.b1.v)}`:R.st==='aperta'?`o menor saldo fica em ${brl(R.b1.v)} (${fdate(R.b1.d).slice(0,5)}), abaixo do seu colchão de ${brl(cz)}`:`depois de pagar, o menor saldo fica em ${brl(R.b1.v)} (${fdate(R.b1.d).slice(0,5)})`}</small></div>
       ${R.antes&&R.st!=='lim'?`<p class="simq warn">${ic('alert')}<span>Mesmo sem esta compra, em <b>${fdate(R.antes.d).slice(0,5)}</b> o caixa já fica em <b>${brl(R.antes.v)}</b>. A compra não muda esse ponto, mas ele precisa ser resolvido antes.</span></p>`:''}
-      <div class="simk"><div><span>Menor saldo sem a compra</span><b class="n ${R.a1.v<0?'neg':''}">${brl(R.a1.v)}</b><small>${fdate(R.a1.d).slice(0,5)}</small></div><div><span>Com a compra</span><b class="n ${R.b1.v<0?'neg':''}">${brl(R.b1.v)}</b><small>${fdate(R.b1.d).slice(0,5)}</small></div><div><span>Primeiro pagamento</span><b class="n">${fdate(R.primeira).slice(0,5)}</b><small>${R.ev.length>1?R.ev.length+' parcelas de '+brl(-R.ev[0].v):'uma vez'}</small></div></div>
+      <div class="simk"><div><span>Menor saldo sem a compra</span><b class="n ${R.a1.v<0?'neg':''}">${brl(R.a1.v)}</b><small>${fdate(R.a1.d).slice(0,5)}</small></div><div><span>Com a compra</span><b class="n ${R.b1.v<0?'neg':''}">${brl(R.b1.v)}</b><small>${fdate(R.b1.d).slice(0,5)}</small></div><div><span>Primeiro pagamento</span><b class="n">${fdate(R.primeira).slice(0,5)}</b><small>${R.ev.filter(e=>!e.res).length>1?R.ev.filter(e=>!e.res).length+' parcelas de '+brl(-R.ev[0].v):R.res>0?'uma vez · resgate no mesmo dia':'uma vez'}</small></div></div>
       ${quando?`<p class="simq">${ic('clock')}<span>Nesta forma, cabe a partir de <b>${fdate(quando).slice(0,5)}</b>.</span></p>`:R.st==='lim'?`<p class="simq">${ic('card')}<span>O limite livre deste cartão não comporta a compra. Veja as outras formas abaixo.</span></p>`:R.st!=='ok'?`<p class="simq">${ic('clock')}<span>Nesta forma não cabe nos próximos 120 dias.</span></p>`:''}
+      ${(()=>{if(f.k==='card'&&st.n>1){let G=null;try{G=gastoLentes(me,today().slice(0,7))}catch(e){}const p=r2(st.v/st.n),rd=G&&G.renda,lv=G?G.L.orc[1]:null;
+          return `<p class="simq">${ic('repeat')}<span>Parcela de <b>${brl(p)}</b> por mês, de ${ymS(R.primeira.slice(0,7))} a ${ymS(R.ev[R.ev.length-1].d.slice(0,7))}${rd?` · <b>${pctf(p/rd)}</b> da sua renda`:''}${lv!=null?`. O orçamento livre deste mês é ${lv<0?'−'+brl0(-lv):brl0(lv)}; ${lv-p>=0?`com a parcela sobram <b>${brl0(lv-p)}</b>`:`a parcela passa <b class="neg">${brl0(p-lv)}</b> do livre`}`:''}.</span></p>`}
+        if(f.k==='inv'){const im=cdiMes(),src=simInv(me)[0];return R.res>0?`<p class="simq ${R.falta>0?'neg':''}">${ic('trend')}<span>${R.falta>0?`Mesmo resgatando tudo (${brl0(R.invTot)}) ainda faltam <b>${brl0(R.falta)}</b>.`:`Precisa resgatar <b>${brl0(R.res)}</b> dos ${brl0(R.invTot)} aplicados${src?` (ex.: ${esc(src.a.nome)})`:''} para manter o colchão. Deixa de render ≈ <b>${brl0(R.res*im)}/mês</b> no CDI.`}</span></p>`
+          :`<p class="simq">${ic('trend')}<span>Não precisa resgatar: o caixa comporta a compra à vista sem mexer nos ${brl0(R.invTot)} aplicados.</span></p>`}return ''})()}
       ${C?`<p class="simq ${C.depois<0?'neg':C.depois<C.d*.2?'warn':''}">${ic('goal')}<span>${esc(st.cat)}: hoje pode ${brl(Math.max(C.disp,0))} no mês; depois desta compra ${C.depois<0?`<b>passa o stop em ${brl(-C.depois)}</b>`:`sobram <b>${brl(C.depois)}</b>`}.</span></p>`:''}
       ${alt.length?`<div class="sima"><span class="k">Formas de pagar, da mais folgada para a mais apertada</span>${alt.slice(0,4).map((r,i)=>`<button type="button" class="simo ${r.f.k===f.k&&r.f.c===f.c&&(+r.f.n||1)===(+f.n||1)?'on':''}" data-sf="${i}"><span><b>${esc(simForma(r.f))}</b><small>paga a partir de ${fdate(r.primeira).slice(0,5)}</small></span><span class="n ${r.b1.v<0?'neg':r.st==='aperta'?'warn':''}">menor ${brl0(r.b1.v)}</span></button>`).join('')}</div>`:''}`;
-    box.querySelectorAll('[data-sf]').forEach(b=>b.onclick=()=>{const r=alt[+b.dataset.sf];st.f=r.f.k==='card'?{k:'card',c:r.f.c,n:r.f.n}:r.f;st.n=+r.f.n||1;sync(sh);draw(sh)});
+    box.querySelectorAll('[data-sf]').forEach(b=>b.onclick=()=>{const r=alt[+b.dataset.sf];st.f=r.f.k==='card'?{k:'card',c:r.f.c,n:r.f.n}:{k:r.f.k,a:r.f.a};st.n=+r.f.n||1;sync(sh);draw(sh)});
     sh.querySelector('#sim-l').disabled=sh.querySelector('#sim-o').disabled=false};
-  const sync=sh=>{sh.querySelectorAll('[data-fk]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.fk===(st.f.k==='card'?'c:'+st.f.c:'conta'))));sh.querySelector('#sim-nw').hidden=st.f.k!=='card';sh.querySelector('#sim-n').value=st.n};
+  const sync=sh=>{sh.querySelectorAll('[data-fk]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.fk===(st.f.k==='card'?'c:'+st.f.c:st.f.k))));sh.querySelector('#sim-nw').hidden=st.f.k!=='card';sh.querySelector('#sim-n').value=st.n};
   const ords=(cfg().ordens||[]);
   openSheet(`<h2>Posso comprar?</h2><p class="note">Testa a compra no seu caixa dos próximos meses, com tudo o que já está previsto. Nada é lançado.</p>
     <div class="form"><div class="f2"><div class="field"><label for="sim-v">Valor</label><input id="sim-v" type="text" inputmode="none" readonly placeholder="R$ 0,00" value="${st.v?brl(st.v):''}"></div><div class="field"><label for="sim-d">Quando</label><input id="sim-d" type="date" value="${st.dt}"></div></div>
     <div class="field"><label for="sim-ds">O que é (opcional)</label><input id="sim-ds" type="text" value="${esc(st.desc)}" placeholder="ex.: mesa da sala"></div>
     <div class="field"><label for="sim-c">Categoria (para o stop)</label><select id="sim-c"><option value="">—</option>${catList('despesa').map(c=>`<option ${c.nome===st.cat?'selected':''}>${esc(c.nome)}</option>`).join('')}</select></div>
-    <div class="field"><label>Forma</label><div class="chips simf"><button type="button" class="chip" data-fk="conta">Conta (Pix/débito)</button>${cards.map(c=>`<button type="button" class="chip" data-fk="c:${esc(c.id)}"><i class="cdot" style="background:${esc(c.cor||'var(--accent)')}"></i>${esc(c.nome)}</button>`).join('')}</div>
+    <div class="field"><label>Forma</label><div class="chips simf"><button type="button" class="chip" data-fk="conta">Conta (Pix/débito)</button>${simInv(me).length?'<button type="button" class="chip" data-fk="inv">À vista + investimentos</button>':''}${cards.map(c=>`<button type="button" class="chip" data-fk="c:${esc(c.id)}"><i class="cdot" style="background:${esc(c.cor||'var(--accent)')}"></i>${esc(c.nome)}</button>`).join('')}</div>
       <div class="simn" id="sim-nw"><label for="sim-n">Parcelas</label><input id="sim-n" type="number" min="1" max="48" inputmode="numeric" value="${st.n}"></div></div></div>
     <div id="sim-r" class="simr" aria-live="polite"></div>
     <div class="btnrow"><button class="btn primary" type="button" id="sim-l" disabled>Lançar compra</button><button class="btn" type="button" id="sim-o" disabled>${st.ordem?'Atualizar ordem':'Criar ordem'}</button>${st.ordem?'<button class="btn danger" type="button" id="sim-x">Excluir ordem</button>':''}</div>
@@ -3321,9 +3329,9 @@ function openSimCompra(pre){pre=pre||{};const me=ME();
     sh.querySelector('#sim-d').onchange=e=>{st.dt=e.target.value||today();draw(sh)};
     sh.querySelector('#sim-ds').oninput=e=>{st.desc=e.target.value;if(!st.cat&&e.target.value.length>=4){const g=guessFromHist(e.target.value,'');if(g&&g.categoria){st.cat=g.categoria;sh.querySelector('#sim-c').value=st.cat;draw(sh)}}};
     sh.querySelector('#sim-c').onchange=e=>{st.cat=e.target.value;draw(sh)};
-    sh.querySelectorAll('[data-fk]').forEach(b=>b.onclick=()=>{const k=b.dataset.fk;st.f=k==='conta'?{k:'conta',a:contaPadrao()}:{k:'card',c:k.slice(2),n:st.n};sync(sh);draw(sh)});
+    sh.querySelectorAll('[data-fk]').forEach(b=>b.onclick=()=>{const k=b.dataset.fk;st.f=k==='conta'?{k:'conta',a:contaPadrao()}:k==='inv'?{k:'inv',a:contaPadrao()}:{k:'card',c:k.slice(2),n:st.n};sync(sh);draw(sh)});
     sh.querySelector('#sim-n').oninput=e=>{st.n=Math.max(1,Math.min(+e.target.value||1,48));if(st.f.k==='card')st.f.n=st.n;draw(sh)};
-    sh.querySelector('#sim-l').onclick=()=>{const l={tipo:'despesa',valor:st.v,desc:st.desc,categoria:st.cat||undefined,data:st.dt};if(st.f.k==='card'){l.cartao=st.f.c;if(st.n>1)l.parcelas=st.n}else l.conta=st.f.a;
+    sh.querySelector('#sim-l').onclick=()=>{const l={tipo:'despesa',valor:st.v,desc:st.desc,categoria:st.cat||undefined,data:st.dt};if(st.f.k==='card'){l.cartao=st.f.c;if(st.n>1)l.parcelas=st.n}else l.conta=st.f.a||contaPadrao();if(st.f.k==='inv')setTimeout(()=>toast('Lembre de registrar o resgate como transferência da aplicação para a conta'),900);
       const rm=st.ordem;closeSheet();setTimeout(()=>{openLanc(l);if(rm){const ordens=(cfg().ordens||[]).filter(o=>o.id!==rm);S.db.doc('config/app').set(Object.assign({},S.cfg||{},{ordens})).catch(()=>{})}},250)};
     sh.querySelector('#sim-o').onclick=async()=>{if(!(st.v>0))return;const f=st.f.k==='card'?{k:'card',c:st.f.c,n:st.n}:{k:'conta',a:st.f.a};const id=st.ordem||('o'+Date.now().toString(36));
       const ordens=(cfg().ordens||[]).filter(o=>o.id!==id).concat([{id,v:st.v,desc:st.desc||'',cat:st.cat||'',f,criadoEm:new Date().toISOString()}]);
