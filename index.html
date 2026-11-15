@@ -2227,6 +2227,12 @@ main{padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))!important}
 .latc span{min-width:0}.latc b{display:block;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.latc small{display:block;font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .latc.rep{border-color:color-mix(in srgb,var(--accent,#E2BA6E) 50%,transparent)}.latc.rep .ic{width:18px;height:18px;color:var(--accent,#E2BA6E);margin:0 4px}
 #toast{display:flex;align-items:center;gap:14px}#toast[hidden]{display:none}.tact{border:0;background:none;color:var(--accent,#E2BA6E);font-weight:700;font-size:14px;padding:2px 0}
+.prk{display:flex;overflow-x:auto;scrollbar-width:none;margin:0 0 6px}.prk::-webkit-scrollbar{display:none}.prk button{flex:none;white-space:nowrap}
+.prc{display:flex;gap:10px;margin:8px 0}.prc label{display:flex;flex-direction:column;font-size:12px;color:var(--muted);flex:1}.prc input{margin-top:4px}
+.prk3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:4px}.prk3 small{display:block;font-size:11px;color:var(--muted)}.prk3 b{display:block;font-size:19px;font-weight:650}.prk3 .rsd{display:block;font-size:11px}
+.pfut{fill:none;stroke:var(--muted);stroke-dasharray:2 2}.pent{fill:var(--good)}.sfg i.pentI{background:var(--good);height:3px;vertical-align:3px}.sfg i.pfutI{background:none;border:1px dashed var(--muted)}
+.prcs{margin-top:12px}.prtop{margin-top:14px}.prtop>small{display:block;font-size:11.5px;color:var(--muted);margin-bottom:4px}
+.prcard svg.sfc{background:none!important;border:0!important;padding:0!important;border-radius:0!important}.prcard .mgn b.neg{color:var(--crit,#E0705F)}.prcard .mgn b.pos{color:var(--good)}
 </style>
 </head>
 <body>
@@ -3698,7 +3704,7 @@ function vInicio(){
   el.querySelectorAll('[data-ct]').forEach(b=>b.onclick=()=>openContaDet(conta(b.dataset.ct)));
   el.querySelectorAll('[data-pends]').forEach(b=>b.onclick=openPendentes);
   el.querySelectorAll('[data-spread]').forEach(b=>b.onclick=openSpread);
-  wireMg(el,vInicio);el.querySelectorAll('[data-rsem]').forEach(b=>b.onclick=openSemana);el.querySelectorAll('[data-rall]').forEach(b=>b.onclick=openRotinas);el.querySelectorAll('[data-gmk]').forEach(b=>b.onclick=()=>{MGL=b.dataset.gmk;LSset('pt-mgl',MGL);go('decidir')});el.querySelectorAll('.gmc [data-go]').forEach(b=>b.onclick=()=>go(b.dataset.go));
+  wireMg(el,vInicio);el.querySelectorAll('[data-rsem]').forEach(b=>b.onclick=openSemana);el.querySelectorAll('[data-rqz]').forEach(b=>b.onclick=openQuinzena);el.querySelectorAll('[data-rall]').forEach(b=>b.onclick=openRotinas);el.querySelectorAll('[data-gmk]').forEach(b=>b.onclick=()=>{MGL=b.dataset.gmk;LSset('pt-mgl',MGL);go('decidir')});el.querySelectorAll('.gmc [data-go]').forEach(b=>b.onclick=()=>go(b.dataset.go));
   el.querySelectorAll('[data-msob]').forEach(b=>b.onclick=async()=>{try{await S.db.doc('config/app').set(Object.assign({},S.cfg||{},{margemSobra:b.dataset.msob==='1'}));COLM.k='';toast(b.dataset.msob==='1'?'A margem agora conta a sobra do mês anterior':'A margem volta a contar só a renda do mês')}catch(err){toast(writeErr(err))}});
   el.querySelectorAll('[data-wtab]').forEach(b=>b.onclick=()=>{WTAB=b.dataset.wtab;LSset('pt-wtab',WTAB);vInicio()});
   el.querySelectorAll('[data-wcat]').forEach(b=>b.onclick=()=>openCatFicha(b.dataset.wcat));
@@ -4345,7 +4351,7 @@ function rowMov(i){const tags=(i.l.tags||[]).map(t=>`<span class="tag">#${esc(t)
 
 /* ---------- RELATÓRIOS ---------- */
 let RP=LS('pt-rp','salvos').replace(/^(gabrielle|repasse)$/,'salvos'),RYM=null,RREG=LS('pt-reg','caixa');
-const RPS=[['salvos','Salvos'],['resumo','Resumo'],['categorias','Categorias'],['etiquetas','Etiquetas'],['patrimonio','Patrimônio'],['fluxo','Fluxo']];
+const RPS=[['periodo','Período'],['salvos','Salvos'],['resumo','Resumo'],['categorias','Categorias'],['etiquetas','Etiquetas'],['patrimonio','Patrimônio'],['fluxo','Fluxo']];
 /* =========================================================
    RELATÓRIOS SALVOS — filtros parametrizados + painel.
    Só leitura: nada aqui altera caixa, projeção ou patrimônio.
@@ -4631,6 +4637,56 @@ function openRepEdit(r){
   });
 }
 
+/* ===================== Relatório por período (semana, quinzena, mês, trimestre, semestre, ano) ===================== */
+let PRK=LS('pt-prk','mes'),PRO=0,PRA='',PRB='';
+const PRKS=[['semana','Semana'],['quinzena','Quinzena'],['mes','Mês'],['tri','Trimestre'],['sem','Semestre'],['ano','Ano'],['pers','Personalizado']];
+function qPrev(k){return perOf(addD(qDate(k),-1))}
+function perRange(kind,off){const t=today(),ym=t.slice(0,7);
+  if(kind==='semana'){const a=addD(segDe(t),7*off);return {a,b:addD(a,6),lab:`${fdate(a).slice(0,5)} a ${fdate(addD(a,6)).slice(0,5)}`,sub:'dias'}}
+  if(kind==='quinzena'){let k=perOf(t);for(let i=0;i<-off;i++)k=qPrev(k);for(let i=0;i<off;i++)k=nextP(k);const a=qDate(k);return {a,b:perEnd(k),lab:`${fdate(a).slice(0,5)} a ${fdate(perEnd(k)).slice(0,5)} · ${Q()[k.slice(8)].nome}`,sub:'dias',k}}
+  if(kind==='mes'){const m=ymAdd(ym,off);return {a:dayIn(m,1),b:dayIn(m,31),lab:`${MESL[+m.slice(5)-1]} ${m.slice(0,4)}`,sub:'semanas'}}
+  const span={tri:3,sem:6,ano:12}[kind]||3,y=+ym.slice(0,4),m0=+ym.slice(5)-1,blk=Math.floor(m0/span)+off,yy=y+Math.floor(blk*span/12),mm=((blk*span)%12+12)%12,a=`${yy}-${String(mm+1).padStart(2,'0')}-01`,b=dayIn(ymAdd(a.slice(0,7),span-1),31);
+  return {a,b,lab:kind==='ano'?String(yy):kind==='sem'?`${mm<6?'1º':'2º'} semestre ${yy}`:`${Math.floor(mm/3)+1}º trimestre ${yy}`,sub:'meses'}}
+function perDados(a,b,me){const caixa=RREG==='caixa',dOf=i=>caixa?(i.src==='card'?i.due:(i.l.data||'')):(i.src==='card'?(i.j===(+i.l.parcela||1)?(i.l.data||''):dayIn(i.cym,+(i.l.data||'01').slice(8)||1)):(i.l.data||''));
+  const its=movs().filter(i=>{const d=dOf(i);return d>=a&&d<=b&&!(i.src==='conta'&&i.l.pend)&&!i.ben}),v=i=>share(i,me);
+  const ent=r2(sum(its.filter(i=>i.tipo==='receita'&&i.src==='conta'),v)),sai=r2(sum(its.filter(i=>i.tipo==='despesa'),v)-sum(its.filter(i=>i.tipo==='receita'&&i.src==='card'),v));
+  const cats={};its.filter(i=>i.tipo==='despesa'&&!(i.l.ign&&i.l.ign.stats)).forEach(i=>{const c=i.l.categoria||'Outros';cats[c]=(cats[c]||0)+v(i)});
+  const vari=r2(sum(its.filter(ehVar),v));
+  return {its,ent,sai,res:r2(ent-sai),cats,vari,dOf,v}}
+function relPeriodo(me){const R=PRK==='pers'?{a:PRA||addD(today(),-29),b:PRB||today(),lab:'',sub:'dias'}:perRange(PRK,PRO);
+  const dias=diffD(R.a,R.b)+1,Pa=PRK==='pers'?{a:addD(R.a,-dias),b:addD(R.a,-1)}:perRange(PRK,PRO-1),tt=today(),parc=R.a<=tt&&R.b>tt,el0=parc?diffD(R.a,tt)+1:0,Pb=parc?[addD(Pa.a,el0-1),Pa.b].sort()[0]:Pa.b,D=perDados(R.a,parc?tt:R.b,me),E=perDados(Pa.a,Pb,me),FU=parc?perDados(addD(tt,1),R.b,me):null;
+  const cmpOk=Pa.a>=histIni();const dl=(a,b,inv)=>{if(!b||!cmpOk)return '<small class="rsd mu">sem comparação</small>';const x=a-b,good=inv?x<=0:x>=0,pc=Math.abs(x/b);return `<small class="rsd ${Math.abs(x)<1?'mu':good?'ok':'crit'}">${x>=0?'▲':'▼'} ${brl0(Math.abs(x))}${pc<=9.99?` (${pctf(pc)})`:''}</small>`};
+  /* barras por subperíodo */
+  const sp=[];if(R.sub==='meses'){let m=R.a.slice(0,7);while(m<=R.b.slice(0,7)){sp.push({a:dayIn(m,1),b:dayIn(m,31),l:MES[+m.slice(5)-1].slice(0,3)});m=ymAdd(m,1)}}
+  else if(R.sub==='semanas'){let s=R.a;while(s<=R.b){const e=[addD(s,6),R.b].sort()[0];sp.push({a:s,b:e,l:fdate(s).slice(0,2)});s=addD(e,1)}}
+  else{for(let d=R.a;d<=R.b;d=addD(d,1))sp.push({a:d,b:d,l:String(+d.slice(8))})}
+  sp.forEach(x=>{const its=D.its.filter(i=>{const d=D.dOf(i);return d>=x.a&&d<=x.b});x.s=r2(sum(its.filter(i=>i.tipo==='despesa'),D.v));x.e=r2(sum(its.filter(i=>i.tipo==='receita'&&i.src==='conta'),D.v))});
+  const W=330,H=140,pad=12,n=sp.length,gx=(W-pad*2)/n,bw=Math.max(2,Math.min(24,gx*.6)),mx=Math.max(...sp.map(x=>Math.max(x.s,x.e)),1),Y=v=>H-22-v/mx*(H-40),t=today();
+  const step=n>16?Math.ceil(n/8):1;
+  const bars=sp.map((x,i)=>{const X=pad+gx*i+(gx-bw)/2;return `<rect x="${X}" y="${Y(x.s)}" width="${bw}" height="${Math.max(H-22-Y(x.s),0)}" rx="2" class="${x.a>t?'pfut':'sfe'}"/>${x.e>0?`<rect x="${X+bw*.25}" y="${Y(x.e)}" width="${bw*.5}" height="3" rx="1.5" class="pent"/>`:''}${i%step===0||i===n-1?`<text x="${X+bw/2}" y="${H-6}" class="sfl">${x.l}</text>`:''}`}).join('');
+  /* categorias com variação */
+  const cs=Object.keys({...D.cats,...E.cats}).map(c=>({c,a:r2(D.cats[c]||0),b:r2(E.cats[c]||0)})).filter(x=>x.a>0).sort((x,y)=>y.a-x.a).slice(0,8),cmx=Math.max(...cs.map(x=>x.a),1);
+  const top=D.its.filter(i=>i.tipo==='despesa').map(i=>({i,v:D.v(i)})).filter(x=>x.v>0).sort((x,y)=>y.v-x.v).slice(0,5);
+  let V=null;try{V=varModel(me)}catch(e){}const esp=V&&V.porDia>0?r2(V.porDia*dias):0;
+  const nav=PRK==='pers'?`<div class="prc"><label>De <input type="date" id="pr-a" value="${R.a}"></label><label>até <input type="date" id="pr-b" value="${R.b}"></label></div>`
+    :`<div class="mnav"><button class="navb" type="button" data-pro="-1" aria-label="Anterior">‹</button><div style="text-align:center"><b>${R.lab}</b><div class="sub">${RREG==='caixa'?'regime de caixa':'competência · data da compra'} · ${dias} dias</div></div><button class="navb" type="button" data-pro="1" aria-label="Próximo">›</button></div>`;
+  return `<div class="seg prk" role="tablist">${PRKS.map(([k,l])=>`<button type="button" data-prk="${k}" aria-pressed="${PRK===k}">${l}</button>`).join('')}</div>${nav}
+    <div class="card prcard"><div class="ch"><h2>Resumo do período</h2><span class="mgca nosnap"><button class="icb" type="button" data-primg="1" aria-label="Exportar imagem">${ic('share')}</button><div class="seg seg-sm" role="group"><button type="button" data-reg="caixa" aria-pressed="${RREG==='caixa'}">Caixa</button><button type="button" data-reg="comp" aria-pressed="${RREG==='comp'}">Compra</button></div></span></div>
+      <div class="prk3"><div><small>Entradas${parc?' até hoje':''}</small><b class="n pos">${brl0(D.ent)}</b>${dl(D.ent,E.ent)}</div><div><small>Saídas${parc?' até hoje':''}</small><b class="n">${brl0(D.sai)}</b>${dl(D.sai,E.sai,1)}${FU&&FU.sai>0?`<small class="rsd mu">+ ${brl0(FU.sai)} previstos até ${fdate(R.b).slice(0,5)}</small>`:''}</div><div><small>Resultado</small><b class="n ${D.res<0?'neg':'pos'}">${D.res<0?'−':''}${brl0(Math.abs(D.res))}</b>${dl(D.res,E.res)}</div></div>
+      <p class="mgn">${parc?`Período em andamento: comparado com os primeiros ${el0} dia${el0>1?'s':''} do período anterior.`:'Comparado com o período anterior.'} ${esp?`Dia a dia: <b class="n">${brl0(D.vari)}</b> ${D.vari>esp*1.05?`<b class="neg">acima</b> do normal (≈ ${brl0(esp)})`:D.vari<esp*.95?`<b class="pos">abaixo</b> do normal (≈ ${brl0(esp)})`:`dentro do normal (≈ ${brl0(esp)})`}.`:''}</p>
+      <svg viewBox="0 0 ${W} ${H}" class="sfc prch" role="img" aria-label="Saídas por ${R.sub.slice(0,-1)}">${bars}</svg>
+      <div class="sfg"><span><i class="sfe"></i>saídas por ${R.sub==='dias'?'dia':R.sub==='semanas'?'semana':'mês'}</span><span><i class="pentI"></i>entradas</span></div>
+      ${cs.length?`<div class="prcs"><div class="vch"><span>Categoria</span><span>No período</span><span>vs anterior</span></div>${cs.map(x=>{const d=x.a-x.b;return `<button type="button" class="vcr" data-wcat="${esc(x.c)}"><span class="vcn">${catBubble(x.c,'sm')}<span><b>${esc(x.c)}</b><small>${pctf(D.sai?x.a/D.sai:0)} das saídas</small></span></span><span class="n">${brl0(x.a)}</span><span class="n vcp ${Math.abs(d)<1||!cmpOk?'':d>0?'neg':'pos'}">${!cmpOk?'—':x.b?(d>0?'▲ ':'▼ ')+brl0(Math.abs(d)):'novo'}</span><span class="vcb"><i class="g" style="width:${x.a/cmx*100}%"></i></span></button>`}).join('')}</div>`:''}
+      ${top.length?`<div class="prtop"><small>Maiores saídas</small>${top.map(x=>`<button type="button" class="ivar" data-ul="${esc(x.i.l.id)}"><i style="background:var(--accent,#E2BA6E)"></i><span class="ivam"><b>${esc(descSemParc(x.i.l.desc||''))}</b><small>${fdate(D.dOf(x.i)).slice(0,5)} · ${esc(x.i.l.categoria||'Outros')}</small></span><span class="ivav"><b class="n">${brl(x.v)}</b></span></button>`).join('')}</div>`:''}
+    </div>`}
+function wirePeriodo(el){
+  el.querySelectorAll('[data-prk]').forEach(b=>b.onclick=()=>{PRK=b.dataset.prk;PRO=0;LSset('pt-prk',PRK);vRel()});
+  el.querySelectorAll('[data-pro]').forEach(b=>b.onclick=()=>{PRO+=+b.dataset.pro;vRel()});
+  const a=el.querySelector('#pr-a'),bb=el.querySelector('#pr-b');if(a)a.onchange=()=>{PRA=a.value;vRel()};if(bb)bb.onchange=()=>{PRB=bb.value;vRel()};
+  el.querySelectorAll('.prcard [data-wcat]').forEach(b=>b.onclick=()=>openCatFicha(b.dataset.wcat));
+  el.querySelectorAll('.prcard [data-ul]').forEach(b=>b.onclick=()=>{const l=S.lanc.find(z=>z.id===b.dataset.ul);if(l)openLancView(l)});
+  el.querySelectorAll('[data-primg]').forEach(b=>b.onclick=()=>snapExport(b.closest('.prcard'),'Resumo · '+(el.querySelector('.mnav b')||{}).textContent,'periodo-'+today(),b));
+}
 function vRel(){document.querySelectorAll('body>.acsel').forEach(x=>x.remove());
   if(RP==='acertos'){RP='rel';RSEL=(S.reps.find(r=>(r.def&&r.def.orig||[]).includes('acitens'))||{}).id||RSEL}
   if(RP==='cartoes'){RP='resumo';return go('cartoes')}
@@ -4640,7 +4696,8 @@ function vRel(){document.querySelectorAll('body>.acsel').forEach(x=>x.remove());
   const regT=`<div class="seg seg-sm" role="group" aria-label="Regime"><button type="button" data-reg="caixa" aria-pressed="${RREG==='caixa'}">Caixa</button><button type="button" data-reg="comp" aria-pressed="${RREG==='comp'}">Competência</button></div>`;
   const inM=(i,ym)=>(RREG==='caixa'?i.ym:i.cym)===ym;
   let h=`<div class="chips rp">${RPS.map(([k,t])=>`<button class="chip" type="button" data-rp="${k}" aria-pressed="${RP===k||(k==='salvos'&&RP==='rel')}">${t}</button>`).join('')}</div>`;
-  if(RP==='resumo'){
+  if(RP==='periodo'){h+=relPeriodo(me)}
+  else if(RP==='resumo'){
     const mOf=ym=>{const mv=movs().filter(i=>inM(i,ym)),pv=recPrevistos(ym,ym).filter(x=>x.dono===me);
       const dv=sum(DVX(),d=>{const s=sched(d),pt=((d.parte||{})[me]??100)/100;return sum(s.rows.filter(r=>r.date&&r.date.slice(0,7)===ym),r=>r.pg?sum(r.pg,l=>l.valor):r.enc*pt)});
       const card=sum(mv.filter(i=>i.src==='card'&&i.tipo==='despesa'),i=>share(i,me))-sum(mv.filter(i=>i.src==='card'&&i.tipo==='receita'),i=>share(i,me));
@@ -4710,7 +4767,7 @@ function vRel(){document.querySelectorAll('body>.acsel').forEach(x=>x.remove());
   }else if(RP==='acertos'){h+=acertosHTML()}
   else if(RP==='salvos'){h+=repListHTML()}
   else if(RP==='rel'){const r=S.reps.find(x=>x.id===RSEL);h+=r?repDashHTML(r):repListHTML()}
-  el.innerHTML=h;if(RP==='salvos'||RP==='rel')wireRep(el);
+  el.innerHTML=h;if(RP==='salvos'||RP==='rel')wireRep(el);if(RP==='periodo')wirePeriodo(el);
   el.querySelectorAll('[data-rp]').forEach(b=>b.onclick=()=>{RP=b.dataset.rp;vRel()});
   el.querySelectorAll('[data-rm]').forEach(b=>b.onclick=()=>{RYM=ymAdd(RYM,+b.dataset.rm);vRel()});
   el.querySelectorAll('[data-reg]').forEach(b=>b.onclick=()=>{RREG=b.dataset.reg;LSset('pt-reg',RREG);vRel()});
@@ -5320,20 +5377,48 @@ function openSemana(){const me=ME(),{W,R,C}=semCheck(),ok=C.filter(x=>x.ok).leng
 /* cartão do Início: mostra uma rotina por vez */
 function rotAgora(){const t=today(),d=+t.slice(8),cm=t.slice(0,7),pm=ymAdd(cm,-1),F=FECH(),fz=k=>F[k]&&F[k].em;
   const mes=!fz(pm)&&d<=15?pm:d>=25&&!fz(cm)?cm:null,W=semRev(),sem=!(ROT()[W.k]||{}).em;
-  return {mes,sem,W}}
+  let Z=null,qz=false;try{Z=qzRev();qz=!(ROT()[Z.key]||{}).em&&t<=addD(qDate(Z.cur),4)}catch(e){}
+  return {mes,sem,W,Z,qz}}
 function iniRotina(X){const A=rotAgora(),t=X.t;let main='';
   if(A.mes){const C=fechCheck(A.mes),ok=C.filter(x=>x.ok).length;main=`<button class="rtm" type="button" data-fech="${A.mes}"><span class="fci">${ic('calcheck')}</span><span class="cxm"><strong>Fechar ${MESL[+A.mes.slice(5)-1].toLowerCase()}</strong><small>${ok}/${C.length} etapas · ≈ 6 min · conferir, resultado e plano do próximo mês</small><span class="fcb">${C.map(x=>`<i class="${x.ok?'on':''}"></i>`).join('')}</span></span><span class="go">›</span></button>`}
+  else if(A.qz){const Q2=qzCheck(),ok=Q2.C.filter(x=>x.ok).length;main=`<button class="rtm" type="button" data-rqz="1"><span class="fci">${ic('swap')}</span><span class="cxm"><strong>Fechar quinzena</strong><small>${fdate(A.Z.ini).slice(0,5)} a ${fdate(A.Z.fim).slice(0,5)} · ${ok}/${Q2.C.length} · ≈ 3 min · receitas, contas e acerto</small><span class="fcb">${Q2.C.map(x=>`<i class="${x.ok?'on':''}"></i>`).join('')}</span></span><span class="go">›</span></button>`}
   else if(A.sem){const S2=semCheck(),ok=S2.C.filter(x=>x.ok).length;main=`<button class="rtm" type="button" data-rsem="1"><span class="fci">${ic('calendar')}</span><span class="cxm"><strong>Revisão da semana</strong><small>${fdate(A.W.ini).slice(0,5)} a ${fdate(A.W.fim).slice(0,5)} · ${ok}/${S2.C.length} · ≈ 4 min</small><span class="fcb">${S2.C.map(x=>`<i class="${x.ok?'on':''}"></i>`).join('')}</span></span><span class="go">›</span></button>`}
   const prxSem=addD(segDe(t),7),d=+t.slice(8),cm=t.slice(0,7),prxMes=d>=25?dayIn(ymAdd(cm,1),1):dayIn(cm,25);
-  const chips=[A.mes&&A.sem?`<button type="button" class="rtc" data-rsem="1">${ic('calendar')}Semana pendente</button>`:'',!A.sem?`<span class="rtc ok">${ic('check')}Semana revisada · próxima ${fdate(prxSem).slice(0,5)}</span>`:'',!A.mes?`<span class="rtc">${ic('calcheck')}Fechamento a partir de ${fdate(prxMes).slice(0,5)}</span>`:''].filter(Boolean).join('');
+  const chips=[A.qz&&A.mes?`<button type="button" class="rtc" data-rqz="1">${ic('swap')}Quinzena pendente</button>`:'',(A.mes||A.qz)&&A.sem?`<button type="button" class="rtc" data-rsem="1">${ic('calendar')}Semana pendente</button>`:'',!A.sem?`<span class="rtc ok">${ic('check')}Semana revisada · próxima ${fdate(prxSem).slice(0,5)}</span>`:'',!A.mes?`<span class="rtc">${ic('calcheck')}Fechamento a partir de ${fdate(prxMes).slice(0,5)}</span>`:''].filter(Boolean).join('');
   return `<div class="card rtcard"><div class="ch"><h2>Rotina</h2><button class="lk" type="button" data-rall="1">Todas ›</button></div>${main||`<p class="rtok">${ic('check')} Tudo em dia por agora.</p>`}${chips?`<div class="rtcs">${chips}</div>`:''}</div>`}
 function openRotinas(){const A=rotAgora(),W=A.W,rs=ROT()[W.k]||{},F=FECH(),cm=today().slice(0,7),pm=ymAdd(cm,-1);
   const it=(ico,t,s,attr,st)=>`<button class="cxr" type="button" ${attr}><span class="bk ${st==='ok'?'bk-g':''}">${ic(ico)}</span><span class="cxm"><strong>${t}</strong><small>${s}</small></span><span class="go">›</span></button>`;
   openSheet(`<h2>Rotinas</h2><p class="note">Cada rotina é uma lista curta de passos. O cartão Rotina no Início mostra a que está na hora.</p>
     <section class="fsec"><h3>Semanal</h3>${it('calendar','Revisão da semana',rs.em?`concluída em ${fdate(rs.em)} · próxima ${fdate(addD(segDe(today()),7)).slice(0,5)}`:`${fdate(W.ini).slice(0,5)} a ${fdate(W.fim).slice(0,5)} · pendente`,'data-rsem="1"',rs.em?'ok':'')}</section>
     <section class="fsec"><h3>Mensal</h3>${it('calcheck',`Fechar ${MESL[+pm.slice(5)-1].toLowerCase()}`,F[pm]&&F[pm].em?`fechado em ${fdate(F[pm].em)}`:'pendente',`data-fech="${pm}"`,F[pm]&&F[pm].em?'ok':'')}${it('calcheck',`Fechar ${MESL[+cm.slice(5)-1].toLowerCase()}`,F[cm]&&F[cm].em?`fechado em ${fdate(F[cm].em)}`:'disponível a partir do dia 25',`data-fech="${cm}"`,F[cm]&&F[cm].em?'ok':'')}</section>
-    <p class="note">Em breve: fechar quinzena (salário e acerto), revisão de recorrentes (bimestral), saúde financeira (trimestral) e calendário anual.</p>`,sh=>{
-    sh.querySelectorAll('[data-rsem]').forEach(b=>b.onclick=openSemana)})}
+    <section class="fsec"><h3>Quinzenal</h3>${(()=>{const Z=A.Z,r=Z&&ROT()[Z.key]||{};return Z?it('swap','Fechar quinzena',r.em?`${fdate(Z.ini).slice(0,5)} a ${fdate(Z.fim).slice(0,5)} · fechada em ${fdate(r.em)}`:`${fdate(Z.ini).slice(0,5)} a ${fdate(Z.fim).slice(0,5)} · pendente`,'data-rqz="1"',r.em?'ok':''):''})()}</section>
+    <p class="note">Em breve: revisão de recorrentes (bimestral), saúde financeira (trimestral) e calendário anual.</p>`,sh=>{
+    sh.querySelectorAll('[data-rsem]').forEach(b=>b.onclick=openSemana);sh.querySelectorAll('[data-rqz]').forEach(b=>b.onclick=openQuinzena)})}
+/* quinzena que acabou de virar (o salário ou adiantamento acabou de entrar) */
+function qzRev(){const cur=perOf(today()),k=qPrev(cur);return {k,cur,ini:qDate(k),fim:perEnd(k),key:'q:'+k}}
+function qzCheck(){const me=ME(),t=today(),Z=qzRev(),R=ROT()[Z.key]||{},vis=R.vis||{},out=[];
+  const ym=t.slice(0,7),nc=recPrevistos(ymAdd(ym,-1),ym).filter(x=>x.tipo==='receita'&&x.dono===me&&x.date<=t&&x.date>=Z.ini);
+  out.push({k:'rec',ok:!nc.length,t:'Receitas confirmadas',s:nc.length?nc.map(x=>`${x.nome} ${brl0(x.valor)} (${fdate(x.date).slice(0,5)})`).join(' · ')+' sem confirmação':'salário e entradas confirmados',act:nc.length?'Confirmar':''});
+  const pv=S.lanc.filter(l=>l.pend&&(l.venc||l.data||'')<=Z.fim);
+  out.push({k:'pend',ok:!pv.length,t:'Contas da quinzena pagas',s:pv.length?`${pv.length} em aberto até ${fdate(Z.fim).slice(0,5)} · ${brl0(sum(pv,l=>+l.valor||0))}`:'nada em aberto',act:pv.length?'Resolver':''});
+  let gab=null;try{if(gabId()){const G=gabCalc(),ws=G.W.filter(w=>w.open>.005&&w.w<=t);let cr=0;try{cr=credGab().cred}catch(e){}gab={ws,cr};out.push({k:'gab',ok:!ws.length,t:`Acerto com ${P(gabId()).nome.split(' ')[0]}`,s:ws.length?ws.map(w=>`${wLab(w.w)} ${brl0(w.open)} a transferir`).join(' · '):`tudo transferido${cr>1?` · ${P(gabId()).nome.split(' ')[0]} te deve ${brl0(cr)}`:''}`,act:ws.length?'Abrir':cr>1?'Abater':''})}}catch(e){}
+  const D=perDados(Z.ini,Z.fim<t?Z.fim:t,me);
+  out.push({k:'res',ok:!!vis.res,man:1,t:'Resultado da quinzena',s:`entrou ${brl0(D.ent)} · saiu ${brl0(D.sai)} · ${D.res>=0?'sobrou':'faltou'} ${brl0(Math.abs(D.res))}`,act:'Ver período',res:D.res});
+  const ag=agendaPessoal(me,perEnd(Z.cur)).filter(x=>x.d>=t),sai=-sum(ag.filter(x=>x.v<0),x=>x.v),ent=sum(ag.filter(x=>x.v>0),x=>x.v),bal=realBal(me,t);
+  out.push({k:'prox',ok:!!vis.prox,man:1,t:'Próxima quinzena',s:`saldo hoje ${brl0(bal)} · saem ${brl0(sai)} até ${fdate(perEnd(Z.cur)).slice(0,5)}${ent?` · entram ${brl0(ent)}`:''} → fica ≈ ${brl0(bal-sai+ent)}`,act:''});
+  return {Z,R,C:out,gab,D}}
+function openQuinzena(){const {Z,R,C,gab,D}=qzCheck(),ok=C.filter(x=>x.ok).length,rs=S.contas.find(a=>a.ativo!==false&&a.tipo==='reserva'),cc=contaPadrao();
+  const step=(x,i)=>`<div class="fst ${x.ok?'ok':''}"><span class="fsn">${x.ok?ic('check'):i+1}</span><span class="cxm"><strong>${x.t}</strong><small>${esc(x.s)}</small></span>${x.act?`<button class="lk" type="button" data-qa="${x.k}">${x.act} ›</button>`:''}${x.man&&!x.ok?`<button class="chip" type="button" data-qv="${x.k}">Visto</button>`:''}</div>`;
+  openSheet(`<h2>Fechar quinzena</h2><p class="note">${fdate(Z.ini).slice(0,5)} a ${fdate(Z.fim).slice(0,5)} · ${esc(Q()[Z.k.slice(8)].nome)} · ≈ 3 min. Confere o que entrou, o que saiu e o acerto antes de começar a próxima.</p>
+    ${R.em?`<div class="okbox"><strong>${ic('check')} Quinzena fechada em ${fdate(R.em)}</strong></div>`:''}
+    <div class="rtp"><i style="width:${ok/C.length*100}%"></i></div><section class="fsec">${C.map(step).join('')}</section>
+    ${D.res>50&&rs&&cc?`<p class="simq">${ic('trend')}<span>Sobraram ${brl0(D.res)} na quinzena. <button class="lk" type="button" id="qz-gd">Guardar ${brl0(D.res*.3)} em ${esc(rs.nome)} ›</button></span></p>`:''}
+    <div class="btnrow">${R.em?'':`<button class="btn primary" type="button" id="qz-ok">${ok===C.length?'Fechar quinzena':'Fechar mesmo assim'}</button>`}</div>`,sh=>{
+    sh.querySelectorAll('[data-qv]').forEach(b=>b.onclick=async()=>{const v=Object.assign({},(ROT()[Z.key]||{}).vis||{});v[b.dataset.qv]=true;await rotSave(Z.key,{vis:v});openQuinzena()});
+    sh.querySelectorAll('[data-qa]').forEach(b=>b.onclick=()=>{const k=b.dataset.qa;closeSheet();setTimeout(()=>{if(k==='rec'){RVT='receber';LSset('pt-rvt','receber');go('inicio')}else if(k==='pend')openPendentes();else if(k==='gab'){if(gab&&gab.ws.length){GWSEL=gab.ws[0].w;RP='salvos';go('relatorios')}else openAbater(gab?gab.cr:0)}else if(k==='res'){RP='periodo';PRK='quinzena';PRO=-1;LSset('pt-prk','quinzena');go('relatorios')}},150)});
+    const g=sh.querySelector('#qz-gd');if(g)g.onclick=()=>openLanc({tipo:'transf',conta:cc,destino:rs.id,valor:r2(D.res*.3),data:today(),desc:'Reserva · sobra da quinzena'});
+    const o=sh.querySelector('#qz-ok');if(o)o.onclick=async()=>{await rotSave(Z.key,{em:today(),res:D.res});toast('Quinzena fechada');closeSheet()};
+  })}
 function iniFecha(X){
   const t=X.t,d=+t.slice(8),cm=t.slice(0,7),pm=ymAdd(cm,-1),F=FECH();
   const fz=k=>F[k]&&F[k].em,ym=!fz(pm)&&d<=15?pm:d>=25&&!fz(cm)?cm:null;if(!ym)return '';
@@ -5395,6 +5480,8 @@ const FAQ=[
   ['O que é o colchão de segurança?','Uma parte da renda (10% por padrão) que fica sempre guardada. Ela sai do Livre e o “Posso comprar?” não deixa nenhuma compra encostar nela.','colchao','Ajustar o colchão'],
   ['Como funciona o “Posso comprar?”','Informe valor e forma (à vista ou parcelado). O app simula a compra no seu caixa futuro e diz se cabe, quando cabe e qual forma pesa menos. Se ainda não cabe, você pode salvar como <b>ordem</b> e o app avisa em “Para resolver” quando ficar pronta.','sim','Simular uma compra'],
   ['O que é o cartão “Rotina”?','Mostra a tarefa da hora, uma por vez. <b>Revisão da semana</b> (≈ 4 min): gasto da semana × normal, lançamentos sem categoria, pendências vencidas, próximos 7 dias e conferência dos saldos. <b>Fechar o mês</b> (≈ 6 min, do dia 25 ao dia 15): classificação, pendências, faturas, repasses, saldos, rendimentos, stops do próximo mês e backup fora do app. O app marca sozinho o que já está em dia; o resto você marca como visto. Em “Todas” estão as rotinas e o histórico.'],
+  ['Como funciona o “Fechar quinzena”?','Aparece no cartão Rotina nos primeiros dias de cada quinzena (logo depois do salário ou adiantamento). Em ≈ 3 min: confirma as receitas que deviam ter entrado, vê as contas da quinzena, o acerto com a outra pessoa, o resultado (entrou × saiu) e como fica o saldo até a próxima quinzena. Se sobrou, sugere guardar 30% na reserva.'],
+  ['Como vejo uma semana, quinzena ou trimestre?','Em <b>Relatórios › Período</b>: escolha Semana, Quinzena, Mês, Trimestre, Semestre, Ano ou Personalizado e navegue com ‹ ›. Mostra entradas, saídas e resultado com comparação ao período anterior (no mesmo ponto, se o período ainda está em andamento), o dia a dia contra o normal, barras por dia/semana/mês, categorias e maiores saídas. Dá para alternar Caixa × Compra e exportar como imagem.'],
   ['O que é o painel “Dia a dia”?','Mede seus gastos variáveis (mercado, restaurante, combustível, lazer…) pela mediana dos últimos 3 meses e prevê como o mês fecha: gasto até hoje + custo de um dia típico × dias que faltam. Mostra a faixa normal e avisa quando o ritmo indica que vai passar. No <b>Posso comprar?</b>, o botão <b>Considerar o dia a dia</b> inclui essa estimativa no caixa futuro, para os meses à frente não parecerem folgados demais. Parcelas, contas fixas, recorrências e acertos não entram — já estão na agenda.'],
   ['O que é o “stop” de uma categoria?','É o limite do mês para a categoria, como um stop na bolsa. Ao lançar, o app mostra quanto já foi usado do stop daquela categoria. Para definir, abra a categoria no Início e toque em <b>Usar como stop</b>.'],
   ['O que mostram as Categorias (bolsa, plano e mapa)?','<b>Bolsa</b>: as categorias como ações, com alta ou queda contra a média. <b>Plano</b>: quanto do stop já foi usado. <b>Mapa</b>: o tamanho de cada categoria no mês. Toque numa categoria para abrir a ficha com média, maior mês e tendência.'],
