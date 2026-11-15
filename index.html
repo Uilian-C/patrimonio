@@ -2180,6 +2180,8 @@ main{padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))!important}
 .sfg{display:flex;gap:14px;font-size:11.5px;color:var(--muted);margin-top:4px}.sfg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
 .sfg i.sfe{background:color-mix(in srgb,var(--muted) 45%,transparent)}.sfg i.sfn,.sfg i.slcI{background:var(--accent,#E2BA6E)}.sfg i.slsI{background:none;border-top:2px dashed var(--muted);height:0;border-radius:0;vertical-align:3px}
 .scard svg.sfc{background:none!important;border:0!important;border-radius:0!important;box-shadow:none!important;padding:0!important}
+.slv{fill:none;stroke:var(--good);stroke-width:1.8}.slvd{fill:var(--good)}.sflv{font-size:9.5px;fill:var(--good);text-anchor:middle;font-weight:600}.sflv.neg{fill:var(--crit,#E0705F)}
+.sfg i.slvI{background:var(--good);height:3px;border-radius:2px;vertical-align:3px}.sfg{flex-wrap:wrap}
 </style>
 </head>
 <body>
@@ -3357,14 +3359,18 @@ function simCartao(R,v){const c=card(R.f.c);if(!c)return '';let st;try{st=cardSt
   const lim=st.lim,pg=R.ev.filter(e=>!e.res),n=pg.length,y0=pg[0].d.slice(0,7),nM=Math.min(Math.max(n,3),6);
   const usA=st.usado,usD=r2(usA+v),pA=lim?usA/lim:0,pD=lim?usD/lim:0,dispD=r2(lim-usD);
   const nv={};pg.forEach(e=>{const y=e.d.slice(0,7);nv[y]=(nv[y]||0)+(-e.v)});
-  const M=[...Array(nM)].map((_,k)=>{const y=ymAdd(y0,k),ex=Math.max(0,fatTot(c,y));return {y,ex,nv:r2(nv[y]||0),tot:r2(ex+(nv[y]||0))}});
-  /* fatura: barras empilhadas (o que já tem + a compra) */
-  const W=320,H=120,pad=18,mx=Math.max(...M.map(m=>m.tot),1),bw=Math.min(34,(W-pad*2)/nM*.55),gx=(W-pad*2)/nM;
-  const bars=M.map((m,i)=>{const x=pad+gx*i+(gx-bw)/2,h1=m.ex/mx*(H-34),h2=m.nv/mx*(H-34),yb=H-16;
-    return `<rect x="${x}" y="${yb-h1}" width="${bw}" height="${Math.max(h1,0)}" rx="3" class="sfe"/><rect x="${x}" y="${yb-h1-h2}" width="${bw}" height="${Math.max(h2,0)}" rx="3" class="sfn"/>
-      <text x="${x+bw/2}" y="${yb-h1-h2-4}" class="sft">${m.tot>=1000?(m.tot/1000).toLocaleString('pt-BR',{maximumFractionDigits:1})+'k':Math.round(m.tot)}</text><text x="${x+bw/2}" y="${H-3}" class="sfl">${ymS(m.y)}</text>`}).join('');
-  /* limite comprometido mês a mês (sem e com a compra): cai conforme as faturas são pagas */
   const fut=movs().filter(i=>i.src==='card'&&i.c===c&&!fatPaga(c.id,i.ym)),sg=i=>i.tipo==='receita'?-i.valor:i.valor;
+  /* sobra de limite durante o mês da fatura (antes de pagá-la): limite − tudo que ainda vence dali em diante */
+  const livre=y=>r2(lim-sum(fut.filter(i=>i.ym>=y),sg)-sum(pg.filter(e=>e.d.slice(0,7)>=y),e=>-e.v));
+  const M=[...Array(nM)].map((_,k)=>{const y=ymAdd(y0,k),ex=Math.max(0,fatTot(c,y));return {y,ex,nv:r2(nv[y]||0),tot:r2(ex+(nv[y]||0)),lv:k===0?Math.min(dispD,livre(y)):livre(y)}});
+  /* fatura: barras empilhadas (o que já tem + a compra) */
+  const W=320,H=150,pad=18,mx=Math.max(...M.map(m=>m.tot),1),bw=Math.min(34,(W-pad*2)/nM*.55),gx=(W-pad*2)/nM;
+  const yb=H-30,hb=H-62,lx=i=>pad+gx*i+gx/2,ly=v=>14+(1-Math.max(0,Math.min(v/(lim||1),1)))*(yb-34);
+  const lvLine=lim?`<path d="${M.map((m,i)=>`${i?'L':'M'}${lx(i).toFixed(1)},${ly(m.lv).toFixed(1)}`).join('')}" class="slv"/>${M.map((m,i)=>`<circle cx="${lx(i)}" cy="${ly(m.lv)}" r="3" class="slvd"/>`).join('')}`:'';
+  const bars=M.map((m,i)=>{const x=pad+gx*i+(gx-bw)/2,h1=m.ex/mx*hb,h2=m.nv/mx*hb;
+    return `<rect x="${x}" y="${yb-h1}" width="${bw}" height="${Math.max(h1,0)}" rx="3" class="sfe"/><rect x="${x}" y="${yb-h1-h2}" width="${bw}" height="${Math.max(h2,0)}" rx="3" class="sfn"/>
+      <text x="${x+bw/2}" y="${yb-h1-h2-4}" class="sft">${m.tot>=1000?(m.tot/1000).toLocaleString('pt-BR',{maximumFractionDigits:1})+'k':Math.round(m.tot)}</text><text x="${x+bw/2}" y="${H-17}" class="sfl">${ymS(m.y)}</text><text x="${x+bw/2}" y="${H-3}" class="sflv ${m.lv<0?'neg':''}">${lim?(Math.abs(m.lv)>=1000?(m.lv<0?'−':'')+(Math.abs(m.lv)/1000).toLocaleString('pt-BR',{maximumFractionDigits:1})+'k':Math.round(m.lv)):''}</text>`}).join('')+lvLine;
+  /* limite comprometido mês a mês (sem e com a compra): cai conforme as faturas são pagas */
   const K=Math.min(Math.max(n,4),12)+1,L=[...Array(K)].map((_,k)=>{const y=ymAdd(y0,k-1),sem=r2(sum(fut.filter(i=>i.ym>y),sg)),com=r2(sem+sum(pg.filter(e=>e.d.slice(0,7)>y),e=>-e.v));return {y,sem,com}});
   L[0]={y:'hoje',sem:usA,com:usD};
   const H2=110,mxp=Math.max(1,...L.map(p=>lim?p.com/lim:0)),sx=i=>pad+i*(W-pad*2)/(K-1),sy=pc=>H2-16-Math.min(pc/Math.max(mxp,1),1)*(H2-30);
@@ -3377,8 +3383,8 @@ function simCartao(R,v){const c=card(R.f.c);if(!c)return '';let st;try{st=cardSt
   return `<div class="scard"><div class="sdh"><b>${esc(c.nome)} com a compra</b><small>limite ${brl0(lim)} · já considera tudo o que está lançado neste cartão</small></div>
     <div class="slim"><div class="slb"><i style="width:${Math.min(pA,1)*100}%"></i><i class="nw" style="left:${Math.min(pA,1)*100}%;width:${Math.max(0,Math.min(pD,1)-Math.min(pA,1))*100}%"></i>${pD>1?'<i class="ov" style="left:0;width:100%"></i>':''}<em style="left:80%"></em></div>
       <div class="slk"><div><small>Usado hoje</small><b class="n">${pctf(pA)}</b><span>${brl0(usA)}</span></div><div><small>Com a compra</small><b class="n ${tone(pD)}">${pctf(pD)}</b><span>+${brl0(v)}</span></div><div><small>Sobra de limite</small><b class="n ${dispD<0?'neg':''}">${brl0(dispD)}</b><span>${lim?pctf(Math.max(dispD,0)/lim)+' livre':''}</span></div></div></div>
-    <div class="sfx"><div class="sfh"><b>Próxima fatura (${ymS(prox.y)})</b><span class="n">${brl0(prox.ex)} → <b>${brl0(prox.tot)}</b></span></div>
-      <svg viewBox="0 0 ${W} ${H}" class="sfc" role="img" aria-label="Faturas com a compra">${bars}</svg><div class="sfg"><span><i class="sfe"></i>já lançado</span><span><i class="sfn"></i>esta compra</span></div></div>
+    <div class="sfx"><div class="sfh"><b>Faturas e sobra de limite</b><span class="n">${ymS(prox.y)}: ${brl0(prox.ex)} → <b>${brl0(prox.tot)}</b></span></div>
+      <svg viewBox="0 0 ${W} ${H}" class="sfc" role="img" aria-label="Faturas com a compra">${bars}</svg><div class="sfg"><span><i class="sfe"></i>já lançado</span><span><i class="sfn"></i>esta compra</span>${lim?'<span><i class="slvI"></i>sobra de limite</span>':''}</div>${lim&&M.length>1?`<p class="sdm">A sobra de limite vai de <b class="n">${brl0(M[0].lv)}</b> em ${ymS(M[0].y)} para <b class="n">${brl0(M[M.length-1].lv)}</b> em ${ymS(M[M.length-1].y)}, conforme as faturas são pagas.</p>`:''}</div>
     <div class="sfx"><div class="sfh"><b>Limite comprometido</b><span>libera ${brl0(-pg[0].v)} por mês</span></div>
       <svg viewBox="0 0 ${W} ${H2}" class="sfc" role="img" aria-label="Limite comprometido ao longo dos meses">${ln}</svg><div class="sfg"><span><i class="slcI"></i>com a compra</span><span><i class="slsI"></i>sem a compra</span></div></div></div>`}
 function simDetalhe(me,R,v){const pg=R.ev.filter(e=>!e.res),cz=colchao(),lim=addD(today(),92),Bs=R.B;
