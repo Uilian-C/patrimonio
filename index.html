@@ -2234,6 +2234,8 @@ main{padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))!important}
 .prcs{margin-top:12px}.prtop{margin-top:14px}.prtop>small{display:block;font-size:11.5px;color:var(--muted);margin-bottom:4px}
 .prcard svg.sfc{background:none!important;border:0!important;padding:0!important;border-radius:0!important}.prcard .mgn b.neg{color:var(--crit,#E0705F)}.prcard .mgn b.pos{color:var(--good)}
 .ls.lat{min-width:0;max-width:100%;overflow:hidden}.lats{width:100%;max-width:100%;min-width:0}.lbody{min-width:0}
+.szb{display:grid;grid-template-columns:repeat(12,1fr);gap:4px;height:70px;align-items:end;margin:12px 0 8px}.szb span{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:3px}.szb i{display:block;width:70%;border-radius:3px;background:color-mix(in srgb,var(--accent,#E2BA6E) 55%,transparent)}.szb span.on i{background:var(--accent,#E2BA6E)}.szb small{font-size:10px;color:var(--muted)}.szb span.on small{color:var(--accent,#E2BA6E);font-weight:700}
+.szp{flex-wrap:wrap;margin-bottom:10px}
 </style>
 </head>
 <body>
@@ -3705,7 +3707,7 @@ function vInicio(){
   el.querySelectorAll('[data-ct]').forEach(b=>b.onclick=()=>openContaDet(conta(b.dataset.ct)));
   el.querySelectorAll('[data-pends]').forEach(b=>b.onclick=openPendentes);
   el.querySelectorAll('[data-spread]').forEach(b=>b.onclick=openSpread);
-  wireMg(el,vInicio);el.querySelectorAll('[data-rsem]').forEach(b=>b.onclick=openSemana);el.querySelectorAll('[data-rqz]').forEach(b=>b.onclick=openQuinzena);el.querySelectorAll('[data-rall]').forEach(b=>b.onclick=openRotinas);el.querySelectorAll('[data-gmk]').forEach(b=>b.onclick=()=>{MGL=b.dataset.gmk;LSset('pt-mgl',MGL);go('decidir')});el.querySelectorAll('.gmc [data-go]').forEach(b=>b.onclick=()=>go(b.dataset.go));
+  wireMg(el,vInicio);el.querySelectorAll('[data-rsem]').forEach(b=>b.onclick=openSemana);el.querySelectorAll('[data-rqz]').forEach(b=>b.onclick=openQuinzena);el.querySelectorAll('[data-rbim]').forEach(b=>b.onclick=openRevRec);el.querySelectorAll('[data-rtri]').forEach(b=>b.onclick=openSaudeTri);el.querySelectorAll('[data-rano]').forEach(b=>b.onclick=async()=>{await rotSave('a:'+(+today().slice(5,7)===12?+today().slice(0,4)+1:today().slice(0,4)),{em:today()});openSazonais()});el.querySelectorAll('[data-rir]').forEach(b=>b.onclick=async()=>{await rotSave('ir:'+today().slice(0,4),{em:today()});openIR()});el.querySelectorAll('[data-rall]').forEach(b=>b.onclick=openRotinas);el.querySelectorAll('[data-gmk]').forEach(b=>b.onclick=()=>{MGL=b.dataset.gmk;LSset('pt-mgl',MGL);go('decidir')});el.querySelectorAll('.gmc [data-go]').forEach(b=>b.onclick=()=>go(b.dataset.go));
   el.querySelectorAll('[data-msob]').forEach(b=>b.onclick=async()=>{try{await S.db.doc('config/app').set(Object.assign({},S.cfg||{},{margemSobra:b.dataset.msob==='1'}));COLM.k='';toast(b.dataset.msob==='1'?'A margem agora conta a sobra do mês anterior':'A margem volta a contar só a renda do mês')}catch(err){toast(writeErr(err))}});
   el.querySelectorAll('[data-wtab]').forEach(b=>b.onclick=()=>{WTAB=b.dataset.wtab;LSset('pt-wtab',WTAB);vInicio()});
   el.querySelectorAll('[data-wcat]').forEach(b=>b.onclick=()=>openCatFicha(b.dataset.wcat));
@@ -5379,10 +5381,16 @@ function openSemana(){const me=ME(),{W,R,C}=semCheck(),ok=C.filter(x=>x.ok).leng
 function rotAgora(){const t=today(),d=+t.slice(8),cm=t.slice(0,7),pm=ymAdd(cm,-1),F=FECH(),fz=k=>F[k]&&F[k].em;
   const mes=!fz(pm)&&d<=15?pm:d>=25&&!fz(cm)?cm:null,W=semRev(),sem=!(ROT()[W.k]||{}).em;
   let Z=null,qz=false;try{Z=qzRev();qz=!(ROT()[Z.key]||{}).em&&t<=addD(qDate(Z.cur),4)}catch(e){}
-  return {mes,sem,W,Z,qz}}
+  const mo=+t.slice(5,7),B=bimKey(),T=triKey(),bim=mo%2===1&&d>=5&&d<=20&&!(ROT()[B.key]||{}).em&&S.recs.some(r=>r.ativo!==false&&r.tipo!=='receita'),tri=[1,4,7,10].includes(mo)&&d>=5&&d<=25&&!(ROT()[T.key]||{}).em;
+  const ir=mo>=2&&mo<=5&&!(ROT()['ir:'+t.slice(0,4)]||{}).em,ano=mo===12&&d>=10||mo===1&&d<=15?!(ROT()['a:'+(mo===12?+t.slice(0,4)+1:t.slice(0,4))]||{}).em:false;
+  return {mes,sem,W,Z,qz,B,T,bim,tri,ir,ano}}
 function iniRotina(X){const A=rotAgora(),t=X.t;let main='';
   if(A.mes){const C=fechCheck(A.mes),ok=C.filter(x=>x.ok).length;main=`<button class="rtm" type="button" data-fech="${A.mes}"><span class="fci">${ic('calcheck')}</span><span class="cxm"><strong>Fechar ${MESL[+A.mes.slice(5)-1].toLowerCase()}</strong><small>${ok}/${C.length} etapas · ≈ 6 min · conferir, resultado e plano do próximo mês</small><span class="fcb">${C.map(x=>`<i class="${x.ok?'on':''}"></i>`).join('')}</span></span><span class="go">›</span></button>`}
   else if(A.qz){const Q2=qzCheck(),ok=Q2.C.filter(x=>x.ok).length;main=`<button class="rtm" type="button" data-rqz="1"><span class="fci">${ic('swap')}</span><span class="cxm"><strong>Fechar quinzena</strong><small>${fdate(A.Z.ini).slice(0,5)} a ${fdate(A.Z.fim).slice(0,5)} · ${ok}/${Q2.C.length} · ≈ 3 min · receitas, contas e acerto</small><span class="fcb">${Q2.C.map(x=>`<i class="${x.ok?'on':''}"></i>`).join('')}</span></span><span class="go">›</span></button>`}
+  else if(A.tri)main=`<button class="rtm" type="button" data-rtri="1"><span class="fci">${ic('health')}</span><span class="cxm"><strong>Saúde do trimestre</strong><small>${A.T.lab} · ≈ 3 min · reserva, spread, limites, poupança</small></span><span class="go">›</span></button>`;
+  else if(A.bim)main=`<button class="rtm" type="button" data-rbim="1"><span class="fci">${ic('repeat')}</span><span class="cxm"><strong>Revisar contas fixas</strong><small>${A.B.lab} · ≈ 3 min · o que subiu acima da inflação</small></span><span class="go">›</span></button>`;
+  else if(A.ano)main=`<button class="rtm" type="button" data-rano="1"><span class="fci">${ic('calendar')}</span><span class="cxm"><strong>Planejar o ano</strong><small>IPVA, IPTU, material escolar… e quanto guardar por mês</small></span><span class="go">›</span></button>`;
+  else if(A.ir)main=`<button class="rtm" type="button" data-rir="1"><span class="fci">${ic('doc')}</span><span class="cxm"><strong>Apoio ao IR</strong><small>rendimentos, dedutíveis e bens do ano-base ${+t.slice(0,4)-1}</small></span><span class="go">›</span></button>`;
   else if(A.sem){const S2=semCheck(),ok=S2.C.filter(x=>x.ok).length;main=`<button class="rtm" type="button" data-rsem="1"><span class="fci">${ic('calendar')}</span><span class="cxm"><strong>Revisão da semana</strong><small>${fdate(A.W.ini).slice(0,5)} a ${fdate(A.W.fim).slice(0,5)} · ${ok}/${S2.C.length} · ≈ 4 min</small><span class="fcb">${S2.C.map(x=>`<i class="${x.ok?'on':''}"></i>`).join('')}</span></span><span class="go">›</span></button>`}
   const prxSem=addD(segDe(t),7),d=+t.slice(8),cm=t.slice(0,7),prxMes=d>=25?dayIn(ymAdd(cm,1),1):dayIn(cm,25);
   const chips=[A.qz&&A.mes?`<button type="button" class="rtc" data-rqz="1">${ic('swap')}Quinzena pendente</button>`:'',(A.mes||A.qz)&&A.sem?`<button type="button" class="rtc" data-rsem="1">${ic('calendar')}Semana pendente</button>`:'',!A.sem?`<span class="rtc ok">${ic('check')}Semana revisada · próxima ${fdate(prxSem).slice(0,5)}</span>`:'',!A.mes?`<span class="rtc">${ic('calcheck')}Fechamento a partir de ${fdate(prxMes).slice(0,5)}</span>`:''].filter(Boolean).join('');
@@ -5393,7 +5401,10 @@ function openRotinas(){const A=rotAgora(),W=A.W,rs=ROT()[W.k]||{},F=FECH(),cm=to
     <section class="fsec"><h3>Semanal</h3>${it('calendar','Revisão da semana',rs.em?`concluída em ${fdate(rs.em)} · próxima ${fdate(addD(segDe(today()),7)).slice(0,5)}`:`${fdate(W.ini).slice(0,5)} a ${fdate(W.fim).slice(0,5)} · pendente`,'data-rsem="1"',rs.em?'ok':'')}</section>
     <section class="fsec"><h3>Mensal</h3>${it('calcheck',`Fechar ${MESL[+pm.slice(5)-1].toLowerCase()}`,F[pm]&&F[pm].em?`fechado em ${fdate(F[pm].em)}`:'pendente',`data-fech="${pm}"`,F[pm]&&F[pm].em?'ok':'')}${it('calcheck',`Fechar ${MESL[+cm.slice(5)-1].toLowerCase()}`,F[cm]&&F[cm].em?`fechado em ${fdate(F[cm].em)}`:'disponível a partir do dia 25',`data-fech="${cm}"`,F[cm]&&F[cm].em?'ok':'')}</section>
     <section class="fsec"><h3>Quinzenal</h3>${(()=>{const Z=A.Z,r=Z&&ROT()[Z.key]||{};return Z?it('swap','Fechar quinzena',r.em?`${fdate(Z.ini).slice(0,5)} a ${fdate(Z.fim).slice(0,5)} · fechada em ${fdate(r.em)}`:`${fdate(Z.ini).slice(0,5)} a ${fdate(Z.fim).slice(0,5)} · pendente`,'data-rqz="1"',r.em?'ok':''):''})()}</section>
-    <p class="note">Em breve: revisão de recorrentes (bimestral), saúde financeira (trimestral) e calendário anual.</p>`,sh=>{
+    <section class="fsec"><h3>Bimestral</h3>${it('repeat','Revisar contas fixas',(ROT()[A.B.key]||{}).em?`revisadas em ${fdate(ROT()[A.B.key].em)}`:`${A.B.lab} · reajuste × inflação, custo anual`,'data-rbim="1"',(ROT()[A.B.key]||{}).em?'ok':'')}</section>
+    <section class="fsec"><h3>Trimestral</h3>${it('health','Saúde do trimestre',(ROT()[A.T.key]||{}).em?`revisada em ${fdate(ROT()[A.T.key].em)}`:`${A.T.lab} · reserva, spread, limites e poupança`,'data-rtri="1"',(ROT()[A.T.key]||{}).em?'ok':'')}</section>
+    <section class="fsec"><h3>Anual</h3>${it('calendar','Calendário do ano',`${SAZ().length} ite${SAZ().length===1?'m':'ns'} · guardar ${brl0(sazProvisao())}/mês`,'data-rano="1"',SAZ().length?'ok':'')}${it('doc','Apoio ao IR',`ano-base ${+today().slice(0,4)-1} · rendimentos, dedutíveis e bens`,'data-rir="1"','')}</section>`,sh=>{
+    sh.querySelectorAll('[data-rbim]').forEach(b=>b.onclick=openRevRec);sh.querySelectorAll('[data-rtri]').forEach(b=>b.onclick=openSaudeTri);sh.querySelectorAll('[data-rano]').forEach(b=>b.onclick=openSazonais);sh.querySelectorAll('[data-rir]').forEach(b=>b.onclick=()=>openIR());
     sh.querySelectorAll('[data-rsem]').forEach(b=>b.onclick=openSemana);sh.querySelectorAll('[data-rqz]').forEach(b=>b.onclick=openQuinzena)})}
 /* quinzena que acabou de virar (o salário ou adiantamento acabou de entrar) */
 function qzRev(){const cur=perOf(today()),k=qPrev(cur);return {k,cur,ini:qDate(k),fim:perEnd(k),key:'q:'+k}}
@@ -5420,6 +5431,84 @@ function openQuinzena(){const {Z,R,C,gab,D}=qzCheck(),ok=C.filter(x=>x.ok).lengt
     const g=sh.querySelector('#qz-gd');if(g)g.onclick=()=>openLanc({tipo:'transf',conta:cc,destino:rs.id,valor:r2(D.res*.3),data:today(),desc:'Reserva · sobra da quinzena'});
     const o=sh.querySelector('#qz-ok');if(o)o.onclick=async()=>{await rotSave(Z.key,{em:today(),res:D.res});toast('Quinzena fechada');closeSheet()};
   })}
+/* ---------- bimestral: revisão das contas fixas e assinaturas ---------- */
+function recRevisao(me){const ip=ipca12();return S.recs.filter(r=>r.ativo!==false&&r.tipo!=='receita'&&!(+r.parcelas>1)&&fracOf(r.dono||me,me)>0).map(r=>{const fr=fracOf(r.dono||me,me),v=r2((+r.valor||0)*fr);
+  const H=S.lanc.filter(x=>x.rec===r.id&&!x.pend&&x.recYm).sort((a,b)=>a.recYm.localeCompare(b.recYm)),by={};H.forEach(x=>{by[x.recYm]=(by[x.recYm]||0)+(+x.valor||0)});const ks=Object.keys(by).sort().slice(-13);
+  let reaj=null,acima=null;if(ks.length>=2){const a=by[ks[0]],b=by[ks.at(-1)],m=Math.max(1,(+ks.at(-1).slice(0,4)-+ks[0].slice(0,4))*12+(+ks.at(-1).slice(5)-+ks[0].slice(5))),ipP=Math.pow(1+ip.v/100,m/12)-1;if(a>0){reaj=b/a-1;acima=reaj-ipP}}
+  return {r,v,ano:r2(v*12),reaj,acima,cat:r.categoria||'Outros'}}).sort((a,b)=>b.v-a.v)}
+function bimKey(){const t=today(),y=+t.slice(0,4),m=+t.slice(5,7),b=Math.floor((m-1)/2);return {key:'b:'+y+'-'+(b+1),lab:`${MES[b*2]}–${MES[b*2+1]} ${y}`}}
+function openRevRec(){const me=ME(),L=recRevisao(me),B=bimKey(),R=ROT()[B.key]||{},vis=R.vis||{},tot=sum(L,x=>x.v),sub=L.filter(x=>x.acima!=null&&x.acima>.01),im=cdiMes();
+  openSheet(`<h2>Revisão de contas fixas</h2><p class="note">A cada dois meses: o que você paga todo mês, quanto custa no ano e o que subiu acima da inflação. Toque numa conta para editar, renegociar ou cancelar.</p>
+    ${R.em?`<div class="okbox"><strong>${ic('check')} Revisada em ${fdate(R.em)}</strong></div>`:''}
+    <div class="prk3"><div><small>Por mês</small><b class="n">${brl0(tot)}</b></div><div><small>Por ano</small><b class="n">${brl0(tot*12)}</b></div><div><small>5 anos no CDI</small><b class="n">${brl0(tot*((Math.pow(1+im,60)-1)/im))}</b></div></div>
+    ${sub.length?`<p class="simq warn">${ic('alert')}<span>${sub.length} conta${sub.length>1?'s subiram':' subiu'} acima da inflação: ${sub.slice(0,3).map(x=>`<b>${esc(x.r.nome)}</b> (+${(x.acima*100).toLocaleString('pt-BR',{maximumFractionDigits:1})} p.p.)`).join(', ')}. Vale renegociar.</span></p>`:''}
+    <div class="ivab">${L.map(x=>`<button type="button" class="ivar" data-rrv="${esc(x.r.id)}"><i style="background:${x.acima!=null&&x.acima>.01?'var(--crit,#E0705F)':vis[x.r.id]?'var(--good)':'var(--muted)'}"></i><span class="ivam"><b>${esc(x.r.nome)}</b><small>${esc(x.cat)} · ${brl0(x.ano)}/ano${x.reaj!=null?` · ${x.reaj>=0?'+':''}${pctf(x.reaj)} em 12m`:''}</small></span><span class="ivav"><b class="n">${brl(x.v)}</b><small>${vis[x.r.id]?'✓ revista':'toque para revisar'}</small></span></button>`).join('')||'<p class="note">Nenhuma conta fixa cadastrada.</p>'}</div>
+    <div class="btnrow">${R.em?'':`<button class="btn primary" type="button" id="rr-ok">Concluir revisão</button>`}</div>`,sh=>{
+    sh.querySelectorAll('[data-rrv]').forEach(b=>b.onclick=async()=>{const id=b.dataset.rrv,v=Object.assign({},(ROT()[B.key]||{}).vis||{});v[id]=true;await rotSave(B.key,{vis:v});openRec(S.recs.find(r=>r.id===id))});
+    const o=sh.querySelector('#rr-ok');if(o)o.onclick=async()=>{await rotSave(B.key,{em:today()});toast('Contas fixas revisadas');closeSheet()}})}
+/* ---------- trimestral: saúde da estrutura ---------- */
+function triKey(){const t=today(),y=+t.slice(0,4),q=Math.floor((+t.slice(5,7)-1)/3)+1;return {key:'t:'+y+'-'+q,lab:`${q}º trimestre ${y}`}}
+function openSaudeTri(){const me=ME(),T=triKey(),R=ROT()[T.key]||{},ym=today().slice(0,7),out=[];
+  let Z=null;try{Z=spreadCalc(me)}catch(e){}
+  const desp=despMedia(ym,me)||0,resv=sum(S.contas.filter(a=>a.ativo!==false&&a.tipo==='reserva'&&fracOf(a.dono,me)>0),a=>saldoConta(a)*fracOf(a.dono,me)),meses=desp?resv/desp:0,meta=resMinMeses();
+  out.push({ok:meses>=meta,t:'Reserva de emergência',s:desp?`${meses.toLocaleString('pt-BR',{maximumFractionDigits:1})} meses de despesas (meta ${meta}) · ${brl0(resv)}`:'sem despesa média ainda',act:'Investir',go:'inv'});
+  if(Z&&Z.dv.length)out.push({ok:!(Z.ganho>1),t:'Dívida × aplicação (spread)',s:Z.ganho>1?`antecipar parcelas rende ${brl0(Z.ganho)} usando ${brl0(Z.usar)} acima da reserva`:'nenhuma dívida cobrando mais que suas aplicações rendem',act:'Ver spread',go:'spread'});
+  const cs=S.cards.filter(c=>c.ativo!==false&&(c.dono||me)===me).map(c=>{try{return cardStats(c)}catch(e){return null}}).filter(x=>x&&x.lim),alto=cs.filter(x=>x.pct>.5);
+  out.push({ok:!alto.length,t:'Uso do limite dos cartões',s:alto.length?alto.map(x=>`${x.c.nome} ${pctf(x.pct)}`).join(' · ')+' (acima de 50%)':`todos abaixo de 50%${cs.length?` · maior ${pctf(Math.max(...cs.map(x=>x.pct)))}`:''}`,act:'Cartões',go:'cartoes'});
+  const ms=mesesOk(ym,3).map(m=>mesCalc(m,me)),rec=sum(ms,m=>m.rec),dsp=sum(ms,m=>m.desp),tx=rec?(rec-dsp)/rec:null;
+  out.push({ok:tx!=null&&tx>=.1,t:'Taxa de poupança (3 meses)',s:tx==null?'sem 3 meses completos':`${pctf(tx)} do que entrou ficou (${brl0(rec-dsp)}) · meta 20%`,act:'Período',go:'periodo'});
+  let V=null;try{V=varModel(me)}catch(e){}
+  if(V&&V.ok)out.push({ok:V.prev<=V.med*1.05,t:'Dia a dia sob controle',s:`este mês fecha ≈ ${brl0(V.prev)} · mediana ${brl0(V.med)} · faixa ${brl0(V.mn)}–${brl0(V.mx)}`,act:'Dia a dia',go:'decidir'});
+  out.push({ok:!!R.cz,t:'Colchão revisado',s:`hoje ${Math.round(colchaoPct()*100)}% da renda`,act:'Ajustar',go:'colchao'});
+  const ok=out.filter(x=>x.ok).length;
+  openSheet(`<h2>Saúde do trimestre</h2><p class="note">${T.lab} · a estrutura financeira em 6 sinais. Verde: em dia; os demais pedem atenção.</p>
+    <div class="rtp"><i style="width:${ok/out.length*100}%"></i></div>
+    <section class="fsec">${out.map((x,i)=>`<div class="fst ${x.ok?'ok':''}"><span class="fsn">${x.ok?ic('check'):i+1}</span><span class="cxm"><strong>${x.t}</strong><small>${esc(x.s)}</small></span>${x.act?`<button class="lk" type="button" data-tg="${x.go}">${x.act} ›</button>`:''}</div>`).join('')}</section>
+    <div class="btnrow">${R.em?`<span class="note">Revisado em ${fdate(R.em)}</span>`:`<button class="btn primary" type="button" id="tq-ok">Concluir revisão</button>`}</div>`,sh=>{
+    sh.querySelectorAll('[data-tg]').forEach(b=>b.onclick=async()=>{const g=b.dataset.tg;if(g==='colchao'){await rotSave(T.key,{cz:true});openColchao();return}closeSheet();setTimeout(()=>{if(g==='spread')openSpread();else if(g==='periodo'){RP='periodo';PRK='tri';PRO=0;LSset('pt-prk','tri');go('relatorios')}else go(g==='inv'?'decidir':g)},150)});
+    const o=sh.querySelector('#tq-ok');if(o)o.onclick=async()=>{await rotSave(T.key,{em:today()});toast('Saúde do trimestre revisada');closeSheet()}})}
+/* ---------- anual: calendário de sazonais com provisão ---------- */
+const SAZP=[['IPVA',1,'Carro'],['IPTU',2,'Casa'],['Material escolar',1,'Educação'],['Licenciamento',3,'Carro'],['Seguro do carro',0,'Carro'],['Presentes de Natal',12,'Presentes'],['Viagem de férias',0,'Viagem'],['Anuidade de cartão',0,'Cartões']];
+const SAZ=()=>(cfg().sazonais||[]);
+async function sazSave(L){try{await S.db.doc('config/app').set(Object.assign({},S.cfg||{},{sazonais:L}))}catch(e){toast(writeErr(e))}}
+function sazProx(x){const t=today(),y=+t.slice(0,4),m=+t.slice(5,7),yy=x.mes>=m?y:y+1;return {ym:`${yy}-${String(x.mes).padStart(2,'0')}`,meses:(yy-y)*12+x.mes-m}}
+function sazProvisao(){return r2(sum(SAZ(),x=>{const p=sazProx(x);return (+x.valor||0)/(p.meses+1)}))}
+function openSazonais(){const L=SAZ().slice().sort((a,b)=>sazProx(a).meses-sazProx(b).meses),tot=sum(L,x=>+x.valor||0),prov=sazProvisao();
+  const by=Array(12).fill(0);L.forEach(x=>by[x.mes-1]+=+x.valor||0);const mx=Math.max(...by,1),cm=+today().slice(5,7);
+  openSheet(`<h2>Calendário do ano</h2><p class="note">Despesas que vêm uma vez por ano (IPVA, IPTU, material escolar…). Ao cadastrar, o app calcula quanto guardar por mês para chegar no vencimento sem aperto.</p>
+    <div class="prk3"><div><small>No ano</small><b class="n">${brl0(tot)}</b></div><div><small>Guardar por mês</small><b class="n pos">${brl0(prov)}</b></div><div><small>Itens</small><b class="n">${L.length}</b></div></div>
+    <div class="szb">${by.map((v,i)=>`<span class="${i+1===cm?'on':''}"><i style="height:${v?Math.max(8,v/mx*100):0}%"></i><small>${MES[i].slice(0,1)}</small></span>`).join('')}</div>
+    <div class="ivab">${L.map((x,i)=>{const p=sazProx(x);return `<div class="ivar"><i style="background:var(--accent,#E2BA6E)"></i><span class="ivam"><b>${esc(x.nome)}</b><small>${MESL[x.mes-1]} · ${p.meses?`em ${p.meses} ${p.meses>1?'meses':'mês'} · guarde ${brl0((+x.valor||0)/(p.meses+1))}/mês`:'vence este mês'}</small></span><span class="ivav"><b class="n">${brl0(+x.valor||0)}</b><small><button class="lk" type="button" data-szx="${esc(x.id)}">remover</button></small></span></div>`}).join('')||'<p class="note">Nada cadastrado ainda.</p>'}</div>
+    <h3 class="dch" style="margin-top:16px">Adicionar</h3>
+    <div class="chips szp">${SAZP.filter(([n])=>!L.some(x=>x.nome===n)).map(([n,m])=>`<button type="button" class="chip" data-szp="${esc(n)}" data-szm="${m}">+ ${esc(n)}</button>`).join('')}</div>
+    <form class="form" id="szf" novalidate><div class="f2"><div class="field"><label for="sz-n">Nome</label><input id="sz-n" placeholder="Ex.: IPVA"></div><div class="field"><label for="sz-m">Mês</label><select id="sz-m">${MESL.map((m,i)=>`<option value="${i+1}">${m}</option>`).join('')}</select></div></div>
+      <div class="field"><label for="sz-v">Valor estimado (R$)</label><input id="sz-v" type="number" inputmode="decimal" step="0.01" placeholder="0,00"></div><button class="btn primary" type="submit">Adicionar ao calendário</button></form>
+    <p class="note">É planejamento: não entra no saldo nem nas projeções. Quando o mês chegar, lance a despesa normalmente.</p>`,sh=>{
+    sh.querySelectorAll('[data-szp]').forEach(b=>b.onclick=()=>{sh.querySelector('#sz-n').value=b.dataset.szp;if(+b.dataset.szm)sh.querySelector('#sz-m').value=b.dataset.szm;sh.querySelector('#sz-v').focus()});
+    sh.querySelectorAll('[data-szx]').forEach(b=>b.onclick=async()=>{await sazSave(SAZ().filter(x=>x.id!==b.dataset.szx));openSazonais()});
+    sh.querySelector('#szf').onsubmit=async e=>{e.preventDefault();const n=sh.querySelector('#sz-n').value.trim(),m=+sh.querySelector('#sz-m').value,v=r2(parseFloat(sh.querySelector('#sz-v').value));if(!n||!(v>0)){toast('Informe nome e valor');return}
+      await sazSave(SAZ().concat([{id:'z'+Date.now().toString(36),nome:n,mes:m,valor:v}]));toast(`${n} no calendário`);openSazonais()}})}
+/* ---------- anual: apoio à declaração do IR ---------- */
+const IRDED=/sa[uú]de|m[eé]dic|dent|plano de sa|hospital|exame|psic|terap|fisio|educa|escola|faculd|curso|col[eé]gio/i;
+function openIR(ano){ano=ano||String(+today().slice(5,7)<=6?+today().slice(0,4)-1:+today().slice(0,4));const me=ME(),a=ano+'-01-01',b=ano+'-12-31',ant=String(+ano-1)+'-12-31';
+  const L=S.lanc.filter(l=>!l.pend&&(l.data||'')>=a&&(l.data||'')<=b),sh=l=>(l.divisao==='comum'?.5:1)*(+l.valor||0);
+  const rec={};L.filter(l=>l.tipo==='receita').forEach(l=>{const c=l.categoria||'Outros';rec[c]=(rec[c]||0)+sh(l)});
+  const rend=r2(sum(L.filter(l=>l.tipo==='ajuste'&&(l.categoria==='Rendimentos'||/rendiment/i.test(l.desc||''))&&(conta(l.conta)||{}).tipo&&['investimento','reserva'].includes(conta(l.conta).tipo)),l=>+l.valor||0));
+  const ded=L.filter(l=>l.tipo==='despesa'&&(IRDED.test(l.categoria||'')||IRDED.test(l.subcategoria||'')||(l.tags||[]).some(t=>/^ir$/i.test(t)))),dg={};ded.forEach(l=>{const c=(l.subcategoria||l.categoria||'Outros');dg[c]=(dg[c]||0)+sh(l)});
+  const tem=(x,d)=>!(x.dataIni&&x.dataIni>d);const bens=S.contas.filter(x=>x.tipo!=='beneficio'&&fracOf(x.dono,me)>0&&tem(x,b)).map(x=>({x,a:tem(x,ant)?r2(saldoConta(x,ant)*fracOf(x.dono,me)):null,b:r2(saldoConta(x,b)*fracOf(x.dono,me))})).filter(z=>Math.abs(z.a||0)>.005||Math.abs(z.b)>.005);
+  const dvs=S.dividas.map(d=>{try{const s=sched(d),pt=((d.parte||{})[me]??100)/100,sal=y=>r2(sum(s.rows.filter(r=>r.date&&r.date>y),r=>r.amort)*pt);return {d,a:sal(ant),b:sal(b)}}catch(e){return null}}).filter(z=>z&&(z.a>.005||z.b>.005));
+  const row=(n,v,s)=>`<div class="fca"><span>${esc(n)}${s?`<small>${s}</small>`:''}</span><b class="n">${brl(v)}</b></div>`;
+  openSheet(`<h2>Apoio ao IR ${+ano+1}</h2><div class="mnav fmn"><button class="navb" type="button" data-iry="-1" aria-label="Ano anterior">‹</button><b>Ano-base ${ano}</b><button class="navb" type="button" data-iry="1" aria-label="Próximo ano">›</button></div>
+    <p class="note">Um resumo do que está no app para ajudar a conferir a declaração. Não substitui os informes de rendimentos do banco e do empregador, nem um contador.</p>
+    <section class="fsec" id="irx"><h3>Rendimentos recebidos</h3><div class="fcc">${Object.entries(rec).sort((x,y)=>y[1]-x[1]).map(([c,v])=>row(c,v)).join('')||'<p class="note">Nenhuma receita no ano.</p>'}${rend?row('Rendimentos de aplicações (registrados)',rend,'confira no informe do banco: renda fixa costuma ser tributação exclusiva'):''}</div>
+    <h3>Despesas que podem ser dedutíveis</h3><div class="fcc">${Object.entries(dg).sort((x,y)=>y[1]-x[1]).map(([c,v])=>row(c,v,'saúde e educação têm regras próprias')).join('')||'<p class="note">Nada encontrado. O app procura categorias de saúde e educação e a etiqueta #ir.</p>'}</div>
+    <h3>Bens e direitos em 31/12/${ano} (sua parte)</h3><div class="fcc">${bens.map(z=>row(z.x.nome,z.b,z.a==null?`sem registro em 31/12/${+ano-1}`:`31/12/${+ano-1}: ${brl(z.a)}`)).join('')||'<p class="note">Sem contas registradas até o fim deste ano.</p>'}${+ano>=+today().slice(0,4)?`<p class="note">O ano ainda não terminou: valores de hoje.</p>`:''}</div>
+    ${dvs.length?`<h3>Dívidas e ônus</h3><div class="fcc">${dvs.map(z=>row(z.d.nome,z.b,`31/12/${+ano-1}: ${brl(z.a)}`)).join('')}</div>`:''}</section>
+    <div class="btnrow"><button class="btn" type="button" id="ir-img">${ic('image')} Imagem</button><button class="btn" type="button" id="ir-tx">${ic('copy')} Copiar texto</button></div>
+    <p class="note">Dica: marque consultas, exames e mensalidades com a etiqueta <b>#ir</b> ao lançar — fica fácil de achar aqui.</p>`,sh=>{
+    sh.querySelectorAll('[data-iry]').forEach(b=>b.onclick=()=>openIR(String(+ano+ +b.dataset.iry)));
+    sh.querySelector('#ir-img').onclick=e=>snapExport(sh.querySelector('#irx'),'Apoio ao IR · ano-base '+ano,'ir-'+ano,e.currentTarget);
+    sh.querySelector('#ir-tx').onclick=async()=>{const t=sh.querySelector('#irx').innerText;try{await navigator.clipboard.writeText('Apoio ao IR · ano-base '+ano+'\n\n'+t);toast('Texto copiado')}catch(e){toast('Não consegui copiar')}}})}
 function iniFecha(X){
   const t=X.t,d=+t.slice(8),cm=t.slice(0,7),pm=ymAdd(cm,-1),F=FECH();
   const fz=k=>F[k]&&F[k].em,ym=!fz(pm)&&d<=15?pm:d>=25&&!fz(cm)?cm:null;if(!ym)return '';
@@ -5483,6 +5572,7 @@ const FAQ=[
   ['O que é o cartão “Rotina”?','Mostra a tarefa da hora, uma por vez. <b>Revisão da semana</b> (≈ 4 min): gasto da semana × normal, lançamentos sem categoria, pendências vencidas, próximos 7 dias e conferência dos saldos. <b>Fechar o mês</b> (≈ 6 min, do dia 25 ao dia 15): classificação, pendências, faturas, repasses, saldos, rendimentos, stops do próximo mês e backup fora do app. O app marca sozinho o que já está em dia; o resto você marca como visto. Em “Todas” estão as rotinas e o histórico.'],
   ['Como funciona o “Fechar quinzena”?','Aparece no cartão Rotina nos primeiros dias de cada quinzena (logo depois do salário ou adiantamento). Em ≈ 3 min: confirma as receitas que deviam ter entrado, vê as contas da quinzena, o acerto com a outra pessoa, o resultado (entrou × saiu) e como fica o saldo até a próxima quinzena. Se sobrou, sugere guardar 30% na reserva.'],
   ['Como vejo uma semana, quinzena ou trimestre?','Em <b>Relatórios › Período</b>: escolha Semana, Quinzena, Mês, Trimestre, Semestre, Ano ou Personalizado e navegue com ‹ ›. Mostra entradas, saídas e resultado com comparação ao período anterior (no mesmo ponto, se o período ainda está em andamento), o dia a dia contra o normal, barras por dia/semana/mês, categorias e maiores saídas. Dá para alternar Caixa × Compra e exportar como imagem.'],
+  ['Quais são as rotinas mais espaçadas?','<b>Bimestral</b> (meses ímpares, dias 5 a 20): revisar contas fixas — custo no ano e o que subiu acima da inflação. <b>Trimestral</b> (jan, abr, jul, out): saúde do trimestre — reserva, spread, limite dos cartões, taxa de poupança, dia a dia e colchão. <b>Anual</b>: em dezembro/janeiro, o <b>Calendário do ano</b> (IPVA, IPTU, material escolar…) com quanto guardar por mês; de fevereiro a maio, o <b>Apoio ao IR</b> com rendimentos, despesas de saúde e educação (e a etiqueta #ir) e bens em 31/12. Todas ficam em Rotina › Todas a qualquer momento.'],
   ['O que é o painel “Dia a dia”?','Mede seus gastos variáveis (mercado, restaurante, combustível, lazer…) pela mediana dos últimos 3 meses e prevê como o mês fecha: gasto até hoje + custo de um dia típico × dias que faltam. Mostra a faixa normal e avisa quando o ritmo indica que vai passar. No <b>Posso comprar?</b>, o botão <b>Considerar o dia a dia</b> inclui essa estimativa no caixa futuro, para os meses à frente não parecerem folgados demais. Parcelas, contas fixas, recorrências e acertos não entram — já estão na agenda.'],
   ['O que é o “stop” de uma categoria?','É o limite do mês para a categoria, como um stop na bolsa. Ao lançar, o app mostra quanto já foi usado do stop daquela categoria. Para definir, abra a categoria no Início e toque em <b>Usar como stop</b>.'],
   ['O que mostram as Categorias (bolsa, plano e mapa)?','<b>Bolsa</b>: as categorias como ações, com alta ou queda contra a média. <b>Plano</b>: quanto do stop já foi usado. <b>Mapa</b>: o tamanho de cada categoria no mês. Toque numa categoria para abrir a ficha com média, maior mês e tendência.'],
