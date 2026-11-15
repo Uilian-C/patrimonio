@@ -2164,6 +2164,10 @@ main{padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))!important}
 .sdm{margin:6px 0 2px;font-size:12px;color:var(--muted)}
 .simn{display:flex;align-items:center;gap:10px}.simn input{width:72px;text-align:center}.simn span{font-size:13px;color:var(--muted)}
 .sdm.warn{color:var(--warn,#C8913A)}
+.snaph{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:14px}.snaph b{font-size:17px}.snaph small{font-size:12px;opacity:.6}
+.mgca{display:inline-flex;align-items:center;gap:10px}.icb{display:grid;place-items:center;width:32px;height:32px;border-radius:10px;border:1px solid var(--sep,var(--hair));background:none;color:var(--muted)}.icb .ic{width:16px;height:16px}
+#sim-img .ic{width:16px;height:16px;vertical-align:-3px;margin-right:4px}
+.snapw,.snapw *{font-feature-settings:normal!important;font-variant-numeric:normal!important;letter-spacing:normal!important}
 </style>
 </head>
 <body>
@@ -3117,17 +3121,18 @@ function iniMargem(X){let G;try{G=gastoLentes(X.me,X.ym)}catch(e){return ''}if(!
     :`menor saldo até ${fdate(G.fim).slice(0,5)}: ${brl0(C.min)} em ${fdate(C.md).slice(0,5)} − colchão ${brl0(G.cz)}`;
   const vis=MGL!=='caixa'?`<div class="mgg">${gaugeSVG(uso,G.ritmo,st==='stop'?'stop':st)}<b class="n">${lv>0?Math.round(uso*100)+'%':'—'}</b><small class="${tc}">● ${tt}</small></div>`
     :`<div class="mgg mgcx"><small>Saldo hoje</small><b class="n">${brl0(G.bal0)}</b><small>vira o mês com</small><b class="n ${C.fim<0?'neg':''}">${brl0(C.fim)}</b></div>`;
-  return `<div class="card mgc"><div class="ch"><h2>Quanto posso gastar</h2><button class="lk" type="button" data-colch="1">Colchão ${Math.round(colchaoPct()*100)}% ›</button></div>
+  return `<div class="card mgc"><div class="ch"><h2>Quanto posso gastar</h2><span class="mgca nosnap"><button class="icb" type="button" data-mgimg="1" aria-label="Exportar imagem">${ic('share')}</button><button class="lk" type="button" data-colch="1">Colchão ${Math.round(colchaoPct()*100)}% ›</button></span></div>
     <div class="seg mgseg" role="tablist">${Object.keys(MGLAB).map(k=>`<button type="button" data-mgk="${k}" aria-pressed="${MGL===k}">${MGLAB[k]}</button>`).join('')}</div>
     <div class="mgb">${vis}<div class="mgk"><div><span>Pode gastar em ${MES[+X.ym.slice(5)-1].toLowerCase()}</span><b class="n ${v<0?'neg':''}">${v<0?'−'+brl0(-v):brl0(v)}</b><small>${v>0?`≈ ${brl0(v/G.dr)} por dia até o fim do mês`:v<0?'acima do disponível nesta visão':''}</small>${MGL!=='caixa'&&v>0&&G.L.caixa[p]<v?`<small class="warn mgw">no caixa, até ${fdate(C.md).slice(0,5)}, cabem só ${G.L.caixa[p]>0?brl0(G.L.caixa[p]):'R$ 0'} — o resto depende do que entra depois</small>`:''}</div>
       <div class="mgk2">${Object.keys(MGLAB).filter(k=>k!==MGL).map(k=>`<span>${MGLAB[k]} <b class="n ${G.L[k][p]<0?'neg':''}">${G.L[k][p]<0?'−'+brl0(-G.L[k][p]):brl0(G.L[k][p])}</b></span>`).join('')}</div></div></div>
-    <div class="mgpj"><button type="button" class="mgtg" data-mgp="1" aria-pressed="${MGP}"><i></i>Contar o que ainda vai entrar</button><small>${p?`inclui ${brl0(r2(G.renda-G.recJa))} previstos no mês`:`só o que já caiu: ${brl0(G.recJa)}`}</small></div>
+    <div class="mgpj"><button type="button" class="mgtg nosnap" data-mgp="1" aria-pressed="${MGP}"><i></i>Contar o que ainda vai entrar</button><small>${p?`inclui ${brl0(r2(G.renda-G.recJa))} previstos no mês`:`só o que já caiu: ${brl0(G.recJa)}`}</small></div>
     <p class="mgn">${sub}.</p>
-    <div class="mgsim"><button type="button" class="mgin" id="mg-v"><span>Vou gastar</span><b class="n">${MGV?brl(MGV):'R$ —'}</b><small>${MGV?'toque para mudar':'toque e digite o valor'}</small></button>${MGV?`<button class="lk" type="button" data-mgx="1">limpar</button>`:''}
+    <div class="mgsim ${MGV?'':'nosnap'}"><button type="button" class="mgin" id="mg-v"><span>Vou gastar</span><b class="n">${MGV?brl(MGV):'R$ —'}</b><small>${MGV?'toque para mudar':'toque e digite o valor'}</small></button>${MGV?`<button class="lk" type="button" data-mgx="1">limpar</button>`:''}
     <div id="mg-sim">${mgSim(G,MGV,X.me)}</div></div></div>`}
 /* ===================== Decidir: gastar, comprar maior, investir ===================== */
 function wireMg(el,rr){
   el.querySelectorAll('[data-colch]').forEach(b=>b.onclick=openColchao);
+  el.querySelectorAll('[data-mgimg]').forEach(b=>b.onclick=()=>snapExport(b.closest('.mgc'),'Quanto posso gastar · '+MGLAB[MGL],'quanto-posso-gastar-'+today(),b));
   el.querySelectorAll('[data-mgk]').forEach(b=>b.onclick=()=>{MGL=b.dataset.mgk;LSset('pt-mgl',MGL);rr()});
   el.querySelectorAll('[data-mgp]').forEach(b=>b.onclick=()=>{MGP=!MGP;LSset('pt-mgp',MGP?'1':'0');rr()});
   el.querySelectorAll('[data-mgx]').forEach(b=>b.onclick=()=>{MGV=0;rr()});
@@ -3368,7 +3373,7 @@ function openSimCompra(pre){pre=pre||{};const me=ME();
       ${pm&&G&&G.renda?`<p class="simq">${ic('repeat')}<span>Compromete <b>${brl(pm)}</b> por mês durante ${n} meses — <b>${pctf(pm/G.renda)}</b> da sua renda.</span></p>`:''}
       ${C?`<p class="simq ${C.depois<0?'warn':''}">${ic('goal')}<span>Stop de ${esc(st.cat)} neste mês: ${C.depois<0?`a compra passa o limite em <b>${brl(-C.depois)}</b> (é planejamento, não falta de dinheiro)`:`depois da compra sobram <b>${brl(C.depois)}</b>`}.</span></p>`:''}`;
     box.querySelectorAll('[data-pk]').forEach(b=>b.onclick=()=>{st.pick=b.dataset.pk;draw(sh)});
-    sh.querySelector('#sim-l').disabled=R.st==='lim';sh.querySelector('#sim-o').disabled=false};
+    sh.querySelector('#sim-l').disabled=R.st==='lim';sh.querySelector('#sim-o').disabled=false;sh.querySelector('#sim-img').disabled=false};
   const sync=sh=>{};if(!pre.f||!(+pre.f.n>1))st.n=12;
   const ords=(cfg().ordens||[]);
   openSheet(`<h2>Posso comprar?</h2><p class="note">Testa a compra no seu caixa dos próximos meses, com tudo o que já está previsto. Nada é lançado.</p>
@@ -3377,10 +3382,11 @@ function openSimCompra(pre){pre=pre||{};const me=ME();
     <div class="field"><label for="sim-c">Categoria (para o stop)</label><select id="sim-c"><option value="">—</option>${catList('despesa').map(c=>`<option ${c.nome===st.cat?'selected':''}>${esc(c.nome)}</option>`).join('')}</select></div>
     <div class="field simn" id="sim-nw"><label for="sim-n">A loja parcela em até</label><input id="sim-n" type="number" min="1" max="48" inputmode="numeric" value="${st.n}"><span>vezes sem juros</span></div></div>
     <div id="sim-r" class="simr" aria-live="polite"></div>
-    <div class="btnrow"><button class="btn primary" type="button" id="sim-l" disabled>Lançar compra</button><button class="btn" type="button" id="sim-o" disabled>${st.ordem?'Atualizar ordem':'Criar ordem'}</button>${st.ordem?'<button class="btn danger" type="button" id="sim-x">Excluir ordem</button>':''}</div>
+    <div class="btnrow"><button class="btn primary" type="button" id="sim-l" disabled>Lançar compra</button><button class="btn" type="button" id="sim-o" disabled>${st.ordem?'Atualizar ordem':'Criar ordem'}</button><button class="btn" type="button" id="sim-img" disabled>${ic('image')} Imagem</button>${st.ordem?'<button class="btn danger" type="button" id="sim-x">Excluir ordem</button>':''}</div>
     ${ords.length&&!st.ordem?`<div class="simol"><span class="k">Suas ordens</span>${ords.map(o=>{const R=simAvalia(me,o.v,o.f,today());return `<button type="button" class="simo" data-ord="${esc(o.id)}"><span><b>${esc(o.desc||'Compra')}</b><small>${esc(simForma(o.f))}</small></span><span class="n ${R.st==='ok'?'pos':''}">${brl0(o.v)} · ${R.st==='ok'?'já cabe':'aguardando'}</span></button>`}).join('')}</div>`:''}`,sh=>{
     const V=sh.querySelector('#sim-v');const setV=v=>{st.v=r2(v);V.value=st.v?brl(st.v):'';draw(sh)};V.onclick=()=>openCalc(st.v,setV);
     sh.querySelector('#sim-d').onchange=e=>{st.dt=e.target.value||today();draw(sh)};
+    sh.querySelector('#sim-img').onclick=e=>snapExport(sh.querySelector('#sim-r'),`Posso comprar? ${st.desc?st.desc+' · ':''}${brl(st.v)}`,'simulacao-'+(norm(st.desc||'compra').replace(/ /g,'-')||'compra')+'-'+today(),e.currentTarget);
     sh.querySelector('#sim-ds').oninput=e=>{st.desc=e.target.value;if(!st.cat&&e.target.value.length>=4){const g=guessFromHist(e.target.value,'');if(g&&g.categoria){st.cat=g.categoria;sh.querySelector('#sim-c').value=st.cat;draw(sh)}}};
     sh.querySelector('#sim-c').onchange=e=>{st.cat=e.target.value;draw(sh)};
     sh.querySelector('#sim-n').oninput=e=>{st.n=Math.max(1,Math.min(+e.target.value||1,48));draw(sh)};
@@ -3827,6 +3833,26 @@ async function gabPNG(S0,RS){RS=RS||{lines:[],ending:[],nextWs:[]};const RZ=s0Re
   tx(`Gerado em ${fdate(today())} · Patrimônio`,W/2,H-60,22,C.fa,400,'center');
   return await new Promise((ok,ko)=>cv.toBlob(b=>b?ok(b):ko(new Error('blob')),'image/png'));
 }
+/* exporta um pedaço da tela como imagem (PNG), com título e data; no celular abre o compartilhar */
+async function snapExport(node,titulo,arquivo,btn){if(btn)btn.disabled=true;
+  try{const H=await loadH2C(),bg=getComputedStyle(document.body).backgroundColor||'#111',W=Math.min(node.offsetWidth||400,560);
+    const wrap=document.createElement('div');wrap.className='snapw';wrap.style.cssText=`position:fixed;left:-10000px;top:0;width:${W+40}px;padding:22px 20px 18px;background:${bg};color:${getComputedStyle(document.body).color}`;
+    wrap.innerHTML=`<div class="snaph"><b>${esc(titulo)}</b><small>${fdate(today())} · Patrimônio</small></div>`;
+    const cl=node.cloneNode(true);cl.querySelectorAll('button').forEach(b=>{b.style.pointerEvents='none'});cl.querySelectorAll('.nosnap').forEach(x=>x.remove());wrap.appendChild(cl);document.body.appendChild(wrap);
+    /* html2canvas não entende color-mix/color(): converte as cores calculadas para rgb antes */
+    const cv0=document.createElement('canvas').getContext('2d'),fix=c=>{if(!c||/^rgba?\(|^#|transparent/.test(c))return c;try{cv0.fillStyle='#000';cv0.fillStyle=c;const v=cv0.fillStyle;if(/^#|^rgba?\(/.test(v))return v;cv0.clearRect(0,0,1,1);cv0.fillRect(0,0,1,1);const d=cv0.getImageData(0,0,1,1).data;return `rgba(${d[0]},${d[1]},${d[2]},${(d[3]/255).toFixed(3)})`}catch(e){return 'transparent'}};
+    [wrap,...wrap.querySelectorAll('*')].forEach(e=>{const cs=getComputedStyle(e);['color','backgroundColor','borderTopColor','borderRightColor','borderBottomColor','borderLeftColor','fill','stroke'].forEach(k=>{const v=cs[k];if(v&&!/^rgba?\(|^#|none|transparent/.test(v))e.style[k]=fix(v)});if(cs.boxShadow&&cs.boxShadow!=='none'&&!/rgba?\(/.test(cs.boxShadow))e.style.boxShadow='none';if(/color-mix|color\(|oklab|oklch/.test(cs.backgroundImage))e.style.backgroundImage='none'});
+    /* ícones (<use>) e sombras internas não saem no html2canvas: copia o desenho e troca a sombra por borda */
+    wrap.querySelectorAll('svg').forEach(sv=>{const cs=getComputedStyle(sv),col=fix(cs.color);sv.querySelectorAll('use').forEach(u=>{const sym=document.getElementById((u.getAttribute('href')||u.getAttribute('xlink:href')||'').slice(1));if(!sym)return;if(!sv.getAttribute('viewBox'))sv.setAttribute('viewBox',sym.getAttribute('viewBox')||'0 0 24 24');const g=document.createElementNS('http://www.w3.org/2000/svg','g');g.innerHTML=sym.innerHTML;u.replaceWith(g)});
+      const f=cs.fill,k=cs.stroke;sv.setAttribute('fill',/currentcolor/i.test(f)||f===cs.color?col:(f==='none'?'none':fix(f)));sv.setAttribute('stroke',k==='none'?'none':(/currentcolor/i.test(k)||k===cs.color?col:fix(k)));['stroke-width','stroke-linecap','stroke-linejoin'].forEach(a=>{const v=cs.getPropertyValue(a);if(v)sv.setAttribute(a,v)});sv.setAttribute('width',sv.getBoundingClientRect().width||16);sv.setAttribute('height',sv.getBoundingClientRect().height||16);
+      sv.querySelectorAll('*').forEach(x=>{['fill','stroke'].forEach(a=>{const v=x.getAttribute(a);if(v&&/currentcolor/i.test(v))x.setAttribute(a,col)})})});
+    [wrap,...wrap.querySelectorAll('*')].forEach(e=>{const sh=getComputedStyle(e).boxShadow;if(sh&&/inset/.test(sh)){e.style.boxShadow='none';if(e.classList.contains('str'))e.style.borderLeft='3px solid '+fix(getComputedStyle(document.documentElement).getPropertyValue('--accent').trim()||'#E2BA6E')}});
+    const cv=await H(wrap,{backgroundColor:fix(bg),scale:2,useCORS:true,logging:false});wrap.remove();
+    const blob=await new Promise((ok,ko)=>cv.toBlob(b=>b?ok(b):ko(new Error('blob')),'image/png')),fn=arquivo+'.png';
+    const file=typeof File!=='undefined'?new File([blob],fn,{type:'image/png'}):null;
+    if(file&&navigator.canShare&&/Mobi/i.test(navigator.userAgent)&&navigator.canShare({files:[file]})){try{await navigator.share({files:[file],title:titulo});return}catch(e){if(e&&e.name==='AbortError')return}}
+    if(S.downloads)await S.downloads.save({filename:fn,data:blob});else{const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=fn;a.click()}
+  }catch(err){document.querySelectorAll('.snapw').forEach(x=>x.remove());if(!(err&&(err.code==='cancelled'||err.code==='declined')))toast('Não consegui gerar a imagem.')}finally{if(btn)btn.disabled=false}}
 let h2c=null;
 function loadH2C(){if(h2c)return h2c;h2c=new Promise((ok,ko)=>{const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';s.onload=()=>window.html2canvas?ok(window.html2canvas):ko(new Error('lib'));s.onerror=()=>{h2c=null;ko(new Error('load'))};document.head.appendChild(s)});return h2c}
 async function gabPDF(S0,btn,RS){RS=RS||{lines:[],ending:[],nextWs:[]};btn.disabled=true;
