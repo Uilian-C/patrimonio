@@ -2236,6 +2236,24 @@ main{padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))!important}
 .ls.lat{min-width:0;max-width:100%;overflow:hidden}.lats{width:100%;max-width:100%;min-width:0}.lbody{min-width:0}
 .szb{display:grid;grid-template-columns:repeat(12,1fr);gap:4px;height:70px;align-items:end;margin:12px 0 8px}.szb span{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:3px}.szb i{display:block;width:70%;border-radius:3px;background:color-mix(in srgb,var(--accent,#E2BA6E) 55%,transparent)}.szb span.on i{background:var(--accent,#E2BA6E)}.szb small{font-size:10px;color:var(--muted)}.szb span.on small{color:var(--accent,#E2BA6E);font-weight:700}
 .szp{flex-wrap:wrap;margin-bottom:10px}
+.topr .topw+.topw{margin-left:-2px}
+.pnc .pnhd{display:grid;grid-template-columns:56px minmax(0,1fr) auto;gap:12px;align-items:center}.pnr{width:56px;height:56px}.pnr0{fill:none;stroke:var(--sunk,rgba(127,127,127,.18));stroke-width:5}.pnr1{fill:none;stroke-width:5;stroke-linecap:round;transform:rotate(-90deg);transform-origin:22px 22px}.pnr text{font-size:13px;font-weight:700;text-anchor:middle;fill:var(--ink,#eee)}
+.pnhd .k{display:block;font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}.pnhd b{display:block;font-size:16px}.pnhd small{display:block;font-size:12px;color:var(--muted)}.pnhd .mgca{align-self:start}
+.pnk{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0 4px}.pnk small{display:block;font-size:11.5px;color:var(--muted)}.pnk b{display:block;font-size:21px;font-weight:650}.pnk em{display:block;font-style:normal;font-size:11.5px;color:var(--muted)}.pnk em.pos{color:var(--good)}.pnk em.neg{color:var(--crit,#E0705F)}
+.pns svg{display:block;margin-top:4px}.pna{display:grid;gap:6px;margin:12px 0 4px}.pna .rvs .bk{width:30px;height:30px;border-radius:9px;display:grid;place-items:center}.pna .rvs .go{font-size:12px;color:var(--accent,#E2BA6E)}
+.png{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:12px}.pnt{display:grid;gap:2px;text-align:left;padding:10px;border-radius:14px;border:1px solid var(--sep,var(--hair));background:none;color:inherit;min-width:0}
+.pnt .pnh{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pnt b{font-size:16px;font-weight:650}.pnt small{font-size:10.5px;color:var(--faint,var(--muted))}
+.pnt.crit{border-color:color-mix(in srgb,var(--crit,#E0705F) 45%,transparent)}.pnt.warn{border-color:color-mix(in srgb,var(--warn,#C8913A) 40%,transparent)}
+.sdot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--muted)}.sdot.ok{background:var(--good)}.sdot.warn{background:var(--warn,#C8913A)}.sdot.crit{background:var(--crit,#E0705F)}
+.pnbig{display:flex;align-items:center;gap:12px;margin:4px 0 6px}.pnbig b{font-size:30px;font-weight:650}
+.bsf input{width:100%;font-size:16px}.bss h3{font-size:11.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin:14px 0 4px}
+html.locked main,html.locked nav.tabs,html.locked .top{visibility:hidden}
+.lockv{position:fixed;inset:0;z-index:100;display:grid;place-items:center;background:var(--bg,#0E0E10);color:var(--ink,#F3EFE6);padding:24px}
+.lkb{display:flex;flex-direction:column;align-items:center;gap:10px;width:100%;max-width:300px}.lkl{width:44px;height:58px;margin-bottom:6px}.lkb>b{font-size:18px}.lkb>small{font-size:13px;color:var(--muted);min-height:18px}
+.lkd{display:flex;gap:14px;margin:6px 0 14px}.lkd i{width:13px;height:13px;border-radius:50%;border:1.6px solid var(--muted)}.lkd i.on{background:var(--accent,#E2BA6E);border-color:var(--accent,#E2BA6E)}.lkd.shk{animation:lkshk .35s}
+@keyframes lkshk{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.lkp{display:grid;grid-template-columns:repeat(3,72px);gap:14px}.lkp button{height:72px;border-radius:50%;border:1px solid var(--sep,var(--hair));background:var(--surface,transparent);color:inherit;font-size:24px;font-weight:500;display:grid;place-items:center}.lkp button .ic{width:26px;height:26px;color:var(--accent,#E2BA6E)}
+.sdot{flex:none}.pna .rvs .go{white-space:nowrap;width:auto}
 </style>
 </head>
 <body>
@@ -2348,7 +2366,7 @@ onAuthStateChanged(auth,u=>{if(u){gate.hidden=true;window.__fbUser={email:u.emai
 </defs></svg>
 <header class="top"><div class="in">
   <div class="tl"><button type="button" class="navback" id="navback" hidden aria-label="Voltar"><svg class="ic" aria-hidden="true"><use href="#i-back"/></svg><span id="navbl">Voltar</span></button><h1 id="ttl">Patrimônio</h1><div class="sub" id="sub"></div></div>
-  <span class="topr"><span class="live" id="live"><i></i><span id="livet">Conectando</span></span><a class="topw" href="#carteira" data-v="carteira" aria-label="Carteira: contas, cartões e ajustes"><svg class="ic"><use href="#i-wallet"/></svg></a></span>
+  <span class="topr"><span class="live" id="live"><i></i><span id="livet">Conectando</span></span><button class="topw" type="button" id="topsr" aria-label="Buscar"><svg class="ic"><use href="#i-search"/></svg></button><a class="topw" href="#carteira" data-v="carteira" aria-label="Carteira: contas, cartões e ajustes"><svg class="ic"><use href="#i-wallet"/></svg></a></span>
 </div></header>
 
 <main>
@@ -4354,7 +4372,7 @@ function rowMov(i){const tags=(i.l.tags||[]).map(t=>`<span class="tag">#${esc(t)
 
 /* ---------- RELATÓRIOS ---------- */
 let RP=LS('pt-rp','salvos').replace(/^(gabrielle|repasse)$/,'salvos'),RYM=null,RREG=LS('pt-reg','caixa');
-const RPS=[['periodo','Período'],['salvos','Salvos'],['resumo','Resumo'],['categorias','Categorias'],['etiquetas','Etiquetas'],['patrimonio','Patrimônio'],['fluxo','Fluxo']];
+const RPS=[['painel','Painel'],['periodo','Período'],['salvos','Salvos'],['resumo','Resumo'],['categorias','Categorias'],['etiquetas','Etiquetas'],['patrimonio','Patrimônio'],['fluxo','Fluxo']];
 /* =========================================================
    RELATÓRIOS SALVOS — filtros parametrizados + painel.
    Só leitura: nada aqui altera caixa, projeção ou patrimônio.
@@ -4640,6 +4658,108 @@ function openRepEdit(r){
   });
 }
 
+/* ===================== (onda 1) */
+/* ===================== ONDA 1 · Painel de comando ===================== */
+const KPID={pou:{n:'Taxa de poupança',m:.2,inv:1,f:'pct',d:'quanto do que entrou ficou (média de 3 meses)'},res:{n:'Reserva',m:6,inv:1,f:'mes',d:'despesas que a reserva cobre'},com:{n:'Renda comprometida',m:.5,f:'pct',d:'contas fixas e parcelas ÷ renda'},
+  lim:{n:'Uso do limite',m:.3,f:'pct',d:'quanto do limite dos cartões está usado'},end:{n:'Endividamento',m:.5,f:'pct',d:'tudo que deve ÷ tudo que tem'},liq:{n:'Liquidez',m:1,inv:1,f:'x',d:'o que tem ÷ o que vence em 12 meses'},
+  dia:{n:'Dia a dia',m:1,f:'pctm',d:'previsão do mês ÷ mediana'},ren:{n:'Rentabilidade',m:1,inv:1,f:'pctc',d:'seus investimentos em % do CDI (12 meses)'},cdv:{n:'Custo da dívida',m:.02,f:'pcta',d:'juros médios ao mês das dívidas'}};
+const KPM=()=>Object.assign({},...Object.entries(KPID).map(([k,v])=>({[k]:v.m})),cfg().metasKpi||{},{res:+(cfg().metasKpi||{}).res||resMinMeses()});
+function kpiVal(me){const t=today(),ym=t.slice(0,7),I=indicadores(me),M=KPM(),out={};
+  const ms=mesesOk(ym,3).map(m=>mesCalc(m,me)),rec=sum(ms,m=>m.rec),dsp=sum(ms,m=>m.desp);out.pou=rec?(rec-dsp)/rec:null;
+  const rsv=sum(S.contas.filter(a=>a.ativo!==false&&a.tipo==='reserva'&&fracOf(a.dono,me)>0),a=>saldoConta(a)*fracOf(a.dono,me)),dm=despMedia(ym,me);out.res=dm?rsv/dm:null;
+  out.com=I.comp;out.end=I.end;out.liq=I.liqC;out.ren=I.pctCDI!=null&&I.pctCDI<=3&&I.dias>=60?I.pctCDI:null;out.cdv=I.divT;
+  const cs=S.cards.filter(c=>c.ativo!==false&&(c.dono||me)===me).map(c=>{try{return cardStats(c)}catch(e){return null}}).filter(x=>x&&x.lim);out.lim=cs.length?sum(cs,x=>Math.max(x.usado,0))/sum(cs,x=>x.lim):null;
+  let V=null;try{V=varModel(me)}catch(e){}out.dia=V&&V.ok&&V.med>0?V.prev/V.med:null;
+  const st={};Object.keys(KPID).forEach(k=>{const v=out[k],m=M[k],inv=KPID[k].inv;st[k]=v==null?'nn':inv?(v>=m?'ok':v>=m*.6?'warn':'crit'):(v<=m?'ok':v<=m*1.4?'warn':'crit')});
+  return {v:out,st,M,I,V}}
+const kfmt=(k,v)=>v==null?'—':KPID[k].f==='mes'?v.toLocaleString('pt-BR',{maximumFractionDigits:1})+(v>=1.95||v<.95?' meses':' mês'):KPID[k].f==='x'?v.toLocaleString('pt-BR',{maximumFractionDigits:2})+'x':KPID[k].f==='pcta'?(v*100).toLocaleString('pt-BR',{maximumFractionDigits:2})+'% a.m.':KPID[k].f==='pctc'?Math.round(v*100)+'% CDI':Math.round(v*100)+'%';
+function kpiSerie(me,k,n){const ym=today().slice(0,7);return [...Array(n)].map((_,i)=>{const m=ymAdd(ym,i-n);if(!mesOk(m))return null;
+  if(k==='pou'){const c=mesCalc(m,me);return c.rec?(c.rec-c.desp)/c.rec:null}
+  if(k==='res'){const rs=sum(S.contas.filter(a=>a.ativo!==false&&a.tipo==='reserva'&&fracOf(a.dono,me)>0),a=>saldoConta(a,dayIn(m,31))*fracOf(a.dono,me)),d=despMedia(m,me);return d?rs/d:null}
+  if(k==='pl')return patrimonio(me,dayIn(m,31)).liq;return null}).filter(v=>v!=null)}
+function vPainel(me){const K=kpiVal(me),I=K.I,Pt=I.Pt,ks=Object.keys(KPID).filter(k=>K.v[k]!=null),ok=ks.filter(k=>K.st[k]==='ok').length,nota=ks.length?Math.round((ok+.5*ks.filter(k=>K.st[k]==='warn').length)/ks.length*100):0;
+  const pl=kpiSerie(me,'pl',12).concat([Pt.liq]),plS=pl.length>1?sparkL(pl,pl.at(-1)>=pl[0]?'var(--good)':'var(--crit)',120,34):'';
+  let G=null;try{G=gastoLentes(me)}catch(e){}const V=K.V,folga=G&&V?r2(G.L.orc[1]-(V.restV||0)):null;
+  const ring=(p,c)=>`<svg viewBox="0 0 44 44" class="pnr"><circle cx="22" cy="22" r="18" class="pnr0"/><circle cx="22" cy="22" r="18" class="pnr1" style="stroke:${c};stroke-dasharray:${p*113} 113"/><text x="22" y="26.5">${Math.round(p*100)}</text></svg>`;
+  const tile=k=>{const v=K.v[k],s=K.st[k],ser=k==='pou'||k==='res'?kpiSerie(me,k,6):[];return `<button type="button" class="pnt ${s}" data-kpi="${k}"><span class="pnh"><i class="sdot ${s}"></i>${KPID[k].n}</span><b class="n">${kfmt(k,v)}</b><small>meta ${KPID[k].inv?'≥':'≤'} ${kfmt(k,K.M[k])}</small>${ser.length>1?`<span class="pns">${sparkL(ser,'var(--muted)',80,18)}</span>`:''}</button>`};
+  const alert=ks.filter(k=>K.st[k]==='crit').concat(ks.filter(k=>K.st[k]==='warn')).slice(0,3);
+  const act={pou:['Ver período',"rp:periodo"],res:['Investir','go:decidir'],com:['Contas fixas','fn:rec'],lim:['Cartões','go:cartoes'],end:['Patrimônio','rp:patrimonio'],liq:['Patrimônio','rp:patrimonio'],dia:['Dia a dia','go:decidir'],ren:['Investimentos','fn:inv'],cdv:['Spread','fn:spread']};
+  return `<div class="card pnc"><div class="pnhd"><div>${ring(nota/100,nota>=70?'var(--good)':nota>=45?'var(--warn,#C8913A)':'var(--crit,#E0705F)')}</div><div><span class="k">Saúde financeira</span><b>${ok} de ${ks.length} indicadores na meta</b><small>${nota>=70?'Estrutura sólida.':nota>=45?'No caminho, com pontos de atenção.':'Pede ajustes — veja os alertas abaixo.'}</small></div>
+      <span class="mgca nosnap"><button class="icb" type="button" data-pnimg="1" aria-label="Exportar imagem">${ic('share')}</button><button class="lk" type="button" data-pnm="1">Metas ›</button></span></div>
+    <div class="pnk"><div><small>Patrimônio líquido</small><b class="n ${Pt.liq<0?'neg':''}">${Pt.liq<0?'−':''}${brl0(Math.abs(Pt.liq))}</b><em class="${I.dPL>=0?'pos':'neg'}">${I.dPL>=0?'▲':'▼'} ${brl0(Math.abs(I.dPL))} no mês</em>${plS?`<span class="pns">${plS}</span>`:''}</div>
+      <div><small>Livre do mês</small><b class="n ${G&&G.L.orc[1]<0?'neg':''}">${G?brl0(G.L.orc[1]):'—'}</b><em>${folga!=null?`folga ${folga<0?'−':''}${brl0(Math.abs(folga))} após o dia a dia`:''}</em></div></div>
+    ${alert.length?`<div class="pna">${alert.map(k=>`<button type="button" class="rvs ${K.st[k]==='crit'?'stop':''}" data-pna="${act[k][1]}"><span class="bk">${ic(K.st[k]==='crit'?'alert':'info')}</span><span><b>${KPID[k].n}: ${kfmt(k,K.v[k])}</b><small>${KPID[k].d} · meta ${KPID[k].inv?'≥':'≤'} ${kfmt(k,K.M[k])}</small></span><span class="go">${act[k][0]} ›</span></button>`).join('')}</div>`:''}
+    <div class="png">${ks.map(tile).join('')}</div>
+    <p class="sdm">Indicadores calculados com o que está no app (sua parte). Toque num indicador para ver como é calculado.</p></div>`}
+function openMetasKpi(){const M=KPM();openSheet(`<h2>Metas dos indicadores</h2><p class="note">Ajuste ao seu momento. Verde quando atinge a meta, âmbar perto, vermelho longe.</p>
+  <form class="form" id="mkf">${Object.entries(KPID).map(([k,d])=>`<div class="field"><label for="mk-${k}">${d.n} <span class="opt">${d.inv?'mínimo':'máximo'} · ${d.d}</span></label><input id="mk-${k}" type="number" step="any" inputmode="decimal" value="${['pct','pctm','pctc'].includes(d.f)?Math.round(M[k]*100):d.f==='pcta'?(M[k]*100):M[k]}"><small class="note">${['pct','pctm','pctc'].includes(d.f)?'em %':d.f==='pcta'?'em % ao mês':d.f==='mes'?'em meses':'em vezes'}</small></div>`).join('')}
+  <button class="btn primary" type="submit">Salvar metas</button></form>`,sh=>{sh.querySelector('#mkf').onsubmit=async e=>{e.preventDefault();const o={};Object.entries(KPID).forEach(([k,d])=>{const v=parseFloat(sh.querySelector('#mk-'+k).value);if(isFinite(v))o[k]=['pct','pctm','pctc','pcta'].includes(d.f)?v/100:v});
+    try{await S.db.doc('config/app').set(Object.assign({},S.cfg||{},{metasKpi:o}));closeSheet();toast('Metas salvas')}catch(err){toast(writeErr(err))}}})}
+function openKpi(k){const me=ME(),K=kpiVal(me),d=KPID[k],ser=k==='pou'||k==='res'?kpiSerie(me,k,12):[];
+  openSheet(`<h2>${d.n}</h2><div class="pnbig"><b class="n">${kfmt(k,K.v[k])}</b><span class="tg ${K.st[k]==='ok'?'ok':K.st[k]==='warn'?'warn':''}">meta ${d.inv?'≥':'≤'} ${kfmt(k,K.M[k])}</span></div><p class="note">${d.d}.</p>
+    ${ser.length>1?`<div class="cfs">${sparkL(ser,'var(--accent)',320,70)}</div><p class="sdm">últimos ${ser.length} meses completos</p>`:''}
+    <p class="note">${{pou:'Recomendação comum: guardar pelo menos 20% do que entra.',res:'Reserva de emergência: de 3 a 12 meses de despesas, conforme a estabilidade da renda.',com:'Acima de 50% da renda em fixos e parcelas, qualquer imprevisto aperta.',lim:'Usar até 30% do limite mantém folga e ajuda no score de crédito.',end:'Passivo acima de metade do ativo indica estrutura alavancada.',liq:'Abaixo de 1x, o que vence em 12 meses é maior do que o que você tem.',dia:'Acima de 100%: o mês caminha para gastar mais que o normal no dia a dia.',ren:'Abaixo de 100% do CDI, o dinheiro rende menos que a referência sem risco.',cdv:'Dívida acima do rendimento das aplicações: antecipar tende a compensar.'}[k]}</p>
+    <div class="btnrow"><button class="btn" type="button" id="kp-m">Ajustar metas</button></div>`,sh=>{sh.querySelector('#kp-m').onclick=openMetasKpi})}
+function wirePainel(el){el.querySelectorAll('[data-kpi]').forEach(b=>b.onclick=()=>openKpi(b.dataset.kpi));el.querySelectorAll('[data-pnm]').forEach(b=>b.onclick=openMetasKpi);
+  el.querySelectorAll('[data-pnimg]').forEach(b=>b.onclick=()=>snapExport(b.closest('.pnc'),'Painel de comando','painel-'+today(),b));
+  el.querySelectorAll('[data-pna]').forEach(b=>b.onclick=()=>{const [t,v]=b.dataset.pna.split(':');if(t==='go')go(v);else if(t==='rp'){RP=v;vRel()}else if(v==='rec')openRevRec();else if(v==='inv')openInvestDash();else if(v==='spread')openSpread()})}
+/* ===================== Busca global ===================== */
+const ACOES_B=[['Posso comprar?','simular compra parcelado à vista',()=>openSimCompra()],['Revisão da semana','rotina semanal',()=>openSemana()],['Fechar quinzena','rotina salário acerto',()=>openQuinzena()],['Fechar o mês','fechamento mensal',()=>openFechamento()],
+  ['Revisar contas fixas','assinaturas recorrentes reajuste',()=>openRevRec()],['Saúde do trimestre','reserva spread limite',()=>openSaudeTri()],['Calendário do ano','sazonais ipva iptu',()=>openSazonais()],['Apoio ao IR','imposto de renda declaração',()=>openIR()],
+  ['Painel de comando','indicadores metas saúde',()=>{RP='painel';go('relatorios')}],['Relatório por período','semana quinzena trimestre ano',()=>{RP='periodo';go('relatorios')}],['Investimentos','aplicações projeção carteira',()=>openInvestDash()],['Spread','dívida aplicação antecipar',()=>openSpread()],
+  ['Colchão','reserva segurança',()=>openColchao()],['Cópias de segurança','backup restaurar',()=>openBackups()],['Ajuda','dúvidas faq glossário',()=>openAjuda()],['Novo lançamento','despesa receita transferência',()=>openLanc(null)],['Bloqueio do app','pin digital segurança',()=>openBloqueio()],['Organizar categorias','classificar outros',()=>openOrganizar()]];
+function openBusca(){let q='';const me=ME();
+  const draw=sh=>{const box=sh.querySelector('#bs-r'),t=norm(q.trim());if(t.length<2){box.innerHTML=`<p class="note">Digite pelo menos 2 letras. Procura lançamentos (descrição, categoria, valor), categorias, contas, cartões, telas e dúvidas.</p>`;return}
+    const ws=t.split(' '),hit=s=>{const n=norm(s);return ws.every(w=>n.includes(w))},num=parseFloat(q.replace(/\./g,'').replace(',','.'));
+    const A=ACOES_B.filter(a=>hit(a[0]+' '+a[1])).slice(0,5);
+    const cats=[...new Set(S.lanc.map(l=>l.categoria).filter(Boolean))].filter(c=>hit(c)).slice(0,5);
+    const cts=S.contas.filter(a=>a.ativo!==false&&hit(a.nome)).slice(0,4),cds=S.cards.filter(c=>c.ativo!==false&&hit(c.nome)).slice(0,4);
+    const L=S.lanc.filter(l=>(l.tipo==='despesa'||l.tipo==='receita')&&(hit((l.desc||'')+' '+(l.categoria||'')+' '+(l.subcategoria||'')+' '+(l.obs||'')+' '+(l.tags||[]).join(' '))||(isFinite(num)&&num>0&&Math.abs((+l.valor||0)-num)<.01))).sort((a,b)=>(b.data||'').localeCompare(a.data||''));
+    const F=[];FAQ.forEach(([g,Ls])=>Ls.forEach(x=>{if(hit(x[0]+' '+x[1].replace(/<[^>]+>/g,'')))F.push(x[0])}));
+    const sec=(t,body)=>body?`<section class="bss"><h3>${t}</h3>${body}</section>`:'';
+    box.innerHTML=sec('Telas e ações',A.map((a,i)=>`<button class="cxr" type="button" data-ba="${ACOES_B.indexOf(a)}"><span class="bk bk-g">${ic('spark')}</span><span class="cxm"><strong>${esc(a[0])}</strong><small>${esc(a[1])}</small></span><span class="go">›</span></button>`).join(''))
+      +sec('Categorias',cats.map(c=>`<button class="cxr" type="button" data-bc="${esc(c)}">${catBubble(c,'sm')}<span class="cxm"><strong>${esc(c)}</strong><small>${brl0((catMesMap(today().slice(0,7),me)||{})[c]||0)} este mês</small></span><span class="go">›</span></button>`).join(''))
+      +sec('Contas e cartões',cts.map(a=>`<button class="cxr" type="button" data-bct="${esc(a.id)}">${bankBadge(a,a.tipo)}<span class="cxm"><strong>${esc(a.nome)}</strong><small>${brl(saldoConta(a))}</small></span><span class="go">›</span></button>`).join('')+cds.map(c=>`<button class="cxr" type="button" data-bcd="${esc(c.id)}">${cardGlyph(c)}<span class="cxm"><strong>${esc(c.nome)}</strong><small>cartão</small></span><span class="go">›</span></button>`).join(''))
+      +sec(`Lançamentos${L.length>12?` · ${L.length}`:''}`,L.slice(0,12).map(l=>`<button class="cxr" type="button" data-bl="${esc(l.id)}">${catBubble(l.categoria||'Outros','sm')}<span class="cxm"><strong>${esc(descSemParc(l.desc||''))}</strong><small>${fdate(l.data||'').slice(0,5)}/${(l.data||'').slice(2,4)} · ${esc(l.categoria||'Outros')}</small></span><b class="n ${l.tipo==='receita'?'pos':''}">${l.tipo==='receita'?'+':''}${brl(+l.valor||0)}</b></button>`).join('')+(L.length>12?`<button class="lk" type="button" data-blall="1">ver todos em Lançamentos ›</button>`:''))
+      +sec('Ajuda',F.slice(0,4).map(f=>`<button class="cxr" type="button" data-bf="${esc(f)}"><span class="bk">?</span><span class="cxm"><strong>${esc(f)}</strong></span><span class="go">›</span></button>`).join(''))
+      ||'<p class="note">Nada encontrado.</p>';
+    box.querySelectorAll('[data-ba]').forEach(b=>b.onclick=()=>{closeSheet();setTimeout(()=>ACOES_B[+b.dataset.ba][2](),280)});
+    box.querySelectorAll('[data-bc]').forEach(b=>b.onclick=()=>openCatFicha(b.dataset.bc));
+    box.querySelectorAll('[data-bct]').forEach(b=>b.onclick=()=>openContaDet(conta(b.dataset.bct)));
+    box.querySelectorAll('[data-bcd]').forEach(b=>b.onclick=()=>{closeSheet();setTimeout(()=>go('cartoes'),120)});
+    box.querySelectorAll('[data-bl]').forEach(b=>b.onclick=()=>{const l=S.lanc.find(x=>x.id===b.dataset.bl);if(l)openLancView(l)});
+    box.querySelectorAll('[data-bf]').forEach(b=>b.onclick=()=>openAjuda(b.dataset.bf));
+    const al=box.querySelector('[data-blall]');if(al)al.onclick=()=>{closeSheet();LF={ym:'',card:'',div:'todos',tag:'',q:q.trim(),cat:''};setTimeout(()=>go('lanc'),120)}};
+  openSheet(`<h2>Buscar</h2><div class="field bsf"><input id="bs-q" type="search" placeholder="lançamento, valor, categoria, tela…" autocomplete="off" enterkeyhint="search"></div><div id="bs-r"></div>`,sh=>{const i=sh.querySelector('#bs-q');i.oninput=()=>{q=i.value;draw(sh)};draw(sh);setTimeout(()=>i.focus(),150)})}
+/* ===================== Bloqueio do app (por aparelho) ===================== */
+const LK=()=>{try{return JSON.parse(localStorage.getItem('pt-lock')||'null')}catch(e){return null}};
+const lkSet=o=>{try{o?localStorage.setItem('pt-lock',JSON.stringify(o)):localStorage.removeItem('pt-lock')}catch(e){}};
+async function sha(s){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}
+const b64=u=>btoa(String.fromCharCode(...new Uint8Array(u))),ub64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
+async function bioReg(){if(!window.PublicKeyCredential)throw new Error('sem suporte');const c=await navigator.credentials.create({publicKey:{challenge:crypto.getRandomValues(new Uint8Array(32)),rp:{name:'Patrimônio',id:location.hostname},user:{id:crypto.getRandomValues(new Uint8Array(16)),name:'patrimonio',displayName:'Patrimônio'},pubKeyCredParams:[{type:'public-key',alg:-7},{type:'public-key',alg:-257}],authenticatorSelection:{authenticatorAttachment:'platform',userVerification:'required'},timeout:60000}});return b64(c.rawId)}
+async function bioOk(id){const c=await navigator.credentials.get({publicKey:{challenge:crypto.getRandomValues(new Uint8Array(32)),allowCredentials:[{type:'public-key',id:ub64(id)}],userVerification:'required',timeout:60000}});return !!c}
+let LKAT=0;
+function lockShow(){const L=LK();if(!L||!L.h||document.getElementById('lockv'))return;const d=document.createElement('div');d.id='lockv';d.className='lockv';let pin='';
+  d.innerHTML=`<div class="lkb"><svg class="lkl" viewBox="139 90 228 332"><g transform="translate(-5 0)"><rect x="186" y="100" width="12" height="312" rx="6" fill="currentColor" opacity=".55"/><rect x="164" y="150" width="56" height="210" rx="16" fill="currentColor"/><path d="M244 150h38a70 70 0 0 1 0 140h-38z" fill="#E2BA6E"/></g></svg><b>Patrimônio bloqueado</b><small id="lkm">Digite seu PIN</small><div class="lkd">${'<i></i>'.repeat(L.n||4)}</div>
+    <div class="lkp">${[1,2,3,4,5,6,7,8,9,'bio',0,'⌫'].map(k=>k==='bio'?(L.bio?`<button type="button" data-lk="bio" aria-label="Digital ou rosto">${ic('shield')}</button>`:'<span></span>'):`<button type="button" data-lk="${k}">${k}</button>`).join('')}</div><button class="lk" type="button" id="lkf">Esqueci o PIN</button></div>`;
+  document.body.appendChild(d);document.documentElement.classList.add('locked');
+  const dots=()=>d.querySelectorAll('.lkd i').forEach((x,i)=>x.classList.toggle('on',i<pin.length));
+  const ok=()=>{d.remove();document.documentElement.classList.remove('locked');LKAT=Date.now()};
+  const tryPin=async()=>{if(await sha(L.s+pin)===L.h)ok();else{pin='';dots();d.querySelector('#lkm').textContent='PIN incorreto';d.querySelector('.lkd').classList.add('shk');setTimeout(()=>d.querySelector('.lkd').classList.remove('shk'),400)}};
+  d.querySelectorAll('[data-lk]').forEach(b=>b.onclick=async()=>{const k=b.dataset.lk;if(k==='bio'){try{if(await bioOk(L.bio))ok()}catch(e){}return}if(k==='⌫')pin=pin.slice(0,-1);else if(pin.length<(L.n||4))pin+=k;dots();if(pin.length===(L.n||4))tryPin()});
+  d.querySelector('#lkf').onclick=()=>{if(confirm('Para redefinir o PIN, você vai sair e entrar de novo com a conta Google. Continuar?')){lkSet(null);window.__fbSair?window.__fbSair():location.reload()}};
+  if(L.bio)setTimeout(async()=>{try{if(await bioOk(L.bio))ok()}catch(e){}},350)}
+function openBloqueio(){const L=LK()||{},tm=L.t||2;
+  openSheet(`<h2>Bloqueio do app</h2><p class="note">Pede PIN (ou digital/rosto) ao abrir e ao voltar depois de alguns minutos. Vale só neste aparelho; seus dados continuam protegidos pela conta Google.</p>
+    <div class="fsec">${L.h?`<div class="okbox"><strong>${ic('check')} Bloqueio ligado</strong><div class="note">PIN de ${L.n||4} dígitos${L.bio?' · digital/rosto ativo':''}</div></div>`:''}
+    <form class="form" id="lkfm"><div class="f2"><div class="field"><label for="lk-p">${L.h?'Novo PIN':'Criar PIN'}</label><input id="lk-p" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="4 a 6 números" autocomplete="new-password"></div><div class="field"><label for="lk-t">Bloquear depois de</label><select id="lk-t">${[[0,'Sempre ao voltar'],[1,'1 minuto'],[2,'2 minutos'],[5,'5 minutos'],[15,'15 minutos']].map(([v,n])=>`<option value="${v}" ${v===tm?'selected':''}>${n}</option>`).join('')}</select></div></div>
+      <label class="lr" for="lk-hv"><span class="lrt">Abrir com valores escondidos<small>o olho do cartão principal começa fechado</small></span><span class="psw"><input type="checkbox" id="lk-hv" ${L.hv?'checked':''}><span></span></span></label>
+      <div class="btnrow"><button class="btn primary" type="submit">${L.h?'Salvar':'Ligar bloqueio'}</button>${L.h&&window.PublicKeyCredential?`<button class="btn" type="button" id="lk-b">${L.bio?'Refazer digital/rosto':'Usar digital ou rosto'}</button>`:''}${L.h?'<button class="btn danger" type="button" id="lk-x">Desligar</button>':''}</div></form></div>`,sh=>{
+    sh.querySelector('#lkfm').onsubmit=async e=>{e.preventDefault();const p=sh.querySelector('#lk-p').value.trim(),t=+sh.querySelector('#lk-t').value,hv=sh.querySelector('#lk-hv').checked;
+      if(!L.h&&!/^\d{4,6}$/.test(p)){toast('O PIN precisa ter de 4 a 6 números');return}if(p&&!/^\d{4,6}$/.test(p)){toast('O PIN precisa ter de 4 a 6 números');return}
+      const N=Object.assign({},L,{t,hv});if(p){N.s=Math.random().toString(36).slice(2);N.h=await sha(N.s+p);N.n=p.length}lkSet(N);LKAT=Date.now();closeSheet();toast(L.h?'Bloqueio atualizado':'Bloqueio ligado')};
+    const bb=sh.querySelector('#lk-b');if(bb)bb.onclick=async()=>{try{const id=await bioReg();lkSet(Object.assign({},LK(),{bio:id}));toast('Digital/rosto ativado');openBloqueio()}catch(e){toast('Este aparelho não liberou digital/rosto')}};
+    const x=sh.querySelector('#lk-x');if(x)confirmBtn(x,'Toque de novo para desligar',()=>{lkSet(null);closeSheet();toast('Bloqueio desligado')})})}
 /* ===================== Relatório por período (semana, quinzena, mês, trimestre, semestre, ano) ===================== */
 let PRK=LS('pt-prk','mes'),PRO=0,PRA='',PRB='';
 const PRKS=[['semana','Semana'],['quinzena','Quinzena'],['mes','Mês'],['tri','Trimestre'],['sem','Semestre'],['ano','Ano'],['pers','Personalizado']];
@@ -4699,7 +4819,8 @@ function vRel(){document.querySelectorAll('body>.acsel').forEach(x=>x.remove());
   const regT=`<div class="seg seg-sm" role="group" aria-label="Regime"><button type="button" data-reg="caixa" aria-pressed="${RREG==='caixa'}">Caixa</button><button type="button" data-reg="comp" aria-pressed="${RREG==='comp'}">Competência</button></div>`;
   const inM=(i,ym)=>(RREG==='caixa'?i.ym:i.cym)===ym;
   let h=`<div class="chips rp">${RPS.map(([k,t])=>`<button class="chip" type="button" data-rp="${k}" aria-pressed="${RP===k||(k==='salvos'&&RP==='rel')}">${t}</button>`).join('')}</div>`;
-  if(RP==='periodo'){h+=relPeriodo(me)}
+  if(RP==='painel'){h+=vPainel(me)}
+  else if(RP==='periodo'){h+=relPeriodo(me)}
   else if(RP==='resumo'){
     const mOf=ym=>{const mv=movs().filter(i=>inM(i,ym)),pv=recPrevistos(ym,ym).filter(x=>x.dono===me);
       const dv=sum(DVX(),d=>{const s=sched(d),pt=((d.parte||{})[me]??100)/100;return sum(s.rows.filter(r=>r.date&&r.date.slice(0,7)===ym),r=>r.pg?sum(r.pg,l=>l.valor):r.enc*pt)});
@@ -4770,7 +4891,7 @@ function vRel(){document.querySelectorAll('body>.acsel').forEach(x=>x.remove());
   }else if(RP==='acertos'){h+=acertosHTML()}
   else if(RP==='salvos'){h+=repListHTML()}
   else if(RP==='rel'){const r=S.reps.find(x=>x.id===RSEL);h+=r?repDashHTML(r):repListHTML()}
-  el.innerHTML=h;if(RP==='salvos'||RP==='rel')wireRep(el);if(RP==='periodo')wirePeriodo(el);
+  el.innerHTML=h;if(RP==='salvos'||RP==='rel')wireRep(el);if(RP==='periodo')wirePeriodo(el);if(RP==='painel')wirePainel(el);
   el.querySelectorAll('[data-rp]').forEach(b=>b.onclick=()=>{RP=b.dataset.rp;vRel()});
   el.querySelectorAll('[data-rm]').forEach(b=>b.onclick=()=>{RYM=ymAdd(RYM,+b.dataset.rm);vRel()});
   el.querySelectorAll('[data-reg]').forEach(b=>b.onclick=()=>{RREG=b.dataset.reg;LSset('pt-reg',RREG);vRel()});
@@ -5573,6 +5694,9 @@ const FAQ=[
   ['Como funciona o “Fechar quinzena”?','Aparece no cartão Rotina nos primeiros dias de cada quinzena (logo depois do salário ou adiantamento). Em ≈ 3 min: confirma as receitas que deviam ter entrado, vê as contas da quinzena, o acerto com a outra pessoa, o resultado (entrou × saiu) e como fica o saldo até a próxima quinzena. Se sobrou, sugere guardar 30% na reserva.'],
   ['Como vejo uma semana, quinzena ou trimestre?','Em <b>Relatórios › Período</b>: escolha Semana, Quinzena, Mês, Trimestre, Semestre, Ano ou Personalizado e navegue com ‹ ›. Mostra entradas, saídas e resultado com comparação ao período anterior (no mesmo ponto, se o período ainda está em andamento), o dia a dia contra o normal, barras por dia/semana/mês, categorias e maiores saídas. Dá para alternar Caixa × Compra e exportar como imagem.'],
   ['Quais são as rotinas mais espaçadas?','<b>Bimestral</b> (meses ímpares, dias 5 a 20): revisar contas fixas — custo no ano e o que subiu acima da inflação. <b>Trimestral</b> (jan, abr, jul, out): saúde do trimestre — reserva, spread, limite dos cartões, taxa de poupança, dia a dia e colchão. <b>Anual</b>: em dezembro/janeiro, o <b>Calendário do ano</b> (IPVA, IPTU, material escolar…) com quanto guardar por mês; de fevereiro a maio, o <b>Apoio ao IR</b> com rendimentos, despesas de saúde e educação (e a etiqueta #ir) e bens em 31/12. Todas ficam em Rotina › Todas a qualquer momento.'],
+  ['O que é o Painel de comando?','Em <b>Relatórios › Painel</b>: uma nota de saúde financeira (0 a 100) e 9 indicadores com meta — taxa de poupança, reserva, renda comprometida, uso do limite, endividamento, liquidez, dia a dia, rentabilidade e custo da dívida — em verde, âmbar ou vermelho. Os mais críticos aparecem como alertas com atalho para resolver. Em <b>Metas</b> você ajusta cada limite.'],
+  ['Como busco qualquer coisa?','Toque na <b>lupa</b> no topo: procura lançamentos (descrição, categoria, observação, etiqueta ou valor exato), categorias, contas, cartões, telas e ações (ex.: “IR”, “posso comprar”, “backup”) e dúvidas da Ajuda.'],
+  ['Como protejo o app com senha?','Carteira › Ajustes › <b>Bloqueio do app</b>: crie um PIN de 4 a 6 números e, se o aparelho permitir, ative digital ou rosto. Escolha depois de quanto tempo fora do app ele pede de novo e se deve abrir com os valores escondidos. Vale só no aparelho; esqueceu o PIN, basta entrar de novo com a conta Google.'],
   ['O que é o painel “Dia a dia”?','Mede seus gastos variáveis (mercado, restaurante, combustível, lazer…) pela mediana dos últimos 3 meses e prevê como o mês fecha: gasto até hoje + custo de um dia típico × dias que faltam. Mostra a faixa normal e avisa quando o ritmo indica que vai passar. No <b>Posso comprar?</b>, o botão <b>Considerar o dia a dia</b> inclui essa estimativa no caixa futuro, para os meses à frente não parecerem folgados demais. Parcelas, contas fixas, recorrências e acertos não entram — já estão na agenda.'],
   ['O que é o “stop” de uma categoria?','É o limite do mês para a categoria, como um stop na bolsa. Ao lançar, o app mostra quanto já foi usado do stop daquela categoria. Para definir, abra a categoria no Início e toque em <b>Usar como stop</b>.'],
   ['O que mostram as Categorias (bolsa, plano e mapa)?','<b>Bolsa</b>: as categorias como ações, com alta ou queda contra a média. <b>Plano</b>: quanto do stop já foi usado. <b>Mapa</b>: o tamanho de cada categoria no mês. Toque numa categoria para abrir a ficha com média, maior mês e tendência.'],
@@ -5820,6 +5944,7 @@ function vCart(){
     `<button class="cxr" type="button" id="edTags"><span class="bk bk-g">${I('<path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="8.5" r="1.2"/>')}</span><span class="cxm"><strong>Categorias e etiquetas</strong><small>${CATS.length} de despesa, ${CATR.length} de receita, ${cfg().tags.length} etiquetas</small></span>${'<span class="go">›</span>'}</button>
     <button class="cxr" type="button" data-fech=""><span class="bk bk-g">${ic('calcheck')}</span><span class="cxm"><strong>Fechamento do mês</strong><small>conferência, resultado e histórico de meses fechados</small></span><span class="go">›</span></button>
     <button class="cxr" type="button" data-org="1"><span class="bk bk-g">${ic('tag')}</span><span class="cxm"><strong>Regras de categorização</strong><small>organizar “Outros” e regras automáticas</small></span><span class="go">›</span></button>
+    <button class="cxr" type="button" id="bloq"><span class="bk bk-g">${ic('shield')}</span><span class="cxm"><strong>Bloqueio do app</strong><small>${(LK()||{}).h?'ligado neste aparelho':'PIN, digital ou rosto ao abrir'}</small></span><span class="go">›</span></button>
     <button class="cxr" type="button" id="ajuda"><span class="bk bk-g">${I('<circle cx="12" cy="12" r="8.5"/><path d="M9.6 9.4a2.5 2.5 0 0 1 4.8.9c0 1.7-2.4 2.1-2.4 3.6"/><circle cx="12" cy="17" r=".6"/>')}</span><span class="cxm"><strong>Ajuda</strong><small>dúvidas comuns e como aproveitar o app</small></span><span class="go">›</span></button>
     <button class="cxr" type="button" data-prem="1"><span class="bk bk-g">${ic('info')}</span><span class="cxm"><strong>Premissas do app</strong><small>como cada número é calculado</small></span><span class="go">›</span></button>
     <button class="cxr" type="button" id="edIco"><span class="bk bk-g">${I('<path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4z"/><circle cx="16.5" cy="16.5" r="3.5"/>')}</span><span class="cxm"><strong>Book de ícones</strong><small>marca, ícones, categorias e bancos do app</small></span><span class="go">›</span></button>
@@ -5838,7 +5963,7 @@ function vCart(){
   const ad=$('#addDv');if(ad)ad.onclick=()=>openDivida(null);
   const ar=$('#addRec');if(ar)ar.onclick=()=>openRec(null);el.querySelectorAll('[data-rc]').forEach(b=>b.onclick=()=>openRec(S.recs.find(r=>r.id===b.dataset.rc)));
   $('#edTags').onclick=()=>openCategorias();$('#edIco').onclick=openIconBook;$('#edPes').onclick=openPessoas;
-  const bk=$('#bkp');if(bk)bk.onclick=backup;{const ba=$('#bkauto');if(ba)ba.onclick=openBackups}{const aj=$('#ajuda');if(aj)aj.onclick=()=>openAjuda()}const sr=$('#sair');if(sr)sr.onclick=()=>window.__fbSair();const cv=$('#csv');if(cv)cv.onclick=exportCSV;
+  const bk=$('#bkp');if(bk)bk.onclick=backup;{const ba=$('#bkauto');if(ba)ba.onclick=openBackups}{const aj=$('#ajuda');if(aj)aj.onclick=()=>openAjuda()}{const bq=$('#bloq');if(bq)bq.onclick=openBloqueio}const sr=$('#sair');if(sr)sr.onclick=()=>window.__fbSair();const cv=$('#csv');if(cv)cv.onclick=exportCSV;
   wireCommon(el);
 }
 
@@ -7034,6 +7159,8 @@ document.querySelectorAll('nav.tabs a').forEach(a=>a.addEventListener('click',e=
   if(document.querySelector('#overlay:not([hidden])'))return;acc=(Math.sign(dy)===Math.sign(acc)?acc:0)+dy;
   if(y<60||acc<-24){tp.classList.remove('hide');document.body.classList.remove('tophide');acc=0}else if(acc>24){tp.classList.add('hide');document.body.classList.add('tophide');acc=0}},{passive:true})})();
 
+$('#topsr').onclick=openBusca;
+{const L=LK();if(L&&L.hv&&!HV){HV=true;document.documentElement.classList.add('hv')}if(L&&L.h)lockShow();let LKH=0;document.addEventListener('visibilitychange',()=>{const L2=LK();if(!L2||!L2.h)return;if(document.hidden)LKH=Date.now();else if(LKH&&Date.now()-LKH>=(+L2.t||0)*60000)lockShow()})}
 route();
 const live=(t,on)=>{$('#livet').textContent=t;$('#live').classList.toggle('on',!!on)};
 const tm=setTimeout(()=>{if(!ready())live('Sem conexão')},10000);
