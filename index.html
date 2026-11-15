@@ -2168,6 +2168,18 @@ main{padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))!important}
 .mgca{display:inline-flex;align-items:center;gap:10px}.icb{display:grid;place-items:center;width:32px;height:32px;border-radius:10px;border:1px solid var(--sep,var(--hair));background:none;color:var(--muted)}.icb .ic{width:16px;height:16px}
 #sim-img .ic{width:16px;height:16px;vertical-align:-3px;margin-right:4px}
 .snapw,.snapw *{font-feature-settings:normal!important;font-variant-numeric:normal!important;letter-spacing:normal!important}
+.scard{margin:12px 0 4px;border:1px solid var(--sep,var(--hair));border-radius:16px;padding:10px 12px}
+.slim{margin:8px 0 4px}.slb{position:relative;height:10px;border-radius:5px;background:var(--sunk,rgba(127,127,127,.15));overflow:hidden}
+.slb i{position:absolute;top:0;bottom:0;left:0;background:color-mix(in srgb,var(--muted) 55%,transparent)}.slb i.nw{background:var(--accent,#E2BA6E)}.slb i.ov{background:repeating-linear-gradient(45deg,transparent 0 4px,color-mix(in srgb,var(--crit,#E0705F) 45%,transparent) 4px 8px)}
+.slb em{position:absolute;top:-2px;bottom:-2px;width:2px;background:var(--crit,#E0705F);opacity:.7}
+.slk{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:10px}.slk small{display:block;font-size:11px;color:var(--muted)}.slk b{display:block;font-size:18px;font-weight:650}.slk b.warn{color:var(--warn,#C8913A)}.slk b.neg{color:var(--crit,#E0705F)}.slk span{font-size:11.5px;color:var(--muted)}
+.sfx{margin-top:14px}.sfh{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:13px}.sfh>span{color:var(--muted);font-size:12px}.sfh span b{color:var(--ink,inherit)}
+.sfc{width:100%;height:auto;display:block;margin-top:6px;overflow:visible}
+.sfe{fill:color-mix(in srgb,var(--muted) 45%,transparent)}.sfn{fill:var(--accent,#E2BA6E)}.sft{font-size:10px;fill:var(--ink,#ddd);text-anchor:middle;font-weight:600}.sfl{font-size:9.5px;fill:var(--muted);text-anchor:middle}
+.sl80{stroke:var(--crit,#E0705F);stroke-dasharray:3 3;opacity:.6}.sla{fill:color-mix(in srgb,var(--accent,#E2BA6E) 14%,transparent)}.slc{fill:none;stroke:var(--accent,#E2BA6E);stroke-width:2}.sls{fill:none;stroke:var(--muted);stroke-width:1.5;stroke-dasharray:4 3}.sld{fill:var(--accent,#E2BA6E)}
+.sfg{display:flex;gap:14px;font-size:11.5px;color:var(--muted);margin-top:4px}.sfg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.sfg i.sfe{background:color-mix(in srgb,var(--muted) 45%,transparent)}.sfg i.sfn,.sfg i.slcI{background:var(--accent,#E2BA6E)}.sfg i.slsI{background:none;border-top:2px dashed var(--muted);height:0;border-radius:0;vertical-align:3px}
+.scard svg.sfc{background:none!important;border:0!important;border-radius:0!important;box-shadow:none!important;padding:0!important}
 </style>
 </head>
 <body>
@@ -3340,6 +3352,35 @@ function simPorque(R,v){const n=R.ev.filter(e=>!e.res).length,pm=simPorMes(R);
   if(R.f.k==='conta')return `Cabe à vista sem cartão e sem resgatar nada; ${folga}.`;
   if(n>1)return `Parcelado deixa mais dinheiro no caixa: ${brl(pm)} por mês até ${ymS(R.ev.filter(e=>!e.res).at(-1).d.slice(0,7))}, e ${folga}.`;
   return `Paga tudo só em ${fdate(R.primeira).slice(0,5)} e o caixa aguenta; ${folga}.`}
+/* cartão escolhido: limite antes/depois, faturas com a compra (barras empilhadas) e limite comprometido ao longo do tempo */
+function simCartao(R,v){const c=card(R.f.c);if(!c)return '';let st;try{st=cardStats(c)}catch(e){return ''}
+  const lim=st.lim,pg=R.ev.filter(e=>!e.res),n=pg.length,y0=pg[0].d.slice(0,7),nM=Math.min(Math.max(n,3),6);
+  const usA=st.usado,usD=r2(usA+v),pA=lim?usA/lim:0,pD=lim?usD/lim:0,dispD=r2(lim-usD);
+  const nv={};pg.forEach(e=>{const y=e.d.slice(0,7);nv[y]=(nv[y]||0)+(-e.v)});
+  const M=[...Array(nM)].map((_,k)=>{const y=ymAdd(y0,k),ex=Math.max(0,fatTot(c,y));return {y,ex,nv:r2(nv[y]||0),tot:r2(ex+(nv[y]||0))}});
+  /* fatura: barras empilhadas (o que já tem + a compra) */
+  const W=320,H=120,pad=18,mx=Math.max(...M.map(m=>m.tot),1),bw=Math.min(34,(W-pad*2)/nM*.55),gx=(W-pad*2)/nM;
+  const bars=M.map((m,i)=>{const x=pad+gx*i+(gx-bw)/2,h1=m.ex/mx*(H-34),h2=m.nv/mx*(H-34),yb=H-16;
+    return `<rect x="${x}" y="${yb-h1}" width="${bw}" height="${Math.max(h1,0)}" rx="3" class="sfe"/><rect x="${x}" y="${yb-h1-h2}" width="${bw}" height="${Math.max(h2,0)}" rx="3" class="sfn"/>
+      <text x="${x+bw/2}" y="${yb-h1-h2-4}" class="sft">${m.tot>=1000?(m.tot/1000).toLocaleString('pt-BR',{maximumFractionDigits:1})+'k':Math.round(m.tot)}</text><text x="${x+bw/2}" y="${H-3}" class="sfl">${ymS(m.y)}</text>`}).join('');
+  /* limite comprometido mês a mês (sem e com a compra): cai conforme as faturas são pagas */
+  const fut=movs().filter(i=>i.src==='card'&&i.c===c&&!fatPaga(c.id,i.ym)),sg=i=>i.tipo==='receita'?-i.valor:i.valor;
+  const K=Math.min(Math.max(n,4),12)+1,L=[...Array(K)].map((_,k)=>{const y=ymAdd(y0,k-1),sem=r2(sum(fut.filter(i=>i.ym>y),sg)),com=r2(sem+sum(pg.filter(e=>e.d.slice(0,7)>y),e=>-e.v));return {y,sem,com}});
+  L[0]={y:'hoje',sem:usA,com:usD};
+  const H2=110,mxp=Math.max(1,...L.map(p=>lim?p.com/lim:0)),sx=i=>pad+i*(W-pad*2)/(K-1),sy=pc=>H2-16-Math.min(pc/Math.max(mxp,1),1)*(H2-30);
+  const path=k=>L.map((p,i)=>`${i?'L':'M'}${sx(i).toFixed(1)},${sy(lim?p[k]/lim:0).toFixed(1)}`).join('');
+  const y80=sy(.8);
+  const ln=`<line x1="${pad}" x2="${W-pad}" y1="${y80}" y2="${y80}" class="sl80"/><text x="${W-pad}" y="${y80-4}" class="sfl" text-anchor="end">80%</text>
+    <path d="${path('com')}L${sx(K-1)},${H2-16}L${sx(0)},${H2-16}Z" class="sla"/><path d="${path('sem')}" class="sls"/><path d="${path('com')}" class="slc"/>
+    <circle cx="${sx(0)}" cy="${sy(pD)}" r="3.5" class="sld"/>${[0,Math.floor((K-1)/2),K-1].map(i=>`<text x="${sx(i)}" y="${H2-3}" class="sfl" text-anchor="${i===0?'start':i===K-1?'end':'middle'}">${i===0?'hoje':ymS(L[i].y)}</text>`).join('')}`;
+  const tone=p=>p>1?'neg':p>=.8?'warn':'';const prox=M[0];
+  return `<div class="scard"><div class="sdh"><b>${esc(c.nome)} com a compra</b><small>limite ${brl0(lim)} · já considera tudo o que está lançado neste cartão</small></div>
+    <div class="slim"><div class="slb"><i style="width:${Math.min(pA,1)*100}%"></i><i class="nw" style="left:${Math.min(pA,1)*100}%;width:${Math.max(0,Math.min(pD,1)-Math.min(pA,1))*100}%"></i>${pD>1?'<i class="ov" style="left:0;width:100%"></i>':''}<em style="left:80%"></em></div>
+      <div class="slk"><div><small>Usado hoje</small><b class="n">${pctf(pA)}</b><span>${brl0(usA)}</span></div><div><small>Com a compra</small><b class="n ${tone(pD)}">${pctf(pD)}</b><span>+${brl0(v)}</span></div><div><small>Sobra de limite</small><b class="n ${dispD<0?'neg':''}">${brl0(dispD)}</b><span>${lim?pctf(Math.max(dispD,0)/lim)+' livre':''}</span></div></div></div>
+    <div class="sfx"><div class="sfh"><b>Próxima fatura (${ymS(prox.y)})</b><span class="n">${brl0(prox.ex)} → <b>${brl0(prox.tot)}</b></span></div>
+      <svg viewBox="0 0 ${W} ${H}" class="sfc" role="img" aria-label="Faturas com a compra">${bars}</svg><div class="sfg"><span><i class="sfe"></i>já lançado</span><span><i class="sfn"></i>esta compra</span></div></div>
+    <div class="sfx"><div class="sfh"><b>Limite comprometido</b><span>libera ${brl0(-pg[0].v)} por mês</span></div>
+      <svg viewBox="0 0 ${W} ${H2}" class="sfc" role="img" aria-label="Limite comprometido ao longo dos meses">${ln}</svg><div class="sfg"><span><i class="slcI"></i>com a compra</span><span><i class="slsI"></i>sem a compra</span></div></div></div>`}
 function simDetalhe(me,R,v){const pg=R.ev.filter(e=>!e.res),cz=colchao(),lim=addD(today(),92),Bs=R.B;
   const rows=pg.map((e,i)=>({i,d:e.d,v:-e.v})).filter(x=>x.d<=lim).map(x=>{const s=Bs.em(x.d);return Object.assign(x,{s,st:s<-.005?'neg':s<cz?'aperta':'ok'})}),rest=pg.length-rows.length;
   const ruins=rows.filter(x=>x.st!=='ok');
@@ -3369,6 +3410,7 @@ function openSimCompra(pre){pre=pre||{};const me=ME();
       </div>
       <div class="simv ${tc}"><b>${esc(simForma(R.f))}: ${tt.toLowerCase()}</b><small>${R.st==='lim'?`o limite livre deste cartão (${brl(R.lim)}) não cobre a compra`:R.st==='neg'?`o saldo ficaria negativo: ${brl(R.b1.v)} em ${fdate(R.b1.d).slice(0,5)}`:R.st==='aperta'?`o menor saldo seria ${brl(R.b1.v)} em ${fdate(R.b1.d).slice(0,5)}, abaixo do colchão de ${brl0(colchao())}`:`tem dinheiro em todos os pagamentos; o ponto mais baixo é ${brl(R.b1.v)} em ${fdate(R.b1.d).slice(0,5)}`}</small></div>
       ${R.st!=='lim'?simDetalhe(me,R,st.v):''}
+      ${R.f.k==='card'?simCartao(R,st.v):''}
       ${R.antes&&R.st!=='lim'?`<p class="simq warn">${ic('alert')}<span>Atenção: mesmo sem a compra, em <b>${fdate(R.antes.d).slice(0,5)}</b> o caixa já fica em <b>${brl(R.antes.v)}</b>.</span></p>`:''}
       ${pm&&G&&G.renda?`<p class="simq">${ic('repeat')}<span>Compromete <b>${brl(pm)}</b> por mês durante ${n} meses — <b>${pctf(pm/G.renda)}</b> da sua renda.</span></p>`:''}
       ${C?`<p class="simq ${C.depois<0?'warn':''}">${ic('goal')}<span>Stop de ${esc(st.cat)} neste mês: ${C.depois<0?`a compra passa o limite em <b>${brl(-C.depois)}</b> (é planejamento, não falta de dinheiro)`:`depois da compra sobram <b>${brl(C.depois)}</b>`}.</span></p>`:''}`;
