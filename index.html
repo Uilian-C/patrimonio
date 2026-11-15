@@ -2301,6 +2301,10 @@ pre.rules{font-size:10.5px;line-height:1.45;background:var(--sunk);padding:10px 
 .pfn{display:grid;gap:4px;margin:6px 0}
 html.zm nav.tabs{zoom:var(--unz,1)}
 .mgpc{margin-top:12px;border-top:1px solid var(--sep,var(--hair));padding-top:12px;width:100%}
+#asx,#asx>*{min-width:0;max-width:100%}pre.rules{width:100%;box-sizing:border-box;max-width:calc(100vw - 40px)}
+.trs{display:grid;justify-items:center;text-align:center;gap:8px;padding:18px 6px 6px}.tri{width:64px;height:64px;border-radius:20px;display:grid;place-items:center;background:color-mix(in srgb,var(--accent,#E2BA6E) 16%,transparent);color:var(--accent,#E2BA6E)}.tri svg{width:30px;height:30px}.trs b{font-size:22px;letter-spacing:-.03em}.trs p{margin:0;color:var(--muted);font-size:15px;line-height:1.5;max-width:320px}
+.trd{display:flex;justify-content:center;gap:6px;margin:14px 0}.trd i{width:7px;height:7px;border-radius:4px;background:var(--sunk)}.trd i.on{width:20px;background:var(--accent,#E2BA6E)}.trm{margin-bottom:8px}
+.bvs{width:100%;border:0;background:none;color:inherit;font:inherit;text-align:left}
 </style>
 </head>
 <body>
@@ -4015,6 +4019,33 @@ function openRetro(){const me=ME(),R=retroCalc(me),mx=Math.max(...R.porDia.map(x
 let RTTRY=false;
 function retroAviso(){if(RTTRY||!ready())return;RTTRY=true;const W=semRev(),dw=new Date(today()+'T12:00:00').getDay();if(!(dw===1||dw===2||dw===0))return;if(LS('pt-retro','')===W.k)return;
   setTimeout(()=>{try{if(retroCalc(ME(),W).n)toastAct('Sua retrospectiva da semana está pronta','Ver',openRetro)}catch(e){}},2500)}
+/* ===================== primeiro uso: boas-vindas guiada e tour rápido ===================== */
+const TOUR=[
+  ['home','Início','Seu caixa de hoje, com quanto vira o mês, o que vence (“Para resolver”) e quanto ainda pode gastar. É a tela do dia a dia.'],
+  ['plus','Lançar','O botão + lança em segundos: escreva ou fale “mercado 120 no nubank ontem”, ou mande foto, PDF ou extrato que o app lê.'],
+  ['trend','Decidir','Antes de gastar: quanto pode gastar, se uma compra cabe e qual cartão usar. Depois: investimentos, metas, dívidas e cenários.'],
+  ['chart','Relatórios','O painel com a nota de saúde financeira, o período que quiser e o relatório do mês em PDF.'],
+  ['wallet','Carteira','No ícone de carteira, no topo: contas, cartões, dívidas, contas fixas, a visão da casa, a empresa e os ajustes.']];
+let TOURRUN=false;
+function tourAuto(){if(TOURRUN||!ready()||LS('pt-tour','')||RO)return;TOURRUN=true;setTimeout(()=>{if(!$('#overlay').hidden)return;S.contas.length?openTour():openBemVindo()},900)}
+function openTour(){let i=0;const draw=sh=>{const [icn,t,d]=TOUR[i],fim=i===TOUR.length-1;
+    sh.querySelector('#trx').innerHTML=`<div class="trs"><span class="tri">${ic(icn)}</span><b>${t}</b><p>${d}</p></div>
+      <div class="trd">${TOUR.map((_,k)=>`<i class="${k===i?'on':''}"></i>`).join('')}</div>
+      ${fim?`<div class="trm"><p class="note">Como prefere começar? Dá para mudar depois em Ajustes › Aparência e lembretes.</p><div class="seg"><button type="button" data-tm="1" aria-pressed="${SIMPLES}">Só o essencial</button><button type="button" data-tm="0" aria-pressed="${!SIMPLES}">Tudo</button></div></div>`:''}
+      <div class="btnrow"><button class="btn primary" type="button" id="tr-n">${fim?'Começar':'Próximo'}</button>${fim?'':'<button class="lk" type="button" id="tr-x">Pular</button>'}</div>`;
+    sh.querySelector('#tr-n').onclick=()=>{if(fim){LSset('pt-tour','1');closeSheet();re()}else{i++;draw(sh)}};
+    const x=sh.querySelector('#tr-x');if(x)x.onclick=()=>{LSset('pt-tour','1');closeSheet()};
+    sh.querySelectorAll('[data-tm]').forEach(b=>b.onclick=()=>{SIMPLES=b.dataset.tm==='1';LSset('pt-simples',SIMPLES?'1':'0');draw(sh)})};
+  openSheet(`<h2>Conheça o app</h2><div id="trx"></div>`,draw)}
+function openBemVindo(){const draw=sh=>{const ps=cfg().pessoas||[],nomesOk=ps.length&&!ps.some(p=>/^(Você|Parceiro\(a\))$/.test(p.nome));
+    const st=[[nomesOk,'Quem usa o app','seu nome e, se for a dois, o da outra pessoa','pes'],[S.contas.length>0,'Sua conta principal','banco e saldo de hoje — é a base do caixa','conta'],[S.recs.some(r=>r.tipo==='receita'),'Seu salário','valor e dia: o app passa a prever o mês','rec'],[S.cards.length>0,'Seus cartões (opcional)','limite, fechamento e vencimento','card']],ok=st.filter(s=>s[0]).length;
+    sh.querySelector('#bvx').innerHTML=`<p class="note">Quatro passos de um minuto cada. Depois disso o app já mostra seu caixa, quanto pode gastar e o que vence.</p>
+      <div class="rtp"><i style="width:${ok/st.length*100}%"></i></div>
+      <section class="fsec">${st.map((s,k)=>`<button type="button" class="fst ${s[0]?'ok':''} bvs" data-bv="${s[3]}"><span class="fsn">${s[0]?ic('check'):k+1}</span><span class="cxm"><strong>${s[1]}</strong><small>${s[2]}</small></span><span class="go">›</span></button>`).join('')}</section>
+      <div class="btnrow"><button class="btn primary" type="button" id="bv-ok">${ok>=3?'Pronto — ver o tour':'Continuar depois'}</button></div>`;
+    sh.querySelectorAll('[data-bv]').forEach(b=>b.onclick=()=>{const k=b.dataset.bv;if(k==='pes')openPessoas();else if(k==='conta')openConta(null);else if(k==='rec')openRec({tipo:'receita',nome:'Salário',dia:Q().q2.dia,categoria:'Salário',dono:ME()});else openCard(null)});
+    sh.querySelector('#bv-ok').onclick=()=>{if(ok>=3){closeSheet();setTimeout(openTour,250)}else closeSheet()}};
+  openSheet(`<h2>Bem-vindo ao Patrimônio</h2><div id="bvx"></div>`,draw)}
 function wireMg(el,rr){
   el.querySelectorAll('[data-colch]').forEach(b=>b.onclick=openColchao);
   el.querySelectorAll('[data-mgimg]').forEach(b=>b.onclick=()=>snapExport(b.closest('.mgc'),'Quanto posso gastar · '+MGLAB[MGL],'quanto-posso-gastar-'+today(),b));
@@ -5431,7 +5462,7 @@ function wirePainel(el){el.querySelectorAll('[data-relm]').forEach(b=>b.onclick=
   el.querySelectorAll('[data-pnimg]').forEach(b=>b.onclick=()=>snapExport(b.closest('.pnc'),'Painel de comando','painel-'+today(),b));
   el.querySelectorAll('[data-pna]').forEach(b=>b.onclick=()=>{const [t,v]=b.dataset.pna.split(':');if(t==='go')go(v);else if(t==='rp'){RP=v;vRel()}else if(v==='rec')openRevRec();else if(v==='inv')openInvestDash();else if(v==='spread')openSpread()})}
 /* ===================== Busca global ===================== */
-const ACOES_B=[['Lançar por frase','escrever falar voz lançamento rápido',()=>openFrase()],['Retrospectiva da semana','resumo semana compartilhar',()=>openRetro()],['Aparência e lembretes','tamanho texto modo simples notificação lembrete',()=>openPrefs()],['Posso comprar?','simular compra parcelado à vista',()=>openSimCompra()],['Revisão da semana','rotina semanal',()=>openSemana()],['Fechar quinzena','rotina salário acerto',()=>openQuinzena()],['Fechar o mês','fechamento mensal',()=>openFechamento()],
+const ACOES_B=[['Tour do app','conhecer onde fica cada coisa ajuda',()=>openTour()],['Lançar por frase','escrever falar voz lançamento rápido',()=>openFrase()],['Retrospectiva da semana','resumo semana compartilhar',()=>openRetro()],['Aparência e lembretes','tamanho texto modo simples notificação lembrete',()=>openPrefs()],['Posso comprar?','simular compra parcelado à vista',()=>openSimCompra()],['Revisão da semana','rotina semanal',()=>openSemana()],['Fechar quinzena','rotina salário acerto',()=>openQuinzena()],['Fechar o mês','fechamento mensal',()=>openFechamento()],
   ['Revisar contas fixas','assinaturas recorrentes reajuste',()=>openRevRec()],['Saúde do trimestre','reserva spread limite',()=>openSaudeTri()],['Calendário do ano','sazonais ipva iptu',()=>openSazonais()],['Apoio ao IR','imposto de renda declaração',()=>openIR()],
   ['Painel de comando','indicadores metas saúde',()=>{RP='painel';go('relatorios')}],['Relatório por período','semana quinzena trimestre ano',()=>{RP='periodo';go('relatorios')}],['Investimentos','aplicações projeção carteira',()=>openInvestDash()],['Spread','dívida aplicação antecipar',()=>openSpread()],
   ['Colchão','reserva segurança',()=>openColchao()],['Cópias de segurança','backup restaurar',()=>openBackups()],['Ajuda','dúvidas faq glossário',()=>openAjuda()],['Novo lançamento','despesa receita transferência',()=>openLanc(null)],['Bloqueio do app','pin digital segurança',()=>openBloqueio()],['Organizar categorias','classificar outros',()=>openOrganizar()]];
@@ -6445,6 +6476,7 @@ const FAQ=[
   ['Como mando o relatório de repasse?','Em Relatórios, abra o repasse e exporte. Vai com resumo, grupos (incluindo o abatimento no final), composição e imagem do gráfico.'],
   ['Onde mudo as pessoas e os dias das quinzenas?','Em Carteira → Ajustes → <b>Pessoas e quinzenas</b>.','pes','Abrir pessoas e quinzenas']]],
  ['Atalhos e conforto',[
+  ['Onde fica cada coisa?','Faça o <b>tour rápido</b>: em um minuto ele mostra o Início, o botão de lançar, o Decidir, os Relatórios e a Carteira — e deixa escolher entre ver só o essencial ou tudo.','tour','Fazer o tour'],
   ['Como lanço escrevendo uma frase ou falando?','Ao abrir um novo lançamento, toque em <b>Escrever ou falar o lançamento</b>. Escreva como fala — “mercado 182,40 no nubank ontem”, “tv 3.000 em 10x no itaú”, “almoço 86 dividido pix”, “recebi 1.200 freela” — ou toque no microfone. O app entende valor, parcelas, data, cartão ou conta, divisão e categoria (pelo seu histórico) e abre o lançamento preenchido para você conferir.','frase','Lançar por frase'],
   ['Como recebo lembretes no celular?','Em <b>Carteira › Ajustes › Aparência e lembretes</b>, ligue “Avisar no celular” e permita as notificações. Com o app instalado pelo Chrome no Android, o celular confere algumas vezes por dia, mesmo com o app fechado, e avisa contas, faturas e parcelas que vencem hoje e amanhã, a revisão da semana e o fechamento do mês. No iPhone, só com o app aberto.','prefs','Ligar lembretes'],
   ['O que é a retrospectiva da semana?','Um resumo da semana que passou: quanto gastou contra a sua média, dia a dia, dias sem gastar, maior gasto, para onde foi o dinheiro e o ritmo do mês. Aparece um aviso na segunda-feira e dá para compartilhar como imagem.','retro','Ver retrospectiva'],
@@ -6481,7 +6513,7 @@ const FAQ=[
   ['As cores ficaram estranhas no celular, e agora?','Confira se o celular não está forçando modo escuro em apps (Configurações → Tela → Modo escuro) e se, no Chrome, “Escurecer sites” está desligado. O app já tem tema escuro próprio, que segue o do celular.']]]
 ];
 function openAjuda(q0){
-  const run={colchao:()=>openColchao(),sim:()=>openSimCompra(),org:()=>{closeSheet();location.hash='inicio';setTimeout(()=>{const b=$('#orgbtn');b?b.click():toast('Role até o fim do Início e toque em Organizar esta tela')},350)},pes:()=>openPessoas(),prem:()=>openPremissas(),bk:()=>openBackups(),rv:()=>openRV(),rvir:()=>openRVIR(),rvalvo:()=>openRVAlvo(),meta:()=>openMeta(),dvq:()=>openDividasPlano(),cen:()=>openCenarios(),relm:()=>openRelMes(),casa:()=>openCasa(),filhos:()=>openFilhos(),pj:()=>openPJ(),pontos:()=>openPontos(),assessor:()=>openAssessor(),frase:()=>openFrase(),prefs:()=>openPrefs(),retro:()=>openRetro()};
+  const run={colchao:()=>openColchao(),sim:()=>openSimCompra(),org:()=>{closeSheet();location.hash='inicio';setTimeout(()=>{const b=$('#orgbtn');b?b.click():toast('Role até o fim do Início e toque em Organizar esta tela')},350)},pes:()=>openPessoas(),prem:()=>openPremissas(),bk:()=>openBackups(),rv:()=>openRV(),rvir:()=>openRVIR(),rvalvo:()=>openRVAlvo(),meta:()=>openMeta(),dvq:()=>openDividasPlano(),cen:()=>openCenarios(),relm:()=>openRelMes(),casa:()=>openCasa(),filhos:()=>openFilhos(),pj:()=>openPJ(),pontos:()=>openPontos(),assessor:()=>openAssessor(),frase:()=>openFrase(),tour:()=>openTour(),bv:()=>openBemVindo(),prefs:()=>openPrefs(),retro:()=>openRetro()};
   const norm=s=>String(s).normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
   openSheet(`<h2>Ajuda</h2><p class="note">Dúvidas comuns sobre o app. Toque numa pergunta para ver a resposta.</p>
     <div class="field faqs"><input id="fq-q" type="search" placeholder="Buscar: livre, acerto, offline…" autocomplete="off" value="${esc(q0||'')}"></div>
@@ -7891,7 +7923,7 @@ function openOrg(){const el=$(ORGV[S.view]);const sc=orgScope();
   openSheet(`<h2>Organizar ${S.view==='carteira'?'Carteira':'Relatórios'}</h2><p class="note">Escolha a ordem e o que aparece${S.view==='relatorios'?' nesta aba':''}. Fica salvo neste aparelho.</p><div id="psl" class="psl"></div><div class="btnrow"><button class="btn" type="button" id="orr">Restaurar padrão</button></div>`,sh=>{draw(sh);sh.querySelector('#orr').onclick=()=>{delete ORG[sc];orgSave();renderView();draw(sh)}});
 }
 
-function renderView(){document.querySelectorAll('body>.acsel').forEach(x=>x.remove());try{roCheck()}catch(e){}try{ntfSync()}catch(e){}const v=S.view;if(v==='inicio')vInicio();else if(v==='lanc')vLanc();else if(v==='relatorios')vRel();else if(v==='cartoes')vCards();else if(v==='decidir')vDecidir();else vCart();try{orgApply()}catch(e){console.error('org',e)}}
+function renderView(){document.querySelectorAll('body>.acsel').forEach(x=>x.remove());try{roCheck()}catch(e){}try{ntfSync()}catch(e){}try{tourAuto()}catch(e){}const v=S.view;if(v==='inicio')vInicio();else if(v==='lanc')vLanc();else if(v==='relatorios')vRel();else if(v==='cartoes')vCards();else if(v==='decidir')vDecidir();else vCart();try{orgApply()}catch(e){console.error('org',e)}}
 let raf=0;const re=()=>{CACHE=null;cancelAnimationFrame(raf);raf=requestAnimationFrame(()=>{if($('#overlay').hidden||S.view!=='lanc')renderView();else renderView()})};
 window.addEventListener('hashchange',route);
 $('#fab').onclick=openMenu;
