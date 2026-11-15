@@ -2219,6 +2219,9 @@ main{padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))!important}
 .rtok{display:flex;align-items:center;gap:8px;margin:2px 0;color:var(--good);font-size:14px}.rtok .ic{width:16px;height:16px}
 .rtp{height:6px;border-radius:3px;background:var(--sunk,rgba(127,127,127,.15));overflow:hidden;margin:6px 0 4px}.rtp i{display:block;height:100%;background:var(--accent,#E2BA6E)}
 .fst .chip{margin-left:6px}
+.gq{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;border:1px solid var(--sep,var(--hair));background:none;color:var(--muted);font-size:12px;font-weight:700;vertical-align:3px;margin-left:4px;padding:0}
+.anl{margin:6px 0 14px}.anl>summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 16px;border-radius:18px;border:1px dashed var(--sep,var(--hair));cursor:pointer}.anl>summary::-webkit-details-marker{display:none}
+.anl>summary b{display:block;font-size:14.5px}.anl>summary small{display:block;font-size:12px;color:var(--muted)}.anl>summary .ic{width:16px;height:16px;color:var(--faint);transition:transform .2s}.anl[open]>summary .ic{transform:rotate(180deg)}.anl[open]>summary{margin-bottom:12px}
 </style>
 </head>
 <body>
@@ -2963,7 +2966,7 @@ function iniAcoes(){
   const A=[['despesa','out','Despesa','crit'],['receita','in','Receita','good'],['transf','swap','Transferir','accent'],['sim','spark','Comprar?','warn'],...(((cfg().pessoas||[]).length>1)?[['gab','heartpay','Acerto','g']]:[]),['import','doc','Ler documento','inv']];
   return `<div class="qa">${A.map(([k,i,n,c])=>`<button type="button" class="qab" data-qa="${k}" style="--qc:var(--${c})"><span>${ic(i)}</span><small>${esc(n)}</small></button>`).join('')}</div>`;
 }
-let RVH=+LS('pt-rvh','7')||7,RVT=LS('pt-rvt','pagar')==='receber'?'receber':'pagar';
+let ANLO=LS('pt-anl','0')==='1',RVH=+LS('pt-rvh','7')||7,RVT=LS('pt-rvt','pagar')==='receber'?'receber':'pagar';
 function iniResolver(X){
   const {me,t,F}=X,lim=addD(t,RVH),rows=[],seen=new Set(),AG=agendaPessoal(me,lim);
   AG.filter(x=>x.v<0).forEach(x=>{seen.add(x.nav+x.d);rows.push(x)});
@@ -3169,10 +3172,10 @@ function gaugeSVG(uso,ritmo,st){const R=46,cx=60,cy=56,a=v=>Math.PI*(1-Math.max(
   const u=Math.max(0,Math.min(uso,1)),[nx,ny]=pt(u),[rx,ry]=pt(ritmo),nl=.78;
   return `<svg class="gau ${st}" viewBox="0 0 120 66" aria-hidden="true"><path d="${arc(0,1)}" class="gtk"/><path d="${arc(0,.6)}" class="gz1"/><path d="${arc(.6,.85)}" class="gz2"/><path d="${arc(.85,1)}" class="gz3"/>${u>0?`<path d="${arc(0,u)}" class="gvl"/>`:''}
     <line x1="${rx}" y1="${ry}" x2="${cx+(rx-cx)*.82}" y2="${cy+(ry-cy)*.82}" class="grt"/><line x1="${cx}" y1="${cy}" x2="${cx+(nx-cx)*nl}" y2="${cy+(ny-cy)*nl}" class="gnd"/><circle cx="${cx}" cy="${cy}" r="3.6" class="gnc"/></svg>`}
-const MGT={ok:['Ok','ok'],atencao:['Acima do ritmo','warn'],stop:['Passou da margem','crit'],sem:['Sem margem','crit'],caixa:['Caixa apertado','crit']};
+const MGT={ok:['Ok','ok'],atencao:['Acima do ritmo','warn'],stop:['Passou do livre','crit'],sem:['Sem livre','crit'],caixa:['Caixa apertado','crit']};
 /* ===================== Quanto posso gastar: três visões × projetado/só o que entrou ===================== */
 let MGL=LS('pt-mgl','sobra'),MGP=LS('pt-mgp','1')!=='0',MGV=0;
-const MGLAB={orc:'Orçamento',sobra:'Com sobra',caixa:'Caixa real'};
+const MGLAB={orc:'Livre',sobra:'Livre + sobra',caixa:'Disponível'};
 function gastoLentes(me,ym){ym=ym||today().slice(0,7);const t=today(),fim=dayIn(ym,31),P=planoCalc(ym,me),cz=r2((P.renda||0)*colchaoPct()),usado=r2(P.varT||0);
   const recJa=r2(sum(movs().filter(i=>i.ym===ym&&i.src==='conta'&&i.tipo==='receita'&&!i.ben&&!(i.l&&i.l.pend)&&(i.l.data||'')<=t),i=>share(i,me)));
   /* sobra útil: saldo com que o mês começou, menos as faturas deste mês de compras feitas antes (já contadas no orçamento do mês da compra) */
@@ -3208,9 +3211,9 @@ function iniMargem(X){let G;try{G=gastoLentes(X.me,X.ym)}catch(e){return ''}if(!
     :`menor saldo até ${fdate(G.fim).slice(0,5)}: ${brl0(C.min)} em ${fdate(C.md).slice(0,5)} − colchão ${brl0(G.cz)}`;
   const vis=MGL!=='caixa'?`<div class="mgg">${gaugeSVG(uso,G.ritmo,st==='stop'?'stop':st)}<b class="n">${lv>0?Math.round(uso*100)+'%':'—'}</b><small class="${tc}">● ${tt}</small></div>`
     :`<div class="mgg mgcx"><small>Saldo hoje</small><b class="n">${brl0(G.bal0)}</b><small>vira o mês com</small><b class="n ${C.fim<0?'neg':''}">${brl0(C.fim)}</b></div>`;
-  return `<div class="card mgc"><div class="ch"><h2>Quanto posso gastar</h2><span class="mgca nosnap"><button class="icb" type="button" data-mgimg="1" aria-label="Exportar imagem">${ic('share')}</button><button class="lk" type="button" data-colch="1">Colchão ${Math.round(colchaoPct()*100)}% ›</button></span></div>
+  return `<div class="card mgc"><div class="ch"><h2>Quanto posso gastar <button class="gq nosnap" type="button" data-gq="glossário" aria-label="O que significa cada termo">?</button></h2><span class="mgca nosnap"><button class="icb" type="button" data-mgimg="1" aria-label="Exportar imagem">${ic('share')}</button><button class="lk" type="button" data-colch="1">Colchão ${Math.round(colchaoPct()*100)}% ›</button></span></div>
     <div class="seg mgseg" role="tablist">${Object.keys(MGLAB).map(k=>`<button type="button" data-mgk="${k}" aria-pressed="${MGL===k}">${MGLAB[k]}</button>`).join('')}</div>
-    <div class="mgb">${vis}<div class="mgk"><div><span>Pode gastar em ${MES[+X.ym.slice(5)-1].toLowerCase()}</span><b class="n ${v<0?'neg':''}">${v<0?'−'+brl0(-v):brl0(v)}</b><small>${v>0?`≈ ${brl0(v/G.dr)} por dia até o fim do mês`:v<0?'acima do disponível nesta visão':''}</small>${(()=>{let V=null;try{V=varModel(X.me,X.ym)}catch(e){}if(!V||!(V.restV>1))return '';const r=MGL==='caixa'?r2(V.restV*(1-V.pc)):V.restV,f=r2(v-r);return `<small class="mgvr">dia a dia previsto até o fim do mês ≈ ${brl0(r)}${MGL==='caixa'&&V.pc>0?' (no débito/Pix)':''} → folga real <b class="n ${f<0?'neg':'pos'}">${f<0?'−':''}${brl0(Math.abs(f))}</b></small>`})()}${MGL!=='caixa'&&v>0&&G.L.caixa[p]<v?`<small class="warn mgw">no caixa, até ${fdate(C.md).slice(0,5)}, cabem só ${G.L.caixa[p]>0?brl0(G.L.caixa[p]):'R$ 0'} — o resto depende do que entra depois</small>`:''}</div>
+    <div class="mgb">${vis}<div class="mgk"><div><span>Pode gastar em ${MES[+X.ym.slice(5)-1].toLowerCase()}</span><b class="n ${v<0?'neg':''}">${v<0?'−'+brl0(-v):brl0(v)}</b><small>${v>0?`≈ ${brl0(v/G.dr)} por dia até o fim do mês`:v<0?'acima do disponível nesta visão':''}</small>${(()=>{let V=null;try{V=varModel(X.me,X.ym)}catch(e){}if(!V||!(V.restV>1))return '';const r=MGL==='caixa'?r2(V.restV*(1-V.pc)):V.restV,f=r2(v-r);return `<small class="mgvr">dia a dia previsto até o fim do mês ≈ ${brl0(r)}${MGL==='caixa'&&V.pc>0?' (no débito/Pix)':''} → folga <b class="n ${f<0?'neg':'pos'}">${f<0?'−':''}${brl0(Math.abs(f))}</b></small>`})()}${MGL!=='caixa'&&v>0&&G.L.caixa[p]<v?`<small class="warn mgw">no caixa, até ${fdate(C.md).slice(0,5)}, cabem só ${G.L.caixa[p]>0?brl0(G.L.caixa[p]):'R$ 0'} — o resto depende do que entra depois</small>`:''}</div>
       <div class="mgk2">${Object.keys(MGLAB).filter(k=>k!==MGL).map(k=>`<span>${MGLAB[k]} <b class="n ${G.L[k][p]<0?'neg':''}">${G.L[k][p]<0?'−'+brl0(-G.L[k][p]):brl0(G.L[k][p])}</b></span>`).join('')}</div></div></div>
     <div class="mgpj"><button type="button" class="mgtg nosnap" data-mgp="1" aria-pressed="${MGP}"><i></i>Contar o que ainda vai entrar</button><small>${p?`inclui ${brl0(r2(G.renda-G.recJa))} previstos no mês`:`só o que já caiu: ${brl0(G.recJa)}`}</small></div>
     <p class="mgn">${sub}.</p>
@@ -3271,7 +3274,7 @@ function iniGastoMini(X){let G;try{G=gastoLentes(X.me,X.ym)}catch(e){return ''}i
   const one=k=>{const v=G.L[k][p];let uso,st;if(k==='caixa'){const lv=r2(G.bal0-G.cz);uso=lv>0?Math.max(0,1-Math.max(G.C[p].min-G.cz,0)/lv):(v<0?9:0)}else{const lv=r2(G.livre(p)+(k==='sobra'?G.sobra:0));uso=lv>0?G.usado/lv:(G.usado>0?9:0)}
     st=v<0?'stop':k!=='caixa'&&uso>G.ritmo*1.1&&uso>.5?'atencao':'ok';
     return `<button type="button" class="gmi ${MGL===k?'on':''}" data-gmk="${k}"><span class="gmg">${gaugeSVG(Math.min(uso,1.3),k==='caixa'?0:G.ritmo,st)}</span><small>${MGLAB[k]}</small><b class="n ${v<0?'neg':''}">${v<0?'−'+brl0(-v):brl0(v)}</b></button>`};
-  return `<div class="card gmc"><div class="ch"><h2>Quanto posso gastar</h2><button class="lk" type="button" data-go="decidir">Decidir ›</button></div>
+  return `<div class="card gmc"><div class="ch"><h2>Quanto posso gastar <button class="gq" type="button" data-gq="glossário" aria-label="O que significa cada termo">?</button></h2><button class="lk" type="button" data-go="decidir">Decidir ›</button></div>
     <div class="gmr">${Object.keys(MGLAB).map(one).join('')}</div>
     <p class="mgn">${MGP?'Contando o que ainda vai entrar no mês':'Só com o que já entrou'} · toque para simular um gasto e ver a melhor forma de pagar.</p></div>`}
 function vDecidir(){
@@ -3298,12 +3301,12 @@ function vDecidir(){
   {const ap=el.querySelector('#iv-ap');if(ap)ap.onclick=()=>openCalc(APM||'',v=>{APM=r2(Math.max(0,v));LSset('pt-apm',String(APM));vDecidir()})}
 }
 function openColchao(){const me=ME();let pct=colchaoPct();
-  openSheet(`<h2>Colchão de segurança</h2><p class="note">Parte da renda que fica sempre guardada no caixa. Ela sai da margem do mês e o "Posso comprar?" não deixa a compra encostar nela.</p>
+  openSheet(`<h2>Colchão de segurança</h2><p class="note">Parte da renda que fica sempre guardada no caixa. Ela sai do Livre do mês e o "Posso comprar?" não deixa a compra encostar nela.</p>
     <div id="cz-g"></div>
     <div class="field"><label for="cz-r">Percentual da renda: <b id="cz-p"></b></label><input id="cz-r" type="range" min="0" max="30" step="1" value="${Math.round(pct*100)}" class="czr"><div class="czt"><span>0%</span><span>10%</span><span>20%</span><span>30%</span></div></div>
     <div class="btnrow"><button class="btn primary" type="button" id="cz-s">Salvar</button></div>`,sh=>{
     const R=sh.querySelector('#cz-r'),draw=()=>{pct=+R.value/100;const P=planoCalc(today().slice(0,7),me),cz=r2(P.renda*pct),livre=r2(P.renda-P.fixo-cz),uso=livre>0?(P.varT||0)/livre:9;
-      sh.querySelector('#cz-p').textContent=`${R.value}% · ${brl0(cz)}`;sh.querySelector('#cz-g').innerHTML=`<div class="czg">${gaugeSVG(uso,Math.min(+today().slice(8)/lastDay(today().slice(0,7)),1),uso>1?'stop':'ok')}<div><span>Margem livre do mês</span><b class="n ${livre<0?'neg':''}">${brl0(livre)}</b><small>renda ${brl0(P.renda)} − compromissos ${brl0(P.fixo)} − colchão ${brl0(cz)}</small></div></div>`};
+      sh.querySelector('#cz-p').textContent=`${R.value}% · ${brl0(cz)}`;sh.querySelector('#cz-g').innerHTML=`<div class="czg">${gaugeSVG(uso,Math.min(+today().slice(8)/lastDay(today().slice(0,7)),1),uso>1?'stop':'ok')}<div><span>Livre do mês</span><b class="n ${livre<0?'neg':''}">${brl0(livre)}</b><small>renda ${brl0(P.renda)} − compromissos ${brl0(P.fixo)} − colchão ${brl0(cz)}</small></div></div>`};
     R.oninput=draw;draw();
     sh.querySelector('#cz-s').onclick=async()=>{try{await S.db.doc('config/app').set(Object.assign({},S.cfg||{},{colchaoPct:pct}));COLM.k='';closeSheet();toast('Colchão salvo: '+Math.round(pct*100)+'% da renda')}catch(err){toast(writeErr(err))}};
   })}
@@ -3678,9 +3681,11 @@ function vInicio(){
   if(nx&&!SETUPX)h+=`<div class="setup"><span class="sp">${setup.map(s=>`<i class="${s[0]?'on':''}"></i>`).join('')}</span><button class="lk" type="button" data-setup="${nx[2]}">${ok}/${setup.length} · ${nx[1]} ›</button><button class="sx2" type="button" id="stx" aria-label="Ocultar">×</button></div>`;
   const X={me,t,ym,saldo:realBal(me,t),M:mesCalc(ym,me),F:mesFluxo(ym,me)};
   const B={rotina:iniRotina,margem:iniGastoMini,ticker:iniTicker,mesx:iniMesX,cats:iniCats,hero:iniHero,acoes:iniAcoes,alertas:iniResolver,ultimos:iniUltimos,spread:iniSpread,contas:iniContas,beneficios:iniBen,mes:()=>mesCard(me),agenda:iniAgenda,credito:()=>creditoDash(true),gastos:iniGastos2,planejado:iniPlan,fluxo6:iniEvo,kpis:iniKpis,orcamento:()=>'',plano:iniPlano,dre:iniDre,saude:iniSaude,fecha:iniFecha,quinzenas:iniQuin,patrimonio:iniPat};
-  layOrder().forEach(k=>{if((LAY.off||[]).includes(k))return;try{h+=B[k](X)||''}catch(e){console.error('início/'+k,e)}});
+  const CORE=['ticker','hero','acoes','rotina','alertas','margem','ultimos'];let ha='';
+  layOrder().forEach(k=>{if((LAY.off||[]).includes(k))return;let x='';try{x=B[k](X)||''}catch(e){console.error('início/'+k,e)}if(CORE.includes(k))h+=x;else ha+=x});
+  if(ha)h+=`<details class="anl" ${ANLO?'open':''}><summary><span><b>Análises do mês</b><small>candles, categorias, saúde e o que mais estiver ligado</small></span>${ic('down','chev')}</summary><div class="anlb">${ha}</div></details>`;
   h+=`<button class="custom" type="button" id="pers">${ic('edit')}<span>Personalizar início</span></button>`;
-  el.innerHTML=h;wireIni(el);wireIni4(el);
+  el.innerHTML=h;wireIni(el);wireIni4(el);{const an=el.querySelector('.anl');if(an)an.addEventListener('toggle',()=>{ANLO=an.open;LSset('pt-anl',ANLO?'1':'0')})}
   const x=$('#stx');if(x)x.onclick=()=>{SETUPX=true;LSset('pt-setup','x');vInicio()};
   el.querySelectorAll('[data-mym]').forEach(b=>b.onclick=()=>{MYM=ymAdd(MYM,+b.dataset.mym);vInicio()});
   el.querySelectorAll('[data-st]').forEach(b=>b.onclick=()=>{RP='fluxo';go('relatorios')});
@@ -3818,7 +3823,7 @@ function iniDre(X){
   if(!R&&!fix&&!par&&!vari)return '';
   const ln=(lab,v,cls,sign)=>`<span class="${cls||''}">${lab}</span><b class="n ${cls||''} ${v<0&&cls&&cls.includes('tt')?'neg':''}">${sign||''}${brl0(Math.abs(v))}</b><span class="pc ${cls||''}">${pc(Math.abs(v))}</span>`;
   return `<div class="card"><div class="ch"><h2>Resultado de ${MES[+ym.slice(5)-1]}</h2><button class="lk" type="button" data-dd="${ym}">Detalhar ›</button></div>
-    <div class="dre">${ln('Receitas',R,'b')}${ln('Contas fixas',fix,'mu','−')}${ln('Parcelas e dívidas',par,'mu','−')}${ln('Margem livre',mg,'tt')}${ln('Gastos variáveis',vari,'mu','−')}${ln(res>=0?'Sobra do mês':'Falta no mês',res,'tt fz')}</div>
+    <div class="dre">${ln('Receitas',R,'b')}${ln('Contas fixas',fix,'mu','−')}${ln('Parcelas e dívidas',par,'mu','−')}${ln('Livre do mês',mg,'tt')}${ln('Gastos variáveis',vari,'mu','−')}${ln(res>=0?'Sobra do mês':'Falta no mês',res,'tt fz')}</div>
     <div class="drb">${R?[[fix,'var(--accent)','Fixas'],[par,'var(--inv)','Parcelas'],[vari,'var(--warn)','Variáveis'],[Math.max(res,0),'var(--good)','Sobra']].filter(x=>x[0]>.5).map(x=>`<i style="flex:${x[0]};background:${x[1]}" title="${x[2]}"></i>`).join(''):''}</div>
     <p class="note">${R?(mg<0?`Os compromissos já passam da renda em ${brl0(-mg)}.`:`Depois de fixas e parcelas, sobram ${pc(mg)} da renda para gastos variáveis.`):'Cadastre o salário para ver a margem.'}${ben?` Pago com benefício, fora da conta: ${brl0(ben)}.`:''}</p></div>`;
 }
@@ -5361,18 +5366,27 @@ const mesFechado=l=>{const ym=(l.fatura&&l.cartao?l.fatura:(l.data||'')).slice(0
 /* =================== PREMISSAS =================== */
 /* ---------- ajuda e dúvidas (FAQ) ---------- */
 const FAQ=[
+ ['Glossário',[
+  ['Livre','O que sobra da renda do mês depois dos compromissos (contas fixas, parcelas, faturas), do colchão e do que você já gastou. É o seu orçamento do mês.'],
+  ['Livre + sobra','O Livre somado ao que sobrou do mês anterior, já descontadas as faturas de compras antigas que vencem agora.'],
+  ['Disponível','O dinheiro que existe de fato na conta: o menor saldo previsto até o fim do mês, menos o colchão. Garante que nenhum dia fique negativo.'],
+  ['Folga','O que sobra depois do gasto do dia a dia que ainda deve acontecer até o fim do mês (estimado pelo seu histórico). É o número mais realista para decidir um gasto extra.'],
+  ['Colchão','Parte da renda (10% por padrão) que fica sempre guardada. Sai do Livre e nenhuma simulação encosta nela.','colchao','Ajustar o colchão'],
+  ['Stop','Limite do mês para uma categoria, como um stop na bolsa. O app avisa perto do limite e quando o ritmo indica que vai passar.'],
+  ['Mediana e faixa normal','Mediana: o valor do meio dos últimos 3 meses completos — um mês atípico não distorce. Faixa normal: do mês mais baixo ao mais alto.'],
+  ['Ritmo e previsão (≈)','Ritmo: quanto você costuma gastar por dia. Previsão: gasto até hoje + ritmo × dias que faltam. Tudo que tem ≈ é estimativa, nunca entra no saldo.']]],
  ['Primeiros passos',[
   ['Onde ficou a Carteira? E o que é o Decidir?','A <b>Carteira</b> (contas, cartões cadastrados, dívidas e Ajustes) agora abre pelo ícone de carteira no topo, ao lado do ponto de sincronização. No menu de baixo entrou o <b>Decidir</b>: quanto posso gastar nas três visões, o simulador “Vou gastar”, o “Posso comprar?” com as ordens salvas e seus investimentos.'],
   ['Como faço um lançamento?','Toque no botão dourado <b>+</b> no menu de baixo e escolha despesa, receita ou transferência. No Início, as <b>ações rápidas</b> levam direto para cada tipo. Valor, data, conta ou cartão e categoria são o essencial; o resto é opcional.'],
-  ['Qual a diferença entre “Comum” e “Só sua”?','“Comum” divide a despesa meio a meio entre as duas pessoas; “Só sua” fica 100% com quem lançou. Todos os totais pessoais (caixa, margem, relatórios) usam sempre a sua parte.'],
+  ['Qual a diferença entre “Comum” e “Só sua”?','“Comum” divide a despesa meio a meio entre as duas pessoas; “Só sua” fica 100% com quem lançou. Todos os totais pessoais (caixa, Livre, relatórios) usam sempre a sua parte.'],
   ['Por que o saldo não mudou depois que lancei?','O caixa só muda quando o lançamento está <b>pago</b>. Itens pendentes ficam previstos na agenda até você marcar como pago, com data e conta. Compras no cartão entram no caixa quando a fatura é paga.'],
   ['Como uso a calculadora?','Ao lançar, toque no campo de valor: a calculadora abre. Faça a conta (tem %, 00 e AC/C) e toque em <b>Usar</b> para levar o resultado ao lançamento.'],
   ['Como escondo os valores?','No cartão principal do Início, toque no <b>olho</b>. Os valores ficam borrados até você tocar de novo — útil em lugares públicos.']]],
  ['Início e decisões',[
   ['O que significam “Veio de”, “Hoje” e “Vira para”?','É o caixa do mês em três pontos: quanto você trouxe do mês anterior, quanto tem hoje e com quanto vira para o próximo mês se tudo o que está registrado acontecer.'],
   ['Como leio o gráfico do caixa?','Linha cheia é o que já aconteceu; tracejada é a projeção com o que está lançado. A linha “zero” mostra onde o dinheiro acaba e “menor” marca o dia mais apertado. Use <b>Mês, 3M, 6M e 1A</b> para mudar o período e arraste o dedo no gráfico para ver cada dia. As barras de baixo são as saídas de cada dia.'],
-  ['O que é o “Quanto posso gastar”?','Três visões do mesmo mês. <b>Orçamento</b>: só a renda do mês, menos compromissos, colchão e o que já gastou. <b>Com sobra</b>: soma o que sobrou do mês anterior (descontadas as faturas de compras antigas que vencem agora). <b>Caixa real</b>: o dinheiro que existe de fato, pelo menor saldo previsto até o fim do mês. O botão <b>Contar o que ainda vai entrar</b> liga ou desliga as receitas previstas. Em <b>Vou gastar</b>, digite um valor e veja qual cartão ou Pix é a melhor forma de pagar.','colchao','Ajustar o colchão'],
-  ['O que é o colchão de segurança?','Uma parte da renda (10% por padrão) que fica sempre guardada. Ela sai da margem e o “Posso comprar?” não deixa nenhuma compra encostar nela.','colchao','Ajustar o colchão'],
+  ['O que é o “Quanto posso gastar”?','Três visões do mesmo mês. <b>Livre</b>: só a renda do mês, menos compromissos, colchão e o que já gastou. <b>Livre + sobra</b>: soma o que sobrou do mês anterior (descontadas as faturas de compras antigas que vencem agora). <b>Disponível</b>: o dinheiro que existe de fato, pelo menor saldo previsto até o fim do mês. Abaixo do valor aparece a <b>Folga</b>: o que sobra depois do dia a dia previsto. O botão <b>Contar o que ainda vai entrar</b> liga ou desliga as receitas previstas. Em <b>Vou gastar</b>, digite um valor e veja qual cartão ou Pix é a melhor forma de pagar.','colchao','Ajustar o colchão'],
+  ['O que é o colchão de segurança?','Uma parte da renda (10% por padrão) que fica sempre guardada. Ela sai do Livre e o “Posso comprar?” não deixa nenhuma compra encostar nela.','colchao','Ajustar o colchão'],
   ['Como funciona o “Posso comprar?”','Informe valor e forma (à vista ou parcelado). O app simula a compra no seu caixa futuro e diz se cabe, quando cabe e qual forma pesa menos. Se ainda não cabe, você pode salvar como <b>ordem</b> e o app avisa em “Para resolver” quando ficar pronta.','sim','Simular uma compra'],
   ['O que é o cartão “Rotina”?','Mostra a tarefa da hora, uma por vez. <b>Revisão da semana</b> (≈ 4 min): gasto da semana × normal, lançamentos sem categoria, pendências vencidas, próximos 7 dias e conferência dos saldos. <b>Fechar o mês</b> (≈ 6 min, do dia 25 ao dia 15): classificação, pendências, faturas, repasses, saldos, rendimentos, stops do próximo mês e backup fora do app. O app marca sozinho o que já está em dia; o resto você marca como visto. Em “Todas” estão as rotinas e o histórico.'],
   ['O que é o painel “Dia a dia”?','Mede seus gastos variáveis (mercado, restaurante, combustível, lazer…) pela mediana dos últimos 3 meses e prevê como o mês fecha: gasto até hoje + custo de um dia típico × dias que faltam. Mostra a faixa normal e avisa quando o ritmo indica que vai passar. No <b>Posso comprar?</b>, o botão <b>Considerar o dia a dia</b> inclui essa estimativa no caixa futuro, para os meses à frente não parecerem folgados demais. Parcelas, contas fixas, recorrências e acertos não entram — já estão na agenda.'],
@@ -5382,7 +5396,7 @@ const FAQ=[
   ['O que é “Para resolver”?','A lista do que precisa da sua ação, em duas abas. <b>A pagar</b>: contas a vencer, faturas, pendências, stops e ordens prontas. <b>A receber</b>: receitas previstas, o que a outra pessoa te deve e receitas que passaram da data sem confirmação. Escolha 7, 15 ou 30 dias de horizonte.'],
   ['A receita caiu com valor ou data diferente, e agora?','Em Para resolver → <b>A receber</b>, toque na receita. Em <b>Recebi</b> você corrige o valor, a data e a conta do que entrou de fato. Se ainda não entrou, use <b>Ajustar previsão</b> para mudar valor ou data só deste mês — ou marque que não vai entrar. A recorrência continua igual nos outros meses.'],
   ['E a faixa de cotações que corre no topo?','Um resumo do mês no estilo pregão: patrimônio, caixa e categorias com a variação contra o mês anterior. Toque para pausar.'],
-  ['Posso mudar a ordem ou esconder blocos do Início?','Sim. No fim de cada tela, toque em <b>Organizar esta tela</b> para ligar, desligar e reordenar os blocos.','org','Organizar o Início']]],
+  ['Posso mudar a ordem ou esconder blocos do Início?','Sim. No fim do Início, toque em <b>Personalizar início</b> para ligar, desligar e reordenar os blocos. O essencial do dia (caixa, rotina, para resolver, quanto posso gastar e últimos lançamentos) fica no topo; candles, categorias, saúde e os demais ficam agrupados em <b>Análises do mês</b>, que abre com um toque e lembra se você deixou aberto.','org','Organizar o Início']]],
  ['Cartões',[
   ['Quando a compra no cartão aparece?','A fatura é dívida desde a compra. Ela entra no caixa no dia do pagamento da fatura e nas categorias no mês da compra. Parcelas futuras já viram compromisso nos meses seguintes.'],
   ['Como importo uma fatura?','Abra o cartão em <b>Cartões</b> e use <b>Importar fatura</b> (OFX ou CSV do banco). O app classifica pelas suas regras e mostra a diferença para o total da fatura.'],
@@ -5409,7 +5423,7 @@ function openAjuda(q0){
   const run={colchao:()=>openColchao(),sim:()=>openSimCompra(),org:()=>{closeSheet();location.hash='inicio';setTimeout(()=>{const b=$('#orgbtn');b?b.click():toast('Role até o fim do Início e toque em Organizar esta tela')},350)},pes:()=>openPessoas(),prem:()=>openPremissas(),bk:()=>openBackups()};
   const norm=s=>String(s).normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
   openSheet(`<h2>Ajuda</h2><p class="note">Dúvidas comuns sobre o app. Toque numa pergunta para ver a resposta.</p>
-    <div class="field faqs"><input id="fq-q" type="search" placeholder="Buscar: margem, acerto, offline…" autocomplete="off" value="${esc(q0||'')}"></div>
+    <div class="field faqs"><input id="fq-q" type="search" placeholder="Buscar: livre, acerto, offline…" autocomplete="off" value="${esc(q0||'')}"></div>
     <div id="fq-l">${FAQ.map(([g,L],gi)=>`<section class="faqg" data-g="${gi}"><h3>${esc(g)}</h3>${L.map(([p,r,a,al],i)=>`<details class="faqi" data-t="${esc(norm(g+' '+p+' '+r.replace(/<[^>]+>/g,'')))}"><summary>${esc(p)}${ic('down')}</summary><div class="faqr"><p>${r}</p>${a?`<button class="btn sm" type="button" data-fa="${a}">${esc(al)}</button>`:''}</div></details>`).join('')}</section>`).join('')}
     <p class="note" id="fq-0" hidden>Nada encontrado. Tente outra palavra.</p></div>`,sh=>{
     const Q=sh.querySelector('#fq-q'),f=()=>{const t=norm(Q.value.trim());let n=0;sh.querySelectorAll('.faqg').forEach(g=>{let k=0;g.querySelectorAll('.faqi').forEach(d=>{const ok=!t||t.split(/\s+/).every(w=>d.dataset.t.includes(w));d.hidden=!ok;if(ok)k++;if(t&&ok&&k<=2)d.open=true;if(!t)d.open=false});g.hidden=!k;n+=k});sh.querySelector('#fq-0').hidden=!!n};
@@ -6792,6 +6806,7 @@ function renderView(){document.querySelectorAll('body>.acsel').forEach(x=>x.remo
 let raf=0;const re=()=>{CACHE=null;cancelAnimationFrame(raf);raf=requestAnimationFrame(()=>{if($('#overlay').hidden||S.view!=='lanc')renderView();else renderView()})};
 window.addEventListener('hashchange',route);
 $('#fab').onclick=openMenu;
+document.addEventListener('click',e=>{const q=e.target.closest&&e.target.closest('[data-gq]');if(!q)return;e.preventDefault();e.stopPropagation();openAjuda(q.dataset.gq)},true);
 document.addEventListener('paste',e=>{if(!$('#overlay').hidden||!S.sample)return;const fl=[...((e.clipboardData||{}).items||[])].filter(x=>x.kind==='file').map(x=>x.getAsFile()).filter(Boolean);if(fl.length){e.preventDefault();openSmartImport(fl.map((f,i)=>new File([f],f.name||`print-${i+1}.png`,{type:f.type})))}});
 $('#navback').onclick=navBack;
 document.querySelectorAll('nav.tabs a').forEach(a=>a.addEventListener('click',e=>{NAV=[];if(a.dataset.v===S.view){e.preventDefault();window.scrollTo({top:0,behavior:'smooth'})}}));
