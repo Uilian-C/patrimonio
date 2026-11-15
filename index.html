@@ -2283,6 +2283,13 @@ details.ivs>summary{cursor:pointer;font-weight:600;padding:8px 0}
 .cnt td:first-child{color:var(--muted)}.cnt td{padding:7px 4px}
 .card.dcc{display:block;justify-items:normal}
 svg.sfc.cnc{background:none;padding:0;border-radius:0;height:auto}
+body.ro #fab,body.ro .cxadd{display:none!important}body.ro::after{content:'Modo leitura';position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom));z-index:60;background:var(--ink);color:var(--surface);font-size:12px;font-weight:600;padding:5px 12px;border-radius:99px;opacity:.85;pointer-events:none}
+.pjck{display:grid;gap:4px;margin:6px 0 10px}.pjck small{color:var(--muted);font-size:11px;margin-left:4px}
+.pjb{display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));gap:6px;align-items:end;margin-top:8px}.pjm{display:grid;justify-items:center;gap:3px}.pjbs{display:flex;gap:3px;align-items:flex-end;height:90px;width:100%;justify-content:center}.pjbs i{width:38%;max-width:16px;border-radius:3px 3px 0 0;min-height:2px}.pjbs i.r,.pjI.r{background:var(--good)}.pjbs i.d,.pjI.d{background:var(--muted);opacity:.6}.pjm small{font-size:10.5px;color:var(--muted)}.pjm b{font-size:11px;font-weight:600}
+.pjI{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:4px;vertical-align:middle}
+.csr{display:grid;grid-template-columns:100px minmax(0,1fr) 70px;gap:8px;align-items:center;font-size:12.5px;padding:4px 0}.csr>span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.csr>i{height:8px;border-radius:4px;background:var(--sunk);display:block;overflow:hidden}.csr>i>b{display:block;height:100%;background:var(--accent,#E2BA6E);border-radius:4px}.csr>em{font-style:normal;text-align:right;font-weight:600}
+.fhb{display:flex;gap:3px;align-items:flex-end;height:46px;margin:10px 0 2px}.fhb i{flex:1;background:var(--accent,#E2BA6E);opacity:.75;border-radius:2px 2px 0 0}
+pre.rules{font-size:10.5px;line-height:1.45;background:var(--sunk);padding:10px 12px;border-radius:12px;overflow-x:auto;white-space:pre;max-width:100%;user-select:all}
 </style>
 </head>
 <body>
@@ -2444,7 +2451,7 @@ const norm=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,''
 const LS=(k,d)=>{try{return localStorage.getItem(k)||d}catch(e){return d}};
 const LSset=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};
 function toast(m){const t=$('#toast');t.textContent=m;t.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>t.hidden=true,2600)}
-function writeErr(e){const c=e&&e.code;if(c==='not_granted'||c==='revoked')return 'Sua conta só pode ver este app.';if(c==='conflict')return 'Outra pessoa alterou ao mesmo tempo. Tente de novo.';return 'Não consegui salvar. Verifique a conexão e tente de novo.'}
+function writeErr(e){const c=e&&e.code;if(c==='not_granted'||c==='revoked')return 'Sua conta só pode ver este app.';if(c==='conflict')return 'Outra pessoa alterou ao mesmo tempo. Tente de novo.';if(c==='ro')return 'Modo leitura: este acesso só visualiza, não altera.';return 'Não consegui salvar. Verifique a conexão e tente de novo.'}
 
 const CATS=['Mercado','Casa','Contas da casa','Restaurante','Delivery','Transporte','Combustível','Saúde','Farmácia','Educação','Lazer','Viagem','Assinaturas','Compras','Vestuário','Pets','Presentes','Eventos','Obra','Serviços','Pix a pessoas','Impostos e taxas','Dívidas','Outros'];
 const CATR=['Salário','Adiantamento','13º e férias','Renda extra','Rendimentos','Reembolso','Outras receitas'];
@@ -2486,7 +2493,7 @@ let CACHE=null;
 /* mov = despesas e receitas, uma linha por parcela, com data de caixa (vencimento da fatura ou data do lançamento) */
 function movs(){
   if(CACHE)return CACHE;const out=[];
-  S.lanc.forEach(l=>{const tipo=l.tipo||'despesa';if(tipo!=='despesa'&&tipo!=='receita')return;
+  const pjS=pjSep();S.lanc.forEach(l=>{const tipo=l.tipo||'despesa';if(tipo!=='despesa'&&tipo!=='receita')return;if(pjS&&(pjConta(l.conta)||pjCard(l.cartao)))return;
     if(l.cartao){const c=card(l.cartao),N=Math.max(+l.parcelas||1,1),k0=Math.min(Math.max(+l.parcela||1,1),N),b=baseDue(l,c),cb=(l.data||b+'-01').slice(0,7);
       for(let j=k0;j<=N;j++){const ym=ymAdd(b,j-k0),due=dayIn(ym,c?c.vencimento:10),ov=l.ovr&&l.ovr[j],L=ov?Object.assign({},l,ov,{_ovj:j}):l;
         out.push({l:L,tipo,src:'card',c,j,N,valor:+L.valor||0,ym,cym:ymAdd(cb,j-k0),due,per:perOf(due,c&&c.quinzena!=='auto'?c.quinzena:null),dono:c?c.dono:ME(),comum:tipo==='despesa'&&L.divisao!=='pessoal',proj:j>k0})}}
@@ -2634,7 +2641,7 @@ let PATM=LS('pt-patm','comp');
 const recTaxa=r=>Math.max(+(r&&r.taxaAm)||0,0)/100;
 function patrimonio(pid,ate){
   const lim=ate||today(),lymL=lim.slice(0,7);
-  const contas=S.contas.filter(a=>a.ativo!==false&&fracOf(a.dono,pid)>0).map(a=>({a,v:saldoConta(a,lim)*fracOf(a.dono,pid)}));
+  const pjS=pjSep(),contas=S.contas.filter(a=>a.ativo!==false&&fracOf(a.dono,pid)>0&&!(pjS&&pjConta(a.id))).map(a=>({a,v:saldoConta(a,lim)*fracOf(a.dono,pid)}));
   const by=t=>sum(contas.filter(x=>(x.a.tipo||'corrente')===t),x=>x.v);
   const divs=S.dividas.map(d=>{const s=sched(d),pt=((d.parte||{})[pid]??100)/100,paidBefore=s.rows.filter(r=>r.pg&&r.pg.some(l=>(l.data||'')<=lim));const sal=Math.max((+d.valor||0)-sum(paidBefore,r=>r.amort),0);return {d,v:d.status==='aguardando'?0:sal*pt,ag:d.status==='aguardando'?(+d.valor||0)*pt:0}});
   /* faturas: tudo que já foi comprado e ainda não foi pago (inclui parcelas futuras e faturas vencidas sem pagamento), sua parte, com estornos */
@@ -2873,7 +2880,7 @@ function agendaPessoal(pid,ate,de,o){
   return out.filter(x=>x.k!=='ac').sort((a,b)=>a.d.localeCompare(b.d)||a.v-b.v);
 }
 /* ---------- mês: saldo inicial → movimentos → saldo final ---------- */
-const scopeContas=pid=>S.contas.filter(a=>a.ativo!==false&&(a.tipo==='corrente'||a.tipo==='dinheiro'||!a.tipo)&&fracOf(a.dono,pid)>0);
+const scopeContas=pid=>{const pj=pjSep();return S.contas.filter(a=>a.ativo!==false&&(a.tipo==='corrente'||a.tipo==='dinheiro'||!a.tipo)&&fracOf(a.dono,pid)>0&&!(pj&&pjConta(a.id)))};
 function acAdj(pid,ate,de){return sum(S.acertos.filter(x=>{const d=acD(x);return !x.conta&&d&&d<=ate&&(!de||d>de)&&(x.de===pid||x.para===pid)}),x=>x.de===pid?-x.valor:x.valor)}
 const PADR=()=>((S.cfg||{}).padrao)||{};
 const contaPadrao=()=>(conta(PADR().conta)&&conta(PADR().conta).ativo!==false?PADR().conta:'')||(S.contas.find(a=>a.ativo!==false&&a.tipo==='corrente'&&a.dono===ME())||S.contas.find(a=>a.dono===ME())||{}).id||'';
@@ -3706,6 +3713,180 @@ async function relMesPDF(ym,btn){if(btn)btn.disabled=true;const me=ME();
     brk(9);y+=4;fz(8,0,[130,130,130]);doc.splitTextToSize(pdfT('Valores registrados no app, na sua parte. Projeções e estimativas (~) usam o histórico e as taxas cadastradas; não são garantia. Gerado pelo Patrimônio.'),W-Lm).forEach(l=>{T(l,Lm,y);y+=4});
     await S.downloads.save({filename:`relatorio-${ym}.pdf`,data:doc.output('blob')});
   }catch(e){if(!(e&&(e.code==='cancelled'||e.code==='declined'))){console.error(e);toast('Não consegui gerar o PDF.')}}finally{if(btn)btn.disabled=false}}
+/* ===================== Onda 4: casa, filhos, empresa (PJ), pontos e cashback, acesso de leitura ===================== */
+async function cfgSet(patch){await S.db.doc('config/app').set(Object.assign({},S.cfg||{},patch))}
+/* ---------- empresa (PJ): contas e cartões da empresa, separados da vida pessoal ---------- */
+const PJ=()=>cfg().pj||{};
+const pjConta=id=>!!id&&(PJ().contas||[]).includes(id),pjCard=id=>!!id&&(PJ().cartoes||[]).includes(id);
+const pjSep=()=>!!PJ().separar&&((PJ().contas||[]).length||(PJ().cartoes||[]).length);
+const pjFora=l=>pjSep()&&(pjConta(l.conta)||pjCard(l.cartao));
+const PJPESS=/^(Mercado|Restaurante|Delivery|Lazer|Vestuário|Saúde|Farmácia|Pets|Beleza|Viagem|Educação|Assinaturas)$/;
+function pjMes(ym){const P=PJ(),Cs=P.contas||[],Ks=P.cartoes||[],L=S.lanc.filter(l=>!l.pend);
+  const inR=l=>(l.data||'').slice(0,7)===ym;
+  const rec=sum(L.filter(l=>l.tipo==='receita'&&pjConta(l.conta)&&inR(l)),l=>+l.valor||0);
+  const dC=L.filter(l=>(l.tipo||'despesa')==='despesa'&&pjConta(l.conta)&&inR(l));
+  const cardIts=[];S.lanc.forEach(l=>{if(!pjCard(l.cartao)||(l.tipo||'despesa')!=='despesa')return;const c=card(l.cartao),N=Math.max(+l.parcelas||1,1),k0=Math.min(Math.max(+l.parcela||1,1),N),b=baseDue(l,c);for(let j=k0;j<=N;j++){if(ymAdd(b,j-k0)===ym)cardIts.push({l,v:r2((+l.valor||0))})}});
+  const desp=r2(sum(dC,l=>+l.valor||0)+sum(cardIts,x=>x.v));
+  const ret=sum(L.filter(l=>l.tipo==='transf'&&pjConta(l.conta)&&!pjConta(l.destino)&&inR(l)),l=>+l.valor||0),ap=sum(L.filter(l=>l.tipo==='transf'&&!pjConta(l.conta)&&pjConta(l.destino)&&inR(l)),l=>+l.valor||0);
+  const susp=dC.concat(cardIts.map(x=>x.l)).filter(l=>PJPESS.test(l.categoria||''));
+  return {ym,rec:r2(rec),desp,res:r2(rec-desp),ret:r2(ret),ap:r2(ap),susp,cats:(()=>{const m={};dC.forEach(l=>{const k=l.categoria||'Outros';m[k]=(m[k]||0)+(+l.valor||0)});cardIts.forEach(x=>{const k=x.l.categoria||'Outros';m[k]=(m[k]||0)+x.v});return m})()}}
+function openPJ(){const draw=sh=>{const P=PJ(),box=sh.querySelector('#pjx'),ym=today().slice(0,7),tem=(P.contas||[]).length||(P.cartoes||[]).length;
+    const ctas=S.contas.filter(a=>a.ativo!==false&&!isBen(a)),cds=S.cards.filter(c=>c.ativo!==false);
+    const cfgH=`<details class="ivs" ${tem?'':'open'}><summary>Contas e cartões da empresa</summary>
+      <div class="field"><label for="pj-n">Nome da empresa</label><input id="pj-n" value="${esc(P.nome||'')}" placeholder="Minha empresa"></div>
+      <div class="pjck">${ctas.map(a=>`<label class="chk"><input type="checkbox" data-pjc="${esc(a.id)}" ${pjConta(a.id)?'checked':''}> ${esc(a.nome)} <small>${esc(TCONTA[a.tipo||'corrente']||'')}</small></label>`).join('')}${cds.map(c=>`<label class="chk"><input type="checkbox" data-pjk="${esc(c.id)}" ${pjCard(c.id)?'checked':''}> ${esc(cardName(c))} <small>cartão</small></label>`).join('')}</div>
+      <label class="chk"><input type="checkbox" id="pj-s" ${P.separar?'checked':''}> Tirar a empresa das visões pessoais (caixa, gastos, margem, patrimônio)</label>
+      <div class="btnrow"><button class="btn primary sm" type="button" id="pj-ok">Salvar</button></div></details>`;
+    if(!tem){box.innerHTML=`<p class="note">Marque as contas e cartões que são da empresa. O app mostra faturamento, despesas, resultado e retiradas mês a mês — e, se quiser, tira a empresa das suas contas pessoais para não misturar.</p>${cfgH}`;wire();return}
+    const M=[...Array(6)].map((_,k)=>pjMes(ymAdd(ym,k-5))),cur=M[5],saldo=r2(sum(S.contas.filter(a=>pjConta(a.id)),a=>saldoConta(a))),mx=Math.max(...M.map(m=>Math.max(m.rec,m.desp)),1);
+    const comp=M.slice(0,5).filter(m=>m.rec||m.desp),mRes=comp.length?sum(comp,m=>m.res)/comp.length:0,mRec=comp.length?sum(comp,m=>m.rec)/comp.length:0,susp=M.slice(3).flatMap(m=>m.susp);
+    const cats=Object.entries(cur.cats).sort((a,b)=>b[1]-a[1]).slice(0,5);
+    box.innerHTML=`<div class="ivh"><span class="k">${esc(P.nome||'Empresa')} · caixa hoje</span><div class="big n">${brl(saldo)}</div><span class="ivp">${ic('trend')}<span>${P.separar?'Separada das visões pessoais':'<span class="warn">Ainda misturada com as visões pessoais</span>'}</span></span></div>
+      <div class="ivk"><div><small>Faturou em ${MES[+ym.slice(5)-1].toLowerCase().slice(0,3)}</small><b class="n pos">${brl0(cur.rec)}</b></div><div><small>Despesas</small><b class="n">${brl0(cur.desp)}</b></div><div><small>Resultado</small><b class="n ${cur.res<0?'neg':'pos'}">${cur.res<0?'−':''}${brl0(Math.abs(cur.res))}</b><small>${cur.rec?'margem '+pctf(cur.res/cur.rec):''}</small></div></div>
+      <section class="ivs"><div class="ivsh"><h3>Últimos 6 meses</h3><small>faturamento × despesas</small></div><div class="pjb">${M.map(m=>`<div class="pjm"><span class="pjbs"><i class="r" style="height:${(m.rec/mx*100).toFixed(1)}%"></i><i class="d" style="height:${(m.desp/mx*100).toFixed(1)}%"></i></span><small>${MES[+m.ym.slice(5)-1].slice(0,3)}</small><b class="n ${m.res<0?'neg':''}">${m.res<0?'−':''}${Math.abs(m.res)>=1000?(Math.abs(m.res)/1000).toLocaleString('pt-BR',{maximumFractionDigits:1})+'k':Math.round(Math.abs(m.res))}</b></div>`).join('')}</div>
+        <div class="sfg"><span><i class="pjI r"></i>faturamento</span><span><i class="pjI d"></i>despesas</span><span>número = resultado</span></div>
+        ${comp.length?`<p class="rvsug">Média dos meses anteriores: faturamento <b class="n">${brl0(mRec)}</b>, resultado <b class="n">${brl0(mRes)}</b>/mês.</p>`:''}</section>
+      <section class="ivs"><div class="ivsh"><h3>Empresa ↔ pessoa física</h3><small>${MES[+ym.slice(5)-1].toLowerCase()}</small></div>
+        <div class="ivk"><div><small>Retiradas para você</small><b class="n">${brl0(cur.ret)}</b></div><div><small>Aportes seus na empresa</small><b class="n">${brl0(cur.ap)}</b></div><div><small>Pode retirar ≈</small><b class="n ${mRes>0?'pos':''}">${mRes>0?brl0(Math.max(mRes-cur.ret,0)):'—'}</b><small>pelo resultado médio</small></div></div>
+        <p class="note">Retiradas são transferências de uma conta da empresa para uma sua. Para entrarem como renda no seu mês, registre o pró-labore ou a distribuição como receita na sua conta.</p></section>
+      ${cats.length?`<section class="ivs"><div class="ivsh"><h3>Maiores despesas do mês</h3></div>${cats.map(([k,v])=>`<div class="bli"><span>${esc(k)}</span><b class="n">${brl(v)}</b></div>`).join('')}</section>`:''}
+      ${susp.length?`<p class="rvalert" style="display:grid">${ic('alert')}<span><b>${susp.length} gasto${susp.length>1?'s':''} com cara de pessoal pago pela empresa</b><small>${susp.slice(0,4).map(l=>esc(l.desc||l.categoria)+' '+brl0(l.valor)).join(' · ')} — misturar dificulta saber o lucro real e complica o contador.</small></span></p>`:''}
+      ${cfgH}`;wire()
+    function wire(){box.querySelector('#pj-ok').onclick=async()=>{const contas=[...box.querySelectorAll('[data-pjc]:checked')].map(i=>i.dataset.pjc),cartoes=[...box.querySelectorAll('[data-pjk]:checked')].map(i=>i.dataset.pjk);
+      try{await cfgSet({pj:{nome:box.querySelector('#pj-n').value.trim(),contas,cartoes,separar:box.querySelector('#pj-s').checked}});toast('Empresa salva');setTimeout(()=>draw(sh),300)}catch(e){toast(writeErr(e))}}}};
+  openSheet(`<h2>Empresa (PJ)</h2><div id="pjx" class="ivx"></div>`,draw)}
+/* ---------- visão da casa: as duas pessoas somadas ---------- */
+function casaCalc(){const t=today(),ym=t.slice(0,7),ps=cfg().pessoas||[],me=ME(),o=PATM;PATM='hoje';
+  const R=ps.map(p=>{const Pt=patrimonio(p.id),cx=realBal(p.id,t),inv=sum(invCarteira(p.id),x=>x.v),M=mesCalc(ym,p.id);let rv=0;try{rv=rvCalc(p.id).v}catch(e){}return {p,Pt,cx:r2(cx),inv:r2(inv+rv),M,pl:r2(Pt.liqHoje-(p.id===me?(Pt.acR||0)-(Pt.acP||0):0))}});PATM=o;
+  const meses=[...Array(4)].map((_,k)=>ymAdd(ym,k-3)).map(m=>({ym:m,rec:r2(sum(ps,p=>mesCalc(m,p.id).rec)),desp:r2(sum(ps,p=>mesCalc(m,p.id).desp))}));
+  const cat={};ps.forEach(p=>Object.entries(catMesMap(ym,p.id)).forEach(([k,v])=>cat[k]=(cat[k]||0)+v));
+  const meR=R.find(x=>x.p.id===me),ac=meR?r2((meR.Pt.acR||0)-(meR.Pt.acP||0)):0;
+  return {R,pl:r2(sum(R,x=>x.pl)),cx:r2(sum(R,x=>x.cx)),inv:r2(sum(R,x=>x.inv)),rec:r2(sum(R,x=>x.M.rec)),desp:r2(sum(R,x=>x.M.desp)),meses,cat:Object.entries(cat).sort((a,b)=>b[1]-a[1]).slice(0,6),ac}}
+function openCasa(){const C=casaCalc(),ym=today().slice(0,7),sg=v=>(v<0?'−':'')+brl0(Math.abs(v)),mx=Math.max(...C.meses.map(m=>Math.max(m.rec,m.desp)),1),cm=C.cat.length?C.cat[0][1]:1;
+  openSheet(`<h2>Visão da casa</h2><div class="ivx">
+    <div class="ivh"><span class="k">Patrimônio líquido da casa</span><div class="big n ${C.pl<0?'neg':''}">${sg(C.pl)}</div><span class="ivp">${ic('couple')}<span>${C.R.map(x=>`${esc(x.p.nome.split(' ')[0])} <b class="n">${sg(x.pl)}</b>`).join(' · ')}</span></span></div>
+    <div class="ivk"><div><small>Caixa somado</small><b class="n">${sg(C.cx)}</b></div><div><small>Investido somado</small><b class="n">${brl0(C.inv)}</b></div><div><small>Sobra de ${MES[+ym.slice(5)-1].toLowerCase().slice(0,3)}</small><b class="n ${C.rec-C.desp<0?'neg':'pos'}">${sg(C.rec-C.desp)}</b><small>entra ${brl0(C.rec)} · sai ${brl0(C.desp)}</small></div></div>
+    <section class="ivs"><div class="ivsh"><h3>Por pessoa</h3><small>mês atual</small></div><table class="bkt cnt"><thead><tr><th></th>${C.R.map(x=>`<th>${esc(x.p.nome.split(' ')[0])}</th>`).join('')}<th>Casa</th></tr></thead><tbody>
+      <tr><td>Caixa</td>${C.R.map(x=>`<td class="n">${sg(x.cx)}</td>`).join('')}<td class="n"><b>${sg(C.cx)}</b></td></tr>
+      <tr><td>Entra no mês</td>${C.R.map(x=>`<td class="n">${brl0(x.M.rec)}</td>`).join('')}<td class="n"><b>${brl0(C.rec)}</b></td></tr>
+      <tr><td>Sai no mês</td>${C.R.map(x=>`<td class="n">${brl0(x.M.desp)}</td>`).join('')}<td class="n"><b>${brl0(C.desp)}</b></td></tr>
+      <tr><td>Investido</td>${C.R.map(x=>`<td class="n">${brl0(x.inv)}</td>`).join('')}<td class="n"><b>${brl0(C.inv)}</b></td></tr>
+      <tr><td>Patrimônio</td>${C.R.map(x=>`<td class="n">${sg(x.pl)}</td>`).join('')}<td class="n"><b>${sg(C.pl)}</b></td></tr></tbody></table>
+      ${Math.abs(C.ac)>=1?`<p class="note">Acerto em aberto entre vocês: ${brl0(Math.abs(C.ac))}. Ele muda quem tem quanto, mas não muda o total da casa — por isso fica fora do patrimônio somado.</p>`:''}</section>
+    <section class="ivs"><div class="ivsh"><h3>Entradas e saídas da casa</h3><small>regime de caixa</small></div><div class="pjb">${C.meses.map(m=>`<div class="pjm"><span class="pjbs"><i class="r" style="height:${(m.rec/mx*100).toFixed(1)}%"></i><i class="d" style="height:${(m.desp/mx*100).toFixed(1)}%"></i></span><small>${MES[+m.ym.slice(5)-1].slice(0,3)}${m.ym===ym?'*':''}</small><b class="n ${m.rec-m.desp<0?'neg':''}">${sg(m.rec-m.desp).replace('R$','').trim()}</b></div>`).join('')}</div>
+      <div class="sfg"><span><i class="pjI r"></i>entradas</span><span><i class="pjI d"></i>saídas</span><span>* mês em andamento, com o previsto</span></div></section>
+    ${C.cat.length?`<section class="ivs"><div class="ivsh"><h3>Onde a casa gasta</h3><small>${MES[+ym.slice(5)-1].toLowerCase()}</small></div>${C.cat.map(([k,v])=>`<div class="csr"><span>${esc(k)}</span><i><b style="width:${(v/cm*100).toFixed(1)}%"></b></i><em class="n">${brl0(v)}</em></div>`).join('')}</section>`:''}
+    <p class="note">Soma das duas visões individuais: cada compra comum já está dividida meio a meio, então somar dá o total da casa sem contar nada duas vezes.</p></div>`)}
+/* ---------- filhos e mesada ---------- */
+const FILHOS=()=>cfg().filhos||[];
+function filhoCalc(f){const ym=today().slice(0,7),tg=f.tag,its=movs().filter(i=>i.tipo==='despesa'&&((tg&&(i.l.tags||[]).includes(tg))||(f.rec&&i.l.rec===f.rec)));
+  const M=[...Array(12)].map((_,k)=>ymAdd(ym,k-11)).map(m=>({ym:m,v:r2(sum(its.filter(i=>(i.cym||i.ym)===m),i=>i.valor))}));
+  const ok=M.slice(0,11).filter(m=>m.ym>=histDesde()),med=ok.length?sum(ok,m=>m.v)/ok.length:0,cats={};its.filter(i=>(i.cym||i.ym).slice(0,4)===ym.slice(0,4)).forEach(i=>{const k=i.l.categoria||'Outros';cats[k]=(cats[k]||0)+i.valor});
+  const r=f.rec&&S.recs.find(x=>x.id===f.rec);return {M,cur:M[11].v,med:r2(med),ano:r2(sum(M.filter(m=>m.ym.slice(0,4)===ym.slice(0,4)),m=>m.v)),cats:Object.entries(cats).sort((a,b)=>b[1]-a[1]).slice(0,5),r,n:ok.length}}
+function openFilhos(){const draw=sh=>{const L=FILHOS(),box=sh.querySelector('#fhx');
+    box.innerHTML=(L.length?L.map(f=>{const c=filhoCalc(f),mx=Math.max(...c.M.map(m=>m.v),1);return `<section class="ivs fhc"><div class="ivsh"><h3>${esc(f.nome)}</h3><button class="lk" type="button" data-fh="${esc(f.id)}">Editar</button></div>
+      <div class="ivk"><div><small>Este mês</small><b class="n">${brl0(c.cur)}</b></div><div><small>Média por mês</small><b class="n">${c.n?brl0(c.med):'—'}</b><small>${c.n?`${c.n} ${c.n===1?'mês':'meses'}`:'sem histórico'}</small></div><div><small>No ano</small><b class="n">${brl0(c.ano)}</b>${c.n?`<small>≈ ${brl0(c.med*12)} em 12 meses</small>`:''}</div></div>
+      <div class="fhb">${c.M.map(m=>`<i title="${ymS(m.ym)}" style="height:${Math.max(m.v/mx*100,2).toFixed(1)}%"></i>`).join('')}</div>
+      ${c.cats.length?`<p class="rvsug">${c.cats.map(([k,v])=>`${esc(k)} <b class="n">${brl0(v)}</b>`).join(' · ')}</p>`:''}
+      <p class="note">${f.tag?`Conta os lançamentos com a etiqueta <b>#${esc(f.tag)}</b>`:'Sem etiqueta'}${c.r?` e a mesada (${brl0(c.r.valor)} todo dia ${c.r.dia})`:''}.</p></section>`}).join(''):`<p class="note">Cadastre cada filho com uma etiqueta: tudo que você lançar com ela (escola, saúde, roupas, lazer) entra no custo dele. A mesada vira uma conta fixa automática.</p>`)
+      +`<div class="btnrow"><button class="btn primary sm" type="button" data-fh="">${ic('plus')} Adicionar</button></div>`;
+    box.querySelectorAll('[data-fh]').forEach(b=>b.onclick=()=>openFilho(FILHOS().find(f=>f.id===b.dataset.fh),()=>draw(sh)))};
+  openSheet(`<h2>Filhos e mesada</h2><div id="fhx" class="ivx"></div>`,draw)}
+function openFilho(f,back){f=f||{};const isNew=!f.id,r=f.rec&&S.recs.find(x=>x.id===f.rec);
+  openSheet(`<h2>${isNew?'Adicionar filho':'Editar '+esc(f.nome)}</h2><form class="form" id="ffh" novalidate>
+    <div class="field"><label for="fh-n">Nome</label><input id="fh-n" value="${esc(f.nome||'')}"></div>
+    <div class="field"><label for="fh-t">Etiqueta dos gastos</label><input id="fh-t" list="fh-tl" value="${esc(f.tag||'')}" placeholder="nome do filho"><datalist id="fh-tl">${cfg().tags.map(t=>`<option value="${esc(t.nome)}">`).join('')}</datalist></div>
+    <div class="f2"><div class="field"><label for="fh-mv">Mesada (R$/mês)</label><input id="fh-mv" type="text" inputmode="decimal" value="${r?String(r.valor).replace('.',','):''}" placeholder="opcional"></div><div class="field"><label for="fh-md">Dia</label><input id="fh-md" type="number" min="1" max="31" value="${r?r.dia:5}"></div></div>
+    <p class="note">A mesada entra como conta fixa (categoria Mesada) na sua conta padrão e aparece no caixa previsto.</p>
+    <div class="btnrow"><button class="btn primary" type="submit">Salvar</button>${isNew?'':'<button class="btn danger" type="button" id="fh-x">Remover</button>'}</div></form>`,sh=>{
+    const $q=s=>sh.querySelector(s);
+    $q('#ffh').onsubmit=async e=>{e.preventDefault();const nome=$q('#fh-n').value.trim();if(!nome){toast('Informe o nome');return}
+      const tag=(parseTags($q('#fh-t').value||nome)[0]||'').replace(/^#/,''),mv=r2(brNum($q('#fh-mv').value)||0),md=Math.min(Math.max(+$q('#fh-md').value||5,1),31);
+      try{let rec=f.rec||'';
+        if(mv>0){const d={tipo:'despesa',nome:'Mesada '+nome,valor:mv,util:'',dia:md,dono:ME(),conta:contaPadrao(),categoria:'Mesada',inicio:today().slice(0,7),fim:'',ativo:true};
+          if(r){await save('recorrentes',r.id,Object.assign({},(()=>{const k=Object.assign({},r);delete k.id;return k})(),{valor:mv,dia:md,nome:'Mesada '+nome,ativo:true}))}else{const x=await save('recorrentes',null,d);rec=x&&x.id||''}}
+        else if(r){await save('recorrentes',r.id,Object.assign((()=>{const k=Object.assign({},r);delete k.id;return k})(),{ativo:false}))}
+        const tags=cfg().tags.some(t=>t.nome===tag)||!tag?cfg().tags:cfg().tags.concat([{nome:tag}]);
+        const x={id:f.id||('f'+Date.now().toString(36)),nome,tag,rec};await cfgSet({filhos:FILHOS().filter(z=>z.id!==x.id).concat([x]),tags});toast('Salvo');setTimeout(backSheet,250)}catch(err){toast(writeErr(err))}};
+    const x=$q('#fh-x');if(x)confirmBtn(x,'Toque de novo para remover',async()=>{try{await cfgSet({filhos:FILHOS().filter(z=>z.id!==f.id)});toast('Removido (a etiqueta e os lançamentos continuam)');setTimeout(backSheet,250)}catch(err){toast(writeErr(err))}});
+  })}
+/* ---------- pontos e cashback por cartão ---------- */
+let DOL=(()=>{try{return JSON.parse(localStorage.getItem('pt-dol')||'null')}catch(e){return null}})()||{v:0,em:''};let DOLTRY=false;
+async function dolLoad(){if(DOL.em===today()||DOLTRY||!navigator.onLine)return;DOLTRY=true;try{const r=await fetch('https://api.bcb.gov.br/dados/serie/bcdata.sgs.1/dados/ultimos/1?formato=json');if(!r.ok)throw 0;const js=await r.json();if(js[0]&&+js[0].valor>0){DOL={v:+js[0].valor,em:today(),d:js[0].data};try{localStorage.setItem('pt-dol',JSON.stringify(DOL))}catch(e){}}}catch(e){}}
+const dolar=()=>DOL.v>0?DOL.v:(+cfg().dolar||5.4);
+function progRet(c){const p=c&&c.prog;if(!p||!(+p.v>0))return 0;if(p.t==='cb')return +p.v/100;return +p.v/dolar()*(+p.mil||20)/1000}
+function progTxt(c){const p=c.prog;if(!p||!(+p.v>0))return 'sem programa cadastrado';return p.t==='cb'?`${String(p.v).replace('.',',')}% de cashback`:`${String(p.v).replace('.',',')} pt por US$ · milheiro R$ ${(+p.mil||20).toLocaleString('pt-BR')}`}
+function progGasto(c){const ym=today().slice(0,7),its=movs().filter(i=>i.src==='card'&&i.c===c&&i.tipo==='despesa');const by=m=>r2(sum(its.filter(i=>i.ym===m),i=>i.valor));
+  const M=[...Array(12)].map((_,k)=>by(ymAdd(ym,k-11)));return {mes:by(ym),ano:r2(sum(M,v=>v)),med:r2(sum(M.slice(0,11),v=>v)/Math.max(M.slice(0,11).filter(v=>v>0).length,1))}}
+function openPontos(){dolLoad();const draw=sh=>{const cs=S.cards.filter(c=>c.ativo!==false),box=sh.querySelector('#ppx');let st=[];try{st=bestCards(cs.map(c=>cardStats(c)))}catch(e){}
+    const R=cs.map(c=>{const g=progGasto(c),r=progRet(c);return {c,g,r,mes:r2(g.mes*r),ano:r2(g.ano*r),bc:st.find(x=>x.c===c)}}).sort((a,b)=>b.r-a.r);
+    const best=R.filter(x=>x.r>0&&x.bc).sort((a,b)=>b.r-a.r||b.bc.dias-a.bc.dias)[0],tot=sum(R,x=>x.ano);
+    box.innerHTML=`${best?`<div class="ivh"><span class="k">Melhor cartão para gastar agora</span><div class="big">${esc(cardName(best.c))}</div><span class="ivp">${ic('spark')}<span>devolve ≈ <b class="n">${(best.r*100).toLocaleString('pt-BR',{maximumFractionDigits:2})}%</b> · R$ ${(best.r*100).toLocaleString('pt-BR',{maximumFractionDigits:2})} a cada R$ 100 · paga em ${best.bc.dias} dias · ${brl0(best.bc.disp)} livres</span></span></div>`:'<p class="note">Cadastre o programa de cada cartão (pontos ou cashback) para o app dizer qual compensa mais.</p>'}
+      ${tot>0?`<div class="ivk"><div><small>Retorno em 12 meses</small><b class="n pos">≈ ${brl0(tot)}</b></div><div><small>Este mês</small><b class="n pos">≈ ${brl0(sum(R,x=>x.mes))}</b></div><div><small>Dólar usado</small><b class="n">R$ ${dolar().toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})}</b><small>${DOL.v>0?'PTAX · Banco Central':'informado'}</small></div></div>`:''}
+      <div class="ivl">${R.map(x=>`<button class="ivr" type="button" data-pg="${esc(x.c.id)}"><i style="background:${esc(x.c.cor||'var(--muted)')}"></i><span class="ivm"><strong>${esc(cardName(x.c))}</strong><small>${progTxt(x.c)} · gasto 12m ${brl0(x.g.ano)}</small></span><span class="ivv"><b class="n ${x.r?'pos':''}">${x.r?(x.r*100).toLocaleString('pt-BR',{maximumFractionDigits:2})+'%':'—'}</b><small>${x.r?'≈ '+brl0(x.ano)+' no ano':'toque para cadastrar'}</small></span></button>`).join('')}</div>
+      ${R.filter(x=>x.r>0).length>1?(()=>{const a=R.filter(x=>x.r>0),hi=a[0],lo=a[a.length-1],g=sum(R,x=>x.g.ano),d=r2(g*(hi.r-lo.r));return d>=10?`<p class="rvsug">Se todo o gasto de 12 meses (${brl0(g)}) fosse no ${esc(cardName(hi.c))} em vez do ${esc(cardName(lo.c))}, seriam ≈ <b class="n pos">${brl0(d)}</b> a mais de volta.</p>`:''})():''}
+      <p class="note">Pontos valem pelo preço do milheiro que você informar (média de mercado de R$ 15 a R$ 25 por mil, varia por programa). Retorno estimado sobre as compras registradas no cartão; anuidade não descontada.</p>`;
+    box.querySelectorAll('[data-pg]').forEach(b=>b.onclick=()=>openProg(card(b.dataset.pg),()=>draw(sh)))};
+  openSheet(`<h2>Pontos e cashback</h2><div id="ppx" class="ivx"></div>`,draw)}
+function openProg(c,back){const p=Object.assign({t:'pts',v:'',mil:20},c.prog||{});
+  openSheet(`<h2>${esc(cardName(c))}</h2><form class="form" id="fpg" novalidate>
+    <div class="seg" id="pg-t"><button type="button" data-v="pts" aria-pressed="${p.t!=='cb'}">Pontos ou milhas</button><button type="button" data-v="cb" aria-pressed="${p.t==='cb'}">Cashback</button></div>
+    <div class="f2"><div class="field"><label for="pg-v" id="pg-vl">${p.t==='cb'?'Cashback (%)':'Pontos por US$ gasto'}</label><input id="pg-v" type="text" inputmode="decimal" value="${p.v?String(p.v).replace('.',','):''}" placeholder="${p.t==='cb'?'1':'2,2'}"></div><div class="field" id="pg-mw" ${p.t==='cb'?'hidden':''}><label for="pg-m">Valor do milheiro (R$)</label><input id="pg-m" type="text" inputmode="decimal" value="${String(p.mil||20).replace('.',',')}"></div></div>
+    <p class="note" id="pg-s"></p><div class="btnrow"><button class="btn primary" type="submit">Salvar</button>${c.prog?'<button class="btn danger" type="button" id="pg-x">Remover programa</button>':''}</div></form>`,sh=>{
+    const $q=s=>sh.querySelector(s);let t=p.t;const up=()=>{const r=progRet({prog:{t,v:brNum($q('#pg-v').value)||0,mil:brNum($q('#pg-m').value)||20}});$q('#pg-s').textContent=r?`Devolve ≈ ${(r*100).toLocaleString('pt-BR',{maximumFractionDigits:2})}% — R$ ${(r*100).toLocaleString('pt-BR',{maximumFractionDigits:2})} a cada R$ 100 gastos.`:''};
+    sh.querySelectorAll('#pg-t button').forEach(b=>b.onclick=()=>{t=b.dataset.v;sh.querySelectorAll('#pg-t button').forEach(o=>o.setAttribute('aria-pressed',String(o===b)));$q('#pg-mw').hidden=t==='cb';$q('#pg-vl').textContent=t==='cb'?'Cashback (%)':'Pontos por US$ gasto';up()});
+    ['#pg-v','#pg-m'].forEach(s=>$q(s).oninput=up);up();
+    const put=async prog=>{const k=Object.assign({},c);delete k.id;if(prog)k.prog=prog;else delete k.prog;try{await save('cartoes',c.id,k);toast('Salvo');setTimeout(backSheet,250)}catch(e){toast(writeErr(e))}};
+    $q('#fpg').onsubmit=e=>{e.preventDefault();const v=brNum($q('#pg-v').value);if(!(v>0)){toast('Informe o valor');return}put({t,v:+v,mil:t==='cb'?null:(brNum($q('#pg-m').value)||20)})};
+    const x=$q('#pg-x');if(x)confirmBtn(x,'Toque de novo para remover',()=>put(null))})}
+/* ---------- acesso de leitura (assessor, contador, planejador) ---------- */
+const LEIT=()=>cfg().leitores||[];
+let RO=false;
+function roCheck(){const u=window.__fbUser,em=u&&String(u.email||'').toLowerCase();const on=!!em&&LEIT().some(l=>String(l.email).toLowerCase()===em)&&!(cfg().donosEmails||[]).map(x=>String(x).toLowerCase()).includes(em);
+  if(on===RO)return;RO=on;document.body.classList.toggle('ro',RO);
+  if(RO&&S.db&&!S.db.__ro){const no=()=>Promise.reject({code:'ro'}),d0=S.db;BKOFF=true;
+    S.db={__ro:true,collection:n=>{const c=d0.collection(n);return Object.assign({},c,{add:no})},doc:p=>{const d=d0.doc(p);return Object.assign({},d,{set:no,delete:no})}};
+    const nm=(LEIT().find(l=>String(l.email).toLowerCase()===em)||{}).nome;toast('Modo leitura'+(nm?' · '+nm:'')+': você vê tudo, mas não altera nada')}}
+function rulesTxt(){const D=[...new Set([(window.__fbUser||{}).email].concat(cfg().donosEmails||[]).filter(Boolean).map(x=>String(x).toLowerCase()))];
+  return `rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function dono() {
+      return request.auth != null && request.auth.token.email in [${D.map(x=>`'${x}'`).join(', ')}];
+    }
+    function leitor() {
+      return request.auth != null && request.auth.token.email in get(/databases/$(database)/documents/config/app).data.get('leitoresEmails', []);
+    }
+    match /{documento=**} {
+      allow read: if dono() || leitor();
+      allow write: if dono();
+    }
+  }
+}`}
+function openAssessor(){const draw=sh=>{const L=LEIT(),box=sh.querySelector('#asx'),eu=(window.__fbUser||{}).email||'';
+    box.innerHTML=`<p class="note">Dê acesso <b>só de leitura</b> a quem ajuda vocês a decidir — assessor de investimentos, contador, planejador. A pessoa entra com a própria conta Google e vê o app inteiro, mas não consegue lançar, editar nem apagar nada.</p>
+      <div class="ivl">${L.length?L.map(l=>`<div class="ivr"><i style="background:var(--good)"></i><span class="ivm"><strong>${esc(l.nome||l.email)}</strong><small>${esc(l.email)} · desde ${fdate(l.desde||'')}</small></span><span class="ivv"><button class="lk" type="button" data-asx="${esc(l.email)}">Remover</button></span></div>`).join(''):'<p class="note">Ninguém com acesso de leitura.</p>'}</div>
+      <div class="f2"><div class="field"><label for="as-n">Nome</label><input id="as-n" placeholder="Assessor"></div><div class="field"><label for="as-e">E-mail Google</label><input id="as-e" type="email" autocomplete="off" placeholder="pessoa@gmail.com"></div></div>
+      <div class="btnrow"><button class="btn primary sm" type="button" id="as-add">${ic('plus')} Dar acesso de leitura</button></div>
+      <details class="ivs" ${L.length?'':'open'}><summary>Passo único no Firebase (regras do banco)</summary>
+        <p class="note">O banco só deixa entrar quem está nas regras. Para o acesso de leitura funcionar, cole as regras abaixo em <b>Firebase › Firestore Database › Regras</b> e publique — uma vez só; depois é só adicionar ou remover pessoas aqui. <b>Confira</b> se os e-mails de quem pode editar estão todos na lista de dono.</p>
+        <div class="field"><label for="as-d">E-mails que podem editar (donos)</label><input id="as-d" value="${esc([...new Set([eu].concat(cfg().donosEmails||[]).filter(Boolean))].join(', '))}"></div>
+        <pre class="rules" id="as-r">${esc(rulesTxt())}</pre><div class="btnrow"><button class="btn sm" type="button" id="as-cp">${ic('copy')} Copiar regras</button><button class="btn sm" type="button" id="as-ds">Salvar donos</button></div></details>`;
+    const sv=async(leitores,extra)=>{try{await cfgSet(Object.assign({leitores,leitoresEmails:leitores.map(l=>String(l.email).toLowerCase())},extra||{}));setTimeout(()=>draw(sh),300)}catch(e){toast(writeErr(e))}};
+    box.querySelector('#as-add').onclick=()=>{const e=box.querySelector('#as-e').value.trim().toLowerCase(),n=box.querySelector('#as-n').value.trim();if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e)){toast('Informe um e-mail válido');return}if(L.some(l=>l.email===e)){toast('Já tem acesso');return}sv(L.concat([{email:e,nome:n,desde:today()}]));toast('Acesso de leitura liberado para '+(n||e))};
+    box.querySelectorAll('[data-asx]').forEach(b=>confirmBtn(b,'Confirmar',()=>{sv(L.filter(l=>l.email!==b.dataset.asx));toast('Acesso removido')}));
+    box.querySelector('#as-ds').onclick=()=>{const ds=box.querySelector('#as-d').value.split(/[,;\s]+/).map(x=>x.trim().toLowerCase()).filter(x=>/@/.test(x));sv(L,{donosEmails:ds});toast('Donos salvos — copie as regras de novo')};
+    box.querySelector('#as-cp').onclick=async()=>{try{await navigator.clipboard.writeText(rulesTxt());toast('Regras copiadas')}catch(e){const r=document.createRange();r.selectNodeContents(box.querySelector('#as-r'));const s=getSelection();s.removeAllRanges();s.addRange(r);toast('Selecionei o texto — copie manualmente')}}};
+  openSheet(`<h2>Acesso para assessor</h2><div id="asx"></div>`,draw)}
+/* ---------- grupo na Carteira e atalhos ---------- */
+function o4Rows(me){const fs=FILHOS(),P=PJ(),nk=S.cards.filter(c=>c.ativo!==false&&c.prog&&+c.prog.v>0).length,L=LEIT();
+  const row=(k,icn,t,s)=>`<button class="cxr" type="button" data-o4="${k}"><span class="bk bk-g">${ic(icn)}</span><span class="cxm"><strong>${t}</strong><small>${s}</small></span><span class="go">›</span></button>`;
+  return row('casa','couple','Visão da casa','as duas pessoas somadas: caixa, mês, patrimônio')
+    +row('filhos','user','Filhos e mesada',fs.length?fs.map(f=>esc(f.nome)).join(', '):'custo de cada filho pela etiqueta e mesada automática')
+    +row('pj','bank','Empresa (PJ)',(P.contas||[]).length||(P.cartoes||[]).length?esc(P.nome||'empresa')+(P.separar?' · separada':' · misturada'):'faturamento, resultado e retiradas, separado do pessoal')
+    +row('pontos','spark','Pontos e cashback',nk?`${nk} cart${nk===1?'ão':'ões'} com programa · melhor para gastar agora`:'qual cartão devolve mais')
+    +row('assessor','shield','Acesso para assessor',L.length?`${L.length} pessoa${L.length===1?'':'s'} com acesso de leitura`:'leitura sem edição para assessor ou contador')}
+document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-o4]');if(!b)return;const k=b.dataset.o4;({casa:openCasa,filhos:openFilhos,pj:openPJ,pontos:openPontos,assessor:openAssessor}[k]||(()=>{}))()});
 function wireMg(el,rr){
   el.querySelectorAll('[data-colch]').forEach(b=>b.onclick=openColchao);
   el.querySelectorAll('[data-mgimg]').forEach(b=>b.onclick=()=>snapExport(b.closest('.mgc'),'Quanto posso gastar · '+MGLAB[MGL],'quanto-posso-gastar-'+today(),b));
@@ -6132,6 +6313,12 @@ const FAQ=[
   ['Errei um abatimento, como desfaço?','No painel do acerto, toque em <b>Selecionar</b>, marque os itens quitados e use <b>Voltar para em aberto</b>. Eles voltam a ficar em aberto, em massa.'],
   ['Como mando o relatório de repasse?','Em Relatórios, abra o repasse e exporte. Vai com resumo, grupos (incluindo o abatimento no final), composição e imagem do gráfico.'],
   ['Onde mudo as pessoas e os dias das quinzenas?','Em Carteira → Ajustes → <b>Pessoas e quinzenas</b>.','pes','Abrir pessoas e quinzenas']]],
+ ['Casa, família e empresa',[
+  ['O que é a visão da casa?','As duas pessoas somadas: caixa, entradas e saídas do mês, investimentos e patrimônio, com a tabela por pessoa ao lado. Compras comuns já estão divididas meio a meio, então nada é contado duas vezes; o acerto em aberto entre vocês não muda o total da casa.','casa','Abrir visão da casa'],
+  ['Como acompanho o custo de um filho?','Cadastre o filho em <b>Carteira › Casa, família e empresa › Filhos e mesada</b> com uma etiqueta. Tudo que você lançar com essa etiqueta (escola, saúde, roupa, lazer) entra no custo dele: mês, média e ano. Se informar a mesada, ela vira uma conta fixa automática.','filhos','Abrir filhos'],
+  ['Como separo a empresa (PJ) da vida pessoal?','Em <b>Empresa (PJ)</b>, marque as contas e cartões da empresa. O app mostra faturamento, despesas, resultado, retiradas e aportes, e avisa gastos com cara de pessoal pagos pela empresa. Ligando “tirar a empresa das visões pessoais”, o caixa, a margem, os gastos e o patrimônio pessoais passam a ignorar a empresa — e os cartões dela saem da tela Cartões.','pj','Abrir empresa'],
+  ['Qual cartão devolve mais?','Em <b>Pontos e cashback</b>, cadastre o programa de cada cartão (pontos por dólar e valor do milheiro, ou % de cashback). O app calcula quanto cada um devolve a cada R$ 100, o retorno estimado no ano e indica o melhor cartão para gastar agora, juntando retorno, prazo até pagar e limite livre.','pontos','Abrir pontos'],
+  ['Como dou acesso ao meu assessor?','Em <b>Acesso para assessor</b>, informe o e-mail Google da pessoa. Ela entra e vê tudo, sem poder alterar nada. Na primeira vez, copie as regras mostradas e cole em Firebase › Firestore › Regras — é isso que garante, no banco, que a pessoa só lê.','assessor','Abrir acesso']]],
  ['Metas, dívidas e cenários',[
   ['Como funcionam as metas com prazo?','Em <b>Decidir › Planejar</b>, crie uma meta com valor e mês. Vincule a aplicação onde o dinheiro fica (o progresso acompanha o saldo e o rendimento entra na conta) ou informe quanto já tem. O app mostra quanto guardar por mês, se você está no ritmo (o tracinho na barra é onde deveria estar hoje) e se o total das metas cabe na sua sobra média.','meta','Criar meta'],
   ['Avalanche ou bola de neve?','São dois jeitos de usar um valor extra por mês para quitar dívidas. <b>Avalanche</b>: paga primeiro a de maior juro — economiza mais. <b>Bola de neve</b>: paga primeiro a de menor saldo — quita uma dívida mais cedo e dá ânimo. Nos dois, quando uma termina, a parcela dela vai para a próxima. O app mostra data de quitação e juros de cada caminho.','dvq','Simular quitação'],
@@ -6158,7 +6345,7 @@ const FAQ=[
   ['As cores ficaram estranhas no celular, e agora?','Confira se o celular não está forçando modo escuro em apps (Configurações → Tela → Modo escuro) e se, no Chrome, “Escurecer sites” está desligado. O app já tem tema escuro próprio, que segue o do celular.']]]
 ];
 function openAjuda(q0){
-  const run={colchao:()=>openColchao(),sim:()=>openSimCompra(),org:()=>{closeSheet();location.hash='inicio';setTimeout(()=>{const b=$('#orgbtn');b?b.click():toast('Role até o fim do Início e toque em Organizar esta tela')},350)},pes:()=>openPessoas(),prem:()=>openPremissas(),bk:()=>openBackups(),rv:()=>openRV(),rvir:()=>openRVIR(),rvalvo:()=>openRVAlvo(),meta:()=>openMeta(),dvq:()=>openDividasPlano(),cen:()=>openCenarios(),relm:()=>openRelMes()};
+  const run={colchao:()=>openColchao(),sim:()=>openSimCompra(),org:()=>{closeSheet();location.hash='inicio';setTimeout(()=>{const b=$('#orgbtn');b?b.click():toast('Role até o fim do Início e toque em Organizar esta tela')},350)},pes:()=>openPessoas(),prem:()=>openPremissas(),bk:()=>openBackups(),rv:()=>openRV(),rvir:()=>openRVIR(),rvalvo:()=>openRVAlvo(),meta:()=>openMeta(),dvq:()=>openDividasPlano(),cen:()=>openCenarios(),relm:()=>openRelMes(),casa:()=>openCasa(),filhos:()=>openFilhos(),pj:()=>openPJ(),pontos:()=>openPontos(),assessor:()=>openAssessor()};
   const norm=s=>String(s).normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
   openSheet(`<h2>Ajuda</h2><p class="note">Dúvidas comuns sobre o app. Toque numa pergunta para ver a resposta.</p>
     <div class="field faqs"><input id="fq-q" type="search" placeholder="Buscar: livre, acerto, offline…" autocomplete="off" value="${esc(q0||'')}"></div>
@@ -6370,6 +6557,7 @@ function vCart(){
   h+=grp('dividas',I('<path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/>'),'Dívidas',-DB.D.tot,`${DB.D.at.length} ativa${DB.D.at.length===1?'':'s'}${DB.D.fim?' · livre em '+ymS(DB.D.fim):''}${DB.D.pv.length?' · '+DB.D.pv.length+' prevista'+(DB.D.pv.length>1?'s':''):''}`,'id="addDv"',DB.h,'c');
   h+=grp('fixas',I('<path d="M4 12a8 8 0 0 1 14-5.3M20 12a8 8 0 0 1-14 5.3"/><path d="M18 3v4h-4M6 21v-4h4"/>'),'Receitas e contas fixas',tRec,`por mês · ${recR.length} receita${recR.length===1?'':'s'}, ${recD.length} conta${recD.length===1?'':'s'}`,'id="addRec"',
     S.recs.length?S.recs.slice().sort((a,b)=>(a.tipo===b.tipo?a.dia-b.dia:a.tipo==='receita'?-1:1)).map(r=>`<button class="cxr" type="button" data-rc="${esc(r.id)}"><span class="bk bk-d ${r.tipo==='receita'?'pos':''}"><b>${r.util==='ult'?'U':r.dia}</b></span><span class="cxm"><strong>${esc(r.nome)}${(r.dono||me)!==me?' '+whoChip(r.dono):''}</strong><small>${recDiaTxt(r)} · ${esc(r.categoria||'')}${conta(r.conta)?' · '+esc(conta(r.conta).nome):''}${r.ativo===false?' · pausada':''}</small></span><b class="n ${r.tipo==='receita'?'pos':''}">${r.tipo==='receita'?'+':'−'}${brl(r.valor)}</b></button>`).join(''):empty('Salário, adiantamento, aluguel, escola. Entram no fluxo de cada quinzena.'),'n');
+  h+=grp('familia',ic('couple'),'Casa, família e empresa','','visão do casal, filhos, PJ, pontos e acesso de leitura','',o4Rows(me),'');
   h+=grp('ajustes',I('<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/>'),'Ajustes',`<span class="tg">${cfg().tags.length} etiquetas</span>`,'pessoas, quinzenas, backup','',
     `<button class="cxr" type="button" id="edTags"><span class="bk bk-g">${I('<path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="8.5" r="1.2"/>')}</span><span class="cxm"><strong>Categorias e etiquetas</strong><small>${CATS.length} de despesa, ${CATR.length} de receita, ${cfg().tags.length} etiquetas</small></span>${'<span class="go">›</span>'}</button>
     <button class="cxr" type="button" data-fech=""><span class="bk bk-g">${ic('calcheck')}</span><span class="cxm"><strong>Fechamento do mês</strong><small>conferência, resultado e histórico de meses fechados</small></span><span class="go">›</span></button>
@@ -7563,7 +7751,7 @@ function openOrg(){const el=$(ORGV[S.view]);const sc=orgScope();
   openSheet(`<h2>Organizar ${S.view==='carteira'?'Carteira':'Relatórios'}</h2><p class="note">Escolha a ordem e o que aparece${S.view==='relatorios'?' nesta aba':''}. Fica salvo neste aparelho.</p><div id="psl" class="psl"></div><div class="btnrow"><button class="btn" type="button" id="orr">Restaurar padrão</button></div>`,sh=>{draw(sh);sh.querySelector('#orr').onclick=()=>{delete ORG[sc];orgSave();renderView();draw(sh)}});
 }
 
-function renderView(){document.querySelectorAll('body>.acsel').forEach(x=>x.remove());const v=S.view;if(v==='inicio')vInicio();else if(v==='lanc')vLanc();else if(v==='relatorios')vRel();else if(v==='cartoes')vCards();else if(v==='decidir')vDecidir();else vCart();try{orgApply()}catch(e){console.error('org',e)}}
+function renderView(){document.querySelectorAll('body>.acsel').forEach(x=>x.remove());try{roCheck()}catch(e){}const v=S.view;if(v==='inicio')vInicio();else if(v==='lanc')vLanc();else if(v==='relatorios')vRel();else if(v==='cartoes')vCards();else if(v==='decidir')vDecidir();else vCart();try{orgApply()}catch(e){console.error('org',e)}}
 let raf=0;const re=()=>{CACHE=null;cancelAnimationFrame(raf);raf=requestAnimationFrame(()=>{if($('#overlay').hidden||S.view!=='lanc')renderView();else renderView()})};
 window.addEventListener('hashchange',route);
 $('#fab').onclick=openMenu;
