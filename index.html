@@ -2222,6 +2222,11 @@ main{padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))!important}
 .gq{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;border:1px solid var(--sep,var(--hair));background:none;color:var(--muted);font-size:12px;font-weight:700;vertical-align:3px;margin-left:4px;padding:0}
 .anl{margin:6px 0 14px}.anl>summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 16px;border-radius:18px;border:1px dashed var(--sep,var(--hair));cursor:pointer}.anl>summary::-webkit-details-marker{display:none}
 .anl>summary b{display:block;font-size:14.5px}.anl>summary small{display:block;font-size:12px;color:var(--muted)}.anl>summary .ic{width:16px;height:16px;color:var(--faint);transition:transform .2s}.anl[open]>summary .ic{transform:rotate(180deg)}.anl[open]>summary{margin-bottom:12px}
+.lat .lsl{text-transform:none;letter-spacing:0}.lats{display:flex;gap:8px;overflow-x:auto;padding:2px 0 4px;scrollbar-width:none}.lats::-webkit-scrollbar{display:none}
+.latc{flex:none;display:flex;align-items:center;gap:8px;max-width:210px;padding:8px 12px 8px 8px;border-radius:14px;border:1px solid var(--sep,var(--hair));background:none;color:inherit;text-align:left}
+.latc span{min-width:0}.latc b{display:block;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.latc small{display:block;font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.latc.rep{border-color:color-mix(in srgb,var(--accent,#E2BA6E) 50%,transparent)}.latc.rep .ic{width:18px;height:18px;color:var(--accent,#E2BA6E);margin:0 4px}
+#toast{display:flex;align-items:center;gap:14px}#toast[hidden]{display:none}.tact{border:0;background:none;color:var(--accent,#E2BA6E);font-weight:700;font-size:14px;padding:2px 0}
 </style>
 </head>
 <body>
@@ -5378,6 +5383,7 @@ const FAQ=[
  ['Primeiros passos',[
   ['Onde ficou a Carteira? E o que é o Decidir?','A <b>Carteira</b> (contas, cartões cadastrados, dívidas e Ajustes) agora abre pelo ícone de carteira no topo, ao lado do ponto de sincronização. No menu de baixo entrou o <b>Decidir</b>: quanto posso gastar nas três visões, o simulador “Vou gastar”, o “Posso comprar?” com as ordens salvas e seus investimentos.'],
   ['Como faço um lançamento?','Toque no botão dourado <b>+</b> no menu de baixo e escolha despesa, receita ou transferência. No Início, as <b>ações rápidas</b> levam direto para cada tipo. Valor, data, conta ou cartão e categoria são o essencial; o resto é opcional.'],
+  ['Como lançar mais rápido?','Ao abrir um novo lançamento aparecem <b>Atalhos</b>: “Repetir último” e os 5 lançamentos que você mais repete (descrição, forma de pagamento e categoria já preenchidos; se o valor é sempre o mesmo, ele também). Sem atalho, a categoria já vem sugerida pelo horário. Depois de salvar ou excluir, o aviso traz <b>Desfazer</b> por alguns segundos — não precisa confirmar antes.'],
   ['Qual a diferença entre “Comum” e “Só sua”?','“Comum” divide a despesa meio a meio entre as duas pessoas; “Só sua” fica 100% com quem lançou. Todos os totais pessoais (caixa, Livre, relatórios) usam sempre a sua parte.'],
   ['Por que o saldo não mudou depois que lancei?','O caixa só muda quando o lançamento está <b>pago</b>. Itens pendentes ficam previstos na agenda até você marcar como pago, com data e conta. Compras no cartão entram no caixa quando a fatura é paga.'],
   ['Como uso a calculadora?','Ao lançar, toque no campo de valor: a calculadora abre. Faça a conta (tem %, 00 e AC/C) e toque em <b>Usar</b> para levar o resultado ao lançamento.'],
@@ -6198,7 +6204,7 @@ function openLancView(l){
     const fm=mesFechado(l),ed=sh.querySelector('#lv-ed');if(fm)confirmBtn(ed,`${MES[+fm.slice(5)-1]} está fechado · toque de novo`,()=>openLanc(l,{edit:true}));else ed.onclick=()=>openLanc(l,{edit:true});
     const pg=sh.querySelector('#lv-pg');if(pg)pg.onclick=()=>openPagar(l);
     sh.querySelector('#lv-dp').onclick=()=>{const d=Object.assign({},l);['id','pend','pagoEm','criadoEm','atualizadoEm','anexos','origem','rec','recYm','divida','dn'].forEach(f=>delete d[f]);d.data=today();openLanc(d)};
-    confirmBtn(sh.querySelector('#lv-del'),'Toque de novo para excluir',async()=>{await delDoc('lanc',l.id);closeSheet()});
+    sh.querySelector('#lv-del').onclick=()=>delLancUndo(l);
   },false,{icon:'edit',label:'Editar',fn:()=>openLanc(l,{edit:true})});
 }
 
@@ -6227,10 +6233,28 @@ async function applySerie(sc,l,d){const I=serieInfo(l),pick=o=>{const x={};SERIE
     const ov=Object.assign({},b.ovr||{}),diff={};Object.keys(ch).forEach(k=>{if(JSON.stringify(ch[k]??'')!==JSON.stringify(I.b[k]??''))diff[k]=ch[k]});
     for(let j=I.j;j<=(sc==='one'?I.j:I.N);j++)ov[j]=Object.assign({},ov[j]||{},diff);
     await save('lanc',I.b.id,Object.assign({},b,{ovr:ov,atualizadoEm:new Date().toISOString()}))}}
+/* ===================== Lançamento rápido: atalhos, categoria pelo horário e desfazer ===================== */
+/* atalhos = combinações (descrição + forma + categoria) que você mais repete, pesando recência e o horário */
+function lancAtalhos(tipo){const t=today(),ini=addD(t,-120),h=new Date().getHours(),fds=[0,6].includes(new Date().getDay()),G={};
+  S.lanc.filter(l=>l.tipo===tipo&&!l.rec&&!l.divida&&!l.para&&(l.data||'')>=ini&&(l.desc||'').trim()&&!(+l.parcelas>1)).forEach(l=>{
+    const src=l.cartao?'card:'+l.cartao:l.conta?'acct:'+l.conta:'';if(!src)return;const k=norm(descSemParc(l.desc))+'|'+src+'|'+(l.categoria||'');
+    const g=G[k]=G[k]||{desc:descSemParc(l.desc),src,cat:l.categoria||'Outros',sub:l.subcategoria||'',div:l.divisao==='comum'?'comum':'pessoal',n:0,sc:0,vs:[],last:''};
+    const age=diffD(l.data,t),lh=l.criadoEm?new Date(l.criadoEm).getHours():null,lf=[0,6].includes(new Date((l.data||t)+'T12:00:00').getDay());
+    g.n++;g.vs.push(+l.valor||0);g.sc+=1+Math.max(0,(60-age)/60)+(lh!=null&&Math.abs(lh-h)<=2?1:0)+(lf===fds?.4:0);if((l.data||'')>g.last)g.last=l.data});
+  return Object.values(G).filter(g=>g.n>=2).sort((a,b)=>b.sc-a.sc).slice(0,5).map(g=>{const s=[...g.vs].sort((a,b)=>a-b),md=s[Math.floor(s.length/2)],fixo=s.length&&s[s.length-1]-s[0]<=Math.max(.5,md*.05);return Object.assign(g,{md:r2(md),fixo})})}
+function ultLanc(tipo){return S.lanc.filter(l=>l.tipo===tipo&&l.criadoEm&&!l.rec&&!l.divida).sort((a,b)=>(b.criadoEm||'').localeCompare(a.criadoEm||''))[0]}
+/* categoria mais comum neste horário (±2h) e tipo de dia, nos últimos 90 dias */
+function catPorHorario(){const t=today(),ini=addD(t,-90),h=new Date().getHours(),fds=[0,6].includes(new Date().getDay()),c={};
+  S.lanc.filter(l=>l.tipo==='despesa'&&l.criadoEm&&!l.rec&&!l.divida&&(l.data||'')>=ini&&l.categoria&&l.categoria!=='Outros').forEach(l=>{const d=new Date(l.criadoEm),lh=d.getHours(),lf=[0,6].includes(d.getDay());if(Math.abs(lh-h)<=2&&lf===fds)c[l.categoria]=(c[l.categoria]||0)+1});
+  const top=Object.entries(c).sort((a,b)=>b[1]-a[1])[0];return top&&top[1]>=3?top[0]:''}
+/* aviso com ação (desfazer) */
+function toastAct(m,lab,fn){const t=$('#toast');t.innerHTML=`<span>${esc(m)}</span><button type="button" class="tact">${esc(lab)}</button>`;t.hidden=false;clearTimeout(toast.t);
+  t.querySelector('.tact').onclick=async()=>{t.hidden=true;try{await fn()}catch(e){toast(writeErr(e))}};toast.t=setTimeout(()=>t.hidden=true,6000)}
+async function delLancUndo(l){const keep=Object.assign({},l);delete keep.id;try{await S.db.doc('lanc/'+l.id).delete();closeSheet();toastAct('Lançamento excluído','Desfazer',async()=>{await S.db.doc('lanc/'+l.id).set(keep);toast('Restaurado')})}catch(err){toast(writeErr(err))}}
 function openLanc(l,opts){
   if(l&&l.id&&!(opts&&(opts.edit||opts.cont))&&S.lanc.some(x=>x.id===l.id))return openLancView(l);
   if(!S.cards.length&&!S.contas.length){openConta(null);toast('Cadastre uma conta ou cartão primeiro');return}
-  const isNew=!l||!l.id;l=Object.assign({tipo:'despesa',data:today(),parcelas:1,parcela:1,divisao:'pessoal',categoria:'Mercado',tags:[]},l||{});
+  const isNew=!l||!l.id,catDada=!!(l&&l.categoria),catH=isNew&&!catDada&&(!l||!l.tipo||l.tipo==='despesa')?catPorHorario():'';l=Object.assign({tipo:'despesa',data:today(),parcelas:1,parcela:1,divisao:'pessoal',categoria:catH||'Mercado',tags:[]},l||{});
   if(isNew&&l.divida&&!l.conta)l.conta=(S.contas.find(x=>x.tipo==='corrente'&&x.dono===ME())||S.contas[0]||{}).id;
   if(isNew&&!l.cartao&&!l.conta&&l.tipo==='despesa'&&card(PADR().cartao)&&card(PADR().cartao).ativo!==false)l.cartao=PADR().cartao;
   if(isNew&&!l.cartao&&!l.conta&&l.tipo==='despesa'&&conta(PADR().conta)&&conta(PADR().conta).ativo!==false)l.conta=PADR().conta;
@@ -6263,6 +6287,7 @@ function openLanc(l,opts){
     else h+=`<div class="lt one"><span>${l.divida?'Pagamento de dívida':TIPOS[t][0]}</span></div>`;
     h+=`<div class="la">${t==='ajuste'?`<button type="button" class="sgn" id="l-sg" aria-label="Trocar sinal">${st.neg?'−':'+'}</button>`:''}<span class="cur">R$</span><input id="l-v" inputmode="none" readonly autocomplete="off" placeholder="0,00" value="${st.valor?fmtMoney(st.valor):''}" aria-label="Valor"></div>
       <p class="lah" id="l-hint"></p></div><div class="lbody">`;
+    if(isNew&&!st.cont&&!l.divida&&(t==='despesa'||t==='receita')&&!st.desc){const AT=lancAtalhos(t),U=ultLanc(t);if(AT.length||U)h+=`<section class="ls lat"><span class="lsl">Atalhos${catH&&t==='despesa'?` · categoria sugerida pelo horário: ${esc(catH)}`:''}</span><div class="lats">${U?`<button type="button" class="latc rep" data-atu="1">${ic('repeat')}<span><b>Repetir último</b><small>${esc(descSemParc(U.desc||''))} · ${brl(+U.valor||0)}</small></span></button>`:''}${AT.map((a,i)=>`<button type="button" class="latc" data-at="${i}">${catBubble(a.cat,'sm')}<span><b>${esc(a.desc)}</b><small>${a.fixo?brl(a.md):'≈ '+brl0(a.md)} · ${esc((srcInfo(a.src)||{}).nm||'')}</small></span></button>`).join('')}</div></section>`;st._at=AT;st._u=U}
     if(t==='pagfat'){const c=card(l.cartao);h+=sec('Fatura',`<div class="lr">${cardGlyph(c)}<span class="lrt">${esc(c?c.nome:'')}<small>vencimento de ${ymL(l.fatura)}</small></span></div>`)}
     if(t==='despesa'||t==='receita'||t==='transf')h+=sec('Descrição',`<div class="lr">${I('text')}<input class="lin" id="l-ds" value="${esc(st.desc)}" placeholder="${t==='receita'?'De onde veio?':t==='transf'?'Opcional':'Com o que foi?'}" autocomplete="off" aria-label="Descrição"></div>`);
     if(t==='despesa'||t==='receita')h+=sec('Categoria',`<button type="button" class="lr" data-catp>${catBubble(st.cat)}<span class="lrt">${esc(st.sub||st.cat)}${st.sub?`<small>${esc(st.cat)}</small>`:subsOf(st.cat).length?'<small>escolher subcategoria</small>':''}</span><span class="go">›</span></button>${t==='despesa'?stopHint(st.cat,st.div==='comum'?st.valor/2:st.valor,st.data,!!(l&&l.id),st.div==='comum'):''}`);
@@ -6306,6 +6331,8 @@ function openLanc(l,opts){
     updSave();
     const lv=sh.querySelector('#l-v'),fitV=()=>{const cs=getComputedStyle(lv),cx=(window.__mc=window.__mc||document.createElement('canvas').getContext('2d'));cx.font=`${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;lv.style.width=Math.ceil(cx.measureText(lv.value||lv.placeholder||'0,00').width+6)+'px'};fitV();lv.addEventListener('input',fitV);
     const setV=x=>{st.valor=x;lv.value=x?fmtMoney(x):'';updSave();fitV();sh.querySelectorAll('.lseg small')[0]&&st.tipo==='despesa'&&(sh.querySelectorAll('.lseg small')[0].textContent=x?brl(total()/2)+' cada':'metade cada');const ps=sh.querySelector('.lstep');if(ps)draw(sh)};
+    sh.querySelectorAll('[data-at]').forEach(b=>b.onclick=()=>{const a=st._at[+b.dataset.at];Object.assign(st,{desc:a.desc,cat:a.cat,sub:a.sub,src:a.src,div:a.div});if(a.fixo&&!st.valor)st.valor=a.md;draw(sh);if(!st.valor)setTimeout(()=>openCalc(0,setV),60)});
+    {const u=sh.querySelector('[data-atu]');if(u)u.onclick=()=>{const U=st._u;Object.assign(st,{desc:descSemParc(U.desc||''),cat:U.categoria||st.cat,sub:U.subcategoria||'',src:U.cartao?'card:'+U.cartao:'acct:'+U.conta,div:U.divisao==='comum'?'comum':'pessoal',valor:+U.valor||st.valor,tags:(U.tags||[]).slice()});draw(sh)}}
     lv.onclick=()=>openCalc(st.valor,setV);lv.onkeydown=e=>{if(/^\d$|^Enter$/.test(e.key)){e.preventDefault();openCalc(st.valor,setV)}};
     const sg=sh.querySelector('#l-sg');if(sg)sg.onclick=()=>{st.neg=!st.neg;draw(sh)};
     const ds=sh.querySelector('#l-ds');if(ds)ds.oninput=()=>{st.desc=ds.value;if(isNew&&st.tipo==='despesa'){const g=guessFromHist(ds.value,st.src.slice(5));if(g&&g.categoria&&(g.categoria!==st.cat||(g.subcategoria||'')!==st.sub)&&ds.value.length>=4){st.cat=g.categoria;st.sub=g.subcategoria||'';if(g.divisao)st.div=g.divisao==='pessoal'?'pessoal':'comum';const pos=ds.selectionStart;draw(sh);const n=sh.querySelector('#l-ds');n.focus();n.setSelectionRange(pos,pos)}}};
@@ -6343,7 +6370,7 @@ function openLanc(l,opts){
   openSheet(`<h2>${title}</h2><form class="form lform lf3" id="fl" novalidate><div id="lb"></div>
     <div class="lfoot">${isNew?'':`<button class="lgh" type="button" id="ldel">${ic('trash')}<span>Excluir</span></button>`}<button type="submit" id="lsv" class="lfab">${ic('check')}</button>${isNew?'':`<button class="lgh" type="button" id="ldup">${ic('copy')}<span>Duplicar</span></button>`}</div></form>`,sh=>{
     draw(sh);
-    if(isNew&&!st.valor&&!(opts&&opts.nocalc))setTimeout(()=>{const v=sh.querySelector('#l-v');if(sh.isConnected&&v&&!document.getElementById('calc'))v.click()},300);
+    if(isNew&&!st.valor&&!(opts&&opts.nocalc)&&!sh.querySelector('.lat'))setTimeout(()=>{const v=sh.querySelector('#l-v');if(sh.isConnected&&v&&!document.getElementById('calc'))v.click()},300);
     const dup=sh.querySelector('#ldup');if(dup)dup.onclick=()=>{const c=Object.assign({},l);delete c.id;delete c.pend;delete c.venc;delete c.pagoEm;delete c.rec;delete c.recYm;c.data=today();openLanc(c)};
     sh.querySelector('#fl').onsubmit=async e=>{e.preventDefault();const tipo=st.tipo;let v=st.valor;if(tipo==='ajuste'&&st.neg)v=-v;
       if(!(tipo==='ajuste'?v!==0:v>0)){toast('Informe o valor');sh.querySelector('#l-v').focus();return}
@@ -6367,10 +6394,11 @@ function openLanc(l,opts){
       if(!isNew&&(tipo==='despesa'||tipo==='receita')){const sc=await serieScope(sh,l,d);if(sc===null)return;if(sc!=='skip'){try{await applySerie(sc,l,d);closeSheet();toast(sc==='one'?'Salvo só nesta parcela':sc==='next'?'Salvo nesta e nas próximas':'Salvo em todas')}catch(err){toast(writeErr(err))}return}}
       try{if(recDoc){const r=await S.db.collection('recorrentes').add(recDoc);d.rec=r.id}
         delete d._ovj;if(l._ovj){delete d.ovr}
-        await save('lanc',isNew?null:l.id,d);
+        const ref=await save('lanc',isNew?null:l.id,d);
         if(isNew&&st.cont){toast('Salvo · próximo lançamento');closeSheet();openLanc({tipo:st.tipo,cartao:d.cartao||'',conta:d.conta||'',data:st.data,divisao:st.div,categoria:st.cat,tags:[]},{cont:true})}
-        else{closeSheet();toast(recDoc?(recDoc.parcelas?`Salvo em ${recDoc.parcelas}x · próximas previstas`:'Salvo · repete todo mês'):'Salvo')}}catch(err){toast(writeErr(err))}};
-    const del=sh.querySelector('#ldel');if(del)confirmBtn(del,'Excluir?',()=>delDoc('lanc',l.id));
+        else{closeSheet();const msg=recDoc?(recDoc.parcelas?`Salvo em ${recDoc.parcelas}x · próximas previstas`:'Salvo · repete todo mês'):isNew?`Salvo · ${brl(total())}`:'Salvo';
+          if(isNew&&ref&&ref.id)toastAct(msg,'Desfazer',async()=>{await S.db.doc('lanc/'+ref.id).delete();if(d.rec&&recDoc)await S.db.doc('recorrentes/'+d.rec).delete();toast('Lançamento desfeito')});else toast(msg)}}catch(err){toast(writeErr(err))}};
+    const del=sh.querySelector('#ldel');if(del)del.onclick=()=>delLancUndo(l);
   });
 }
 
