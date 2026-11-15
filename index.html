@@ -2290,6 +2290,16 @@ body.ro #fab,body.ro .cxadd{display:none!important}body.ro::after{content:'Modo 
 .csr{display:grid;grid-template-columns:100px minmax(0,1fr) 70px;gap:8px;align-items:center;font-size:12.5px;padding:4px 0}.csr>span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.csr>i{height:8px;border-radius:4px;background:var(--sunk);display:block;overflow:hidden}.csr>i>b{display:block;height:100%;background:var(--accent,#E2BA6E);border-radius:4px}.csr>em{font-style:normal;text-align:right;font-weight:600}
 .fhb{display:flex;gap:3px;align-items:flex-end;height:46px;margin:10px 0 2px}.fhb i{flex:1;background:var(--accent,#E2BA6E);opacity:.75;border-radius:2px 2px 0 0}
 pre.rules{font-size:10.5px;line-height:1.45;background:var(--sunk);padding:10px 12px;border-radius:12px;overflow-x:auto;white-space:pre;max-width:100%;user-select:all}
+.lfr{display:flex;align-items:center;gap:8px;width:100%;margin:0 0 10px;padding:9px 12px;border:1px dashed color-mix(in srgb,var(--accent,#E2BA6E) 55%,transparent);border-radius:12px;background:none;color:var(--muted);font:inherit;font-size:13px;text-align:left}.lfr svg{width:16px;height:16px;color:var(--accent,#E2BA6E)}
+.frw{position:relative}.frw textarea{width:100%;font:inherit;font-size:17px;padding:12px 52px 12px 14px;border-radius:14px;border:1px solid var(--line);background:var(--sunk);color:inherit;resize:none;line-height:1.35}
+.frm{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:38px;height:38px;border-radius:19px;border:0;background:var(--ink);color:var(--surface);display:grid;place-items:center}.frm svg{width:20px;height:20px}.frm.on{background:var(--crit,#E0705F);animation:frp 1s infinite!important}@keyframes frp{50%{opacity:.6}}
+.frp{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 4px}.frc{display:grid;padding:6px 10px;border-radius:10px;background:color-mix(in srgb,var(--good) 10%,transparent)}.frc.mis{background:var(--sunk)}.frc small{font-size:10.5px;color:var(--muted)}.frc b{font-size:13px;font-weight:600}.frc.mis b{color:var(--muted);font-weight:500}
+.frx{display:inline-block;margin:3px 4px 0 0;padding:3px 8px;border-radius:99px;background:var(--sunk);color:var(--ink,inherit);font-size:12px;cursor:pointer}
+.rtzc{display:grid;gap:12px;padding:4px 2px 8px;background:var(--surface)}.rtzh{display:grid;gap:2px}.rtzh small{color:var(--muted);font-size:12px}.rtzh>b{font-size:34px;font-weight:650;letter-spacing:-.04em}.rtzh span{color:var(--muted);font-size:12.5px}.rtzh p{margin:8px 0 0;font-size:15px;line-height:1.4;font-weight:550}
+.rtzd{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;align-items:end}.rtzd>div{display:grid;justify-items:center;gap:4px}.rtzd span{height:70px;width:100%;display:flex;align-items:flex-end;justify-content:center}.rtzd i{width:62%;max-width:22px;background:var(--accent,#E2BA6E);border-radius:4px 4px 1px 1px;display:block}.rtzd small{font-size:11px;color:var(--muted)}
+.rtzf{font-size:11px;color:var(--muted);text-align:center;margin:0}
+.pfn{display:grid;gap:4px;margin:6px 0}
+html.zm nav.tabs{zoom:var(--unz,1)}
 </style>
 </head>
 <body>
@@ -3886,7 +3896,125 @@ function o4Rows(me){const fs=FILHOS(),P=PJ(),nk=S.cards.filter(c=>c.ativo!==fals
     +row('pj','bank','Empresa (PJ)',(P.contas||[]).length||(P.cartoes||[]).length?esc(P.nome||'empresa')+(P.separar?' · separada':' · misturada'):'faturamento, resultado e retiradas, separado do pessoal')
     +row('pontos','spark','Pontos e cashback',nk?`${nk} cart${nk===1?'ão':'ões'} com programa · melhor para gastar agora`:'qual cartão devolve mais')
     +row('assessor','shield','Acesso para assessor',L.length?`${L.length} pessoa${L.length===1?'':'s'} com acesso de leitura`:'leitura sem edição para assessor ou contador')}
+document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-o5]');if(!b)return;({prefs:openPrefs,frase:()=>openFrase(),retro:openRetro}[b.dataset.o5]||(()=>{}))()});
 document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-o4]');if(!b)return;const k=b.dataset.o4;({casa:openCasa,filhos:openFilhos,pj:openPJ,pontos:openPontos,assessor:openAssessor}[k]||(()=>{}))()});
+/* ===================== Onda 5: lançar por frase, lembretes, retrospectiva, modo simples, tamanho do texto ===================== */
+/* ---------- lançar por frase (ou voz) ---------- */
+const FR_REC=/\b(recebi|recebido|recebimento|ganhei|entrou|entrada|salario|pagaram|reembolso|rendeu|vendi|venda|freela)\b/;
+const FR_COM=/\b(dividido|dividida|dividir|comum|meio a meio|casal|nos dois|a dois)\b/;
+const FR_STOP=new Set(['no','na','nos','nas','em','de','do','da','dos','das','com','pelo','pela','via','r','reais','real','gastei','paguei','comprei','compra','recebi','foi','um','uma','o','a','e','pra','para','hoje','ontem','anteontem','cartao','conta','vezes','parcelas','parcelado','parcelada','x','dia','no','pix','debito','credito','dividido','dividida','dividir','comum','meio','casal','dois']);
+const FR_DS=['domingo','segunda','terca','quarta','quinta','sexta','sabado'];
+function frDate(s){const t=today();if(/\banteontem\b/.test(s))return addD(t,-2);if(/\bontem\b/.test(s))return addD(t,-1);
+  let m=s.match(/\b(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?\b/);if(m){const y=m[3]?(m[3].length===2?'20'+m[3]:m[3]):t.slice(0,4),d=`${y}-${String(m[2]).padStart(2,'0')}-${String(m[1]).padStart(2,'0')}`;return d>t&&!m[3]?(+y-1)+d.slice(4):d}
+  m=s.match(/\bdia (\d{1,2})\b/);if(m){const d=dayIn(t.slice(0,7),+m[1]);return d>t?dayIn(ymAdd(t.slice(0,7),-1),+m[1]):d}
+  for(let i=0;i<7;i++){if(new RegExp('\\b'+FR_DS[i]+'\\b').test(s)){let d=t;for(let k=0;k<7;k++){if(new Date(d+'T12:00:00').getDay()===i)return d;d=addD(d,-1)}}}
+  return t}
+function parseFrase(txt){const s0=' '+String(txt||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'')+' ',out={tipo:'despesa',data:today(),parcelas:1,divisao:'pessoal'};let s=s0;
+  const pm=s.match(/\b(\d{1,2})\s*(x|vezes|parcelas)\b/);if(pm&&+pm[1]>1){out.parcelas=Math.min(+pm[1],48);s=s.replace(pm[0],' ')}
+  s=s.replace(/\bdia \d{1,2}\b/,' ').replace(/\b\d{1,2}\/\d{1,2}(\/\d{2,4})?\b/,' ');
+  const vm=s.match(/(?:r\$\s*)?(\d{1,3}(?:\.\d{3})+(?:,\d{1,2})?|\d+(?:[.,]\d{1,2})?)(\s*(?:mil|k)\b)?/);
+  if(vm){let v=vm[1];v=/\.\d{3}/.test(v)?v.replace(/\./g,'').replace(',','.'):v.replace(',','.');let n=+v;if(vm[2])n*=1000;if(n>0)out.valor=r2(n);s=s.replace(vm[0],' ')}
+  if(FR_REC.test(s0))out.tipo='receita';if(FR_COM.test(s0)&&out.tipo==='despesa')out.divisao='comum';out.data=frDate(s0);
+  /* onde: cartão ou conta cujo nome aparece na frase ("no nubank", "pelo itaú" valem mais que uma palavra solta) */
+  const IGN=['conta','cartao','banco','credito','debito','corrente','visa','master','mastercard','gold','black','platinum','internacional','pago','de','do','da'];
+  const N=x=>norm(x).split(' ').filter(w=>w.length>=2&&!IGN.includes(w));
+  const temCard=/\b(cartao|credito|parcel)/.test(s0)||out.parcelas>1,temConta=/\b(pix|debito|conta|dinheiro|transferencia|ted)\b/.test(s0);let best=null;
+  const toks=s.split(/[^a-z0-9]+/).filter(Boolean),pos=new Set();toks.forEach((w,i)=>{if(['no','na','pelo','pela','com','via','do','da','cartao','conta'].includes(toks[i-1]))pos.add(w)});
+  const cand=out.tipo==='receita'?[]:S.cards.filter(c=>c.ativo!==false).map(c=>({k:'card',o:c,w:N(cardName(c)+' '+(c.nome||'')+' '+(c.banco||''))}));
+  S.contas.filter(a=>a.ativo!==false&&!isBen(a)).forEach(a=>cand.push({k:'conta',o:a,w:N(a.nome+' '+(a.instituicao||''))}));
+  cand.forEach(c=>{let sc=0;const hit=[];c.w.forEach(w=>{toks.forEach(tk=>{if(pos.has(tk)&&(tk===w||(w.length>=2&&tk.startsWith(w))||(tk.length>=3&&w.startsWith(tk)))){sc+=10+w.length;hit.push(tk)}else if(tk===w&&w.length>=4){sc+=w.length;hit.push(tk)}})});
+    if(!hit.length)return;sc+=(c.k==='card'&&temCard?3:0)+(c.k==='conta'&&temConta?3:0);if(!best||sc>best.sc)best=Object.assign({},c,{sc,hit})});
+  if(best){if(best.k==='card')out.cartao=best.o.id;else out.conta=best.o.id;best.hit.forEach(w=>{s=s.replace(new RegExp('\\b'+w+'\\b','g'),' ')})}
+  else if(temConta||out.tipo==='receita'){const cp=contaPadrao();if(cp)out.conta=cp}
+  if(/\bdinheiro\b/.test(s0)&&!best){const d=S.contas.find(a=>a.ativo!==false&&a.tipo==='dinheiro'&&a.dono===ME());if(d)out.conta=d.id}
+  const desc=s.replace(/\b(dividido|dividida|meio a meio|nos dois|a dois)\b/g,' ').split(/[^a-z0-9]+/).filter(w=>w&&!FR_STOP.has(w)&&!FR_DS.includes(w)&&!/^\d+$/.test(w)).join(' ').trim();
+  if(desc){const orig=String(txt).split(/\s+/).find(w=>norm(w)===desc.split(' ')[0]);out.desc=(desc.charAt(0).toUpperCase()+desc.slice(1)).slice(0,60);if(orig&&desc.split(' ').length===1)out.desc=orig.charAt(0).toUpperCase()+orig.slice(1)}
+  if(out.desc){const g=guessFromHist(out.desc,out.cartao||'');if(g&&g.categoria&&(out.tipo==='despesa'?CATS.includes(g.categoria):CATR.includes(g.categoria)))out.categoria=g.categoria;if(g&&g.divisao&&!FR_COM.test(s0)&&out.tipo==='despesa')out.divisao=g.divisao}
+  if(!out.categoria&&out.tipo==='despesa'){const K=[[/\b(mercado|supermercado|feira|hortifruti|acougue|padaria)\b/,'Mercado'],[/\b(almoco|jantar|restaurante|lanche|cafe|bar|pizza|hamburguer)\b/,'Restaurante'],[/\b(ifood|delivery|rappi)\b/,'Delivery'],[/\b(gasolina|combustivel|posto|etanol|alcool|diesel)\b/,'Combustível'],[/\b(uber|99|taxi|onibus|metro|estacionamento|pedagio)\b/,'Transporte'],[/\b(farmacia|remedio|drogaria)\b/,'Farmácia'],[/\b(cinema|show|ingresso|passeio)\b/,'Lazer'],[/\b(roupa|camisa|calca|tenis|sapato)\b/,'Vestuário'],[/\b(pet|racao|veterinario)\b/,'Pets'],[/\b(netflix|spotify|assinatura|streaming)\b/,'Assinaturas']];
+    const k=K.find(([r,c])=>r.test(s0)&&CATS.includes(c));if(k)out.categoria=k[1]}
+  if(out.tipo==='receita'&&!out.categoria){const ws=norm(out.desc||'').split(' ').filter(w=>w.length>=4);out.categoria=CATR.find(c=>ws.some(w=>norm(c).includes(w.slice(0,5))))||(/salario/.test(s0)?CATR.find(c=>/salario/.test(norm(c))):null)||CATR.find(c=>norm(c)==='outros')||CATR.find(c=>/outr|extra/.test(norm(c)))||CATR[0]}
+  return out}
+function openFrase(ini){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;let txt=ini||'',rec=null;
+  openSheet(`<h2>Lançar por frase</h2><form class="form" id="ffr" novalidate>
+    <div class="frw"><textarea id="fr-t" rows="2" placeholder="mercado 182,40 no nubank ontem">${esc(txt)}</textarea>${SR?`<button type="button" class="frm" id="fr-m" aria-label="Falar">${I5mic}</button>`:''}</div>
+    <div id="fr-p" class="frp"></div>
+    <p class="note">Exemplos: <span class="frx">uber 23,50</span> <span class="frx">tv 3.000 em 10x no itaú</span> <span class="frx">almoço 86 dividido pix</span> <span class="frx">recebi 1.200 freela</span> <span class="frx">farmácia 54 dia 12</span></p>
+    <div class="btnrow"><button class="btn primary" type="submit">Revisar e salvar</button></div></form>`,sh=>{
+    const $q=s=>sh.querySelector(s),ta=$q('#fr-t');
+    const show=()=>{const L=parseFrase(ta.value),c=L.cartao&&card(L.cartao),a=L.conta&&conta(L.conta);const it=(k,v,ok)=>`<span class="frc ${ok?'':'mis'}"><small>${k}</small><b>${v}</b></span>`;
+      $q('#fr-p').innerHTML=ta.value.trim()?[it('Valor',L.valor?brl(L.valor):'falta',!!L.valor),it('Tipo',L.tipo==='receita'?'Receita':'Despesa',1),it(L.tipo==='receita'?'Entrou em':'Pago com',c?esc(cardName(c)):a?esc(a.nome):'padrão',!!(c||a)),it('Quando',L.data===today()?'hoje':fdate(L.data),1),L.parcelas>1?it('Parcelas',L.parcelas+'x',1):'',it('Categoria',esc(L.categoria||'a escolher'),!!L.categoria),L.tipo==='despesa'?it('Divisão',L.divisao==='comum'?'comum (meio a meio)':'pessoal',1):'',it('Descrição',esc(L.desc||'—'),!!L.desc)].join(''):'';return L};
+    ta.oninput=show;show();setTimeout(()=>ta.focus(),200);
+    sh.querySelectorAll('.frx').forEach(x=>x.onclick=()=>{ta.value=x.textContent;show()});
+    const m=$q('#fr-m');if(m)m.onclick=()=>{if(rec){rec.stop();return}try{rec=new SR();rec.lang='pt-BR';rec.interimResults=true;rec.maxAlternatives=1;m.classList.add('on');
+      rec.onresult=e=>{ta.value=[...e.results].map(r=>r[0].transcript).join(' ');show()};rec.onend=()=>{m.classList.remove('on');rec=null};rec.onerror=()=>{toast('Não consegui ouvir — tente de novo ou digite');};rec.start()}catch(e){toast('Microfone indisponível neste navegador')}};
+    $q('#ffr').onsubmit=e=>{e.preventDefault();const L=show();if(!L.valor){toast('Diga ou escreva o valor');return}try{LSset('pt-frul',ta.value)}catch(_){}
+      const l=Object.assign({},L);if(!l.cartao&&!l.conta)delete l.conta;if(l.cartao)delete l.conta;if(!l.categoria)delete l.categoria;openLanc(l)};
+  })}
+const I5mic=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/></svg>`;
+/* ---------- preferências do aparelho: tamanho do texto e modo simples ---------- */
+let SIMPLES=LS('pt-simples','0')==='1';
+const ZOOMS=[[1,'Normal'],[1.1,'Grande'],[1.2,'Maior']];
+function zoomAp(){const z=+LS('pt-zoom','1')||1;document.documentElement.style.zoom=z===1?'':String(z);document.documentElement.style.setProperty('--unz',String(1/z));document.documentElement.classList.toggle('zm',z!==1)}
+zoomAp();
+/* ---------- lembretes no celular (notificações locais, sem servidor) ---------- */
+const NTF=()=>{try{return JSON.parse(localStorage.getItem('pt-ntf')||'null')||{on:false,c:1,s:1,m:1}}catch(e){return {on:false,c:1,s:1,m:1}}};
+const ntfOk=()=>'Notification' in window&&'serviceWorker' in navigator;
+let NTFAT=0;
+async function ntfSync(force){const N=NTF();if(!N.on||!ntfOk()||Notification.permission!=='granted'||!ready())return;if(!force&&Date.now()-NTFAT<30*60e3)return;NTFAT=Date.now();
+  try{const me=ME(),t=today(),ate=addD(t,3),its=[];
+    if(N.c)agendaPessoal(me,ate,t).filter(x=>['fat','fix','div','pend','darf','pendr'].includes(x.k)&&x.d>=t).forEach(x=>its.push({id:x.k+'|'+(x.nav||x.t)+'|'+x.d,d:x.d,t:x.t,v:r2(Math.abs(x.v)),r:x.v>0}));
+    const sr=semRev(),R=ROT();if(N.s&&!(R[sr.k]||{}).em)its.push({id:'sem|'+sr.k,d:new Date(t+'T12:00:00').getDay()===0?t:addD(sr.fim,7),t:'Revisão da semana',v:0,info:'4 minutos para conferir a semana'});
+    const ym=t.slice(0,7),ld=dayIn(ym,31);if(N.m)its.push({id:'mes|'+ym,d:ld,t:'Fechamento do mês',v:0,info:'feche o mês e veja o resultado'});
+    const data={gerado:new Date().toISOString(),hoje:t,itens:its};const c=await caches.open('pt-dados');await c.put('./__lembretes.json',new Response(JSON.stringify(data),{headers:{'content-type':'application/json'}}));
+    const reg=await navigator.serviceWorker.ready;if(reg.periodicSync){try{const st=await navigator.permissions.query({name:'periodic-background-sync'});if(st.state==='granted')await reg.periodicSync.register('pt-lembretes',{minInterval:6*36e5})}catch(e){}}
+    reg.active&&reg.active.postMessage({tipo:'lembretes'});
+  }catch(e){}}
+function openPrefs(){const draw=sh=>{const z=+LS('pt-zoom','1')||1,N=NTF(),box=sh.querySelector('#pfx'),perm=ntfOk()?Notification.permission:'indisponível';
+    box.innerHTML=`<section class="ivs"><div class="ivsh"><h3>Tamanho do texto</h3><small>neste aparelho</small></div><div class="seg" id="pf-z">${ZOOMS.map(([v,n])=>`<button type="button" data-z="${v}" aria-pressed="${z===v}">${n}</button>`).join('')}</div></section>
+      <section class="ivs"><div class="ivsh"><h3>Modo simples</h3><small>neste aparelho</small></div><label class="chk"><input type="checkbox" id="pf-s" ${SIMPLES?'checked':''}> Mostrar só o essencial</label><p class="note">No Início ficam o caixa, as ações rápidas, “Para resolver”, quanto pode gastar e os últimos lançamentos. No Decidir, só gastar e comprar. Nada é apagado — desligue para ver tudo de novo.</p></section>
+      <section class="ivs"><div class="ivsh"><h3>Lembretes no celular</h3><small>${perm==='granted'?'permitido':perm==='denied'?'bloqueado no navegador':perm==='indisponível'?'indisponível aqui':'ainda não permitido'}</small></div>
+        <label class="chk"><input type="checkbox" id="pf-n" ${N.on&&perm==='granted'?'checked':''} ${perm==='indisponível'?'disabled':''}> Avisar no celular</label>
+        <div class="pfn" ${N.on?'':'hidden'}><label class="chk"><input type="checkbox" data-nt="c" ${N.c?'checked':''}> Contas, faturas e parcelas vencendo (hoje e amanhã)</label><label class="chk"><input type="checkbox" data-nt="s" ${N.s?'checked':''}> Revisão da semana (domingo)</label><label class="chk"><input type="checkbox" data-nt="m" ${N.m?'checked':''}> Fechamento do mês (último dia)</label>
+          <div class="btnrow"><button class="btn sm" type="button" id="pf-tst">Enviar aviso de teste</button></div></div>
+        <p class="note">Funciona com o app instalado pelo Chrome no Android: o próprio celular confere os vencimentos algumas vezes por dia, mesmo com o app fechado — a frequência é o Chrome que decide (mais vezes quanto mais você usa o app). Os avisos saem do que estava no app na última vez que ele abriu. No iPhone, só com o app aberto.</p></section>`;
+    sh.querySelectorAll('[data-z]').forEach(b=>b.onclick=()=>{LSset('pt-zoom',b.dataset.z);zoomAp();draw(sh)});
+    sh.querySelector('#pf-s').onchange=e=>{SIMPLES=e.target.checked;LSset('pt-simples',SIMPLES?'1':'0');re();toast(SIMPLES?'Modo simples ligado':'Mostrando tudo')};
+    const nb=sh.querySelector('#pf-n');nb.onchange=async()=>{const n=NTF();if(nb.checked){let p=Notification.permission;if(p!=='granted')p=await Notification.requestPermission();if(p!=='granted'){nb.checked=false;toast('O navegador não permitiu notificações');return}n.on=true}else n.on=false;LSset('pt-ntf',JSON.stringify(n));if(n.on)ntfSync(true);draw(sh)};
+    sh.querySelectorAll('[data-nt]').forEach(i=>i.onchange=()=>{const n=NTF();n[i.dataset.nt]=i.checked?1:0;LSset('pt-ntf',JSON.stringify(n));ntfSync(true)});
+    const ts=sh.querySelector('#pf-tst');if(ts)ts.onclick=async()=>{try{const reg=await navigator.serviceWorker.ready;await reg.showNotification('Patrimônio',{body:'Os lembretes estão funcionando neste aparelho.',icon:'icon-192.png',badge:'icon-192.png',tag:'pt-teste'})}catch(e){try{new Notification('Patrimônio',{body:'Os lembretes estão funcionando neste aparelho.'})}catch(_){toast('Não consegui mostrar o aviso aqui')}}}};
+  openSheet(`<h2>Aparência e lembretes</h2><div id="pfx" class="ivx"></div>`,draw)}
+/* ---------- retrospectiva da semana ---------- */
+function semGastos(me,ini,fim){const its=movs().filter(i=>i.tipo==='despesa'&&i.l.data>=ini&&i.l.data<=fim&&i.j===Math.min(Math.max(+i.l.parcela||1,1),i.N)&&!i.l.rec&&!i.l.divida&&!(i.l.ign&&i.l.ign.stats));
+  const L=its.map(i=>({i,v:r2(share(i,me)*(i.N>1?i.N-(Math.max(+i.l.parcela||1,1))+1:1))})).filter(x=>x.v>0);return L}
+function retroCalc(me,W){W=W||semRev();const L=semGastos(me,W.ini,W.fim),tot=r2(sum(L,x=>x.v)),ant=[1,2,3,4].map(k=>r2(sum(semGastos(me,addD(W.ini,-7*k),addD(W.fim,-7*k)),x=>x.v))).filter((v,k)=>addD(W.ini,-7*(k+1))>=histIni());
+  const med=ant.length?sum(ant,v=>v)/ant.length:null,cats={};L.forEach(x=>{const k=x.i.l.categoria||'Outros';cats[k]=(cats[k]||0)+x.v});
+  const C=Object.entries(cats).sort((a,b)=>b[1]-a[1]),maior=L.slice().sort((a,b)=>b.v-a.v)[0],dias=new Set(L.map(x=>x.i.l.data)),sem=7-dias.size;
+  const antC={};[1,2,3,4].forEach(k=>semGastos(me,addD(W.ini,-7*k),addD(W.fim,-7*k)).forEach(x=>{const c=x.i.l.categoria||'Outros';antC[c]=(antC[c]||0)+x.v/4}));
+  const dif=C.map(([c,v])=>({c,v,d:v-(antC[c]||0)})).sort((a,b)=>b.d-a.d)[0];
+  const ent=r2(sum(movs().filter(i=>i.tipo==='receita'&&i.src==='conta'&&(i.l.data||'')>=W.ini&&(i.l.data||'')<=W.fim),i=>share(i,me)));
+  let V=null;try{V=varModel(me)}catch(e){}let Mt=null;try{Mt=metasResumo(me)}catch(e){}
+  const porDia=[...Array(7)].map((_,k)=>{const d=addD(W.ini,k);return {d,v:r2(sum(L.filter(x=>x.i.l.data===d),x=>x.v))}});
+  return {W,L,tot,med:med==null?null:r2(med),C,maior,sem,dif,ent,V,Mt,porDia,n:L.length}}
+function retroFrase(R){if(!R.n)return 'Semana sem gastos registrados. Se gastou, vale lançar agora para o mês fechar certo.';
+  if(R.med==null)return `Primeira semana com histórico: ${brl0(R.tot)} em ${R.n} gasto${R.n>1?'s':''}.`;
+  const p=R.med?R.tot/R.med-1:0;if(p<=-.15)return `Semana leve: ${pctf(-p)} abaixo da sua média. ${R.sem>=2?`${R.sem} dias sem gastar.`:''}`;
+  if(p>=.15)return `Semana mais pesada: ${pctf(p)} acima da média${R.dif&&R.dif.d>20?`, puxada por ${R.dif.c} (+${brl0(R.dif.d)})`:''}.`;return 'Semana dentro do seu normal.'}
+function openRetro(){const me=ME(),R=retroCalc(me),mx=Math.max(...R.porDia.map(x=>x.v),1),DS=['seg','ter','qua','qui','sex','sáb','dom'];
+  try{LSset('pt-retro',R.W.k)}catch(e){}
+  openSheet(`<h2>Retrospectiva da semana</h2><div class="rtzc" id="rtc">
+    <div class="rtzh"><small>${fdate(R.W.ini).slice(0,5)} a ${fdate(R.W.fim).slice(0,5)}</small><b class="n">${brl0(R.tot)}</b><span>em ${R.n} gasto${R.n===1?'':'s'}${R.med!=null?` · média ${brl0(R.med)}/semana`:''}</span><p>${esc(retroFrase(R))}</p></div>
+    <div class="rtzd">${R.porDia.map((x,k)=>`<div><span><i style="height:${Math.max(x.v/mx*100,x.v?4:0).toFixed(1)}%"></i></span><small>${DS[k]}</small></div>`).join('')}</div>
+    <div class="ivk"><div><small>Dias sem gastar</small><b class="n">${R.sem}</b></div><div><small>Entrou</small><b class="n pos">${brl0(R.ent)}</b></div><div><small>Maior gasto</small><b class="n">${R.maior?brl0(R.maior.v):'—'}</b><small>${R.maior?esc(R.maior.i.l.desc||R.maior.i.l.categoria||''):''}</small></div></div>
+    ${R.C.length?`<section class="ivs"><div class="ivsh"><h3>Para onde foi</h3></div>${R.C.slice(0,4).map(([k,v])=>`<div class="csr"><span>${esc(k)}</span><i><b style="width:${(v/R.C[0][1]*100).toFixed(1)}%"></b></i><em class="n">${brl0(v)}</em></div>`).join('')}</section>`:''}
+    ${R.V&&R.V.ok?`<p class="rvsug">Mês: o dia a dia deve fechar em ≈ <b class="n">${brl0(R.V.prev)}</b> (mediana ${brl0(R.V.med)}) — ${R.V.prev<=R.V.med*1.05?'<span class="pos">no ritmo</span>':'<span class="neg">acima do normal</span>'}.</p>`:''}
+    ${R.Mt&&R.Mt.L.length?`<p class="rvsug">Metas: ${R.Mt.L.filter(x=>x.c.st==='ok').length} de ${R.Mt.L.length} no ritmo.</p>`:''}
+    <p class="rtzf">Patrimônio · retrospectiva semanal</p></div>
+    <div class="btnrow"><button class="btn sm" type="button" id="rt-img">${ic('share')} Compartilhar imagem</button><button class="btn sm" type="button" id="rt-sem">Revisão da semana ›</button></div>`,sh=>{
+    sh.querySelector('#rt-img').onclick=e=>snapExport(sh.querySelector('#rtc'),'Retrospectiva da semana','retrospectiva-'+R.W.ini,e.currentTarget);
+    sh.querySelector('#rt-sem').onclick=()=>openSemana()})}
+let RTTRY=false;
+function retroAviso(){if(RTTRY||!ready())return;RTTRY=true;const W=semRev(),dw=new Date(today()+'T12:00:00').getDay();if(!(dw===1||dw===2||dw===0))return;if(LS('pt-retro','')===W.k)return;
+  setTimeout(()=>{try{if(retroCalc(ME(),W).n)toastAct('Sua retrospectiva da semana está pronta','Ver',openRetro)}catch(e){}},2500)}
 function wireMg(el,rr){
   el.querySelectorAll('[data-colch]').forEach(b=>b.onclick=openColchao);
   el.querySelectorAll('[data-mgimg]').forEach(b=>b.onclick=()=>snapExport(b.closest('.mgc'),'Quanto posso gastar · '+MGLAB[MGL],'quanto-posso-gastar-'+today(),b));
@@ -3908,17 +4036,17 @@ function iniGastoMini(X){let G;try{G=gastoLentes(X.me,X.ym)}catch(e){return ''}i
 function vDecidir(){
   const el=$('#v-decidir');if(!ready()){el.innerHTML=loading();return}
   const me=ME(),t=today(),ym=t.slice(0,7),X={me,t,ym,saldo:realBal(me,t),M:mesCalc(ym,me),F:mesFluxo(ym,me)};
-  let h=`<h3 class="dch">Gastar</h3>${iniMargem(X)||'<div class="card"><p class="note">Cadastre contas e receitas para ver quanto pode gastar.</p></div>'}${(()=>{try{return iniVariaveis(me,ym)}catch(e){console.error('var',e);return ''}})()}`;
+  let h=`<h3 class="dch">Gastar</h3>${iniMargem(X)||'<div class="card"><p class="note">Cadastre contas e receitas para ver quanto pode gastar.</p></div>'}${SIMPLES?'':(()=>{try{return iniVariaveis(me,ym)}catch(e){console.error('var',e);return ''}})()}`;
   /* comprar maior: simulador e ordens salvas */
   const ords=cfg().ordens||[],prontas=new Set(ordensProntas(me).map(o=>o.id));
   h+=`<h3 class="dch">Comprar maior</h3><div class="card dcc"><button type="button" class="dcbig" data-dsim="1"><span class="bk bk-g">${ic('spark')}</span><span><b>Posso comprar?</b><small>simule à vista ou parcelado: o app diz se cabe, quando cabe e qual forma pesa menos</small></span><span class="go">›</span></button>
     ${ords.length?`<div class="dcol"><small>Ordens salvas</small>${ords.map(o=>`<button type="button" class="cxr" data-dord="${esc(o.id)}"><span class="bk ${prontas.has(o.id)?'bk-g':''}">${ic(prontas.has(o.id)?'check':'clock')}</span><span class="cxm"><strong>${esc(o.desc||'Compra planejada')}</strong><small>${brl(o.v)} · ${esc(simForma(o.f))} · ${prontas.has(o.id)?'<span class="pos">já cabe</span>':'aguardando caber'}</small></span><span class="go">›</span></button>`).join('')}</div>`:''}</div>`;
   /* investir: abertura e projeção */
   let G=null;try{G=gastoLentes(me,ym)}catch(e){}const sob=G?Math.max(0,Math.min(G.L.sobra[1],G.L.caixa[1])):0,im=cdiMes();
-  h+=`<h3 class="dch">Investir</h3>${iniInvest(me)}${(()=>{try{return rvCard(me)}catch(e){console.error('rv',e);return ''}})()}
+  if(!SIMPLES)h+=`<h3 class="dch">Investir</h3>${iniInvest(me)}${(()=>{try{return rvCard(me)}catch(e){console.error('rv',e);return ''}})()}
     ${sob>50?`<div class="card dcc"><div class="dcsob" style="margin:0"><span>Se aplicar o que está livre agora (<b class="n">${brl0(sob)}</b>), renderia ≈ <b class="n pos">${brl0(sob*im)}/mês</b> e <b class="n pos">${brl0(sob*(Math.pow(1+im,12)-1))}</b> em 1 ano no CDI (antes do IR).</span></div></div>`:''}
     ${iniSpread(X)||''}`;
-  try{h+=iniPlanejar(me)}catch(e){console.error('plan',e)}
+  if(!SIMPLES)try{h+=iniPlanejar(me)}catch(e){console.error('plan',e)}
   el.innerHTML=h;wireMg(el,vDecidir);wireRV(el,vDecidir);wirePlanejar(el);
   el.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>go(b.dataset.go));
   el.querySelectorAll('[data-dsim]').forEach(b=>b.onclick=()=>openSimCompra());
@@ -4310,10 +4438,11 @@ function vInicio(){
   if(nx&&!SETUPX)h+=`<div class="setup"><span class="sp">${setup.map(s=>`<i class="${s[0]?'on':''}"></i>`).join('')}</span><button class="lk" type="button" data-setup="${nx[2]}">${ok}/${setup.length} · ${nx[1]} ›</button><button class="sx2" type="button" id="stx" aria-label="Ocultar">×</button></div>`;
   const X={me,t,ym,saldo:realBal(me,t),M:mesCalc(ym,me),F:mesFluxo(ym,me)};
   const B={rotina:iniRotina,margem:iniGastoMini,ticker:iniTicker,mesx:iniMesX,cats:iniCats,hero:iniHero,acoes:iniAcoes,alertas:iniResolver,ultimos:iniUltimos,spread:iniSpread,contas:iniContas,beneficios:iniBen,mes:()=>mesCard(me),agenda:iniAgenda,credito:()=>creditoDash(true),gastos:iniGastos2,planejado:iniPlan,fluxo6:iniEvo,kpis:iniKpis,orcamento:()=>'',plano:iniPlano,dre:iniDre,saude:iniSaude,fecha:iniFecha,quinzenas:iniQuin,patrimonio:iniPat};
-  const CORE=['ticker','hero','acoes','rotina','alertas','margem','ultimos'];let ha='';
-  layOrder().forEach(k=>{if((LAY.off||[]).includes(k))return;let x='';try{x=B[k](X)||''}catch(e){console.error('início/'+k,e)}if(CORE.includes(k))h+=x;else ha+=x});
+  const CORE=SIMPLES?['ticker','hero','acoes','alertas','margem','ultimos']:['ticker','hero','acoes','rotina','alertas','margem','ultimos'];let ha='';
+  layOrder().forEach(k=>{if((LAY.off||[]).includes(k))return;if(SIMPLES&&!CORE.includes(k))return;let x='';try{x=B[k](X)||''}catch(e){console.error('início/'+k,e)}if(CORE.includes(k))h+=x;else ha+=x});
   if(ha)h+=`<details class="anl" ${ANLO?'open':''}><summary><span><b>Análises do mês</b><small>candles, categorias, saúde e o que mais estiver ligado</small></span>${ic('down','chev')}</summary><div class="anlb">${ha}</div></details>`;
-  h+=`<button class="custom" type="button" id="pers">${ic('edit')}<span>Personalizar início</span></button>`;
+  h+=SIMPLES?`<button class="custom" type="button" data-o5="prefs">${ic('eye')}<span>Modo simples · mostrar tudo</span></button>`:`<button class="custom" type="button" id="pers">${ic('edit')}<span>Personalizar início</span></button>`;
+  retroAviso();
   el.innerHTML=h;wireIni(el);wireIni4(el);{const an=el.querySelector('.anl');if(an)an.addEventListener('toggle',()=>{ANLO=an.open;LSset('pt-anl',ANLO?'1':'0')})}
   const x=$('#stx');if(x)x.onclick=()=>{SETUPX=true;LSset('pt-setup','x');vInicio()};
   el.querySelectorAll('[data-mym]').forEach(b=>b.onclick=()=>{MYM=ymAdd(MYM,+b.dataset.mym);vInicio()});
@@ -4337,7 +4466,7 @@ function vInicio(){
   el.querySelectorAll('[data-gab]').forEach(b=>b.onclick=()=>{RP='salvos';go('relatorios')});
   el.querySelectorAll('[data-addc]').forEach(b=>b.onclick=()=>openConta({tipo:b.dataset.addc}));
   const ey=$('#eye');if(ey)ey.onclick=()=>{HV=!HV;LSset('pt-hv',HV?'1':'');document.documentElement.classList.toggle('hv',HV);ey.innerHTML=HV?ICN.eyeoff:ICN.eye;ey.setAttribute('aria-label',(HV?'Mostrar':'Ocultar')+' valores')};
-  $('#pers').onclick=openPers;
+  {const pe=$('#pers');if(pe)pe.onclick=openPers}
   ['#orcset','#orced'].forEach(k=>{const b=el.querySelector(k);if(b)b.onclick=openOrc});
   el.querySelectorAll('[data-evn]').forEach(b=>b.onclick=()=>{EVN=+b.dataset.evn;LSset('pt-evn',String(EVN));vInicio()});
   el.querySelectorAll('[data-gm]').forEach(b=>b.onclick=()=>{GMODE=b.dataset.gm;LSset('pt-gm',GMODE);vInicio()});
@@ -5302,7 +5431,7 @@ function wirePainel(el){el.querySelectorAll('[data-relm]').forEach(b=>b.onclick=
   el.querySelectorAll('[data-pnimg]').forEach(b=>b.onclick=()=>snapExport(b.closest('.pnc'),'Painel de comando','painel-'+today(),b));
   el.querySelectorAll('[data-pna]').forEach(b=>b.onclick=()=>{const [t,v]=b.dataset.pna.split(':');if(t==='go')go(v);else if(t==='rp'){RP=v;vRel()}else if(v==='rec')openRevRec();else if(v==='inv')openInvestDash();else if(v==='spread')openSpread()})}
 /* ===================== Busca global ===================== */
-const ACOES_B=[['Posso comprar?','simular compra parcelado à vista',()=>openSimCompra()],['Revisão da semana','rotina semanal',()=>openSemana()],['Fechar quinzena','rotina salário acerto',()=>openQuinzena()],['Fechar o mês','fechamento mensal',()=>openFechamento()],
+const ACOES_B=[['Lançar por frase','escrever falar voz lançamento rápido',()=>openFrase()],['Retrospectiva da semana','resumo semana compartilhar',()=>openRetro()],['Aparência e lembretes','tamanho texto modo simples notificação lembrete',()=>openPrefs()],['Posso comprar?','simular compra parcelado à vista',()=>openSimCompra()],['Revisão da semana','rotina semanal',()=>openSemana()],['Fechar quinzena','rotina salário acerto',()=>openQuinzena()],['Fechar o mês','fechamento mensal',()=>openFechamento()],
   ['Revisar contas fixas','assinaturas recorrentes reajuste',()=>openRevRec()],['Saúde do trimestre','reserva spread limite',()=>openSaudeTri()],['Calendário do ano','sazonais ipva iptu',()=>openSazonais()],['Apoio ao IR','imposto de renda declaração',()=>openIR()],
   ['Painel de comando','indicadores metas saúde',()=>{RP='painel';go('relatorios')}],['Relatório por período','semana quinzena trimestre ano',()=>{RP='periodo';go('relatorios')}],['Investimentos','aplicações projeção carteira',()=>openInvestDash()],['Spread','dívida aplicação antecipar',()=>openSpread()],
   ['Colchão','reserva segurança',()=>openColchao()],['Cópias de segurança','backup restaurar',()=>openBackups()],['Ajuda','dúvidas faq glossário',()=>openAjuda()],['Novo lançamento','despesa receita transferência',()=>openLanc(null)],['Bloqueio do app','pin digital segurança',()=>openBloqueio()],['Organizar categorias','classificar outros',()=>openOrganizar()]];
@@ -6089,9 +6218,11 @@ function openSemana(){const me=ME(),{W,R,C}=semCheck(),ok=C.filter(x=>x.ok).leng
     <div class="rtp"><i style="width:${ok/C.length*100}%"></i></div>
     <section class="fsec">${C.map(step).join('')}</section>
     ${V&&V.porDia>0?`<p class="simq">${ic('spark')}<span>Para a semana que começa: o dia a dia deve custar ≈ <b>${brl0(V.porDia*7)}</b> (≈ ${brl0(V.porDia)}/dia).</span></p>`:''}
+    <button type="button" class="lk" id="sw-rt">Ver a retrospectiva da semana ›</button>
     <div class="btnrow">${R.em?'':`<button class="btn primary" type="button" id="sw-ok">${ok===C.length?'Concluir revisão':'Concluir mesmo assim'}</button>`}</div>`,sh=>{
     sh.querySelectorAll('[data-sv]').forEach(b=>b.onclick=async()=>{const v=Object.assign({},(ROT()[W.k]||{}).vis||{});v[b.dataset.sv]=true;await rotSave(W.k,{vis:v});openSemana()});
     sh.querySelectorAll('[data-cf]').forEach(b=>b.onclick=async()=>{const c=Object.assign({},(ROT()[W.k]||{}).conf||{});c[b.dataset.cf]=!c[b.dataset.cf];await rotSave(W.k,{conf:c});openSemana()});
+    {const rt=sh.querySelector('#sw-rt');if(rt)rt.onclick=openRetro}
     sh.querySelectorAll('[data-aj]').forEach(b=>b.onclick=()=>openAjuste(conta(b.dataset.aj)));
     sh.querySelectorAll('[data-sa]').forEach(b=>b.onclick=()=>{const k=b.dataset.sa;if(k==='ritmo'){closeSheet();CATV='bolsa';LSset('pt-catv','bolsa');setTimeout(()=>{location.hash==='#decidir'?vDecidir():go('decidir')},150)}else if(k==='cls')openOrganizar();else if(k==='pend')openPendentes();else if(k==='prox'){closeSheet();RVH=7;LSset('pt-rvh','7');setTimeout(()=>go('inicio'),150)}});
     const o=sh.querySelector('#sw-ok');if(o)o.onclick=async()=>{await rotSave(W.k,{em:today()});toast('Revisão da semana concluída');closeSheet()};
@@ -6313,6 +6444,11 @@ const FAQ=[
   ['Errei um abatimento, como desfaço?','No painel do acerto, toque em <b>Selecionar</b>, marque os itens quitados e use <b>Voltar para em aberto</b>. Eles voltam a ficar em aberto, em massa.'],
   ['Como mando o relatório de repasse?','Em Relatórios, abra o repasse e exporte. Vai com resumo, grupos (incluindo o abatimento no final), composição e imagem do gráfico.'],
   ['Onde mudo as pessoas e os dias das quinzenas?','Em Carteira → Ajustes → <b>Pessoas e quinzenas</b>.','pes','Abrir pessoas e quinzenas']]],
+ ['Atalhos e conforto',[
+  ['Como lanço escrevendo uma frase ou falando?','Ao abrir um novo lançamento, toque em <b>Escrever ou falar o lançamento</b>. Escreva como fala — “mercado 182,40 no nubank ontem”, “tv 3.000 em 10x no itaú”, “almoço 86 dividido pix”, “recebi 1.200 freela” — ou toque no microfone. O app entende valor, parcelas, data, cartão ou conta, divisão e categoria (pelo seu histórico) e abre o lançamento preenchido para você conferir.','frase','Lançar por frase'],
+  ['Como recebo lembretes no celular?','Em <b>Carteira › Ajustes › Aparência e lembretes</b>, ligue “Avisar no celular” e permita as notificações. Com o app instalado pelo Chrome no Android, o celular confere algumas vezes por dia, mesmo com o app fechado, e avisa contas, faturas e parcelas que vencem hoje e amanhã, a revisão da semana e o fechamento do mês. No iPhone, só com o app aberto.','prefs','Ligar lembretes'],
+  ['O que é a retrospectiva da semana?','Um resumo da semana que passou: quanto gastou contra a sua média, dia a dia, dias sem gastar, maior gasto, para onde foi o dinheiro e o ritmo do mês. Aparece um aviso na segunda-feira e dá para compartilhar como imagem.','retro','Ver retrospectiva'],
+  ['Posso deixar o app mais simples ou com letra maior?','Sim, em <b>Aparência e lembretes</b>: o <b>modo simples</b> deixa só o essencial no Início e no Decidir (nada é apagado), e o <b>tamanho do texto</b> tem Normal, Grande e Maior. As duas opções valem só para o aparelho em que você escolher.','prefs','Abrir aparência']]],
  ['Casa, família e empresa',[
   ['O que é a visão da casa?','As duas pessoas somadas: caixa, entradas e saídas do mês, investimentos e patrimônio, com a tabela por pessoa ao lado. Compras comuns já estão divididas meio a meio, então nada é contado duas vezes; o acerto em aberto entre vocês não muda o total da casa.','casa','Abrir visão da casa'],
   ['Como acompanho o custo de um filho?','Cadastre o filho em <b>Carteira › Casa, família e empresa › Filhos e mesada</b> com uma etiqueta. Tudo que você lançar com essa etiqueta (escola, saúde, roupa, lazer) entra no custo dele: mês, média e ano. Se informar a mesada, ela vira uma conta fixa automática.','filhos','Abrir filhos'],
@@ -6345,7 +6481,7 @@ const FAQ=[
   ['As cores ficaram estranhas no celular, e agora?','Confira se o celular não está forçando modo escuro em apps (Configurações → Tela → Modo escuro) e se, no Chrome, “Escurecer sites” está desligado. O app já tem tema escuro próprio, que segue o do celular.']]]
 ];
 function openAjuda(q0){
-  const run={colchao:()=>openColchao(),sim:()=>openSimCompra(),org:()=>{closeSheet();location.hash='inicio';setTimeout(()=>{const b=$('#orgbtn');b?b.click():toast('Role até o fim do Início e toque em Organizar esta tela')},350)},pes:()=>openPessoas(),prem:()=>openPremissas(),bk:()=>openBackups(),rv:()=>openRV(),rvir:()=>openRVIR(),rvalvo:()=>openRVAlvo(),meta:()=>openMeta(),dvq:()=>openDividasPlano(),cen:()=>openCenarios(),relm:()=>openRelMes(),casa:()=>openCasa(),filhos:()=>openFilhos(),pj:()=>openPJ(),pontos:()=>openPontos(),assessor:()=>openAssessor()};
+  const run={colchao:()=>openColchao(),sim:()=>openSimCompra(),org:()=>{closeSheet();location.hash='inicio';setTimeout(()=>{const b=$('#orgbtn');b?b.click():toast('Role até o fim do Início e toque em Organizar esta tela')},350)},pes:()=>openPessoas(),prem:()=>openPremissas(),bk:()=>openBackups(),rv:()=>openRV(),rvir:()=>openRVIR(),rvalvo:()=>openRVAlvo(),meta:()=>openMeta(),dvq:()=>openDividasPlano(),cen:()=>openCenarios(),relm:()=>openRelMes(),casa:()=>openCasa(),filhos:()=>openFilhos(),pj:()=>openPJ(),pontos:()=>openPontos(),assessor:()=>openAssessor(),frase:()=>openFrase(),prefs:()=>openPrefs(),retro:()=>openRetro()};
   const norm=s=>String(s).normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
   openSheet(`<h2>Ajuda</h2><p class="note">Dúvidas comuns sobre o app. Toque numa pergunta para ver a resposta.</p>
     <div class="field faqs"><input id="fq-q" type="search" placeholder="Buscar: livre, acerto, offline…" autocomplete="off" value="${esc(q0||'')}"></div>
@@ -6562,6 +6698,7 @@ function vCart(){
     `<button class="cxr" type="button" id="edTags"><span class="bk bk-g">${I('<path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="8.5" r="1.2"/>')}</span><span class="cxm"><strong>Categorias e etiquetas</strong><small>${CATS.length} de despesa, ${CATR.length} de receita, ${cfg().tags.length} etiquetas</small></span>${'<span class="go">›</span>'}</button>
     <button class="cxr" type="button" data-fech=""><span class="bk bk-g">${ic('calcheck')}</span><span class="cxm"><strong>Fechamento do mês</strong><small>conferência, resultado e histórico de meses fechados</small></span><span class="go">›</span></button>
     <button class="cxr" type="button" data-org="1"><span class="bk bk-g">${ic('tag')}</span><span class="cxm"><strong>Regras de categorização</strong><small>organizar “Outros” e regras automáticas</small></span><span class="go">›</span></button>
+    <button class="cxr" type="button" data-o5="prefs"><span class="bk bk-g">${ic('bell')}</span><span class="cxm"><strong>Aparência e lembretes</strong><small>tamanho do texto, modo simples, avisos no celular</small></span><span class="go">›</span></button>
     <button class="cxr" type="button" id="bloq"><span class="bk bk-g">${ic('shield')}</span><span class="cxm"><strong>Bloqueio do app</strong><small>${(LK()||{}).h?'ligado neste aparelho':'PIN, digital ou rosto ao abrir'}</small></span><span class="go">›</span></button>
     <button class="cxr" type="button" id="ajuda"><span class="bk bk-g">${I('<circle cx="12" cy="12" r="8.5"/><path d="M9.6 9.4a2.5 2.5 0 0 1 4.8.9c0 1.7-2.4 2.1-2.4 3.6"/><circle cx="12" cy="17" r=".6"/>')}</span><span class="cxm"><strong>Ajuda</strong><small>dúvidas comuns e como aproveitar o app</small></span><span class="go">›</span></button>
     <button class="cxr" type="button" data-prem="1"><span class="bk bk-g">${ic('info')}</span><span class="cxm"><strong>Premissas do app</strong><small>como cada número é calculado</small></span><span class="go">›</span></button>
@@ -7204,6 +7341,7 @@ function openLanc(l,opts){
     const dLab=d=>d===today()?'Hoje':d===addD(today(),-1)?'Ontem':d===addD(today(),1)?'Amanhã':`${+d.slice(8)} ${MES[+d.slice(5,7)-1]}${d.slice(0,4)!==today().slice(0,4)?' '+d.slice(0,4):''}`;
     const wd=['dom','seg','ter','qua','qui','sex','sáb'][new Date(st.data+'T12:00:00').getDay()];
     let h=`<div class="lh lh-${col}">`;
+    if(isNew&&!l.divida&&t!=='pagfat'&&t!=='ajuste'&&!(opts&&opts.cont))h+=`<button type="button" class="lfr" id="l-fr">${ic('edit')}<span>Escrever ou falar o lançamento</span></button>`;
     if(isNew&&!l.divida&&t!=='pagfat'&&t!=='ajuste')h+=`<div class="lt" role="tablist">${['despesa','receita','transf'].map(k=>`<button type="button" role="tab" data-tp="${k}" aria-selected="${t===k}">${TIPOS[k][0]}</button>`).join('')}</div>`;
     else h+=`<div class="lt one"><span>${l.divida?'Pagamento de dívida':TIPOS[t][0]}</span></div>`;
     h+=`<div class="la">${t==='ajuste'?`<button type="button" class="sgn" id="l-sg" aria-label="Trocar sinal">${st.neg?'−':'+'}</button>`:''}<span class="cur">R$</span><input id="l-v" inputmode="none" readonly autocomplete="off" placeholder="0,00" value="${st.valor?fmtMoney(st.valor):''}" aria-label="Valor"></div>
@@ -7293,6 +7431,7 @@ function openLanc(l,opts){
     draw(sh);
     if(isNew&&!st.valor&&!(opts&&opts.nocalc)&&!sh.querySelector('.lat'))setTimeout(()=>{const v=sh.querySelector('#l-v');if(sh.isConnected&&v&&!document.getElementById('calc'))v.click()},300);
     const dup=sh.querySelector('#ldup');if(dup)dup.onclick=()=>{const c=Object.assign({},l);delete c.id;delete c.pend;delete c.venc;delete c.pagoEm;delete c.rec;delete c.recYm;c.data=today();openLanc(c)};
+    {const fr=sh.querySelector('#l-fr');if(fr)fr.onclick=()=>openFrase()}
     sh.querySelector('#fl').onsubmit=async e=>{e.preventDefault();const tipo=st.tipo;let v=st.valor;if(tipo==='ajuste'&&st.neg)v=-v;
       if(!(tipo==='ajuste'?v!==0:v>0)){toast('Informe o valor');sh.querySelector('#l-v').focus();return}
       let d=Object.assign({},l,{tipo,data:st.data,valor:r2(v),desc:st.desc.trim(),atualizadoEm:new Date().toISOString()});delete d.id;let recDoc=null;
@@ -7327,8 +7466,9 @@ function openMenu(){
   const I=(p)=>`<span class="mic"><svg viewBox="0 0 24 24">${p}</svg></span>`;
   openSheet(`<h2>Adicionar</h2><div class="menu">
     <button class="mi" type="button" data-mm="manual">${I('<path d="M12 5v14M5 12h14"/>')}<span><strong>Lançamento</strong><small>Despesa, receita ou transferência</small></span><span class="go">›</span></button>
+    <button class="mi" type="button" data-mm="frase">${I('<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/>')}<span><strong>Por frase ou voz</strong><small>“mercado 120 no nubank ontem” — o app preenche</small></span><span class="go">›</span></button>
     <button class="mi" type="button" data-mm="smart">${I('<path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5"/><path d="M12 10.5l.9 2.6 2.6.9-2.6.9-.9 2.6-.9-2.6-2.6-.9 2.6-.9z"/>')}<span><strong>${S.sample?'Ler documento':'Importar extrato'}</strong><small>${S.sample?'PDF, extrato, fatura, print ou foto: o app identifica e lança':'Arquivo OFX ou CSV do banco: o app classifica e marca o que já existe'}</small></span><span class="go">›</span></button>
-  </div>`,sh=>sh.querySelectorAll('[data-mm]').forEach(b=>b.onclick=()=>{const k=b.dataset.mm;if(k==='manual')openLanc(null);else if(k==='smart')openSmartImport();else openImport(k)}),true);
+  </div>`,sh=>sh.querySelectorAll('[data-mm]').forEach(b=>b.onclick=()=>{const k=b.dataset.mm;if(k==='manual')openLanc(null);else if(k==='frase')openFrase();else if(k==='smart')openSmartImport();else openImport(k)}),true);
 }
 
 /* ---------- importação com IA ---------- */
@@ -7751,7 +7891,7 @@ function openOrg(){const el=$(ORGV[S.view]);const sc=orgScope();
   openSheet(`<h2>Organizar ${S.view==='carteira'?'Carteira':'Relatórios'}</h2><p class="note">Escolha a ordem e o que aparece${S.view==='relatorios'?' nesta aba':''}. Fica salvo neste aparelho.</p><div id="psl" class="psl"></div><div class="btnrow"><button class="btn" type="button" id="orr">Restaurar padrão</button></div>`,sh=>{draw(sh);sh.querySelector('#orr').onclick=()=>{delete ORG[sc];orgSave();renderView();draw(sh)}});
 }
 
-function renderView(){document.querySelectorAll('body>.acsel').forEach(x=>x.remove());try{roCheck()}catch(e){}const v=S.view;if(v==='inicio')vInicio();else if(v==='lanc')vLanc();else if(v==='relatorios')vRel();else if(v==='cartoes')vCards();else if(v==='decidir')vDecidir();else vCart();try{orgApply()}catch(e){console.error('org',e)}}
+function renderView(){document.querySelectorAll('body>.acsel').forEach(x=>x.remove());try{roCheck()}catch(e){}try{ntfSync()}catch(e){}const v=S.view;if(v==='inicio')vInicio();else if(v==='lanc')vLanc();else if(v==='relatorios')vRel();else if(v==='cartoes')vCards();else if(v==='decidir')vDecidir();else vCart();try{orgApply()}catch(e){console.error('org',e)}}
 let raf=0;const re=()=>{CACHE=null;cancelAnimationFrame(raf);raf=requestAnimationFrame(()=>{if($('#overlay').hidden||S.view!=='lanc')renderView();else renderView()})};
 window.addEventListener('hashchange',route);
 $('#fab').onclick=openMenu;
