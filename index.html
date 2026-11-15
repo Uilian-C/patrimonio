@@ -2182,6 +2182,8 @@ main{padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))!important}
 .scard svg.sfc{background:none!important;border:0!important;border-radius:0!important;box-shadow:none!important;padding:0!important}
 .slv{fill:none;stroke:var(--good);stroke-width:1.8}.slvd{fill:var(--good)}.sflv{font-size:9.5px;fill:var(--good);text-anchor:middle;font-weight:600}.sflv.neg{fill:var(--crit,#E0705F)}
 .sfg i.slvI{background:var(--good);height:3px;border-radius:2px;vertical-align:3px}.sfg{flex-wrap:wrap}
+.slcz{stroke:var(--warn,#C8913A);stroke-dasharray:2 3;opacity:.7}.slvd.neg{fill:var(--crit,#E0705F)}
+.sfh span b.neg{color:var(--crit,#E0705F)}
 </style>
 </head>
 <body>
@@ -3315,7 +3317,7 @@ function simSerie(me,ext,ate){const t=today(),ag=agendaPessoal(me,ate,t,{cv:1}).
   let run=realBal(me,t),min={v:run,d:t};const pts=[[t,run]];Object.keys(by).sort().forEach(d=>{run+=by[d];pts.push([d,run]);if(run<min.v-.005)min={v:run,d}});
   /* menor saldo a partir de uma data (o saldo que vale naquele dia é o último ponto até ele) */
   const desde=d0=>{let cur=pts[0][1],i=0;for(;i<pts.length&&pts[i][0]<=d0;i++)cur=pts[i][1];let m={v:cur,d:addD(d0,1)};for(;i<pts.length;i++)if(pts[i][1]<m.v-.005)m={v:pts[i][1],d:pts[i][0]};return {v:r2(m.v),d:m.d}};
-  const neg=pts.filter((x,i)=>x[1]<-.005).length,em=d=>{let cur=pts[0][1];for(const [dd,vv] of pts){if(dd<=d)cur=vv;else break}return r2(cur)};return {min:{v:r2(min.v),d:min.d},fim:r2(run),desde,neg,em}}
+  const neg=pts.filter((x,i)=>x[1]<-.005).length,em=d=>{let cur=pts[0][1];for(const [dd,vv] of pts){if(dd<=d)cur=vv;else break}return r2(cur)};return {min:{v:r2(min.v),d:min.d},fim:r2(run),desde,neg,em,pts}}
 function simAte(ev){const t=today();let a=lastDay2(ymAdd(t.slice(0,7),2));ev.forEach(e=>{const z=lastDay2(e.d.slice(0,7));if(z>a)a=z});return a}
 const lastDay2=ym=>dayIn(ym,31);
 function simForma(f){if(f.k==='conta')return 'À vista na conta';if(f.k==='inv')return 'À vista com resgate dos investimentos';const c=card(f.c);return (c?c.nome:'Cartão')+(+f.n>1?` em ${f.n}x`:' à vista')}
@@ -3387,6 +3389,34 @@ function simCartao(R,v){const c=card(R.f.c);if(!c)return '';let st;try{st=cardSt
       <svg viewBox="0 0 ${W} ${H}" class="sfc" role="img" aria-label="Faturas com a compra">${bars}</svg><div class="sfg"><span><i class="sfe"></i>já lançado</span><span><i class="sfn"></i>esta compra</span>${lim?'<span><i class="slvI"></i>sobra de limite</span>':''}</div>${lim&&M.length>1?`<p class="sdm">A sobra de limite vai de <b class="n">${brl0(M[0].lv)}</b> em ${ymS(M[0].y)} para <b class="n">${brl0(M[M.length-1].lv)}</b> em ${ymS(M[M.length-1].y)}, conforme as faturas são pagas.</p>`:''}</div>
     <div class="sfx"><div class="sfh"><b>Limite comprometido</b><span>libera ${brl0(-pg[0].v)} por mês</span></div>
       <svg viewBox="0 0 ${W} ${H2}" class="sfc" role="img" aria-label="Limite comprometido ao longo dos meses">${ln}</svg><div class="sfg"><span><i class="slcI"></i>com a compra</span><span><i class="slsI"></i>sem a compra</span></div></div></div>`}
+/* caixa geral: saídas do mês (já previstas + esta compra) e saldo no fim de cada mês; e o saldo dia a dia com e sem a compra */
+function simCaixa(me,R){const t=today(),y0=t.slice(0,7),pg=R.ev.filter(e=>!e.res),last=pg.length?pg[pg.length-1].d.slice(0,7):y0;
+  const nM=3;const ate=dayIn(ymAdd(y0,nM-1),31);
+  const A=simSerie(me,[],ate),B=simSerie(me,R.ev,ate),cz=colchao(),AG=agendaPessoal(me,ate,t,{cv:1}).filter(x=>x.v<0);
+  const M=[...Array(nM)].map((_,k)=>{const y=ymAdd(y0,k),fim=dayIn(y,31),ex=r2(-sum(AG.filter(x=>(x.d<t?t:x.d).slice(0,7)===y),x=>x.v)),nv=r2(sum(pg.filter(e=>e.d.slice(0,7)===y),e=>-e.v));return {y,ex,nv,tot:r2(ex+nv),com:B.em(fim),sem:A.em(fim)}});
+  const W=320,H=150,pad=18,gx=(W-pad*2)/nM,bw=Math.min(34,gx*.55),yb=H-30,hb=H-62,mx=Math.max(...M.map(m=>m.tot),1);
+  const vs=M.map(m=>m.com).concat(M.map(m=>m.sem),[0]),lo=Math.min(...vs),hi=Math.max(...vs,1),ly=v=>14+(hi-v)/((hi-lo)||1)*(yb-34),lx=i=>pad+gx*i+gx/2;
+  const k=v=>(v<0?'−':'')+(Math.abs(v)>=1000?(Math.abs(v)/1000).toLocaleString('pt-BR',{maximumFractionDigits:1})+'k':Math.round(Math.abs(v)));
+  const bars=M.map((m,i)=>{const x=pad+gx*i+(gx-bw)/2,h1=m.ex/mx*hb,h2=m.nv/mx*hb;return `<rect x="${x}" y="${yb-h1}" width="${bw}" height="${Math.max(h1,0)}" rx="3" class="sfe"/><rect x="${x}" y="${yb-h1-h2}" width="${bw}" height="${Math.max(h2,0)}" rx="3" class="sfn"/>
+    <text x="${x+bw/2}" y="${yb-h1-h2-4}" class="sft">${k(m.tot)}</text><text x="${x+bw/2}" y="${H-17}" class="sfl">${ymS(m.y)}</text><text x="${x+bw/2}" y="${H-3}" class="sflv ${m.com<0?'neg':''}">${k(m.com)}</text>`}).join('');
+  const zl=lo<0?`<line x1="${pad}" x2="${W-pad}" y1="${ly(0)}" y2="${ly(0)}" class="sl80"/>`:'';
+  const line=`${zl}<path d="${M.map((m,i)=>`${i?'L':'M'}${lx(i).toFixed(1)},${ly(m.sem).toFixed(1)}`).join('')}" class="sls"/><path d="${M.map((m,i)=>`${i?'L':'M'}${lx(i).toFixed(1)},${ly(m.com).toFixed(1)}`).join('')}" class="slv"/>${M.map((m,i)=>`<circle cx="${lx(i)}" cy="${ly(m.com)}" r="3" class="slvd ${m.com<0?'neg':''}"/>`).join('')}`;
+  /* saldo dia a dia */
+  const pts=B.pts.filter(p=>p[0]<=ate),ptsA=A.pts.filter(p=>p[0]<=ate),d0=new Date(t+'T12:00:00'),dn=Math.max(1,(new Date(ate+'T12:00:00')-d0)/864e5);
+  const H2=120,all=pts.map(p=>p[1]).concat(ptsA.map(p=>p[1]),[cz,0]),lo2=Math.min(...all),hi2=Math.max(...all),X=d=>pad+((new Date(d+'T12:00:00')-d0)/864e5)/dn*(W-pad*2),Y=v=>22+(hi2-v)/((hi2-lo2)||1)*(H2-46);
+  const step=P=>{let s='';P.forEach((p,i)=>{const x=X(p[0]).toFixed(1),y=Y(p[1]).toFixed(1);s+=i?`H${x}V${y}`:`M${x},${y}`});return s+`H${X(ate).toFixed(1)}`};
+  const mn=B.min,ch=`<line x1="${pad}" x2="${W-pad}" y1="${Y(cz)}" y2="${Y(cz)}" class="slcz"/><text x="${W-pad}" y="${Y(cz)-4}" class="sfl" text-anchor="end">colchão</text>${lo2<0?`<line x1="${pad}" x2="${W-pad}" y1="${Y(0)}" y2="${Y(0)}" class="sl80"/>`:''}
+    <path d="${step(ptsA)}" class="sls"/><path d="${step(pts)}" class="slc"/><circle cx="${X(mn.d<t?t:mn.d)}" cy="${Y(mn.v)}" r="3.5" class="sld"/>
+    ${M.map((m,i)=>`<text x="${X(dayIn(m.y,1)<t?t:dayIn(m.y,1))}" y="${H2-3}" class="sfl" text-anchor="start">${ymS(m.y)}</text>`).join('')}`;
+  const ult=M[M.length-1];
+  return `<div class="scard"><div class="sdh"><b>Caixa geral com a compra</b><small>todas as contas · com tudo o que já está lançado ou previsto</small></div>
+    <div class="sfx"><div class="sfh"><b>Saídas e saldo do mês</b><span class="n">${ymS(ult.y)}: ${brl0(ult.sem)} → <b>${brl0(ult.com)}</b></span></div>
+      <svg viewBox="0 0 ${W} ${H}" class="sfc" role="img" aria-label="Saídas por mês e saldo no fim do mês">${bars}${line}</svg>
+      <div class="sfg"><span><i class="sfe"></i>saídas previstas</span><span><i class="sfn"></i>esta compra</span><span><i class="slvI"></i>saldo no fim do mês</span><span><i class="slsI"></i>sem a compra</span></div></div>
+    <div class="sfx"><div class="sfh"><b>Saldo dia a dia</b><span>menor <b class="n ${B.min.v<0?'neg':''}">${brl0(B.min.v)}</b> em ${fdate(B.min.d<t?t:B.min.d).slice(0,5)}</span></div>
+      <svg viewBox="0 0 ${W} ${H2}" class="sfc" role="img" aria-label="Saldo da conta dia a dia com e sem a compra">${ch}</svg>
+      <div class="sfg"><span><i class="slcI"></i>com a compra</span><span><i class="slsI"></i>sem a compra</span></div>
+      <p class="sdm">Os degraus são as entradas e saídas previstas. Mostra 3 meses: gastos do dia a dia ainda não lançados não entram, então meses mais distantes pareceriam folgados demais. Para o prazo das parcelas, veja o cartão abaixo.</p></div></div>`}
 function simDetalhe(me,R,v){const pg=R.ev.filter(e=>!e.res),cz=colchao(),lim=addD(today(),92),Bs=R.B;
   const rows=pg.map((e,i)=>({i,d:e.d,v:-e.v})).filter(x=>x.d<=lim).map(x=>{const s=Bs.em(x.d);return Object.assign(x,{s,st:s<-.005?'neg':s<cz?'aperta':'ok'})}),rest=pg.length-rows.length;
   const ruins=rows.filter(x=>x.st!=='ok');
@@ -3416,6 +3446,7 @@ function openSimCompra(pre){pre=pre||{};const me=ME();
       </div>
       <div class="simv ${tc}"><b>${esc(simForma(R.f))}: ${tt.toLowerCase()}</b><small>${R.st==='lim'?`o limite livre deste cartão (${brl(R.lim)}) não cobre a compra`:R.st==='neg'?`o saldo ficaria negativo: ${brl(R.b1.v)} em ${fdate(R.b1.d).slice(0,5)}`:R.st==='aperta'?`o menor saldo seria ${brl(R.b1.v)} em ${fdate(R.b1.d).slice(0,5)}, abaixo do colchão de ${brl0(colchao())}`:`tem dinheiro em todos os pagamentos; o ponto mais baixo é ${brl(R.b1.v)} em ${fdate(R.b1.d).slice(0,5)}`}</small></div>
       ${R.st!=='lim'?simDetalhe(me,R,st.v):''}
+      ${R.st!=='lim'?simCaixa(me,R):''}
       ${R.f.k==='card'?simCartao(R,st.v):''}
       ${R.antes&&R.st!=='lim'?`<p class="simq warn">${ic('alert')}<span>Atenção: mesmo sem a compra, em <b>${fdate(R.antes.d).slice(0,5)}</b> o caixa já fica em <b>${brl(R.antes.v)}</b>.</span></p>`:''}
       ${pm&&G&&G.renda?`<p class="simq">${ic('repeat')}<span>Compromete <b>${brl(pm)}</b> por mês durante ${n} meses — <b>${pctf(pm/G.renda)}</b> da sua renda.</span></p>`:''}
