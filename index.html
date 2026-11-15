@@ -1588,7 +1588,7 @@ html:has(#overlay:not([hidden])),html:has(#overlay:not([hidden])) body{overflow:
 /* ===== recolher seções em todo o app ===== */
 .colh{cursor:pointer;user-select:none;-webkit-user-select:none}
 .colh::after{content:"";display:inline-block;width:7px;height:7px;margin-left:8px;border-right:1.6px solid var(--faint);border-bottom:1.6px solid var(--faint);transform:translateY(-2px) rotate(45deg);transition:transform .2s}
-.colp .colh::after{transform:translateY(1px) rotate(-135deg)}
+.colp .colh::after{transform:translateY(0) rotate(-45deg)}
 .card.colp>*:not(.ch){display:none!important}.card.colp>.ch{margin-bottom:0}.card.colp>.ch>*:not(h2):not(.aside):not(b):not(.score):not(.sxtot){display:none!important}
 .cds.colp>*:not(.cdsh),.ivs.colp>*:not(.ivsh),.blc.colp>*:not(.blch),.dps.colp>*:not(h3),.colsec.colp>*:not(.colhd){display:none!important}
 .cds.colp .cdsh small,.ivs.colp .ivsh small{display:none}
@@ -2192,6 +2192,7 @@ main{padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))!important}
 .ivar>i{width:10px;height:10px;border-radius:3px}.ivam b{display:block;font-size:14px}.ivam small{display:block;font-size:11.5px;color:var(--muted)}.ivav{text-align:right}.ivav b{display:block;font-size:14px}.ivav small{display:block;font-size:11px;color:var(--muted)}.ivav small.pos{color:var(--good)}
 .ivmini .rndv em{display:block;font-style:normal;font-size:12px}.ivmini svg{margin-top:8px}
 .rnd svg.sfc,.ivd svg.sfc{background:none!important;border:0!important;border-radius:0!important;box-shadow:none!important;padding:0!important}
+.blc.colp>.blch{border-bottom-style:dashed}.blc.colp>.blch>span::before{content:"toque para abrir";order:2;font-size:10.5px;font-weight:500;letter-spacing:0;text-transform:none;color:var(--faint);margin-left:8px}.blc>.blch>span{display:inline-flex;align-items:center;flex:1;min-height:32px}.blc>.blch>span::after{order:3}
 </style>
 </head>
 <body>
