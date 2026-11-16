@@ -60,6 +60,11 @@ window.__fbSair=()=>{};setTimeout(()=>window.__fbReady(api),0);})();</script>`;
         ok(!r, 'abre ' + fn, r); ok(sw <= 392, 'largura da janela ' + fn, Math.round(sw) + 'px');
         await p.evaluate(() => window.__T.closeSheet(true)); await p.waitForTimeout(120);
       }
+      /* legenda das saídas do mês (já quebrou por conflito de nome de estilo) */
+      await p.evaluate(() => location.hash = 'relatorios'); await p.waitForTimeout(400);
+      await p.evaluate(() => { const c = [...document.querySelectorAll('.chips.rp .chip')].find(x => /Fluxo/.test(x.textContent)); c && c.click() }); await p.waitForTimeout(500);
+      const lg = await p.evaluate(() => [...document.querySelectorAll('.stl .sti')].map(e => Math.round(e.getBoundingClientRect().width)));
+      ok(lg.length && lg.every(w => w >= 120), 'legenda das saídas do mês legível', lg.join(','));
       /* amarrações contábeis e cálculos */
       const R = await p.evaluate(() => {
         const T = window.__T, me = T.ME(), t = T.today(), ym = t.slice(0, 7), out = [], sum = (a, f) => a.reduce((s, x) => s + f(x), 0);

@@ -1864,7 +1864,7 @@ nav.tabs .fab{background:radial-gradient(120% 120% at 30% 20%,color-mix(in srgb,
 .ring::before{background:color-mix(in srgb,var(--surface) 100%,transparent)}
 .rcard{background:linear-gradient(180deg,color-mix(in srgb,var(--rc) 6%,var(--surface)) 0%,var(--surface) 55%)!important;border:1px solid var(--card-edge)!important;box-shadow:inset 0 1px 0 var(--card-hl),var(--shadow)!important}
 .rcard.rnew{background:transparent!important;box-shadow:none!important;border:1.5px dashed color-mix(in srgb,var(--muted) 35%,transparent)!important}
-.chips.rp{background:transparent!important;z-index:6}
+.chips.rp{background:var(--bg)!important;z-index:6;box-shadow:0 10px 12px -8px var(--bg)}
 /* com as abas fixas dos relatórios, o vidro do topo se estende por baixo delas */
 body:has(.view:not([hidden]) .chips.rp) .top::before{bottom:-58px}
 .cbub{background:linear-gradient(160deg,color-mix(in srgb,var(--cb) 15%,var(--surface)) 0%,color-mix(in srgb,var(--cb) 7%,var(--surface)) 100%)!important;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--cb) 14%,transparent)}
@@ -2154,8 +2154,8 @@ main{padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))!important}
 .stf{display:flex;gap:9px;align-items:center;min-width:0}.stf b{display:block;font-size:13.5px;line-height:1.25}.stf small{display:block;font-size:11.5px;color:var(--muted)}
 .str.best .stf b::after{content:"melhor";margin-left:6px;font-size:9.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--accent,#E2BA6E)}
 .stm,.stv{text-align:right;font-size:13.5px;font-weight:600}.stv.neg{color:var(--crit,#E0705F)}
-.sti{flex:none;width:22px;height:22px;border-radius:50%;display:grid;place-items:center}.sti .ic{width:13px;height:13px}
-.sti.ok{background:color-mix(in srgb,var(--good) 18%,transparent);color:var(--good)}.sti.aperta{background:color-mix(in srgb,var(--warn,#C8913A) 18%,transparent);color:var(--warn,#C8913A)}.sti.neg,.sti.lim{background:color-mix(in srgb,var(--crit,#E0705F) 16%,transparent);color:var(--crit,#E0705F)}
+.stic{flex:none;width:22px;height:22px;border-radius:50%;display:grid;place-items:center}.stic .ic{width:13px;height:13px}
+.stic.ok{background:color-mix(in srgb,var(--good) 18%,transparent);color:var(--good)}.stic.aperta{background:color-mix(in srgb,var(--warn,#C8913A) 18%,transparent);color:var(--warn,#C8913A)}.stic.neg,.stic.lim{background:color-mix(in srgb,var(--crit,#E0705F) 16%,transparent);color:var(--crit,#E0705F)}
 .sdet{margin:12px 0 4px;border:1px solid var(--sep,var(--hair));border-radius:16px;padding:10px 12px}
 .sdh b{font-size:13.5px}.sdh small{display:block;font-size:11.5px;color:var(--muted);margin-bottom:4px}
 .sdr{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:8px;align-items:center;padding:7px 0;border-top:1px solid var(--sep,var(--hair));font-size:13px}.sdr:first-of-type{border-top:0}
@@ -4343,7 +4343,7 @@ function openSimCompra(pre){pre=pre||{};const me=ME();
       <div class="stab" role="radiogroup" aria-label="Formas de pagar">
         <div class="sth"><span>Forma</span><span>Por mês</span><span>Menor saldo</span></div>
         ${T.rows.map(r=>{const k=key(r.f),pm2=simPorMes(r);return `<button type="button" class="str ${r.st} ${k===st.pick?'on':''} ${T.best&&k===key(T.best.f)?'best':''}" data-pk="${esc(k)}" role="radio" aria-checked="${k===st.pick}">
-          <span class="stf"><i class="sti ${r.st}">${ico[r.st]}</i><span><b>${esc(simForma(r.f))}</b><small>${r.st==='lim'?`limite livre ${brl0(r.lim)}`:`1º pagamento ${fdate(r.primeira).slice(0,5)}`}</small></span></span>
+          <span class="stf"><i class="stic ${r.st}">${ico[r.st]}</i><span><b>${esc(simForma(r.f))}</b><small>${r.st==='lim'?`limite livre ${brl0(r.lim)}`:`1º pagamento ${fdate(r.primeira).slice(0,5)}`}</small></span></span>
           <span class="n stm">${pm2?brl0(pm2):'—'}</span><span class="n stv ${r.b1.v<0?'neg':''}">${r.st==='lim'?'—':brl0(r.b1.v)}</span></button>`}).join('')}
       </div>
       <div class="simv ${tc}"><b>${esc(simForma(R.f))}: ${tt.toLowerCase()}</b><small>${R.st==='lim'?`o limite livre deste cartão (${brl(R.lim)}) não cobre a compra`:R.st==='neg'?`o saldo ficaria negativo: ${brl(R.b1.v)} em ${fdate(R.b1.d).slice(0,5)}`:R.st==='aperta'?`o menor saldo seria ${brl(R.b1.v)} em ${fdate(R.b1.d).slice(0,5)}, abaixo do colchão de ${brl0(colchao())}`:`tem dinheiro em todos os pagamentos; o ponto mais baixo é ${brl(R.b1.v)} em ${fdate(R.b1.d).slice(0,5)}`}</small></div>
