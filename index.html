@@ -2305,6 +2305,7 @@ html.zm nav.tabs{zoom:var(--unz,1)}
 .trs{display:grid;justify-items:center;text-align:center;gap:8px;padding:18px 6px 6px}.tri{width:64px;height:64px;border-radius:20px;display:grid;place-items:center;background:color-mix(in srgb,var(--accent,#E2BA6E) 16%,transparent);color:var(--accent,#E2BA6E)}.tri svg{width:30px;height:30px}.trs b{font-size:22px;letter-spacing:-.03em}.trs p{margin:0;color:var(--muted);font-size:15px;line-height:1.5;max-width:320px}
 .trd{display:flex;justify-content:center;gap:6px;margin:14px 0}.trd i{width:7px;height:7px;border-radius:4px;background:var(--sunk)}.trd i.on{width:20px;background:var(--accent,#E2BA6E)}.trm{margin-bottom:8px}
 .bvs{width:100%;border:0;background:none;color:inherit;font:inherit;text-align:left}
+.aps{margin-top:12px}.apsh{display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding:0 2px 6px;font-size:13px}.apsh span{color:var(--muted);font-size:12px}.apsh.crit b{color:var(--crit,#E0705F)}.apsh.warn b{color:var(--warn)}
 </style>
 </head>
 <body>
@@ -3089,15 +3090,26 @@ function wireIni4(el){
   el.querySelectorAll('[data-rvt]').forEach(b=>b.onclick=()=>{RVT=b.dataset.rvt;LSset('pt-rvt',RVT);vInicio()});
   el.querySelectorAll('[data-acab]').forEach(b=>b.onclick=()=>openAbater(0,'',()=>renderView()));
   el.querySelectorAll('[data-ordp]').forEach(b=>b.onclick=()=>{const o=(cfg().ordens||[]).find(z=>z.id===b.dataset.ordp);if(o)openSimCompra({v:o.v,desc:o.desc,cat:o.cat,f:o.f,ordem:o.id})});
-  el.querySelectorAll('[data-rv]').forEach(b=>b.onclick=()=>{const [k,v]=b.dataset.rv.split(/:(.*)/s);
+  el.querySelectorAll('[data-rv]').forEach(b=>b.onclick=()=>rvGo(b.dataset.rv));
+}
+
+function rvGo(nav){const [k,v]=String(nav||'').split(/:(.*)/s);
     if(k==='l'){const l=S.lanc.find(x=>x.id===v);l&&l.pend?openPagar(l):openLanc(l)}
     else if(k==='fat'){const [c,y]=v.split('|');openPagFat(card(c),y)}
     else if(k==='gab'){GWSEL=v;RP='salvos';go('relatorios')}
     else if(k==='rvir')openRVIR();
     else if(k==='dv')openDividaDet(S.dividas.find(d=>d.id===v));else if(k==='ac')openAcerto(v);else if(k==='ab'){const r=S.reps.find(isAcRep);if(r){RSEL=r.id;RP='rel';ROFF=0}else RP='salvos';go('relatorios')}
-    else if(k==='rec'){const [id,ym]=v.split('|');const r=S.recs.find(x=>x.id===id);if(r)openPagarG({prev:{r,date:recDia(r,ym),ym,nome:recNome(r,ym)},desc:recNome(r,ym),v:+r.valor||0,due:recDia(r,ym),paid:false,cat:r.categoria||'Outros'})}});
-}
-
+    else if(k==='rec'){const [id,ym]=v.split('|');const r=S.recs.find(x=>x.id===id);if(r)openPagarG({prev:{r,date:recDia(r,ym),ym,nome:recNome(r,ym)},desc:recNome(r,ym),v:+r.valor||0,due:recDia(r,ym),paid:false,cat:r.categoria||'Outros'})}}
+/* lista do "A pagar" do topo: o que está em atraso primeiro, item por item */
+function openAPagar(){const draw=sh=>{const me=ME(),t=today(),ym=t.slice(0,7),ents=agendaPessoal(me,dayIn(ymAdd(ym,2),31)).filter(x=>x.k==='rec'&&x.d>t),E=ents[0],fimH=E?addD(E.d,-1):dayIn(ym,31);
+    const out=agendaPessoal(me,fimH>=t?fimH:t).filter(x=>(x.d<=fimH||x.d<t)&&x.v<0).sort((a,b)=>a.d.localeCompare(b.d)||a.v-b.v),atr=out.filter(x=>x.d<t),hj=out.filter(x=>x.d===t),fut=out.filter(x=>x.d>t);
+    const row=x=>{const n=diffD(x.d,t),late=x.d<t;return `<button type="button" class="rvr ${late?'late':x.d===t?'now':''}" data-ap="${esc(x.nav||'')}"><span class="rvd"><b>${String(+x.d.slice(8)).padStart(2,'0')}</b><small>${MES[+x.d.slice(5,7)-1]}</small></span><span class="lxm"><b>${esc(x.t)}</b><small>${late?`<span class="neg">venceu há ${n} dia${n===1?'':'s'}</span> · `:x.d===t?'<span class="warn">vence hoje</span> · ':''}${esc(String(x.s||'').replace(/ · em atraso$/,''))}</small></span><span class="rvv"><b class="n ${late?'neg':''}">${brl(-x.v)}</b><small>${x.k==='pend'?'Pagar':x.k==='fat'?'Ver fatura':x.k==='ac'?'Acertar':'Ver'} ›</small></span></button>`};
+    const sec=(tt,L,cls)=>L.length?`<section class="aps"><div class="apsh ${cls||''}"><b>${tt}</b><span class="n">${brl(sum(L,x=>-x.v))} · ${L.length} ite${L.length===1?'m':'ns'}</span></div><div class="rvl">${L.map(row).join('')}</div></section>`:'';
+    sh.querySelector('#apx').innerHTML=`<p class="rvsum"><b class="n">${brl0(sum(out,x=>-x.v))}</b> a pagar até ${fdate(fimH).slice(0,5)}${E?` (véspera de ${esc(E.t)})`:''}</p>
+      ${atr.length?'':'<p class="rvok">'+ic('check')+' Nada em atraso.</p>'}${sec('Em atraso',atr,'crit')}${sec('Vence hoje',hj,'warn')}${sec('Próximos',fut)}
+      <p class="note">Toque num item para pagar, ver a fatura ou ajustar. Item em atraso que já foi pago: abra e marque como pago — assim ele sai daqui e do saldo previsto.</p>`;
+    sh.querySelectorAll('[data-ap]').forEach(b=>b.onclick=()=>{const n=b.dataset.ap;if(/^(gab|ab):/.test(n)){closeSheet();setTimeout(()=>rvGo(n),250)}else rvGo(n)})};
+  openSheet(`<h2>A pagar</h2><div id="apx"></div>`,draw)}
 function heroChart(F,ym){
   const sr=F.serie,n=sr.length;if(n<2)return '';const W=320,H=122,L=3,R=W-3,T=18,B=98,vs=sr.map(x=>x.v),mx=Math.max(...vs,F.inicial,0),mn=Math.min(...vs,0),rg=(mx-mn)||1;
   const xs=i=>L+i*(R-L)/(n-1),ys=v=>B-((v-mn)/rg)*(B-T),pt=i=>`${xs(i).toFixed(1)},${ys(sr[i].v).toFixed(1)}`;
@@ -3159,7 +3171,7 @@ function iniHero(X){
       <span class="hfn"><span class="${dv>=0?'up':'dn'}">${dv>=0?'↑':'↓'} ${brl0(Math.abs(dv))} no mês</span> · projeção com tudo que entra e sai até ${lastDay(ym)}/${ym.slice(5)}</span>`:heroPeriodo(me)}
       ${heroComp(F,me,ym)}</div>`})()}
     <div class="hsplit">
-      <button type="button" data-go="relatorios" data-rp="fluxo"><small>A pagar até ${E?fdate(E.d).slice(0,5):'o fim do mês'}</small><b class="n">${brl0(comp)}</b><em>${out.length} ite${out.length===1?'m':'ns'}${cAtr>.5?` · <span class="atr">${brl0(cAtr)} em atraso</span>`:''}</em></button>
+      <button type="button" data-apagar="1"><small>A pagar até ${E?fdate(E.d).slice(0,5):'o fim do mês'}</small><b class="n">${brl0(comp)}</b><em>${out.length} ite${out.length===1?'m':'ns'}${cAtr>.5?` · <span class="atr">${brl0(cAtr)} em atraso</span>`:''}</em></button>
       <div><small>Sobra se pagar tudo</small><b class="n ${livre<0?'neg':''}">${brl0(livre)}</b><em>${livre>0?`≈ ${brl0(livre/dias)}/dia por ${dias} dias`:'faltará dinheiro'}${entra>.5?` · conta +${brl0(entra)} a receber`:''}</em></div>
     </div>
   </section>`;
@@ -3900,6 +3912,7 @@ function o4Rows(me){const fs=FILHOS(),P=PJ(),nk=S.cards.filter(c=>c.ativo!==fals
     +row('pj','bank','Empresa (PJ)',(P.contas||[]).length||(P.cartoes||[]).length?esc(P.nome||'empresa')+(P.separar?' · separada':' · misturada'):'faturamento, resultado e retiradas, separado do pessoal')
     +row('pontos','spark','Pontos e cashback',nk?`${nk} cart${nk===1?'ão':'ões'} com programa · melhor para gastar agora`:'qual cartão devolve mais')
     +row('assessor','shield','Acesso para assessor',L.length?`${L.length} pessoa${L.length===1?'':'s'} com acesso de leitura`:'leitura sem edição para assessor ou contador')}
+document.addEventListener('click',e=>{if(e.target.closest&&e.target.closest('[data-apagar]'))openAPagar()});
 document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-o5]');if(!b)return;({prefs:openPrefs,frase:()=>openFrase(),retro:openRetro}[b.dataset.o5]||(()=>{}))()});
 document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-o4]');if(!b)return;const k=b.dataset.o4;({casa:openCasa,filhos:openFilhos,pj:openPJ,pontos:openPontos,assessor:openAssessor}[k]||(()=>{}))()});
 /* ===================== Onda 5: lançar por frase, lembretes, retrospectiva, modo simples, tamanho do texto ===================== */
