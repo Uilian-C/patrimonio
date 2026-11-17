@@ -12,7 +12,7 @@ const EXPOR = ('S ME today ymAdd addD dayIn lastDay realBal saldoConta scopeCont
   'acerto acertoLedger credGab gabId candlesCaixa saidasDia margemCalc planoCalc mesCalc catWatch catMesMap contaMov isCaixa movs ' +
   'parseFrase rvCalc rvIR divSim divLista ORD metaCalc cenBase cenProj baseMes casaCalc pjMes filhoCalc progRet retroCalc semRev ' +
   'openRV openRVIR openCenarios openDividasPlano openCasa openPJ openPontos openFilhos openRetro openPrefs openFrase openSimCompra ' +
-  'openSemana openAjuda openRelMes openMeta openAssessor openInvestDash openSpread openBackups openLanc openTour openBemVindo openAPagar atrasos catList projecao closeSheet').split(' ');
+  'openSemana openAjuda openRelMes openMeta openAssessor openInvestDash openSpread openBackups openLanc openTour openBemVindo openAPagar atrasos catList projecao relPeriodo mesCalc closeSheet').split(' ');
 
 function montar(dados) {
   let h = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
@@ -130,6 +130,7 @@ window.__fbSair=()=>{};setTimeout(()=>window.__fbReady(api),0);})();</script>`;
         T.S.contas.filter(a => T.isCaixa(a)).forEach(a => eq('extrato da conta ' + a.nome, T.contaMov(a).v, T.saldoConta(a)));
         /* casa = soma das pessoas */
         const K = T.casaCalc(); eq('casa: caixa = soma', K.cx, sum(K.R, x => x.cx)); eq('casa: sobra = soma', K.rec - K.desp, sum(K.R, x => x.M.rec - x.M.desp));
+        { const pr = T.S.lanc.filter(l => l.pend && l.tipo === 'receita' && l.data > t && l.data.slice(0, 7) === ym); if (pr.length) { const M = T.mesCalc(ym, me); is(M.recP >= sum(pr, l => +l.valor) - .01, 'mês: receita a receber conta como prevista', M.recP + '') } }
         const AT = T.atrasos(me); is(AT.pag.every(x => x.d < t && x.v < 0) && AT.rec.every(x => x.d < t && x.v > 0), 'atrasos: só o que já venceu'); eq('atrasos: total', AT.tp, sum(AT.pag, x => -x.v));
         /* frase */
         const f1 = T.parseFrase('mercado 182,40 no roxo ontem'); is(f1.valor === 182.4 && f1.cartao === 'roxo' && f1.data === T.addD(t, -1) && f1.categoria === 'Mercado', 'frase: valor, cartão, data e categoria', JSON.stringify(f1));
