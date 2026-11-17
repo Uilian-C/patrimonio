@@ -12,7 +12,7 @@ const EXPOR = ('S ME today ymAdd addD dayIn lastDay realBal saldoConta scopeCont
   'acerto acertoLedger credGab gabId candlesCaixa saidasDia margemCalc planoCalc mesCalc catWatch catMesMap contaMov isCaixa movs ' +
   'parseFrase rvCalc rvIR divSim divLista ORD metaCalc cenBase cenProj baseMes casaCalc pjMes filhoCalc progRet retroCalc semRev ' +
   'openRV openRVIR openCenarios openDividasPlano openCasa openPJ openPontos openFilhos openRetro openPrefs openFrase openSimCompra ' +
-  'openSemana openAjuda openRelMes openMeta openAssessor openInvestDash openSpread openBackups openLanc openTour openBemVindo openAPagar atrasos catList projecao relPeriodo mesCalc periodoConta aRealizar recPrevistos closeSheet').split(' ');
+  'openSemana openAjuda openRelMes openMeta openAssessor openInvestDash openSpread openBackups openLanc openTour openBemVindo openAPagar atrasos catList projecao relPeriodo mesCalc periodoConta aRealizar recPrevistos fatRecs baseDue card closeSheet').split(' ');
 
 function montar(dados) {
   let h = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
@@ -97,6 +97,11 @@ window.__fbSair=()=>{};setTimeout(()=>window.__fbReady(api),0);})();</script>`;
       await p.evaluate(() => document.querySelector('#lsv').click()); await p.waitForTimeout(600);
       const ass = await p.evaluate(() => { const T = window.__T, r = T.S.recs.find(x => x.nome === 'Assinatura teste'), l = T.S.lanc.find(x => x.desc === 'Assinatura teste'), ym = T.today().slice(0, 7);
         return { r: r && { cartao: r.cartao, valor: r.valor, conta: r.conta }, l: l && { cartao: l.cartao, rec: !!l.rec }, prox: r ? T.recPrevistos(T.ymAdd(ym, 1), T.ymAdd(ym, 1)).some(x => x.r.id === r.id) : false } });
+      const fr = await p.evaluate(() => { const T = window.__T, c = T.card('roxo'), ym = T.today().slice(0, 7), y1 = T.ymAdd(ym, 1), y2 = T.ymAdd(ym, 2);
+        const f = [y1, y2].map(y => T.fatRecs(c, y).map(x => x.r.nome)); const ag = T.aRealizar(T.ME(), T.dayIn(y2, 31)).filter(x => /^rec:/.test(x.nav || '') && /stream|Assinatura/.test(x.nav + x.t));
+        return { f, ag: ag.length } });
+      ok(fr.f.some(L => L.includes('Streaming')) && fr.f.some(L => L.includes('Assinatura teste')), 'cartão: fatura futura mostra fixos previstos', JSON.stringify(fr));
+      ok(fr.ag > 0, 'cartão: fixos previstos entram nas projeções de caixa', JSON.stringify(fr));
       ok(ass.r && ass.r.cartao === 'roxo' && !ass.r.conta && ass.l && ass.l.cartao === 'roxo' && ass.l.rec && ass.prox, 'cartão: fixo mensal cria recorrência no cartão', JSON.stringify(ass));
       await p.evaluate(() => window.__T.closeSheet(true)); await p.waitForTimeout(150);
       /* receita com data futura nasce "a receber" e é salva como pendente */

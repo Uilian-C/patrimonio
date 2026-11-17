@@ -2345,6 +2345,9 @@ main{padding-left:max(10px,env(safe-area-inset-left,0px));padding-right:max(10px
 .view>.hero{border-radius:28px;padding:18px 22px 20px}
 /* blocos sem moldura alinham o texto com o conteúdo dos cartões */
 .view>.lxh,.view>.lxd,.view>.dch,.view>.custom,.view>.anl>summary{padding-inline:8px}
+.fpv{display:grid;gap:6px;margin:6px 0 2px}.fps{max-width:330px}.fps button{font-size:12.5px}.fpv small{color:var(--muted);font-size:12.5px}.fpv small b{color:var(--ink)}
+.fpi{opacity:.92}.fpi .n{color:var(--muted)}.fpl{display:grid;margin-top:6px}.fpr{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border:0;border-top:1px solid var(--hair);background:none;color:inherit;font:inherit;text-align:left}.fpr span{display:grid}.fpr small{color:var(--muted);font-size:12px}
+#d-nr{display:inline-flex;align-items:center;gap:6px}
 </style>
 <div id="fbgate" hidden><div class="bx"><svg class="lg" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="139 90 228 332"><g transform="translate(-5 0)"><rect x="186" y="100" width="12" height="312" rx="6" fill="currentColor" opacity=".55"/><rect x="164" y="150" width="56" height="210" rx="16" fill="currentColor"/><path d="M244 150h38a70 70 0 0 1 0 140h-38z" fill="#E2BA6E"/></g></svg><h1>Patrimônio</h1><p id="fbmsg">Entre com a sua conta Google para ver as finanças da casa.</p><button type="button" id="fblogin">Entrar com Google</button></div></div>
 <script type="module">
@@ -4335,7 +4338,7 @@ function simCartao(R,v){const c=card(R.f.c);if(!c)return '';let st;try{st=cardSt
   const fut=movs().filter(i=>i.src==='card'&&i.c===c&&!fatPaga(c.id,i.ym)),sg=i=>i.tipo==='receita'?-i.valor:i.valor;
   /* sobra de limite durante o mês da fatura (antes de pagá-la): limite − tudo que ainda vence dali em diante */
   const livre=y=>r2(lim-sum(fut.filter(i=>i.ym>=y),sg)-sum(pg.filter(e=>e.d.slice(0,7)>=y),e=>-e.v));
-  const M=[...Array(nM)].map((_,k)=>{const y=ymAdd(y0,k),ex=Math.max(0,fatTot(c,y));return {y,ex,nv:r2(nv[y]||0),tot:r2(ex+(nv[y]||0)),lv:k===0?Math.min(dispD,livre(y)):livre(y)}});
+  const M=[...Array(nM)].map((_,k)=>{const y=ymAdd(y0,k),ex=r2(Math.max(0,fatTot(c,y))+sum(fatRecs(c,y),f=>f.v));return {y,ex,nv:r2(nv[y]||0),tot:r2(ex+(nv[y]||0)),lv:k===0?Math.min(dispD,livre(y)):livre(y)}});
   /* fatura: barras empilhadas (o que já tem + a compra) */
   const W=320,H=150,pad=18,mx=Math.max(...M.map(m=>m.tot),1),bw=Math.min(34,(W-pad*2)/nM*.55),gx=(W-pad*2)/nM;
   const yb=H-30,hb=H-62,lx=i=>pad+gx*i+gx/2,ly=v=>14+(1-Math.max(0,Math.min(v/(lim||1),1)))*(yb-34);
@@ -5081,7 +5084,7 @@ function creditoDash(compact){
         <span class="nm">${cardGlyph(x.c)}${esc(x.c.nome)}${PADR().cartao===x.c.id?' <span class="cst pd">padrão</span>':''}${x.ym?` <span class="cst ${x.fechada?'warn':'acc'}">${x.fechada?'fechada':'aberta'}</span>`:''}</span>
         <span class="v"><b class="n">${brl0(x.disp)}</b><small>livre de ${brl0(x.lim)}</small></span>
         ${x.lim?`<span class="lb"><i class="${lvl(x.pct)}" style="width:${Math.min(x.pct,1)*100}%;background:${lvl(x.pct)?'':esc(x.c.cor||'var(--accent)')}"></i></span><span class="pc n ${lvl(x.pct)}">${pctf(x.pct)}</span>`:''}
-        <span class="sub">fecha ${x.c.fechamento} · vence ${x.c.vencimento}${x.ym?` · fatura ${brl0(x.atual)}`:''}${x.fut>0?` · futuras ${brl0(x.fut)}`:''}</span></button>`).join('')}</div>
+        <span class="sub">fecha ${x.c.fechamento} · vence ${x.c.vencimento}${x.ym?` · fatura ${brl0(x.atual)}`:''}${x.fut>0?` · futuras ${brl0(x.fut)}`:''}${(()=>{const n=r2(sum(recsDoCartao(x.c),r=>+r.valor||0));return n?` · fixos ${brl0(n)}/mês`:''})()}</span></button>`).join('')}</div>
       ${compact?'<button class="lk" type="button" data-go="cartoes">Abrir Cartões ›</button>':''}
     </div></div>`;
 }
@@ -5888,10 +5891,15 @@ function openConfFat(c,ym){
   };
   openSheet(`<h2>Conciliar fatura</h2><div id="cfx" class="cfx"></div>`,sh=>draw(sh));
 }
+/* recorrências (assinaturas e fixos) previstas para cair na fatura 'ym' do cartão — só as ainda não lançadas */
+function fatRecs(c,ym){return recPrevistos(ymAdd(ym,-2),ym).filter(x=>x.r.cartao===c.id&&x.tipo!=='receita'&&baseDue({data:x.date},c)===ym&&!fatPaga(c.id,ym)).map(x=>({x,r:x.r,d:x.date,v:r2(+x.valor||0),com:(x.r.divisao||'pessoal')==='comum'}))}
+const recsDoCartao=c=>S.recs.filter(r=>r.ativo!==false&&r.cartao===c.id&&r.tipo!=='receita'&&(!r.fim||r.fim>=today().slice(0,7)));
+let FPREV=LS('pt-fprev','1')!=='0';
 function openCardDet(c){
   if(!c)return;const st0=cardStats(c);let ym=st0.ym||baseDue({data:today()},c);
   const draw=sh=>{const st=cardStats(c),its=movs().filter(i=>i.src==='card'&&i.c===c&&i.ym===ym).sort((x,y)=>(y.l.data||'').localeCompare(x.l.data||''));
-    const tot=sum(its,i=>i.tipo==='receita'?-i.valor:i.valor),com=sum(its.filter(i=>i.comum),i=>i.valor),due=dayIn(ym,c.vencimento),closeYm=+c.vencimento>+c.fechamento?ym:ymAdd(ym,-1),close=dayIn(closeYm,c.fechamento);
+    const FR=fatRecs(c,ym),frT=r2(sum(FR,x=>x.v)),frC=r2(sum(FR.filter(x=>x.com),x=>x.v)),use=FPREV&&FR.length,RC=recsDoCartao(c),rcMes=r2(sum(RC,r=>+r.valor||0));
+    const totR=sum(its,i=>i.tipo==='receita'?-i.valor:i.valor),tot=totR+(use?frT:0),com=sum(its.filter(i=>i.comum),i=>i.valor)+(use?frC:0),due=dayIn(ym,c.vencimento),closeYm=+c.vencimento>+c.fechamento?ym:ymAdd(ym,-1),close=dayIn(closeYm,c.fechamento);
     const paga=fatPaga(c.id,ym),fech=today()>=close,status=paga?['Paga','ok']:today()>due?['Vencida','crit']:fech?['Fechada','warn']:['Aberta','acc'];
     const cats={};its.filter(i=>i.tipo==='despesa').forEach(i=>{const k=i.l.categoria||'Outros';cats[k]=(cats[k]||0)+i.valor});const ca=Object.entries(cats).sort((a,b)=>b[1]-a[1]).slice(0,4),cmx=ca.length?ca[0][1]:1;
     const parc=its.filter(i=>i.N>1).length;
@@ -5902,6 +5910,7 @@ function openCardDet(c){
         <div class="hxs">${cardGlyph(c)}<span>${esc([c.bandeira,c.final?'final '+c.final:''].filter(Boolean).join(' · '))}${PADR().cartao===c.id?' · padrão':''}${cta?' · paga pela '+esc(cta.nome):''}</span></div>
         <span class="hxk"><i class="sdot ${status[1]}"></i>${status[0]} · fecha ${fdate(close).slice(0,5)} · vence ${fdate(due).slice(0,5)}</span>
         <div class="hxv n">${brl(tot)}</div>
+        ${FR.length?`<div class="fpv"><div class="seg fps"><button type="button" data-fpv="0" aria-pressed="${!FPREV}">Só lançado</button><button type="button" data-fpv="1" aria-pressed="${!!FPREV}">Com fixos previstos</button></div><small>${use?`${brl(totR)} lançado + <b>${brl(frT)}</b> em ${FR.length} fixo${FR.length>1?'s':''} previsto${FR.length>1?'s':''}`:`+ ${brl(frT)} em ${FR.length} fixo${FR.length>1?'s':''} previsto${FR.length>1?'s':''} · ≈ ${brl(totR+frT)} com eles`}</small></div>`:''}
         ${paga||!its.length?`<span class="hxm"><span>paga em ${qLabel(perOf(due,c.quinzena!=='auto'?c.quinzena:null))}</span></span>`:`<button class="hxp" type="button" id="d-pf">${ic('check')} Registrar pagamento</button>`}
         <div class="hxl"><span class="uln"><i style="width:${Math.min(st.pct,1)*100}%;background:${lk}"></i></span><span class="hxm"><span><b class="n ${st.disp<0?'neg':''}">${brl0(st.disp)}</b> livres de ${brl0(st.lim)}</span><span>${pctf(st.pct)} usado</span></span></div>
       </div>
@@ -5916,10 +5925,17 @@ function openCardDet(c){
         </div>
         ${ca.length?(()=>{const tt=sum(Object.values(cats),v=>v);return `<div class="rkl">${ca.map(([k,v])=>`<div class="rkr"><span class="rkn">${catBubble(k,'sm')}${esc(k)}</span><span class="rkb"><i style="width:${v/cmx*100}%;background:${catColor(k)}"></i></span><b class="n">${pctf(v/tt)}</b></div>`).join('')}</div>`})():''}
         <div class="cc3 sm"><div><small>Lançamentos</small><b class="n">${its.length}</b></div><div><small>Parcelados</small><b class="n">${parc}</b></div><div><small>Parcelas futuras</small><b class="n">${brl0(st.fut)}</b></div></div></section>
+      <section class="cds" id="cd-rec"><div class="cdsh"><h3>Assinaturas e fixos</h3><small>${RC.length?`${brl(rcMes)}/mês · ${brl0(rcMes*12)}/ano`:'nenhum'}</small></div>
+        ${FR.length?`<p class="note">Previstos nesta fatura (ainda não cobrados):</p>${FR.map(f=>`<button class="cdi fpi" type="button" data-rcx="${esc(f.r.id)}">${catBubble(f.r.categoria||'Assinaturas','sm')}<span class="cdm"><b>${esc(f.r.nome)}</b><small>${f.d<today()?`era p/ ${fdate(f.d).slice(0,5)} · ainda não lançado`:`previsto ${fdate(f.d).slice(0,5)}`} · ${f.com?'comum':'pessoal'}</small></span><b class="n">${brl(f.v)}</b></button>`).join('')}`:''}
+        ${RC.length?`<div class="fpl">${RC.map(r=>`<button class="fpr" type="button" data-rcx="${esc(r.id)}"><span>${esc(r.nome)}<small>todo dia ${r.dia}${r.fim?' · até '+ymS(r.fim):''}</small></span><b class="n">${brl(+r.valor||0)}</b></button>`).join('')}</div><p class="note">Toque para mudar valor, pausar ou encerrar. Cancelou uma assinatura? Encerre aqui e as próximas faturas e projeções já saem sem ela.</p>`:'<p class="note">Assinaturas e cobranças mensais deste cartão aparecem aqui e entram nas faturas futuras.</p>'}
+        <div class="btnrow"><button class="btn sm" type="button" id="d-nr">${ic('plus')} Nova assinatura neste cartão</button></div></section>
       <section class="cds" id="cd-ext"><div class="cdsh"><h3>Lançamentos da fatura</h3><small>${its.length}</small></div>
         ${its.length?Object.entries(days).sort((a,b)=>b[0].localeCompare(a[0])).map(([d,g])=>`<div class="cdd"><div class="cddh"><span>${fdate(d)} · ${['domingo','segunda','terça','quarta','quinta','sexta','sábado'][new Date(d+'T12:00:00').getDay()]}</span><span class="n">${brl(sum(g,i=>i.tipo==='receita'?-i.valor:i.valor))}</span></div>${g.map(i=>`<button class="cdi" type="button" data-l="${esc(i.l.id)}">${catBubble(i.l.categoria||'Outros','sm')}<span class="cdm"><strong>${esc(descSemParc(i.l.desc))}${i.N>1?` <span class="pq ${i.j===i.N?'last':''}">${i.j}/${i.N}</span>`:''}</strong><small>${esc(i.l.categoria||'Outros')} · ${i.tipo==='receita'?'estorno':i.comum?'Comum':'Pessoal'}${i.l.rec?' · recorrente':''}</small></span><b class="n ${i.tipo==='receita'?'pos':''}">${i.tipo==='receita'?'+':'−'}${brl(i.valor)}</b></button>`).join('')}</div>`).join(''):'<p class="note">Nenhum lançamento nesta fatura.</p>'}</section>`;
     sh.querySelectorAll('[data-cda]').forEach(b=>b.onclick=()=>{const k=b.dataset.cda;if(k==='conf')openConfFat(c,ym);else if(k==='hist')openFatHist(c,y=>{ym=y});else{const t=sh.querySelector(k==='ext'?'#cd-ext':'#cd-an');t&&t.scrollIntoView({behavior:'smooth',block:'start'})}});
     sh.querySelectorAll('[data-pm]').forEach(b=>b.onclick=()=>{ym=ymAdd(ym,+b.dataset.pm);draw(sh)});
+    sh.querySelectorAll('[data-fpv]').forEach(b=>b.onclick=()=>{FPREV=b.dataset.fpv==='1';LSset('pt-fprev',FPREV?'1':'0');draw(sh)});
+    sh.querySelectorAll('[data-rcx]').forEach(b=>b.onclick=()=>openRec(S.recs.find(r=>r.id===b.dataset.rcx)));
+    {const nr=sh.querySelector('#d-nr');if(nr)nr.onclick=()=>openRec({tipo:'despesa',cartao:c.id,conta:'',dono:c.dono||ME(),categoria:'Assinaturas',dia:+today().slice(8)})}
     sh.querySelectorAll('[data-l]').forEach(b=>b.onclick=()=>openLanc(S.lanc.find(l=>l.id===b.dataset.l)));
     const pf=sh.querySelector('#d-pf');if(pf)pf.onclick=()=>openPagFat(c,ym);
   };
