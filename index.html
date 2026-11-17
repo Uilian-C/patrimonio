@@ -2365,6 +2365,9 @@ main{padding-left:max(10px,env(safe-area-inset-left,0px));padding-right:max(10px
 .agd small.agx.ok{color:var(--good)}.agd small.agx.crit{color:var(--crit)}
 .fpk .cxr{width:100%}.fpkv{display:grid;justify-items:end;gap:3px}.fpkv .cst{font-size:11px}.fpkv .cst.crit{color:var(--crit)}
 .hsplit>.hnx{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;gap:10px;cursor:pointer;border-left:0!important;border-top:1px solid var(--hero-line)!important;padding:12px 0 0!important;margin-top:6px}.hsplit>.hnx small{white-space:nowrap}.hsplit>.hnx b{font-size:20px}.hsplit>.hnx span{display:grid;gap:1px;min-width:0}.hsplit>.hnx em{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.hsplit>.hnx b{color:#9FEBC6;white-space:nowrap}
+.vbars{height:46px!important}.vbars .vbz{stroke:var(--hero-line);stroke-width:.6}
+.vbars rect.in{fill:color-mix(in srgb,var(--good) 75%,transparent)}.vbars rect.in.fut{fill:none;stroke:var(--good);stroke-width:.9;stroke-dasharray:2 1.5}
+.vbl .vk{display:inline-block;width:7px;height:7px;border-radius:2px;margin:0 3px 0 6px;background:color-mix(in srgb,var(--hero-neg) 70%,transparent)}.vbl .vk.in{margin-left:0;background:var(--good)}
 </style>
 <div id="fbgate" hidden><div class="bx"><svg class="lg" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="139 90 228 332"><g transform="translate(-5 0)"><rect x="186" y="100" width="12" height="312" rx="6" fill="currentColor" opacity=".55"/><rect x="164" y="150" width="56" height="210" rx="16" fill="currentColor"/><path d="M244 150h38a70 70 0 0 1 0 140h-38z" fill="#E2BA6E"/></g></svg><h1>Patrimônio</h1><p id="fbmsg">Entre com a sua conta Google para ver as finanças da casa.</p><button type="button" id="fblogin">Entrar com Google</button></div></div>
 <script type="module">
@@ -3197,7 +3200,7 @@ function heroChart(F,ym){
     <defs><linearGradient id="hcg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="currentColor" stop-opacity=".28"/><stop offset="1" stop-color="currentColor" stop-opacity="0"/></linearGradient><linearGradient id="hcg2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--hero-acc)" stop-opacity=".18"/><stop offset="1" style="stop-color:var(--hero-acc)" stop-opacity="0"/></linearGradient></defs>
     ${ticks.map(i=>`<line x1="${xs(i)}" x2="${xs(i)}" y1="${T}" y2="${B}" stroke="currentColor" stroke-opacity=".08"/>`).join('')}
     ${mn<0?`<line x1="${L}" x2="${R}" y1="${ys(0)}" y2="${ys(0)}" style="stroke:var(--hero-neg)" stroke-opacity=".7" stroke-dasharray="3 3"/><text x="${R}" y="${ys(0)-3}" text-anchor="end" class="hz">zero</text>`:''}
-    ${ent.map(e=>`<line x1="${xs(e.i)}" x2="${xs(e.i)}" y1="${T-2}" y2="${B}" style="stroke:var(--hero-acc)" stroke-opacity=".35" stroke-dasharray="1 3"/><text x="${xs(e.i)}" y="${T-6}" text-anchor="${e.i>n*.85?'end':e.i<n*.1?'start':'middle'}" class="he">+${kf(e.d).replace(/R\$\s*/,'')}</text>`).join('')}
+    ${ent.map(e=>`<line x1="${xs(e.i)}" x2="${xs(e.i)}" y1="${T-2}" y2="${B}" style="stroke:var(--good)" stroke-opacity="${e.i>ri?.75:.4}" stroke-width="${e.i>ri?1.2:1}" stroke-dasharray="${e.i>ri?'3 3':'1 3'}"/><text x="${xs(e.i)}" y="${T-6}" text-anchor="${e.i>n*.85?'end':e.i<n*.1?'start':'middle'}" class="he">+${kf(e.d).replace(/R\$\s*/,'')}</text>`).join('')}
     ${P2.length>1?`<path d="M${xs(P2[0])},${B} L${P2.map(pt).join(' L')} L${xs(P2[P2.length-1])},${B} Z" fill="url(#hcg2)"/><polyline points="${P2.map(pt).join(' ')}" fill="none" style="stroke:var(--hero-acc)" stroke-width="2" stroke-dasharray="5 4" stroke-linejoin="round"/>`:''}
     ${P1.length>1?`<path d="M${xs(0)},${B} L${P1.map(pt).join(' L')} L${xs(P1[P1.length-1])},${B} Z" fill="url(#hcg)"/><polyline points="${P1.map(pt).join(' ')}" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>`:''}
     ${mi>=0?`<circle cx="${xs(mi)}" cy="${ys(sr[mi].v)}" r="4" style="fill:var(--hero-warn);stroke:var(--hero-bg)" stroke-width="1.5"/><text x="${xs(mi)}" y="${Math.min(ys(sr[mi].v)+15,B+1)}" text-anchor="middle" class="hm">menor ${kf(sr[mi].v).replace(/R\$\s*/,'')}</text>`:''}
@@ -3280,13 +3283,24 @@ function saidasDia(me,d0,d1){const t=today(),cs=scopeContas(me),ids=new Set(cs.m
   S.acertos.forEach(x=>{const xd=acD(x);if(!xd||xd>t||!x.conta||!ids.has(x.conta))return;const a=conta(x.conta);if(a&&x.de===a.dono)add(xd,(+x.valor||0)*fr(x.conta),'Acerto')});
   if(d1>t)agendaPessoal(me,d1,addD(t,1)).filter(x=>x.v<0&&x.d>t).forEach(x=>add(x.d,-x.v,x.t,true));
   return out}
-function barsSaidas(me,d0,d1,xOf){const S0=saidasDia(me,d0,d1),ks=Object.keys(S0);if(!ks.length)return '';const mx=Math.max(...ks.map(k=>S0[k].v)),H=34,t=today();
-  const days=[];for(let d=d0;d<=d1;d=addD(d,1))days.push(d);const bw=Math.max(Math.min(314/days.length*.62,7),1.2);
-  return `<svg class="vbars" viewBox="0 0 320 ${H}" preserveAspectRatio="none" aria-label="Saídas por dia">${days.map((d,i)=>{const o=S0[d];if(!o)return '';const h=Math.max(o.v/mx*(H-4),1.5),x=xOf(i,days.length);
-    return `<rect x="${(x-bw/2).toFixed(1)}" y="${(H-h).toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" rx="1" class="${d>t?'fut':''} ${o.v>=mx*.6?'big':''}" data-vb="${d}|${r2(o.v)}|${o.n}|${esc(o.its.sort((a,b)=>b[1]-a[1]).slice(0,2).map(z=>z[0]).join(', '))}"/>`}).join('')}</svg>
-    <span class="vbl"><span>Saídas por dia</span><span class="vbt" aria-live="polite">maior: ${brl0(mx)} em ${fdate(ks.reduce((a,k)=>S0[k].v>S0[a].v?k:a,ks[0])).slice(0,5)}</span></span>`}
-function wireBars(el){el.querySelectorAll('.vbars rect').forEach(r=>r.addEventListener('click',e=>{e.stopPropagation();const [d,v,n,its]=r.dataset.vb.split('|'),tt=r.closest('.hflow,.pchw,.hfs')?.parentElement?.querySelector('.vbt')||el.querySelector('.vbt');
-  el.querySelectorAll('.vbars rect.sel').forEach(x=>x.classList.remove('sel'));r.classList.add('sel');if(tt)tt.innerHTML=`<b>${fdate(d).slice(0,5)}</b> ${d>today()?'previsto':'saiu'} ${brl0(+v)} · ${n} ${+n>1?'itens':'item'}${its?' · '+its:''}`}))}
+function barsSaidas(me,d0,d1,xOf){const S0=saidasDia(me,d0,d1),E0=entradasDia(me,d0,d1),ks=Object.keys(S0),ke=Object.keys(E0);if(!ks.length&&!ke.length)return '';
+  const mx=Math.max(...ks.map(k=>S0[k].v),...ke.map(k=>E0[k].v),1),H=46,M=24,t=today();
+  const days=[];for(let d=d0;d<=d1;d=addD(d,1))days.push(d);const bw=Math.max(Math.min(314/days.length*.62,7),1.2),mxs=ks.length?Math.max(...ks.map(k=>S0[k].v)):0;
+  const bar=(o,d,i,up)=>{const h=Math.max(Math.sqrt(o.v/mx)*(up?M-2:H-M-2),1.5),x=xOf(i,days.length),fut=d>t||(up&&o.fut>=o.v-.005);
+    return `<rect x="${(x-bw/2).toFixed(1)}" y="${(up?M-h:M+1).toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" rx="1" class="${up?'in':''} ${fut?'fut':''} ${!up&&o.v>=mxs*.6?'big':''}" data-vb="${d}|${r2(o.v)}|${o.n}|${esc(o.its.sort((a,b)=>b[1]-a[1]).slice(0,2).map(z=>z[0]).join(', '))}|${up?'e':'s'}|${fut?1:0}"/>`};
+  return `<svg class="vbars" viewBox="0 0 320 ${H}" preserveAspectRatio="none" aria-label="Entradas e saídas por dia"><line x1="0" x2="320" y1="${M+.5}" y2="${M+.5}" class="vbz"/>${days.map((d,i)=>(E0[d]?bar(E0[d],d,i,true):'')+(S0[d]?bar(S0[d],d,i,false):'')).join('')}</svg>
+    <span class="vbl"><span><i class="vk in"></i>entradas <i class="vk"></i>saídas</span><span class="vbt" aria-live="polite">${ks.length?`maior saída: ${brl0(mxs)} em ${fdate(ks.reduce((a,k)=>S0[k].v>S0[a].v?k:a,ks[0])).slice(0,5)}`:''}</span></span>`}
+/* entradas por dia, espelho de saidasDia: recebido (sólido) e previsto/a receber (tracejado) */
+function entradasDia(me,d0,d1){const t=today(),cs=scopeContas(me),ids=new Set(cs.map(a=>a.id)),fr=id=>{const a=conta(id);return a?fracOf(a.dono,me):1},out={};
+  const add=(d,v,desc,fut)=>{if(d<d0||d>d1||!(v>0))return;const o=out[d]=out[d]||{v:0,n:0,fut:0,its:[]};o.v+=v;o.n++;if(fut)o.fut+=v;o.its.push([desc,v])};
+  S.lanc.forEach(l=>{if(!l.conta)return;const d=l.data||'',tp=l.tipo||'despesa';
+    if(tp==='receita'&&ids.has(l.conta)){const v=(+l.valor||0)*fr(l.conta);if(l.pend){if(d<=t)add(t,v,l.desc||'A receber',true);return}if(d<=t)add(d,v,l.desc||l.categoria||'Entrada')}
+    else if(tp==='transf'&&!l.pend&&l.destino&&ids.has(l.destino)&&!ids.has(l.conta)&&d<=t)add(d,(+l.valor||0)*fr(l.destino),l.desc||'Transferência')});
+  S.acertos.forEach(x=>{const xd=acD(x);if(!xd||xd>t||!x.conta||!ids.has(x.conta))return;const a=conta(x.conta);if(a&&x.para===a.dono)add(xd,(+x.valor||0)*fr(x.conta),'Acerto')});
+  if(d1>t)agendaPessoal(me,d1,addD(t,1)).filter(x=>x.v>0&&x.d>t&&x.k!=='cv').forEach(x=>add(x.d,x.v,x.t,true));
+  return out}
+function wireBars(el){el.querySelectorAll('.vbars rect').forEach(r=>r.addEventListener('click',e=>{e.stopPropagation();const [d,v,n,its,k,fu]=r.dataset.vb.split('|'),tt=r.closest('.hflow,.pchw,.hfs')?.parentElement?.querySelector('.vbt')||el.querySelector('.vbt');
+  el.querySelectorAll('.vbars rect.sel').forEach(x=>x.classList.remove('sel'));r.classList.add('sel');if(tt)tt.innerHTML=`<b>${fdate(d).slice(0,5)}</b> ${k==='e'?(fu==='1'?'a receber':'entrou'):(d>today()?'previsto':'saiu')} ${k==='e'?'+':''}${brl0(+v)} · ${n} ${+n>1?'itens':'item'}${its?' · '+its:''}`}))}
 /* ===================== Ficha da categoria =====================
    Como a ficha de um ativo: o mês, a média, o maior e o menor mês, ticket médio e frequência; sugere um stop realista. */
 function catFicha(me,c){const t=today(),cym=t.slice(0,7),ms=[];for(let k=12;k>=0;k--){const m=ymAdd(cym,-k);if(dayIn(m,31)>=histIni())ms.push(m)}

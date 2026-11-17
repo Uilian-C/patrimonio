@@ -112,6 +112,8 @@ window.__fbSair=()=>{};setTimeout(()=>window.__fbReady(api),0);})();</script>`;
       ok(cp.soma, 'cartão: parcelas + fixos + avulsos = total lançado da fatura', JSON.stringify(cp));
       const hx = await p.evaluate(async () => { const w = ms => new Promise(r => setTimeout(r, ms)); location.hash = 'lanc'; await w(300); location.hash = 'inicio'; await w(600);
         const h = document.querySelector('#v-inicio .hnx'), ag = (document.querySelector('#v-inicio') || {}).innerText || ''; return { h: h ? h.innerText.replace(/\s+/g, ' ') : '', ag: /A receber teste/.test(ag.replace(h ? h.innerText : '', '')) } });
+      const vb = await p.evaluate(() => { const r = [...document.querySelectorAll('#v-inicio .hero .vbars rect.in')]; return { n: r.length, fut: r.filter(x => x.classList.contains('fut')).map(x => x.dataset.vb.split('|')[0]) } });
+      ok(vb.n > 0 && vb.fut.length > 0, 'início: entradas no gráfico do mês, com previstas tracejadas', JSON.stringify(vb));
       ok(/Próxima entrada/.test(hx.h) && /A receber teste/.test(hx.h) && /Receita agendada/.test(hx.h), 'início: próxima entrada aparece no resumo (a receber e agendada)', hx.h);
       const pf = await p.evaluate(async () => { const T = window.__T, w = ms => new Promise(r => setTimeout(r, ms)); T.openLanc(null); await w(400);
         const tab = document.querySelector('.sheet [data-tpf]'); if (!tab) return { tab: false }; tab.click(); await w(400);
