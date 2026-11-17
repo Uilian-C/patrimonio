@@ -73,6 +73,31 @@ window.__fbSair=()=>{};setTimeout(()=>window.__fbReady(api),0);})();</script>`;
       ok(cn[0], 'lançamento: cria categoria'); ok(cn[1].includes('Feira livre') && /Feira livre/.test(cn[2]), 'lançamento: cria subcategoria e já usa', JSON.stringify(cn));
       const sv = await p.evaluate(() => { const r = document.querySelector('.lfoot').getBoundingClientRect(); return Math.round(Math.min(r.bottom, innerHeight) - r.top) }); ok(sv <= 90, 'lançamento: barra de salvar compacta', sv + 'px');
       await p.evaluate(() => window.__T.closeSheet(true)); await p.waitForTimeout(200);
+      /* formulário de lançamento: cada tipo tem o que precisa */
+      const T0 = await p.evaluate(() => window.__T.today());
+      const fut = await p.evaluate(() => window.__T.addD(window.__T.today(), 3));
+      const casos = [
+        ['despesa na conta', { tipo: 'despesa', conta: 'cc' }, ['Descrição', 'Categoria', 'Pago com', 'Repetir lançamento', 'Divisão'], { pg: true, chips: 3 }],
+        ['despesa no cartão', { tipo: 'despesa', cartao: 'roxo' }, ['Descrição', 'Categoria', 'Pago com', 'Repetir lançamento', 'Divisão'], { pg: false, chips: 2 }],
+        ['receita na conta', { tipo: 'receita', conta: 'cc' }, ['Descrição', 'Categoria', 'Entrou em', 'Repetir lançamento'], { pg: true, chips: 2 }],
+        ['transferência', { tipo: 'transf', conta: 'cc', destino: 'res' }, ['De', 'Para', 'Descrição'], { pg: false, chips: 0 }]];
+      for (const [nome, pre, secs, exp] of casos) {
+        await p.evaluate(pre => window.__T.openLanc(pre), pre); await p.waitForTimeout(350);
+        const r = await p.evaluate(() => ({ secs: [...document.querySelectorAll('#overlay .lsl')].map(x => x.textContent.trim()), pg: !!document.querySelector('#l-pg'), chips: document.querySelectorAll('#overlay [data-rep]').length, more: !!document.querySelector('#overlay [data-more]'), save: !!document.querySelector('#lsv') }));
+        const falta = secs.filter(x => !r.secs.some(y => y.startsWith(x)));
+        ok(!falta.length && r.save, 'formulário ' + nome + ': seções', 'faltam ' + falta.join(', ') + ' · tem ' + r.secs.join(', '));
+        ok(r.pg === exp.pg, 'formulário ' + nome + ': ' + (exp.pg ? 'tem' : 'sem') + ' efetivada/pendente');
+        ok(r.chips === exp.chips, 'formulário ' + nome + ': opções de repetir', String(r.chips));
+        await p.evaluate(() => window.__T.closeSheet(true)); await p.waitForTimeout(150);
+      }
+      /* receita com data futura nasce "a receber" e é salva como pendente */
+      await p.evaluate(fut => window.__T.openLanc({ tipo: 'receita', conta: 'cc', data: fut, desc: 'Férias teste', valor: 1000, categoria: 'Salário' }), fut); await p.waitForTimeout(350);
+      const rf = await p.evaluate(() => { const g = document.querySelector('#l-pg'); return g ? !g.checked : null });
+      ok(rf === true, 'receita futura começa como a receber');
+      await p.evaluate(() => document.querySelector('#lsv').click()); await p.waitForTimeout(500);
+      const salvo = await p.evaluate(() => window.__T.S.lanc.find(l => l.desc === 'Férias teste'));
+      ok(salvo && salvo.pend === true && salvo.tipo === 'receita', 'receita a receber salva como pendente', JSON.stringify(salvo && { pend: salvo.pend, tipo: salvo.tipo }));
+      await p.evaluate(() => window.__T.closeSheet(true)); await p.waitForTimeout(150);
       /* lançamentos › em atraso */
       await p.evaluate(() => location.hash = 'lanc'); await p.waitForTimeout(400);
       const atv = await p.evaluate(() => { const b = document.querySelector('[data-atrv]'); if (b) b.click(); return !!b }); await p.waitForTimeout(400);

@@ -7434,7 +7434,7 @@ function openLanc(l,opts){
   const togRow=(id,icon,lab,sub,on)=>`<label class="lr" for="${id}">${I(icon)}<span class="lrt">${lab}${sub?`<small>${sub}</small>`:''}</span>${sw(id,on,lab)}</label>`;
   const total=()=>r2(st.valor+(st.adj==='enc'?st.enc:0)-(st.adj==='desc'?st.desc2:0));
   const draw=sh=>{
-    const t=st.tipo,col=TIPOS[t][1],S1=srcInfo(st.src),dI=st.dest?srcInfo('acct:'+st.dest):null,cardSel=isCard(),contaDesp=t==='despesa'&&!cardSel&&st.src.startsWith('acct:');
+    const t=st.tipo,col=TIPOS[t][1],S1=srcInfo(st.src),dI=st.dest?srcInfo('acct:'+st.dest):null,cardSel=isCard(),contaDesp=t==='despesa'&&!cardSel&&st.src.startsWith('acct:');const contaMv=(t==='despesa'||t==='receita')&&!cardSel&&st.src.startsWith('acct:'),rc=t==='receita';if(isNew&&contaMv&&!st.pendTouched)st.pend=st.data>today();
     const dLab=d=>d===today()?'Hoje':d===addD(today(),-1)?'Ontem':d===addD(today(),1)?'Amanhã':`${+d.slice(8)} ${MES[+d.slice(5,7)-1]}${d.slice(0,4)!==today().slice(0,4)?' '+d.slice(0,4):''}`;
     const wd=['dom','seg','ter','qua','qui','sex','sáb'][new Date(st.data+'T12:00:00').getDay()];
     let h=`<div class="lh lh-${col}">`;
@@ -7451,9 +7451,9 @@ function openLanc(l,opts){
       h+=sec('De',`<button type="button" class="lr" data-tog="src">${S1?S1.ic:I('bank')}<span class="lrt">${S1?esc(S1.nm):'Escolher conta'}${S1?`<small>${esc(S1.sub)}</small>`:''}</span>${ic('down','lch')}</button>${st.open==='src'?`<div class="lpk">${srcOptions('src')}</div>`:''}`);
       h+=sec('Para',`<button type="button" class="lr" data-tog="dest">${dI?dI.ic:I('bank')}<span class="lrt">${dI?esc(dI.nm):'Escolher conta'}${dI?`<small>${esc(dI.sub)}</small>`:''}</span>${ic('down','lch')}</button>${st.open==='dest'?`<div class="lpk">${srcOptions('dest')}</div>`:''}`);
     }else if(t!=='ajuste')h+=sec(t==='receita'?'Entrou em':t==='pagfat'?'Pago da conta':'Pago com',`<button type="button" class="lr" data-tog="src">${S1?S1.ic:I('card')}<span class="lrt">${S1?esc(S1.nm):'Escolher'}${S1?`<small>${esc(S1.sub)}</small>`:''}</span>${ic('down','lch')}</button>${st.open==='src'?`<div class="lpk">${srcOptions('src')}</div>`:''}`);
-    h+=sec(contaDesp&&st.pend?'Vencimento':contaDesp?'Pago em':'Data',`<div class="lr ldt">${I('calendar')}<button type="button" class="ldd" data-dd2="-1" aria-label="Dia anterior">${ic('back')}</button><label class="ldv"><b>${dLab(st.data)}</b><small>${wd}, ${fdate(st.data)}</small><input type="date" id="l-dt" value="${esc(st.data)}" aria-label="Escolher data"></label><button type="button" class="ldd" data-dd2="1" aria-label="Próximo dia">${ic('chev')}</button></div>
-      ${contaDesp?togRow('l-pg','checkc',st.pend?'Pendente':'Efetivada',st.pend?'o valor continua na conta até você pagar':'já saiu da conta nesta data',!st.pend):''}
-      ${contaDesp&&!st.pend?`<div class="lr lvc">${I('clock')}<label class="ldv"><small>Vencimento</small><b>${fdate(st.venc||st.data)}${(()=>{const d=diffD(st.venc||st.data,st.data);return d<0?` · pago ${-d} dia${d===-1?'':'s'} antes`:d>0?` · pago ${d} dia${d===1?'':'s'} depois`:' · pago no dia'})()}</b><input type="date" id="l-vc" value="${esc(st.venc||st.data)}" aria-label="Data de vencimento"></label></div>`:''}`);
+    h+=sec(contaMv&&st.pend?(rc?'Previsto para':'Vencimento'):contaMv?(rc?'Recebido em':'Pago em'):'Data',`<div class="lr ldt">${I('calendar')}<button type="button" class="ldd" data-dd2="-1" aria-label="Dia anterior">${ic('back')}</button><label class="ldv"><b>${dLab(st.data)}</b><small>${wd}, ${fdate(st.data)}</small><input type="date" id="l-dt" value="${esc(st.data)}" aria-label="Escolher data"></label><button type="button" class="ldd" data-dd2="1" aria-label="Próximo dia">${ic('chev')}</button></div>
+      ${contaMv?togRow('l-pg','checkc',st.pend?(rc?'A receber':'Pendente'):(rc?'Recebida':'Efetivada'),st.pend?(rc?'entra no saldo previsto até você confirmar':'o valor continua na conta até você pagar'):(rc?'já entrou na conta nesta data':'já saiu da conta nesta data'),!st.pend):''}
+      ${contaMv&&!st.pend&&!rc?`<div class="lr lvc">${I('clock')}<label class="ldv"><small>Vencimento</small><b>${fdate(st.venc||st.data)}${(()=>{const d=diffD(st.venc||st.data,st.data);return d<0?` · pago ${-d} dia${d===-1?'':'s'} antes`:d>0?` · pago ${d} dia${d===1?'':'s'} depois`:' · pago no dia'})()}</b><input type="date" id="l-vc" value="${esc(st.venc||st.data)}" aria-label="Data de vencimento"></label></div>`:''}`);
     if(t==='despesa'||(t==='receita'&&!cardSel)){
       const reps=[['unica','Única'],...(!cardSel?[['fixo','Fixo mensal']]:[]),...(t==='despesa'?[['parc','Parcelado']]:[])];
       if(!isNew&&st.rep==='unica'&&cardSel&&st.n>1)st.rep='parc';
@@ -7514,7 +7514,7 @@ function openLanc(l,opts){
     sh.querySelectorAll('[data-adj]').forEach(b=>b.onclick=()=>{st.adj=st.adj===b.dataset.adj?'':b.dataset.adj;draw(sh)});
     const aj=sh.querySelector('#l-adj');if(aj)moneyInput(aj,x=>{if(st.adj==='enc')st.enc=x;else st.desc2=x;updSave();const sm=aj.parentElement.querySelector('small');if(sm)sm.textContent='total '+brl(total())});
     const vc=sh.querySelector('#l-vc');if(vc)vc.onchange=()=>{if(vc.value){st.venc=vc.value;draw(sh)}};
-    const pg=sh.querySelector('#l-pg');if(pg)pg.onchange=()=>{st.pend=!pg.checked;if(!st.pend&&l.pend){st.venc=st.venc||l.data;st.data=today()}else if(st.pend&&st.venc){st.data=st.venc;st.venc=''}draw(sh)};
+    const pg=sh.querySelector('#l-pg');if(pg)pg.onchange=()=>{st.pend=!pg.checked;st.pendTouched=true;if(!st.pend&&l.pend){st.venc=st.venc||l.data;st.data=today()}else if(st.pend&&st.venc){st.data=st.venc;st.venc=''}draw(sh)};
     const gb=sh.querySelector('#l-gab');if(gb)gb.onchange=()=>{st.gab=gb.checked};
     const is=sh.querySelector('#l-is');if(is)is.onchange=()=>{st.ign.stats=is.checked};
     const io=sh.querySelector('#l-io');if(io)io.onchange=()=>{st.ign.orc=io.checked};
@@ -7539,7 +7539,7 @@ function openLanc(l,opts){
         d.valor=tot;if(st.adj==='enc'&&st.enc){d.encargos=st.enc;d.valorBase=r2(st.valor)}else delete d.encargos;if(st.adj==='desc'&&st.desc2){d.desconto=st.desc2;d.valorBase=r2(st.valor)}else delete d.desconto;if(!d.encargos&&!d.desconto)delete d.valorBase;
         d.cartao=ic2?st.src.slice(5):'';d.conta=ic2?'':st.src.slice(5);d.parcelas=n;d.parcela=ic2?Math.min(Math.max(st.k,1),n):1;
         if(isNew&&n>1)d.valor=st.pm==='mul'?r2(tot):r2(tot/n);d.divisao=tipo==='receita'?'pessoal':st.div;d.categoria=st.cat;d.subcategoria=st.sub;d.tags=st.tags;d.fatura=ic2?st.fatura:'';d.obs=st.obs.trim();
-        if(tipo==='despesa'&&!ic2&&st.pend){d.pend=true;delete d.venc;delete d.pagoEm}else{delete d.pend;if(st.venc){d.venc=st.venc;d.pagoEm=st.data}}
+        if((tipo==='despesa'||tipo==='receita')&&!ic2&&st.pend){d.pend=true;delete d.venc;delete d.pagoEm}else{delete d.pend;if(st.venc){d.venc=st.venc;d.pagoEm=st.data}}
         if(st.gab)d.para=gabId();else delete d.para;
         if(st.ign.stats||st.ign.orc)d.ign={stats:!!st.ign.stats,orc:!!st.ign.orc};else delete d.ign;
         if(st.anexos.length)d.anexos=st.anexos;else delete d.anexos;
