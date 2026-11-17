@@ -12,7 +12,7 @@ const EXPOR = ('S ME today ymAdd addD dayIn lastDay realBal saldoConta scopeCont
   'acerto acertoLedger credGab gabId candlesCaixa saidasDia margemCalc planoCalc mesCalc catWatch catMesMap contaMov isCaixa movs ' +
   'parseFrase rvCalc rvIR divSim divLista ORD metaCalc cenBase cenProj baseMes casaCalc pjMes filhoCalc progRet retroCalc semRev ' +
   'openRV openRVIR openCenarios openDividasPlano openCasa openPJ openPontos openFilhos openRetro openPrefs openFrase openSimCompra ' +
-  'openSemana openAjuda openRelMes openMeta openAssessor openInvestDash openSpread openBackups openLanc openTour openBemVindo openAPagar atrasos catList projecao relPeriodo mesCalc periodoConta aRealizar recPrevistos fatRecs baseDue card closeSheet').split(' ');
+  'openSemana openAjuda openRelMes openMeta openAssessor openInvestDash openSpread openBackups openLanc openTour openBemVindo openAPagar atrasos catList projecao relPeriodo mesCalc periodoConta aRealizar recPrevistos fatRecs fatComp movKind fatTot openCardDet baseDue card closeSheet').split(' ');
 
 function montar(dados) {
   let h = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
@@ -102,6 +102,17 @@ window.__fbSair=()=>{};setTimeout(()=>window.__fbReady(api),0);})();</script>`;
         return { f, ag: ag.length } });
       ok(fr.f.some(L => L.includes('Streaming')) && fr.f.some(L => L.includes('Assinatura teste')), 'cartão: fatura futura mostra fixos previstos', JSON.stringify(fr));
       ok(fr.ag > 0, 'cartão: fixos previstos entram nas projeções de caixa', JSON.stringify(fr));
+      const cp = await p.evaluate(async () => { const T = window.__T, c = T.card('roxo'), ym = T.ymAdd(T.today().slice(0, 7), 1), k = T.fatComp(c, ym);
+        T.openCardDet(c); await new Promise(r => setTimeout(r, 400)); const sh = document.querySelector('.sheet');
+        const rows = sh.querySelectorAll('#cd-an .fck').length, rec = [...sh.querySelectorAll('#cd-rec .fpr')].map(b => b.innerText);
+        const n0 = sh.querySelectorAll('#cd-ext .cdi').length, chip = sh.querySelector('[data-lk="parc"]'); if (chip) chip.click(); await new Promise(r => setTimeout(r, 200));
+        const n1 = document.querySelectorAll('.sheet #cd-ext .cdi').length; T.closeSheet();
+        location.hash = 'inicio'; await new Promise(r => setTimeout(r, 300)); location.hash = 'cartoes'; await new Promise(r => setTimeout(r, 500)); const as = document.querySelector('#c-assin');
+        return { soma: Math.abs(k.parc + k.fix + k.avu - T.fatTot(c, ym)) < .01, rows, rec, n0, n1, chip: !!chip, as: as ? as.innerText : '' } });
+      ok(cp.soma, 'cartão: parcelas + fixos + avulsos = total lançado da fatura', JSON.stringify(cp));
+      ok(cp.rows === 3 && cp.rec.filter(x => /Streaming/.test(x)).length === 1, 'cartão: composição com 3 linhas e cada assinatura listada uma só vez', JSON.stringify(cp));
+      ok(cp.chip && cp.n1 > 0 && cp.n1 < cp.n0, 'cartão: filtro Parcelas na lista da fatura', JSON.stringify(cp));
+      ok(/Streaming/.test(cp.as) && /Assinatura teste/.test(cp.as) && /\/mês/.test(cp.as), 'Cartões: painel de assinaturas nos cartões', cp.as.slice(0, 120));
       ok(ass.r && ass.r.cartao === 'roxo' && !ass.r.conta && ass.l && ass.l.cartao === 'roxo' && ass.l.rec && ass.prox, 'cartão: fixo mensal cria recorrência no cartão', JSON.stringify(ass));
       await p.evaluate(() => window.__T.closeSheet(true)); await p.waitForTimeout(150);
       /* receita com data futura nasce "a receber" e é salva como pendente */
