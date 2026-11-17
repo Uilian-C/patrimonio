@@ -12,7 +12,7 @@ const EXPOR = ('S ME today ymAdd addD dayIn lastDay realBal saldoConta scopeCont
   'acerto acertoLedger credGab gabId candlesCaixa saidasDia margemCalc planoCalc mesCalc catWatch catMesMap contaMov isCaixa movs ' +
   'parseFrase rvCalc rvIR divSim divLista ORD metaCalc cenBase cenProj baseMes casaCalc pjMes filhoCalc progRet retroCalc semRev ' +
   'openRV openRVIR openCenarios openDividasPlano openCasa openPJ openPontos openFilhos openRetro openPrefs openFrase openSimCompra ' +
-  'openSemana openAjuda openRelMes openMeta openAssessor openInvestDash openSpread openBackups openLanc openTour openBemVindo openAPagar atrasos catList projecao relPeriodo mesCalc periodoConta aRealizar recPrevistos fatRecs fatComp movKind fatTot openCardDet baseDue card closeSheet').split(' ');
+  'openSemana openAjuda openRelMes openMeta openAssessor openInvestDash openSpread openBackups openLanc openTour openBemVindo openAPagar atrasos catList projecao relPeriodo mesCalc periodoConta aRealizar recPrevistos fatRecs caixaNoDia realBal fatComp movKind fatTot openCardDet baseDue card closeSheet').split(' ');
 
 function montar(dados) {
   let h = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
@@ -110,6 +110,14 @@ window.__fbSair=()=>{};setTimeout(()=>window.__fbReady(api),0);})();</script>`;
         location.hash = 'inicio'; await new Promise(r => setTimeout(r, 300)); location.hash = 'cartoes'; await new Promise(r => setTimeout(r, 500)); const as = document.querySelector('#c-assin');
         return { soma: Math.abs(k.parc + k.fix + k.avu - T.fatTot(c, ym)) < .01, rows, rec, n0, n1, chip: !!chip, as: as ? as.innerText : '' } });
       ok(cp.soma, 'cartão: parcelas + fixos + avulsos = total lançado da fatura', JSON.stringify(cp));
+      const cx = await p.evaluate(async () => { const T = window.__T, me = T.ME(), d = T.dayIn(T.ymAdd(T.today().slice(0, 7), 1), 10), c = T.caixaNoDia(d, [me])[0];
+        const F = T.mesFluxo(d.slice(0, 7), me); location.hash = 'inicio'; await new Promise(r => setTimeout(r, 300)); location.hash = 'cartoes'; await new Promise(r => setTimeout(r, 500));
+        const el = document.querySelector('#v-cartoes'); return { c, alt: T.realBal(me, T.today()) + T.aRealizar(me, d).reduce((s, x) => s + x.v, 0), ag: [...el.querySelectorAll('.agd')].map(x => x.innerText.replace(/\s+/g, ' ')), kp: el.querySelector('.cc .kpis') ? el.querySelector('.cc .kpis').innerText.replace(/\s+/g, ' ') : '', lib: !!el.querySelector('.plib'), rv: (el.querySelector('#c-assin .rvh') || {}).innerText || '', sub: [...el.querySelectorAll('.ccr .sub')].map(x => x.innerText.replace(/\s+/g, ' ')) } });
+      ok(cx.c && Math.abs(cx.c.v - cx.alt) < .01, 'cartões: caixa no vencimento = saldo de hoje + a realizar', JSON.stringify(cx.c) + ' ' + cx.alt);
+      ok(cx.ag.length && cx.ag.every(x => /caixa cobre|faltam/.test(x)), 'cartões: cada vencimento diz se o caixa cobre', JSON.stringify(cx.ag));
+      ok(/Vence em/.test(cx.kp) && /Parcelas a vencer/.test(cx.kp) && /Assinaturas/.test(cx.kp) && cx.lib, 'cartões: indicadores novos e liberação do limite', cx.kp);
+      ok(/para revisar/.test(cx.rv), 'cartões: assinatura não lançada aparece para revisar', cx.rv);
+      ok(cx.sub.some(x => /com fixos/.test(x)) && cx.sub.some(x => /vs média/.test(x)), 'cartões: linha do cartão com fixos previstos e comparação com a média', JSON.stringify(cx.sub));
       ok(cp.rows === 3 && cp.rec.filter(x => /Streaming/.test(x)).length === 1, 'cartão: composição com 3 linhas e cada assinatura listada uma só vez', JSON.stringify(cp));
       ok(cp.chip && cp.n1 > 0 && cp.n1 < cp.n0, 'cartão: filtro Parcelas na lista da fatura', JSON.stringify(cp));
       ok(/Streaming/.test(cp.as) && /Assinatura teste/.test(cp.as) && /\/mês/.test(cp.as), 'Cartões: painel de assinaturas nos cartões', cp.as.slice(0, 120));
