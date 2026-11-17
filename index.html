@@ -2804,7 +2804,7 @@ function projecao(pid){
     const cvm=-sum(its.filter(x=>x.k==='cv'),x=>x.v);
     for(let d=d0;d<=end;d=addD(d,1)){cash+=(byD[d]||0);if(cash<min.v)min={d,v:cash}}
     const S_=k=>sum(its.filter(k),x=>x.v);
-    const rec=S_(x=>x.k==='rec'),fix=-S_(x=>x.k==='fix'&&!isParc(x)),parc=-S_(x=>isParc(x)),fat=-S_(x=>x.k==='fat'),gab=-S_(x=>x.k==='gab'),ac=S_(x=>x.k==='ac');
+    const rec=S_(x=>x.k==='rec'||x.k==='pendr'),fix=-S_(x=>(x.k==='fix'&&!isParc(x))||x.k==='darf'),parc=-S_(x=>isParc(x)),fat=-S_(x=>x.k==='fat'),gab=-S_(x=>x.k==='gab'),ac=S_(x=>x.k==='ac');
     const sobra=rec-cvm-fix,livre=sobra-parc-fat-gab+ac,pass=passApos(m);
     rows.push({ym:m,parcial:m===cur,rec,cvm,fix,sobra,parc,fat,gab,ac,livre,cash:r2(cash),pass:r2(pass),pl:r2(cash+outros-pass)});
   }
@@ -2929,7 +2929,7 @@ function mesFluxo(ym,pid){
     else if(tp==='transf'){const o=ids.has(l.conta),i=ids.has(l.destino);if(o&&!i)R.res-=v*fr(l.conta);else if(i&&!o)R.res+=v*fr(l.destino)}});
   R.ac=acAdj(pid,fim>t?t:fim,dayIn(ini,31))+sum(S.acertos.filter(x=>{const d=acD(x);return x.conta&&ids.has(x.conta)&&d&&d>=d0&&d<=(fim>t?t:fim)}),x=>(x.para===(conta(x.conta)||{}).dono?1:-1)*(+x.valor||0)*fr(x.conta));
   /* previsto no mês (a partir de hoje) */
-  const ag=agAll.filter(x=>x.d>=d0&&x.d<=fim),Pv={rec:sum(ag.filter(x=>x.k==='rec'),x=>x.v),desp:-sum(ag.filter(x=>x.k==='fix'||x.k==='div'||x.k==='pend'),x=>x.v)-sum(agAll.filter(x=>x.k==='pend'&&x.d<d0),x=>x.v),fat:-sum(ag.filter(x=>x.k==='fat'),x=>x.v),ac:sum(ag.filter(x=>x.k==='ac'||x.k==='abt'),x=>x.v),cv:sum(ag.filter(x=>x.k==='cv'),x=>x.v),gab:sum(ag.filter(x=>x.k==='gab'),x=>x.v)+sum(agAll.filter(x=>x.k==='gab'&&x.d<d0),x=>x.v)};
+  const ag=agAll.filter(x=>x.d>=d0&&x.d<=fim),Pv={rec:sum(ag.filter(x=>x.k==='rec'||x.k==='pendr'),x=>x.v)+sum(agAll.filter(x=>x.k==='pendr'&&x.d<d0),x=>x.v),desp:-sum(ag.filter(x=>x.k==='fix'||x.k==='div'||x.k==='pend'||x.k==='darf'),x=>x.v)-sum(agAll.filter(x=>(x.k==='pend'||x.k==='darf')&&x.d<d0),x=>x.v),fat:-sum(ag.filter(x=>x.k==='fat'),x=>x.v),ac:sum(ag.filter(x=>x.k==='ac'||x.k==='abt'),x=>x.v),cv:sum(ag.filter(x=>x.k==='cv'),x=>x.v),gab:sum(ag.filter(x=>x.k==='gab'),x=>x.v)+sum(agAll.filter(x=>x.k==='gab'&&x.d<d0),x=>x.v)};
   const final=projAt(fim);
   /* série diária */
   const nd=lastDay(ym),serie=[];for(let i=1;i<=nd;i++){const d=ym+'-'+pad(i);serie.push({d,v:projAt(d),real:d<=t})}
@@ -3113,7 +3113,7 @@ function rvGo(nav){const [k,v]=String(nav||'').split(/:(.*)/s);
     else if(k==='dv')openDividaDet(S.dividas.find(d=>d.id===v));else if(k==='ac')openAcerto(v);else if(k==='ab'){const r=S.reps.find(isAcRep);if(r){RSEL=r.id;RP='rel';ROFF=0}else RP='salvos';go('relatorios')}
     else if(k==='rec'){const [id,ym]=v.split('|');const r=S.recs.find(x=>x.id===id);if(r)openPagarG({prev:{r,date:recDia(r,ym),ym,nome:recNome(r,ym)},desc:recNome(r,ym),v:+r.valor||0,due:recDia(r,ym),paid:false,cat:r.categoria||'Outros'})}}
 /* lista do "A pagar" do topo: o que está em atraso primeiro, item por item */
-function openAPagar(){const draw=sh=>{const me=ME(),t=today(),ym=t.slice(0,7),ents=agendaPessoal(me,dayIn(ymAdd(ym,2),31)).filter(x=>x.k==='rec'&&x.d>t),E=ents[0],fimH=E?addD(E.d,-1):dayIn(ym,31);
+function openAPagar(){const draw=sh=>{const me=ME(),t=today(),ym=t.slice(0,7),ents=agendaPessoal(me,dayIn(ymAdd(ym,2),31)).filter(x=>(x.k==='rec'||x.k==='pendr')&&x.d>t),E=ents[0],fimH=E?addD(E.d,-1):dayIn(ym,31);
     const out=agendaPessoal(me,fimH>=t?fimH:t).filter(x=>(x.d<=fimH||x.d<t)&&x.v<0);{const sp=new Set(out.map(x=>x.nav+x.d));try{mesFluxo(ym,me).venc.forEach(x=>{if(x.d<t&&x.v<0&&!sp.has(x.nav+x.d)){sp.add(x.nav+x.d);out.push(x)}})}catch(e){}}out.sort((a,b)=>a.d.localeCompare(b.d)||a.v-b.v),atr=out.filter(x=>x.d<t),hj=out.filter(x=>x.d===t),fut=out.filter(x=>x.d>t);
     const row=x=>{const n=diffD(x.d,t),late=x.d<t;return `<button type="button" class="rvr ${late?'late':x.d===t?'now':''}" data-ap="${esc(x.nav||'')}"><span class="rvd"><b>${String(+x.d.slice(8)).padStart(2,'0')}</b><small>${MES[+x.d.slice(5,7)-1]}</small></span><span class="lxm"><b>${esc(x.t)}</b><small>${late?`<span class="neg">venceu há ${n} dia${n===1?'':'s'}</span> · `:x.d===t?'<span class="warn">vence hoje</span> · ':''}${esc(String(x.s||'').replace(/ · em atraso$/,''))}</small></span><span class="rvv"><b class="n ${late?'neg':''}">${brl(-x.v)}</b><small>${x.k==='pend'?'Pagar':x.k==='fat'?'Ver fatura':x.k==='ac'?'Acertar':'Ver'} ›</small></span></button>`};
     const sec=(tt,L,cls)=>L.length?`<section class="aps"><div class="apsh ${cls||''}"><b>${tt}</b><span class="n">${brl(sum(L,x=>-x.v))} · ${L.length} ite${L.length===1?'m':'ns'}</span></div><div class="rvl">${L.map(row).join('')}</div></section>`:'';
@@ -3188,7 +3188,7 @@ function heroComp(F,me,ym){
 }
 document.addEventListener('toggle',e=>{const d=e.target;if(d&&d.classList&&d.classList.contains('hcomp'))try{localStorage.setItem('pt-hx',d.open?'1':'0')}catch(_){}},true);
 function iniHero(X){
-  const {me,t,ym,saldo}=X,ents=agendaPessoal(me,dayIn(ymAdd(ym,2),31)).filter(x=>x.k==='rec'&&x.d>t),E=ents[0];
+  const {me,t,ym,saldo}=X,ents=agendaPessoal(me,dayIn(ymAdd(ym,2),31)).filter(x=>(x.k==='rec'||x.k==='pendr')&&x.d>t),E=ents[0];
   const fimH=E?addD(E.d,-1):dayIn(ym,31),ag=agendaPessoal(me,fimH>=t?fimH:t).filter(x=>x.d<=fimH||x.d<t);
   const out=ag.filter(x=>x.v<0);{const sp=new Set(out.map(x=>x.nav+x.d));(X.F&&X.F.venc||[]).forEach(x=>{if(x.d<t&&x.v<0&&!sp.has(x.nav+x.d)){sp.add(x.nav+x.d);out.push(x)}})}
   const atr=out.filter(x=>x.d<t),comp=sum(out,x=>-x.v),cAtr=sum(atr,x=>-x.v),entra=sum(ag.filter(x=>x.v>0&&x.d>=t),x=>x.v);
@@ -3282,7 +3282,7 @@ function watchHTML(me,ym){const W=catWatch(me,ym),hasBase=mesesOk(ym,3).length>0
     <div class="wtabs">${[['ativo','Todas'],['altas','Maiores altas'],['baixas','Maiores baixas']].map(([k,l])=>`<button type="button" data-wtab="${k}" aria-pressed="${tab===k}" ${!hasBase&&k!=='ativo'?'disabled title="precisa de 1 mês completo de histórico"':''}>${l}</button>`).join('')}</div>
     ${!hasBase?'<p class="note wnb">Altas e baixas liberam com 1 mês completo de histórico. Por enquanto, os gastos do mês por categoria.</p>':''}${L.length?`<div class="wl">${watchRows(L.slice(0,8),hasBase?'':'nb')}</div>`:'<p class="note">Nada fora da média por enquanto.</p>'}</div>`}
 /* sobra de caixa até a próxima entrada de receita: a mesma conta do "Sobra se pagar tudo" do cartão principal */
-function caixaLivre(me){const t=today(),ym=t.slice(0,7),ents=agendaPessoal(me,dayIn(ymAdd(ym,2),31)).filter(x=>x.k==='rec'&&x.d>t),E=ents[0];
+function caixaLivre(me){const t=today(),ym=t.slice(0,7),ents=agendaPessoal(me,dayIn(ymAdd(ym,2),31)).filter(x=>(x.k==='rec'||x.k==='pendr')&&x.d>t),E=ents[0];
   const fimH=E?addD(E.d,-1):dayIn(ym,31),ag=agendaPessoal(me,fimH>=t?fimH:t).filter(x=>x.d<=fimH||x.d<t);
   const comp=sum(ag.filter(x=>x.v<0),x=>-x.v),entra=sum(ag.filter(x=>x.v>0&&x.d>=t),x=>x.v);return {livre:r2(realBal(me,t)+entra-comp),ate:fimH,prox:E?E.d:''}}
 /* ===================== Margem do mês =====================
