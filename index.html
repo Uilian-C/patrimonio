@@ -2542,10 +2542,12 @@ const nextP=k=>k.endsWith('q1')?k.slice(0,7)+'-q2':ymAdd(k.slice(0,7),1)+'-q1';
 const prevP=k=>k.endsWith('q2')?k.slice(0,7)+'-q1':ymAdd(k.slice(0,7),-1)+'-q2';
 
 /* ---------- motor: movimentos ---------- */
+/* fechou: no modo 'dia do fechamento entra na fatura', a fatura só fecha no dia seguinte */
+const fechou=(c,close,t)=>{t=t||today();return c&&c.fechaInc?t>close:t>=close};
 function baseDue(l,c){
   if(l.fatura)return l.fatura;
   if(!c||!l.data)return (l.data||today()).slice(0,7);
-  const ym=l.data.slice(0,7),day=+l.data.slice(8),f=+c.fechamento||1,v=+c.vencimento||10,close=day<f?ym:ymAdd(ym,1);return v>f?close:ymAdd(close,1);
+  const ym=l.data.slice(0,7),day=+l.data.slice(8),f=+c.fechamento||1,v=+c.vencimento||10,close=(c.fechaInc?day<=f:day<f)?ym:ymAdd(ym,1);return v>f?close:ymAdd(close,1);
 }
 let CACHE=null;
 /* mov = despesas e receitas, uma linha por parcela, com data de caixa (vencimento da fatura ou data do lançamento) */
@@ -5068,7 +5070,7 @@ function cardStats(c){
   const its=movs().filter(i=>i.src==='card'&&i.c===c&&!fatPaga(c.id,i.ym)),sg=i=>i.tipo==='receita'?-i.valor:i.valor;
   const usado=r2(sum(its,sg)),yms=[...new Set(its.filter(i=>i.due>=today()).map(i=>i.ym))].sort(),ym=yms[0]||null;
   const atualIts=ym?its.filter(i=>i.ym<=ym):[],atual=r2(sum(atualIts,sg)),due=ym?dayIn(ym,c.vencimento):'';
-  const closeYm=ym?(+c.vencimento>+c.fechamento?ym:ymAdd(ym,-1)):null,fechada=closeYm?today()>=dayIn(closeYm,c.fechamento):false;
+  const closeYm=ym?(+c.vencimento>+c.fechamento?ym:ymAdd(ym,-1)):null,fechada=closeYm?fechou(c,dayIn(closeYm,c.fechamento)):false;
   const com=r2(sum(its.filter(i=>i.comum),i=>i.valor)),lim=+c.limite||0;
   const pym=ym||baseDue({data:today()},c),prev=r2(sum(fatRecs(c,pym),x=>x.v)),comF=r2(sum(atualIts.filter(i=>i.comum),i=>i.valor)),parteF=r2(c.dono===ME()?atual-comF/2:comF/2);
   const hs=[1,2,3].map(k=>fatTot(c,ymAdd(pym,-k))).filter(v=>v>.005),med3=hs.length?r2(sum(hs,v=>v)/hs.length):0;
@@ -5890,7 +5892,7 @@ function fatTot(c,ym){return r2(sum(movs().filter(i=>i.src==='card'&&i.c===c&&i.
 function fatDatas(c,ym){const due=dayIn(ym,c.vencimento),closeYm=+c.vencimento>+c.fechamento?ym:ymAdd(ym,-1);return {due,close:dayIn(closeYm,c.fechamento)}}
 function openFatHist(c,onPick){
   let y=today().slice(0,4);const t=today(),cm=t.slice(0,7);
-  const info=ym=>{const tot=fatTot(c,ym),pg=fatPaga(c.id,ym),{due,close}=fatDatas(c,ym),st=pg?['ok','paga']:t>due?['crit','vencida']:t>=close?['warn','fechada']:t>=fatDatas(c,ymAdd(ym,-1)).close?['acc','aberta']:['fut','prevista'];return {ym,tot,pg,due,st}};
+  const info=ym=>{const tot=fatTot(c,ym),pg=fatPaga(c.id,ym),{due,close}=fatDatas(c,ym),st=pg?['ok','paga']:t>due?['crit','vencida']:fechou(c,close,t)?['warn','fechada']:fechou(c,fatDatas(c,ymAdd(ym,-1)).close,t)?['acc','aberta']:['fut','prevista'];return {ym,tot,pg,due,st}};
   const row=r=>`<button class="fhr" type="button" data-fym="${r.ym}"><span><strong>${MESL[+r.ym.slice(5)-1]}${r.ym.slice(0,4)!==y||r.st[0]==='fut'?` <small class="fhy">${r.ym.slice(0,4)}</small>`:''}</strong><small>vence ${fdate(r.due).slice(0,5)}</small></span><span class="fhv"><b class="n ${r.tot<.005?'z':''} ${r.st[0]==='fut'?'fut':''}">${brl(r.tot)}</b>${r.tot>.005?`<small class="${r.st[0]}">${r.pg?ic('check'):''}${r.st[1]}</small>`:''}</span></button>`;
   const draw=sh=>{
     const nx=[];for(let k=0;k<18;k++){const ym=ymAdd(cm,k),r=info(ym);if(!r.pg&&r.tot>.005)nx.push(r)}
@@ -5934,7 +5936,7 @@ function openCardDet(c){
   const draw=sh=>{const st=cardStats(c),its=movs().filter(i=>i.src==='card'&&i.c===c&&i.ym===ym).sort((x,y)=>(y.l.data||'').localeCompare(x.l.data||''));
     const FR=fatRecs(c,ym),frT=r2(sum(FR,x=>x.v)),frC=r2(sum(FR.filter(x=>x.com),x=>x.v)),use=FPREV&&FR.length,RC=recsDoCartao(c),rcMes=r2(sum(RC,r=>+r.valor||0));
     const totR=sum(its,i=>i.tipo==='receita'?-i.valor:i.valor),tot=totR+(use?frT:0),com=sum(its.filter(i=>i.comum),i=>i.valor)+(use?frC:0),due=dayIn(ym,c.vencimento),closeYm=+c.vencimento>+c.fechamento?ym:ymAdd(ym,-1),close=dayIn(closeYm,c.fechamento);
-    const paga=fatPaga(c.id,ym),fech=today()>=close,status=paga?['Paga','ok']:today()>due?['Vencida','crit']:fech?['Fechada','warn']:['Aberta','acc'];
+    const paga=fatPaga(c.id,ym),fech=fechou(c,close),status=paga?['Paga','ok']:today()>due?['Vencida','crit']:fech?['Fechada','warn']:['Aberta','acc'];
     const K=fatComp(c,ym,its),cats={};its.filter(i=>i.tipo==='despesa').forEach(i=>{const k=i.l.categoria||'Outros';cats[k]=(cats[k]||0)+i.valor});if(use)FR.forEach(f=>{const k=f.r.categoria||'Assinaturas';cats[k]=(cats[k]||0)+f.v});const ca=Object.entries(cats).sort((a,b)=>b[1]-a[1]).slice(0,4),cmx=ca.length?ca[0][1]:1;
     const cta=conta(c.conta),lk=st.pct>=.9?'var(--crit)':st.pct>=.7?'var(--warn)':'var(--accent)';
     sh.querySelector('#cdx').innerHTML=`
@@ -6297,7 +6299,7 @@ document.addEventListener('click',e=>{const r=e.target.closest&&e.target.closest
 let CYM=null,CPF={c:'',o:'v'};
 function fatInfo(c,ym){const t=today(),its=movs().filter(i=>i.src==='card'&&i.c===c&&i.ym===ym),sg=i=>i.tipo==='receita'?-i.valor:i.valor;
   const tot=r2(sum(its,sg)),com=r2(sum(its.filter(i=>i.comum),i=>i.valor)),due=dayIn(ym,c.vencimento),closeYm=+c.vencimento>+c.fechamento?ym:ymAdd(ym,-1),fecha=dayIn(closeYm,c.fechamento);
-  const paga=fatPaga(c.id,ym),st=tot<.005?'vazia':paga?'paga':due<t?'vencida':t>=fecha?'fechada':'aberta';
+  const paga=fatPaga(c.id,ym),st=tot<.005?'vazia':paga?'paga':due<t?'vencida':fechou(c,fecha,t)?'fechada':'aberta';
   return {c,ym,its,tot,com,parte:r2(c.dono===ME()?tot-com/2:com/2),due,fecha,paga,st}}
 /* painel das compras parceladas: quanto das próximas faturas já está comprometido */
 function parcDash(fut,arr){
@@ -7044,12 +7046,14 @@ function openCard(c){
     <div class="field"><label for="c-q">Fatura paga com</label><select id="c-q">${opts([['auto','Automático: última entrada antes do vencimento'],['q1',Q().q1.nome+' (dia '+Q().q1.dia+')'],['q2',Q().q2.nome+' (dia '+Q().q2.dia+')']],c.quinzena||'auto')}</select></div>
     <p class="note">Nunca guarde o número completo do cartão; o final basta.</p>
     ${corPick(c.cor)}
+    <label class="chk"><input type="checkbox" id="c-fi" ${c.fechaInc?'checked':''}> Compras feitas no dia do fechamento entram na fatura que fecha</label>
+    <p class="note" style="margin-top:-4px">Depende do banco. Desmarcado, a compra do dia do fechamento vai para a fatura seguinte (o “melhor dia de compra”). Vale também para lançamentos já feitos nesse dia.</p>
     <label class="chk"><input type="checkbox" id="c-pd" ${!isNew&&PADR().cartao===c.id?'checked':''}> Cartão padrão para despesas</label>
     <label class="chk"><input type="checkbox" id="c-a" ${c.ativo!==false?'checked':''}> Cartão ativo</label>
     <div class="btnrow"><button class="btn primary" type="submit">Salvar</button>${isNew?'':'<button class="btn danger" type="button" id="cdel">Excluir</button>'}</div></form>`,sh=>{
     wireCor(sh,o);
     sh.querySelector('#fc').onsubmit=async e=>{e.preventDefault();const nome=sh.querySelector('#c-n').value.trim();if(!nome){toast('Dê um nome ao cartão');return}
-      const d={nome,final:sh.querySelector('#c-f').value.replace(/\D/g,'').slice(-4),banco:sh.querySelector('#c-b').value.trim(),dono:sh.querySelector('#c-d').value,fechamento:Math.min(Math.max(+sh.querySelector('#c-fe').value||1,1),31),vencimento:Math.min(Math.max(+sh.querySelector('#c-ve').value||1,1),31),limite:r2(parseFloat(sh.querySelector('#c-l').value)||0),quinzena:sh.querySelector('#c-q').value,bandeira:sh.querySelector('#c-bd').value,conta:sh.querySelector('#c-ct').value,cor:o.cor,ativo:sh.querySelector('#c-a').checked,ordem:c.ordem??S.cards.length};
+      const d={nome,final:sh.querySelector('#c-f').value.replace(/\D/g,'').slice(-4),banco:sh.querySelector('#c-b').value.trim(),dono:sh.querySelector('#c-d').value,fechamento:Math.min(Math.max(+sh.querySelector('#c-fe').value||1,1),31),vencimento:Math.min(Math.max(+sh.querySelector('#c-ve').value||1,1),31),limite:r2(parseFloat(sh.querySelector('#c-l').value)||0),quinzena:sh.querySelector('#c-q').value,bandeira:sh.querySelector('#c-bd').value,conta:sh.querySelector('#c-ct').value,cor:o.cor,ativo:sh.querySelector('#c-a').checked,fechaInc:sh.querySelector('#c-fi').checked,ordem:c.ordem??S.cards.length};
       if(!isNew){const cur=S.cards.find(x=>x.id===c.id);if(cur){const keep=Object.assign({},cur);delete keep.id;Object.keys(d).forEach(k=>keep[k]=d[k]);Object.assign(d,keep)}}
       try{const r=await save('cartoes',isNew?null:c.id,d);const id=isNew?(r&&r.id):c.id,pd=sh.querySelector('#c-pd').checked,P0=PADR();if(id&&(pd!==(P0.cartao===id))){await S.db.doc('config/app').set(Object.assign({},S.cfg||{},{padrao:Object.assign({},P0,{cartao:pd?id:''})}))}closeSheet();toast('Cartão salvo')}catch(err){toast(writeErr(err))}};
     const del=sh.querySelector('#cdel');if(del)confirmBtn(del,S.lanc.some(l=>l.cartao===c.id)?'Tem lançamentos. Toque de novo para excluir':'Toque de novo para excluir',()=>delDoc('cartoes',c.id,'Cartão excluído'));
