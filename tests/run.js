@@ -12,7 +12,7 @@ const EXPOR = ('S ME today ymAdd addD dayIn lastDay realBal saldoConta scopeCont
   'acerto acertoLedger credGab gabId candlesCaixa saidasDia margemCalc planoCalc mesCalc catWatch catMesMap contaMov isCaixa movs ' +
   'parseFrase rvCalc rvIR divSim divLista ORD metaCalc cenBase cenProj baseMes casaCalc pjMes filhoCalc progRet retroCalc semRev ' +
   'openRV openRVIR openCenarios openDividasPlano openCasa openPJ openPontos openFilhos openRetro openPrefs openFrase openSimCompra ' +
-  'openSemana openAjuda openRelMes openMeta openAssessor openInvestDash openSpread openBackups openLanc openTour openBemVindo openAPagar atrasos closeSheet').split(' ');
+  'openSemana openAjuda openRelMes openMeta openAssessor openInvestDash openSpread openBackups openLanc openTour openBemVindo openAPagar atrasos catList closeSheet').split(' ');
 
 function montar(dados) {
   let h = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
@@ -60,6 +60,19 @@ window.__fbSair=()=>{};setTimeout(()=>window.__fbReady(api),0);})();</script>`;
         ok(!r, 'abre ' + fn, r); ok(sw <= 392, 'largura da janela ' + fn, Math.round(sw) + 'px');
         await p.evaluate(() => window.__T.closeSheet(true)); await p.waitForTimeout(120);
       }
+      /* criar categoria e subcategoria pelo lançamento */
+      await p.evaluate(() => window.__T.openLanc(null)); await p.waitForTimeout(400);
+      await p.evaluate(() => document.querySelector('[data-catp]').click()); await p.waitForTimeout(300);
+      await p.evaluate(() => document.querySelector('.cptn').click()); await p.waitForTimeout(200);
+      await p.fill('#cpnn', 'Categoria nova'); await p.evaluate(() => document.querySelector('#cpns').click()); await p.waitForTimeout(500);
+      await p.evaluate(() => document.querySelector('[data-catp]').click()); await p.waitForTimeout(300);
+      await p.evaluate(() => [...document.querySelectorAll('[data-root]')].find(x => x.dataset.root === 'Mercado').click()); await p.waitForTimeout(200);
+      await p.evaluate(() => document.querySelector('.cpr.cpnew').click()); await p.waitForTimeout(200);
+      await p.fill('#cpnn', 'Feira livre'); await p.evaluate(() => document.querySelector('#cpns').click()); await p.waitForTimeout(500);
+      const cn = await p.evaluate(() => { const L = window.__T.catList('despesa'); return [L.some(x => x.nome === 'Categoria nova'), (L.find(x => x.nome === 'Mercado') || {}).subs || [], document.querySelector('[data-catp]').innerText] });
+      ok(cn[0], 'lançamento: cria categoria'); ok(cn[1].includes('Feira livre') && /Feira livre/.test(cn[2]), 'lançamento: cria subcategoria e já usa', JSON.stringify(cn));
+      const sv = await p.evaluate(() => { const r = document.querySelector('.lfoot').getBoundingClientRect(); return Math.round(Math.min(r.bottom, innerHeight) - r.top) }); ok(sv <= 90, 'lançamento: barra de salvar compacta', sv + 'px');
+      await p.evaluate(() => window.__T.closeSheet(true)); await p.waitForTimeout(200);
       /* lançamentos › em atraso */
       await p.evaluate(() => location.hash = 'lanc'); await p.waitForTimeout(400);
       const atv = await p.evaluate(() => { const b = document.querySelector('[data-atrv]'); if (b) b.click(); return !!b }); await p.waitForTimeout(400);

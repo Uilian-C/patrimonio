@@ -556,7 +556,7 @@ svg.frc{width:16px;height:16px;color:var(--faint);transition:transform .2s}.fr.o
 .cbub.lg{width:44px;height:44px}.cbub.lg svg{width:21px;height:21px}.cbub.sm{width:26px;height:26px}.cbub.sm svg{width:14px;height:14px}
 .csub{color:var(--muted);font-weight:400}
 .catrow{display:grid;grid-template-columns:auto minmax(0,1fr) 16px;gap:12px;align-items:center;width:100%;padding:12px 14px;border:1px solid var(--hair);border-radius:18px;background:var(--surface);text-align:left}
-.cpn{display:grid;gap:1px;min-width:0}.cpn small{font-size:12px;color:var(--muted)}.cpn b{font-size:16px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cpnm{display:grid;gap:1px;min-width:0}.cpnm small{font-size:12px;color:var(--muted)}.cpnm b{font-size:16px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .cpk{position:absolute;inset:0;z-index:5;background:var(--surface);border-radius:inherit;display:flex;flex-direction:column;animation:fw .22s cubic-bezier(.2,.8,.2,1)}
 .cpk.out{animation:bwo .18s ease forwards}@keyframes bwo{to{transform:translateX(30px);opacity:0}}
 .cpb{display:grid;grid-template-columns:44px minmax(0,1fr) 44px;align-items:center;padding:10px 10px 8px;border-bottom:1px solid var(--hair)}
@@ -573,7 +573,7 @@ svg.frc{width:16px;height:16px;color:var(--faint);transition:transform .2s}.fr.o
 .cph2{display:flex;align-items:center;gap:12px;padding:14px 2px 6px}.cph2 b{font-size:18px;font-weight:600}
 .cpl{display:grid}
 .cpr{display:grid;grid-template-columns:auto minmax(0,1fr) 20px;gap:12px;align-items:center;padding:11px 2px;border:0;border-top:1px solid var(--hair);background:none;text-align:left;width:100%}
-.cpr:first-child{border-top:0}.cpr .cpn b{font-size:15px;font-weight:500}
+.cpr:first-child{border-top:0}.cpr .cpnm b{font-size:15px;font-weight:500}
 .cpdot{width:10px;height:10px;border-radius:50%;background:var(--cb);margin:0 14px}
 .cpr svg.ic.ok{width:20px;height:20px;color:var(--accent)}
 /* lista de lançamentos com ícone */
@@ -2029,8 +2029,8 @@ nav.tabs .fab{background:var(--fab-bg);box-shadow:0 10px 24px -12px rgba(0,0,0,.
 .wpl{font-size:11.5px;font-weight:650;padding:2px 7px;border-radius:7px;font-variant-numeric:tabular-nums;color:#fff}.wpl.up{background:color-mix(in srgb,var(--good) 85%,#000 0%)}.wpl.dn{background:var(--crit)}.wpl.n0{background:var(--sunk);color:var(--muted)}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .wpl.up,:root:not([data-theme="light"]) .wpl.dn{color:#111}}
 :root[data-theme="dark"] .wpl.up,:root[data-theme="dark"] .wpl.dn{color:#111}
-.sxr .sxv .cpl{display:block;text-align:right}.sxsp{display:grid;justify-items:center;gap:2px}.sxsp svg{width:56px;height:22px;display:block}
-.cpl{display:inline-block;font-size:10.5px;font-weight:650;font-variant-numeric:tabular-nums;margin-top:1px}.cpl.up{color:var(--good)}.cpl.dn{color:var(--crit)}.sxp>span{display:grid}
+.sxr .sxv .cmpl{display:block;text-align:right}.sxsp{display:grid;justify-items:center;gap:2px}.sxsp svg{width:56px;height:22px;display:block}
+.cmpl{display:inline-block;font-size:10.5px;font-weight:650;font-variant-numeric:tabular-nums;margin-top:1px}.cmpl.up{color:var(--good)}.cmpl.dn{color:var(--crit)}.sxp>span{display:grid}
 .wsp svg,.sxsp svg,.wsp .spk,.sxsp .spk{position:static!important;width:100%!important;height:100%!important}.wsp,.sxsp{position:relative}.wsp{height:24px}.sxsp>span:first-child,.sxsp svg{height:22px}
 .mgg>b{position:static!important;margin-top:-4px}
 input.czr{-webkit-appearance:auto!important;appearance:auto!important;height:28px!important;min-height:0!important;border:0!important;background:none!important;box-shadow:none!important;padding:0!important}
@@ -2312,6 +2312,12 @@ html.zm nav.tabs{zoom:var(--unz,1)}
 .atrm{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;border:0;background:none;color:inherit;font:inherit;text-align:left;padding:0;min-width:0}.atrm .lxm b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.atrm .lxm small{font-size:12px;color:var(--muted)}.atrm>.n{font-size:14px;white-space:nowrap}
 .atrq{display:flex;align-items:center;gap:4px;height:34px;padding:0 12px;border-radius:17px;border:0;background:var(--ink);color:var(--surface);font:inherit;font-size:12.5px;font-weight:600;white-space:nowrap}.atrq svg{width:14px;height:14px}.atrq.in{background:var(--good);color:#fff}.atrq.ghost{background:var(--sunk);color:inherit}
 .lxatn{margin:4px 2px 14px}
+.lfoot{grid-template-columns:auto minmax(0,1fr) auto;padding-top:8px;padding-bottom:calc(26px + env(safe-area-inset-bottom,0px));gap:8px}
+.lfab{grid-column:2;width:100%;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;gap:8px;font:inherit;font-size:15.5px;font-weight:650;box-shadow:none}.lfab .ic{width:20px;height:20px}
+.lgh{padding:0 12px;height:48px}.lgh span{display:none}.lgh#ldup{grid-column:3}
+.cpplus{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;border:1.5px dashed color-mix(in srgb,var(--accent,#E2BA6E) 70%,transparent);color:var(--accent,#E2BA6E)}.cpplus .ic{width:18px;height:18px}.cpplus.lg{width:52px;height:52px}.cpplus.lg .ic{width:22px;height:22px}
+.cpnew .cpnm b{color:var(--accent,#E2BA6E)}.cptn span:last-child{color:var(--accent,#E2BA6E)}
+.cpnv{display:grid;gap:10px;padding:16px 2px}.cpnv b{font-size:16px}.cpnv input{font:inherit;font-size:17px;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:var(--tile);color:var(--ink);outline:none}
 </style>
 </head>
 <body>
@@ -6601,7 +6607,7 @@ function confTxt(a){const c=a.conf;if(!c||!c.d)return [esc(a.instituicao||TCONTA
 function confAuto(){Object.entries(CONFREAL).forEach(([id,x])=>{const a=conta(id);if(!a){delete CONFREAL[id];return}if(Math.abs(saldoConta(a)-x.v)<.01){delete CONFREAL[id];if(!(a.conf&&a.conf.d===today()&&Math.abs(a.conf.v-x.v)<.01))markConf(a,x.v)}})}
 /* variação da conta no mês (como a cotação do dia de um ativo) */
 function contaMov(a){const t=today(),d0=dayIn(ymAdd(t.slice(0,7),-1),31),v0=saldoConta(a,d0),v=saldoConta(a),ser=[];for(let k=29;k>=0;k-=3)ser.push(saldoConta(a,addD(t,-k)));return {v0,v,d:r2(v-v0),ser}}
-function contaPill(a){try{const m=contaMov(a);if(Math.abs(m.d)<.5)return '';return `<span class="cpl ${m.d>0?'up':'dn'}">${m.d>0?'▲':'▼'} ${brl0(Math.abs(m.d))} no mês</span>`}catch(e){return ''}}
+function contaPill(a){try{const m=contaMov(a);if(Math.abs(m.d)<.5)return '';return `<span class="cmpl ${m.d>0?'up':'dn'}">${m.d>0?'▲':'▼'} ${brl0(Math.abs(m.d))} no mês</span>`}catch(e){return ''}}
 function saldoContas(me){
   try{confAuto()}catch(e){}
   const cs=S.contas.filter(a=>isCaixa(a)&&fracOf(a.dono,me)>0).map(a=>({a,v:saldoConta(a)})).sort((x,y)=>Math.abs(y.v)-Math.abs(x.v));
@@ -7088,24 +7094,34 @@ const catLabel=(c,s)=>esc(c||'Outros')+(s?` <span class="csub">· ${esc(s)}</spa
 function recentCats(tipo){const seen=new Set(),out=[];S.lanc.slice().sort((a,b)=>(b.criadoEm||b.data||'').localeCompare(a.criadoEm||a.data||'')).forEach(l=>{if((l.tipo||'despesa')!==tipo||!l.categoria)return;const k=l.categoria+'|'+(l.subcategoria||'');if(!seen.has(k)&&out.length<6){seen.add(k);out.push([l.categoria,l.subcategoria||''])}});return out}
 /* seletor: painel sobre o formulário, com busca, recentes e subcategorias */
 function openCatPicker(sh,tipo,cur,onPick){
-  const cats=tipo==='receita'?CATR:CATS;let lvl='',q='';
+  const cats=tipo==='receita'?CATR:CATS;let lvl='',q='',nova=null;
   const el=document.createElement('div');el.className='cpk';sh.appendChild(el);
   const close=()=>{el.classList.add('out');setTimeout(()=>el.remove(),180)};
   const pick=(c,s)=>{onPick(c,s||'');close()};
+  const criar=async(nome,pai)=>{nome=String(nome||'').trim().replace(/\s+/g,' ');if(!nome){toast('Dê um nome');return}nome=nome.charAt(0).toUpperCase()+nome.slice(1);
+    const L=JSON.parse(JSON.stringify(catList(tipo)));
+    if(pai){const c=L.find(x=>x.nome===pai);if(!c)return;const ja=(c.subs||[]).find(x=>norm(x)===norm(nome));if(ja)return pick(pai,ja);c.subs=(c.subs||[]).concat([nome])}
+    else{const ja=L.find(x=>norm(x.nome)===norm(nome));if(ja){if(ja.oculta){ja.oculta=false}else return pick(ja.nome,'')}else L.push({nome,cor:CAT_CORES[L.length%CAT_CORES.length],icone:'tag',subs:[]})}
+    try{await saveCats(tipo,L);applyCats();toast(pai?`Subcategoria “${nome}” criada em ${pai}`:`Categoria “${nome}” criada`);pick(pai||nome,pai?nome:'')}catch(e){toast(writeErr(e))}};
   const render=()=>{
     const nq=norm(q);let body='';
-    if(nq){const hits=[];cats.forEach(c=>{if(norm(c).includes(nq))hits.push([c,'']);subsOf(c).forEach(s=>{if(norm(s).includes(nq))hits.push([c,s])})});
-      body=hits.length?`<div class="cpl">${hits.map(([c,s])=>`<button type="button" class="cpr" data-c="${esc(c)}" data-s="${esc(s)}">${catBubble(c)}<span class="cpn"><b>${esc(s||c)}</b>${s?`<small>${esc(c)}</small>`:''}</span>${cur.cat===c&&(cur.sub||'')===s?ic('check','ok'):''}</button>`).join('')}</div>`:'<p class="note" style="padding:20px 4px">Nenhuma categoria encontrada.</p>';}
+    if(nova){body=`<div class="cpnv"><b>${nova.pai?`Nova subcategoria em ${esc(nova.pai)}`:'Nova categoria'}</b><input id="cpnn" value="${esc(nova.nome||'')}" placeholder="${nova.pai?'Ex.: Feira, Padaria':'Ex.: Obra, Academia'}" autocomplete="off" maxlength="40"><div class="btnrow"><button type="button" class="btn primary" id="cpns">Criar e usar</button><button type="button" class="btn" id="cpnc">Cancelar</button></div><p class="note">${nova.pai?'Aparece dentro da categoria daqui em diante.':'Cor e ícone podem ser trocados depois em Gerenciar.'}</p></div>`}
+    else if(nq){const hits=[];cats.forEach(c=>{if(norm(c).includes(nq))hits.push([c,'']);subsOf(c).forEach(s=>{if(norm(s).includes(nq))hits.push([c,s])})});
+      const exato=cats.some(c=>norm(c)===nq)||(lvl&&subsOf(lvl).some(x=>norm(x)===nq));const mk=exato?'':`<button type="button" class="cpr cpnew" data-nova="${lvl?esc(lvl):''}" data-nn="${esc(q.trim())}"><span class="cpplus">${ic('plus')}</span><span class="cpnm"><b>Criar “${esc(q.trim())}”</b><small>${lvl?'subcategoria em '+esc(lvl):'nova categoria'}</small></span></button>`;
+      body=(hits.length?`<div class="cpl">${mk}${hits.map(([c,s])=>`<button type="button" class="cpr" data-c="${esc(c)}" data-s="${esc(s)}">${catBubble(c)}<span class="cpnm"><b>${esc(s||c)}</b>${s?`<small>${esc(c)}</small>`:''}</span>${cur.cat===c&&(cur.sub||'')===s?ic('check','ok'):''}</button>`).join('')}</div>`:`<div class="cpl">${mk}</div><p class="note" style="padding:12px 4px">Nenhuma categoria com esse nome.</p>`);}
     else if(lvl){const subs=subsOf(lvl);
       body=`<div class="cph2">${catBubble(lvl,'lg')}<b>${esc(lvl)}</b></div><div class="cpl">
-        <button type="button" class="cpr" data-c="${esc(lvl)}" data-s=""><span class="cpdot" style="--cb:${catColor(lvl)}"></span><span class="cpn"><b>Sem subcategoria</b><small>${esc(lvl)} em geral</small></span>${cur.cat===lvl&&!cur.sub?ic('check','ok'):''}</button>
-        ${subs.map(s=>`<button type="button" class="cpr" data-c="${esc(lvl)}" data-s="${esc(s)}"><span class="cpdot" style="--cb:${catColor(lvl)}"></span><span class="cpn"><b>${esc(s)}</b></span>${cur.cat===lvl&&cur.sub===s?ic('check','ok'):''}</button>`).join('')}</div>`;}
+        <button type="button" class="cpr" data-c="${esc(lvl)}" data-s=""><span class="cpdot" style="--cb:${catColor(lvl)}"></span><span class="cpnm"><b>Sem subcategoria</b><small>${esc(lvl)} em geral</small></span>${cur.cat===lvl&&!cur.sub?ic('check','ok'):''}</button>
+        ${subs.map(s=>`<button type="button" class="cpr" data-c="${esc(lvl)}" data-s="${esc(s)}"><span class="cpdot" style="--cb:${catColor(lvl)}"></span><span class="cpnm"><b>${esc(s)}</b></span>${cur.cat===lvl&&cur.sub===s?ic('check','ok'):''}</button>`).join('')}
+        <button type="button" class="cpr cpnew" data-nova="${esc(lvl)}"><span class="cpplus">${ic('plus')}</span><span class="cpnm"><b>Nova subcategoria</b><small>em ${esc(lvl)}</small></span></button></div>`;}
     else{const rec=recentCats(tipo);
       body=`${rec.length?`<div class="cpsh">Recentes</div><div class="cprec">${rec.map(([c,s])=>`<button type="button" class="cpc" data-c="${esc(c)}" data-s="${esc(s)}">${catBubble(c,'sm')}<span>${esc(s||c)}</span></button>`).join('')}</div>`:''}
-        <div class="cpsh">Categorias <button type="button" class="lk cpm" data-cmgr>Gerenciar</button></div><div class="cpg">${cats.map(c=>`<button type="button" class="cpt ${cur.cat===c?'on':''}" data-root="${esc(c)}">${catBubble(c,'lg')}<span>${esc(c)}</span>${subsOf(c).length?`<small>${subsOf(c).length} sub</small>`:''}</button>`).join('')}</div>`;}
+        <div class="cpsh">Categorias <button type="button" class="lk cpm" data-cmgr>Gerenciar</button></div><div class="cpg">${cats.map(c=>`<button type="button" class="cpt ${cur.cat===c?'on':''}" data-root="${esc(c)}">${catBubble(c,'lg')}<span>${esc(c)}</span>${subsOf(c).length?`<small>${subsOf(c).length} sub</small>`:''}</button>`).join('')}<button type="button" class="cpt cptn" data-nova=""><span class="cpplus lg">${ic('plus')}</span><span>Nova categoria</span></button></div>`;}
     el.innerHTML=`<div class="cpb"><button type="button" class="sb-b" data-cpb aria-label="${lvl?'Voltar':'Fechar'}">${ic(lvl?'back':'close')}</button><span class="sb-t">${lvl?esc(lvl):'Categoria'}</span><span></span></div>
       <div class="cps">${ic('search')}<input id="cpq" placeholder="Buscar categoria ou subcategoria" value="${esc(q)}" autocomplete="off"></div><div class="cpbody">${body}</div>`;
-    el.querySelector('[data-cpb]').onclick=()=>{if(lvl&&!q){lvl='';render()}else close()};
+    el.querySelector('[data-cpb]').onclick=()=>{if(nova){nova=null;render()}else if(lvl&&!q){lvl='';render()}else close()};
+    if(nova){const ni=el.querySelector('#cpnn');setTimeout(()=>ni.focus(),60);ni.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();criar(ni.value,nova.pai)}};el.querySelector('#cpns').onclick=()=>criar(ni.value,nova.pai);el.querySelector('#cpnc').onclick=()=>{nova=null;render()};return}
+    el.querySelectorAll('[data-nova]').forEach(b=>b.onclick=()=>{const pai=b.dataset.nova||'',nn=b.dataset.nn;if(nn){criar(nn,pai);return}nova={pai,nome:''};render()});
     const qi=el.querySelector('#cpq');qi.oninput=()=>{q=qi.value;const p=qi.selectionStart;render();const n=el.querySelector('#cpq');n.focus();n.setSelectionRange(p,p)};
     el.querySelectorAll('[data-root]').forEach(b=>b.onclick=()=>{const c=b.dataset.root;if(subsOf(c).length){lvl=c;render();el.querySelector('.cpbody').scrollTop=0}else pick(c,'')});
     el.querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>pick(b.dataset.c,b.dataset.s));
@@ -7467,7 +7483,7 @@ function openLanc(l,opts){
     h+=`</div>`;
     sh.querySelector('#lb').innerHTML=h;
     const sv=sh.querySelector('#lsv');sv.className='lfab lfab-'+col;
-    const updSave=()=>{sv.setAttribute('aria-label',`Salvar ${TIPOS[st.tipo][0].toLowerCase()}${st.valor?' de '+brl(total()):''}`);const hn=sh.querySelector('#l-hint');if(hn)hn.textContent=st.adj&&st.valor?`total ${brl(total())}`:(cardSel&&t==='despesa'&&st.n>1&&isNew&&st.valor?(st.pm==='mul'?`${st.n}x de ${brl(total())} · total ${brl(total()*st.n)}`:`${st.n}x de ${brl(total()/st.n)}`):'')};
+    const updSave=()=>{sv.setAttribute('aria-label',`Salvar ${TIPOS[st.tipo][0].toLowerCase()}${st.valor?' de '+brl(total()):''}`);{const lt=sh.querySelector('#lsvt');if(lt)lt.textContent=st.valor?`Salvar · ${brl(total())}`:'Salvar'}const hn=sh.querySelector('#l-hint');if(hn)hn.textContent=st.adj&&st.valor?`total ${brl(total())}`:(cardSel&&t==='despesa'&&st.n>1&&isNew&&st.valor?(st.pm==='mul'?`${st.n}x de ${brl(total())} · total ${brl(total()*st.n)}`:`${st.n}x de ${brl(total()/st.n)}`):'')};
     updSave();
     const lv=sh.querySelector('#l-v'),fitV=()=>{const cs=getComputedStyle(lv),cx=(window.__mc=window.__mc||document.createElement('canvas').getContext('2d'));cx.font=`${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;lv.style.width=Math.ceil(cx.measureText(lv.value||lv.placeholder||'0,00').width+6)+'px'};fitV();lv.addEventListener('input',fitV);
     const setV=x=>{st.valor=x;lv.value=x?fmtMoney(x):'';updSave();fitV();sh.querySelectorAll('.lseg small')[0]&&st.tipo==='despesa'&&(sh.querySelectorAll('.lseg small')[0].textContent=x?brl(total()/2)+' cada':'metade cada');const ps=sh.querySelector('.lstep');if(ps)draw(sh)};
@@ -7508,7 +7524,7 @@ function openLanc(l,opts){
   };
   const title=l.divida?'Pagamento de dívida':l.tipo==='pagfat'?'Pagar fatura':l.tipo==='ajuste'?'Ajuste de saldo':isNew?'Novo lançamento':'Editar lançamento';
   openSheet(`<h2>${title}</h2><form class="form lform lf3" id="fl" novalidate><div id="lb"></div>
-    <div class="lfoot">${isNew?'':`<button class="lgh" type="button" id="ldel">${ic('trash')}<span>Excluir</span></button>`}<button type="submit" id="lsv" class="lfab">${ic('check')}</button>${isNew?'':`<button class="lgh" type="button" id="ldup">${ic('copy')}<span>Duplicar</span></button>`}</div></form>`,sh=>{
+    <div class="lfoot">${isNew?'':`<button class="lgh" type="button" id="ldel" aria-label="Excluir" title="Excluir">${ic('trash')}<span>Excluir</span></button>`}<button type="submit" id="lsv" class="lfab">${ic('check')}<span id="lsvt">Salvar</span></button>${isNew?'':`<button class="lgh" type="button" id="ldup" aria-label="Duplicar" title="Duplicar">${ic('copy')}<span>Duplicar</span></button>`}</div></form>`,sh=>{
     draw(sh);
     if(isNew&&!st.valor&&!(opts&&opts.nocalc)&&!sh.querySelector('.lat'))setTimeout(()=>{const v=sh.querySelector('#l-v');if(sh.isConnected&&v&&!document.getElementById('calc'))v.click()},300);
     const dup=sh.querySelector('#ldup');if(dup)dup.onclick=()=>{const c=Object.assign({},l);delete c.id;delete c.pend;delete c.venc;delete c.pagoEm;delete c.rec;delete c.recYm;c.data=today();openLanc(c)};
