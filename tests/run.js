@@ -12,7 +12,7 @@ const EXPOR = ('S ME today ymAdd addD dayIn lastDay realBal saldoConta scopeCont
   'acerto acertoLedger credGab gabId candlesCaixa saidasDia margemCalc planoCalc mesCalc catWatch catMesMap contaMov isCaixa movs ' +
   'parseFrase rvCalc rvIR divSim divLista ORD metaCalc cenBase cenProj baseMes casaCalc pjMes filhoCalc progRet retroCalc semRev ' +
   'openRV openRVIR openCenarios openDividasPlano openCasa openPJ openPontos openFilhos openRetro openPrefs openFrase openSimCompra ' +
-  'openSemana openAjuda openRelMes openMeta openAssessor openInvestDash openSpread openBackups openLanc openTour openBemVindo openAPagar atrasos catList projecao relPeriodo mesCalc periodoConta aRealizar recPrevistos fatRecs openMetasKpi KPM caixaLivre openInvestDash openGuardar guardSug guardFeito guardMeta guardNudge openAbater faturasAbertas caixaNoDia realBal fatComp movKind fatTot openCardDet baseDue card closeSheet').split(' ');
+  'openSemana openAjuda openRelMes openMeta openAssessor openInvestDash openSpread openBackups openLanc openTour openBemVindo openAPagar atrasos catList projecao relPeriodo mesCalc periodoConta aRealizar recPrevistos fatRecs openKpi kpiVal openMetasKpi KPM caixaLivre openInvestDash openGuardar guardSug guardFeito guardMeta guardNudge openAbater faturasAbertas caixaNoDia realBal fatComp movKind fatTot openCardDet baseDue card closeSheet').split(' ');
 
 function montar(dados) {
   let h = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
@@ -142,6 +142,12 @@ window.__fbSair=()=>{};setTimeout(()=>window.__fbReady(api),0);})();</script>`;
         const inp = document.querySelector('.kmtr[data-mk="pcta"], .kmtr[data-mk="cdv"] input'); const c = document.querySelector('.kmtr[data-mk="cdv"] input'); c.value = '1,5'; c.dispatchEvent(new Event('input')); await w(1000);
         const r = { m0, v1, pou: T.KPM().pou, cdv: T.KPM().cdv }; document.querySelector('#mk-rs').click(); await w(1000); r.rs = T.KPM().pou; T.closeSheet(); await w(300); return r });
       ok(mk.v1 === '25' && Math.abs(mk.pou - .25) < 1e-9 && Math.abs(mk.cdv - .015) < 1e-9 && Math.abs(mk.rs - .2) < 1e-9, 'metas: + e − e digitação com vírgula salvam sozinhos; padrões voltam', JSON.stringify(mk));
+      const kc = await p.evaluate(async () => { const T = window.__T, w = ms => new Promise(r => setTimeout(r, ms)), K = T.kpiVal(T.ME()), out = {};
+        const num = s => parseFloat(s.replace(/[^\d,−-]/g, '').replace(/\./g, '').replace(',', '.').replace('−', '-'));
+        for (const k of ['pou', 'res', 'com', 'lim', 'end', 'liq', 'dia', 'cdv']) { if (K.v[k] == null) continue; T.openKpi(k); await w(250); const e = document.querySelector('.sheet .kpceq');
+          if (!e) { out[k] = 'sem'; T.closeSheet(); await w(250); continue } const b = [...e.querySelectorAll('b')].map(x => x.innerText); const a = num(b[0]), d = num(b[1]); const v = K.v[k];
+          const calc = ['res', 'liq'].includes(k) ? a / d : k === 'cdv' ? a / d : a / d; out[k] = { a, d, v, ok: Math.abs(calc - v) <= Math.max(.015 * Math.abs(v), .011), grupos: document.querySelectorAll('.sheet .kpcg').length }; T.closeSheet(); await w(250) } return out });
+      ok(Object.keys(kc).length >= 5 && Object.values(kc).every(x => x !== 'sem' && x.ok && x.grupos >= 1), 'painel: cada indicador mostra a conta que forma o número e ela bate', JSON.stringify(kc));
       ok(/Próxima entrada/.test(hx.h) && /A receber teste/.test(hx.h) && /Receita agendada/.test(hx.h), 'início: próxima entrada aparece no resumo (a receber e agendada)', hx.h);
       const pf = await p.evaluate(async () => { const T = window.__T, w = ms => new Promise(r => setTimeout(r, ms)); T.openLanc(null); await w(400);
         const tab = document.querySelector('.sheet [data-tpf]'); if (!tab) return { tab: false }; tab.click(); await w(400);

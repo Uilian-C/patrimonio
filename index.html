@@ -2396,6 +2396,10 @@ main{padding-left:max(10px,env(safe-area-inset-left,0px));padding-right:max(10px
 .kmtn{display:grid;gap:2px;min-width:0}.kmtn b{display:flex;align-items:center;gap:6px;font-size:15px;font-weight:600}.kmtn small{font-size:12px;color:var(--muted)}.kmtn .kmth{color:var(--ink);opacity:.75}
 .kmts{display:flex;align-items:center;gap:4px}.kmtb{width:34px;height:34px;border-radius:10px;border:1px solid var(--line);background:var(--sunk);color:var(--ink);font-size:18px;line-height:1;cursor:pointer}
 .kmti{display:flex;align-items:baseline;gap:3px;padding:0 4px}.kmti input{width:52px;height:34px;border:0;border-bottom:1.5px solid var(--line);border-radius:0;background:none;color:var(--ink);font:inherit;font-size:16px;font-weight:650;text-align:right;padding:0}.kmti input:focus{outline:none;border-bottom-color:var(--accent)}.kmti em{font-style:normal;font-size:11.5px;color:var(--muted);white-space:nowrap;min-width:42px}.kmti input{width:46px}#mk-rs,#mk-ok{flex:1}
+.kpcw{margin:6px 0 12px}.kpcw h3{font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600;margin:0 0 8px}
+.kpceq{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr) auto minmax(0,1fr);gap:6px;align-items:center;padding:12px;border-radius:14px;background:var(--sunk);margin-bottom:12px}.kpceq span{display:grid;gap:2px;min-width:0}.kpceq small{font-size:11px;color:var(--muted);line-height:1.2}.kpceq b{font-size:15px;font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.kpceq i{font-style:normal;color:var(--muted);font-size:16px}.kpceq .r b{color:var(--accent)}
+.kpcg{margin-bottom:12px}.kpcgh{display:flex;justify-content:space-between;align-items:baseline;padding:6px 0;border-bottom:1px solid var(--line);font-size:13.5px;font-weight:600}.kpcgh b{font-weight:650}
+.kpci{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--hair)}.kpci span{display:grid;gap:1px;min-width:0}.kpci span b{font-weight:500;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.kpci small{font-size:12px;color:var(--muted)}.kpci>b{font-size:14px;white-space:nowrap}
 </style>
 <div id="fbgate" hidden><div class="bx"><svg class="lg" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="139 90 228 332"><g transform="translate(-5 0)"><rect x="186" y="100" width="12" height="312" rx="6" fill="currentColor" opacity=".55"/><rect x="164" y="150" width="56" height="210" rx="16" fill="currentColor"/><path d="M244 150h38a70 70 0 0 1 0 140h-38z" fill="#E2BA6E"/></g></svg><h1>Patrimônio</h1><p id="fbmsg">Entre com a sua conta Google para ver as finanças da casa.</p><button type="button" id="fblogin">Entrar com Google</button></div></div>
 <script type="module">
@@ -2881,9 +2885,10 @@ function projecao(pid){
     const cvm=-sum(its.filter(x=>x.k==='cv'),x=>x.v);
     for(let d=d0;d<=end;d=addD(d,1)){cash+=(byD[d]||0);if(cash<min.v)min={d,v:cash}}
     const S_=k=>sum(its.filter(k),x=>x.v);
-    const rec=S_(x=>x.k==='rec'||x.k==='pendr'||(x.k==='agd'&&x.v>0)),fix=-S_(x=>(x.k==='fix'&&!isParc(x))||x.k==='darf'||(x.k==='agd'&&x.v<0)),parc=-S_(x=>isParc(x)),fat=-S_(x=>x.k==='fat'),gab=-S_(x=>x.k==='gab'),ac=S_(x=>x.k==='ac');
-    const sobra=rec-cvm-fix,livre=sobra-parc-fat-gab+ac,pass=passApos(m);
-    rows.push({ym:m,parcial:m===cur,rec,cvm,fix,sobra,parc,fat,gab,ac,livre,cash:r2(cash),pass:r2(pass),pl:r2(cash+outros-pass)});
+    const rec=S_(x=>x.k==='rec'||x.k==='pendr'||(x.k==='agd'&&x.v>0&&x.tp!=='transf')),fix=-S_(x=>(x.k==='fix'&&!isParc(x))||x.k==='darf'||(x.k==='agd'&&x.v<0&&x.tp!=='transf')),parc=-S_(x=>isParc(x)),fat=-S_(x=>x.k==='fat'),gab=-S_(x=>x.k==='gab'),ac=S_(x=>x.k==='ac'),res=S_(x=>x.k==='agd'&&x.tp==='transf');
+    /* res: transferências agendadas (guardar/resgatar) mexem no caixa, mas não são renda nem conta fixa */
+    const sobra=rec-cvm-fix,livre=sobra-parc-fat-gab+ac+res,pass=passApos(m);
+    rows.push({ym:m,parcial:m===cur,rec,cvm,fix,sobra,parc,fat,gab,ac,res,livre,cash:r2(cash),pass:r2(pass),pl:r2(cash+outros-pass),det:m===cur?{rec:its.filter(x=>x.k==='rec'||x.k==='pendr'||(x.k==='agd'&&x.v>0&&x.tp!=='transf')),fix:its.filter(x=>(x.k==='fix'&&!isParc(x))||x.k==='darf'||(x.k==='agd'&&x.v<0&&x.tp!=='transf')),parc:its.filter(isParc),d0}:null});
   }
   const pl0=r2(realBal(pid,t)+outros-passApos(addD(cur+'-01',-1).slice(0,7))),pos=pl0>=0?null:rows.find(r=>r.pl>=0);
   const nx=rows.find(r=>!r.parcial&&r.rec>0)||rows[1]||rows[0],comp=nx&&nx.rec?(nx.parc+nx.fat+nx.gab)/nx.rec:null;
@@ -2922,7 +2927,7 @@ function dreBlock(J){
   const N=v=>`${v<0?'−':''}${brl0(Math.abs(v))}`;
   const R=(r,i)=>{const ini=r2(r.cash-r.livre),op=r.cvm>.005||r.fix>.005;return `<details class="pjx" ${i===0?'open':''}><summary><span><strong>${MESL[+r.ym.slice(5)-1]}${r.parcial?' · de hoje até o fim':''}</strong><small>caixa ${N(ini)} → ${N(r.cash)}</small></span><b class="n ${r.livre<0?'neg':'pos'}">${r.livre<0?'−':'+'}${brl0(Math.abs(r.livre))}</b>${ic('down','chev')}</summary>
     <div class="pjb"><div class="pjl tot"><span>${r.parcial?'Caixa hoje':'Caixa no início'}</span><b class="n">${N(ini)}</b></div>
-    ${L('Receitas',r.rec)}${r.cvm>.005?L('Custo de vida',-r.cvm):''}${r.fix>.005?L('Contas fixas',-r.fix):''}${op?L('Sobra antes das dívidas',r.sobra,'sub'):''}${L('Parcelas e dívidas',-r.parc)}${r.fat>.005?L('Faturas já compradas',-r.fat):''}${Math.abs(r.gab)>.005?L('Repasses',-r.gab):''}${Math.abs(r.ac)>.005?L(r.ac>0?'Acerto · abate o que você repassa':'Acerto · você completa',r.ac):''}
+    ${L('Receitas',r.rec)}${r.cvm>.005?L('Custo de vida',-r.cvm):''}${r.fix>.005?L('Contas fixas',-r.fix):''}${op?L('Sobra antes das dívidas',r.sobra,'sub'):''}${L('Parcelas e dívidas',-r.parc)}${r.fat>.005?L('Faturas já compradas',-r.fat):''}${Math.abs(r.gab)>.005?L('Repasses',-r.gab):''}${Math.abs(r.ac)>.005?L(r.ac>0?'Acerto · abate o que você repassa':'Acerto · você completa',r.ac):''}${Math.abs(r.res||0)>.005?L('Reservas e transferências',r.res):''}
     ${L('Resultado do mês',r.livre,'sub')}
     <div class="pjl tot"><span>Caixa no fim</span><b class="n ${r.cash<0?'neg':''}">${N(r.cash)}</b></div>
     <div class="pjl mu"><span>Patrimônio no fim</span><b class="n ${r.pl<0?'neg':''}">${N(r.pl)}</b></div></div></details>`};
@@ -5696,8 +5701,36 @@ function openMetasKpi(){const me=ME();let K=null;try{K=kpiVal(me)}catch(e){}cons
     sh.querySelector('#mk-rs').onclick=()=>{sh.querySelectorAll('.kmtr').forEach(row=>{const k=row.dataset.mk;set(row,k,D0[k])})};
     sh.querySelector('#mk-ok').onclick=()=>{if(tmr){clearTimeout(tmr);tmr=null;const o={};Object.keys(KPID).forEach(k=>{if(Math.abs(cur[k]-D0[k])>1e-9)o[k]=cur[k]});S.db.doc('config/app').set(Object.assign({},S.cfg||{},{metasKpi:o})).then(()=>toast('Metas salvas')).catch(err=>toast(writeErr(err)))}closeSheet()};
   })}
+/* composição de cada indicador: as parcelas exatas que formam o número */
+function kpiComp(k,me,K){const I=K.I,t=today(),ym=t.slice(0,7),f0=v=>brl(v),it=(n,sub,v,cls)=>`<div class="kpci"><span><b>${esc(n)}</b>${sub?`<small>${sub}</small>`:''}</span><b class="n ${cls||''}">${v}</b></div>`;
+  const grp=(t,tot,L,max)=>{max=max||8;const sh=L.slice(0,max),mais=L.length-sh.length;return `<div class="kpcg"><div class="kpcgh"><span>${t}</span><b class="n">${tot}</b></div>${sh.join('')}${mais>0?`<p class="sdm">+ ${mais} ite${mais===1?'m':'ns'}</p>`:''}</div>`};
+  const eq=(a,op,b,r)=>`<div class="kpceq"><span><small>${a[0]}</small><b class="n">${a[1]}</b></span><i>${op}</i><span><small>${b[0]}</small><b class="n">${b[1]}</b></span><i>=</i><span class="r"><small>resultado</small><b class="n">${r}</b></span></div>`;
+  const agIt=x=>it(x.t||x.desc||'—',fdate(x.e||x.d).slice(0,5)+(x.d<t?' · atrasado':''),f0(Math.abs(x.v)));
+  if(k==='pou'){const ms=mesesOk(ym,3).map(m=>({m,c:mesCalc(m,me)}));if(!ms.length)return '';const rec=sum(ms,x=>x.c.rec),dsp=sum(ms,x=>x.c.desp);
+    return eq(['entrou − saiu',brl0(rec-dsp)],'÷',['entrou',brl0(rec)],kfmt(k,K.v[k]))+grp('Mês a mês',`${ms.length} meses`,ms.map(x=>it(MESL[+x.m.slice(5)-1],`entrou ${brl0(x.c.rec)} · saiu ${brl0(x.c.desp)}`,x.c.rec?Math.round((x.c.rec-x.c.desp)/x.c.rec*100)+'%':'—',x.c.rec-x.c.desp<0?'neg':'')))}
+  if(k==='res'){const R=S.contas.filter(a=>a.ativo!==false&&a.tipo==='reserva'&&fracOf(a.dono,me)>0).map(a=>({a,v:saldoConta(a)*fracOf(a.dono,me)})),rv=sum(R,x=>x.v),ms=mesesOk(ym,3),dm=despMedia(ym,me);
+    return eq(['reservas',brl0(rv)],'÷',['despesa média',brl0(dm)],kfmt(k,K.v[k]))+grp('Reservas',brl(rv),R.map(x=>it(x.a.nome,'saldo de hoje',f0(x.v))))+grp('Despesa por mês',`média ${brl0(dm)}`,ms.map(m=>it(MESL[+m.slice(5)-1],'tudo o que saiu no mês',f0(mesCalc(m,me).desp))))+'<p class="sdm">Só contas do tipo Reserva entram aqui. Investimentos de longo prazo ficam de fora.</p>'}
+  if(k==='com'){const J=projecao(me),r=J.rows[0];if(!r||!r.det)return '';const D=r.det,fx=r.fix,pc=r.parc;
+    return `<p class="sdm">Período: de hoje até ${fdate(dayIn(ym,31)).slice(0,5)} (o que ainda entra e sai no mês).</p>`+eq(['fixos + parcelas',brl0(fx+pc)],'÷',['renda',brl0(r.rec)],kfmt(k,K.v[k]))+grp('Renda que entra',brl(r.rec),D.rec.map(agIt))+grp('Contas fixas',brl(fx),D.fix.map(agIt))+grp('Parcelas',brl(pc),D.parc.map(agIt))+'<p class="sdm">Faturas de cartão não entram aqui: as parcelas de compras no cartão aparecem em Uso do limite.</p>'}
+  if(k==='lim'){const cs=S.cards.filter(c=>c.ativo!==false&&(c.dono||me)===me).map(c=>{try{return cardStats(c)}catch(e){return null}}).filter(x=>x&&x.lim);const u=sum(cs,x=>Math.max(x.usado,0)),l=sum(cs,x=>x.lim);
+    return eq(['usado',brl0(u)],'÷',['limite',brl0(l)],kfmt(k,K.v[k]))+grp('Por cartão',`${cs.length} cartões`,cs.sort((a,b)=>b.usado-a.usado).map(x=>it(x.c.nome,`fatura ${brl0(x.atual)} + futuras ${brl0(x.fut)} · limite ${brl0(x.lim)}`,pctf(Math.max(x.usado,0)/x.lim),x.usado/x.lim>.9?'neg':'')))+'<p class="sdm">Só cartões em seu nome. Usado = tudo lançado e não pago, inclusive parcelas futuras.</p>'}
+  if(k==='end'||k==='liq'){const B=I.B,Pt=I.Pt,y12=ymAdd(ym,11);
+    const atv=grp('Tem (ativo)',brl(B.AT),[it('Contas e benefícios','saldo de hoje',f0(B.at.disp)),it('Reservas e investimentos','saldo de hoje',f0(B.at.apl)),B.at.rec?it('A receber','acertos a seu favor',f0(B.at.rec)):''].filter(Boolean));
+    const fat=Pt.fatCards.map(x=>({n:x.c.nome,v:r2(sum(Object.entries(x.byYm).filter(([y])=>k==='liq'?y<=y12:true),([,v])=>v))})).filter(x=>x.v>.005);
+    const pIt=B.parcIt.map(z=>({n:z.x.nome,v:k==='liq'?z.c:r2(z.c+z.l)})).filter(x=>x.v>.005),dIt=B.divIt.map(z=>({n:z.x.d.nome||'Dívida',v:k==='liq'?z.c:r2(z.c+z.l)})).filter(x=>x.v>.005);
+    const L=[...fat.map(x=>it(x.n,'faturas de cartão',f0(x.v))),...pIt.map(x=>it(x.n,'parcelamento',f0(x.v))),...dIt.map(x=>it(x.n,'dívida',f0(x.v))),...(B.pc.ac?[it('Acertos a pagar','compras comuns',f0(B.pc.ac))]:[])];
+    const den=k==='liq'?B.PC:I.PAS;
+    return (k==='end'?eq(['deve',brl0(den)],'÷',['tem',brl0(B.AT)],kfmt(k,K.v[k])):eq(['tem',brl0(B.AT)],'÷',['vence em 12 meses',brl0(den)],kfmt(k,K.v[k])))+atv+grp(k==='liq'?'Vence em 12 meses (passivo)':'Deve (passivo total)',brl(den),L,10)}
+  if(k==='dia'){const V=K.V;if(!V||!V.ok)return '';
+    return eq(['previsão do mês',brl0(V.prev)],'÷',['mediana',brl0(V.med)],kfmt(k,K.v[k]))+grp('Previsão do mês',brl(V.prev),[it('Gasto até hoje','dia a dia (variáveis)',f0(V.gasto)),it('Resto do mês',`${V.rest} dias × ${brl0(V.porDia)}/dia`,f0(V.restV))])+grp('Meses de referência',`mediana ${brl0(V.med)}`,V.meses.map(x=>it(MESL[+x.ym.slice(5)-1],'gasto do dia a dia',f0(x.v))))}
+  if(k==='ren'){if(I.ret==null)return '<p class="sdm">Precisa de pelo menos 60 dias de rendimentos registrados.</p>';const cdiP=cdiPeriodo(I.de,t);
+    return eq(['seu retorno',(I.ret*100).toLocaleString('pt-BR',{maximumFractionDigits:2})+'%'],'÷',['CDI no período',(cdiP*100).toLocaleString('pt-BR',{maximumFractionDigits:2})+'%'],kfmt(k,K.v[k]))+grp('Seu retorno',`desde ${fdate(I.de).slice(0,5)}`,[it('Rendimentos registrados',`${I.dias} dias`,f0(I.rend)),it('Saldo médio aplicado','média mensal',f0(I.rend/(I.ret||1)))])+'<p class="sdm">Usa só os rendimentos registrados (Reajustar ou “Registrar rendimentos estimados”).</p>'}
+  if(k==='cdv'){if(!I.tx.length)return '';const tv=sum(I.tx,x=>x.v);
+    return eq(['juros × saldo',brl0(sum(I.tx,x=>x.t*x.v))],'÷',['saldo devedor',brl0(tv)],kfmt(k,K.v[k]))+grp('Dívidas com juros',brl(tv),I.tx.sort((a,b)=>b.t-a.t).map(x=>it(x.n,`${(x.t*100).toLocaleString('pt-BR',{maximumFractionDigits:2})}% a.m. · peso ${pctf(x.v/tv)}`,f0(x.v))))}
+  return ''}
 function openKpi(k){const me=ME(),K=kpiVal(me),d=KPID[k],ser=k==='pou'||k==='res'?kpiSerie(me,k,12):[];
   openSheet(`<h2>${d.n}</h2><div class="pnbig"><b class="n">${kfmt(k,K.v[k])}</b><span class="tg ${K.st[k]==='ok'?'ok':K.st[k]==='warn'?'warn':''}">meta ${d.inv?'≥':'≤'} ${kfmt(k,K.M[k])}</span></div><p class="note">${d.d}.</p>
+    ${(()=>{let c='';try{c=kpiComp(k,me,K)}catch(e){console.error('kpiComp',e)}return c?`<div class="kpcw"><h3>Como chegamos nesse número</h3>${c}</div>`:''})()}
     ${ser.length>1?`<div class="cfs">${sparkL(ser,'var(--accent)',320,70)}</div><p class="sdm">últimos ${ser.length} meses completos</p>`:''}
     <p class="note">${{pou:'Recomendação comum: guardar pelo menos 20% do que entra.',res:'Reserva de emergência: de 3 a 12 meses de despesas, conforme a estabilidade da renda.',com:'Acima de 50% da renda em fixos e parcelas, qualquer imprevisto aperta.',lim:'Usar até 30% do limite mantém folga e ajuda no score de crédito.',end:'Passivo acima de metade do ativo indica estrutura alavancada.',liq:'Abaixo de 1x, o que vence em 12 meses é maior do que o que você tem.',dia:'Acima de 100%: o mês caminha para gastar mais que o normal no dia a dia.',ren:'Abaixo de 100% do CDI, o dinheiro rende menos que a referência sem risco.',cdv:'Dívida acima do rendimento das aplicações: antecipar tende a compensar.'}[k]}</p>
     <div class="btnrow"><button class="btn" type="button" id="kp-m">Ajustar metas</button></div>`,sh=>{sh.querySelector('#kp-m').onclick=openMetasKpi})}
@@ -5888,7 +5921,7 @@ function vRel(){document.querySelectorAll('body>.acsel').forEach(x=>x.remove());
       <div class="card"><div class="ch"><h2>Balanço patrimonial</h2></div>${patComp(Pt,me)}</div>
       <p class="note">Linha cheia: meses já registrados. Tracejado: projeção só com o que está registrado (receitas fixas, parcelas, faturas já compradas). Salário futuro não entra no patrimônio de hoje; ele aparece na projeção, mês a mês.</p>`;
   }else if(RP==='fluxo'){
-    const J=projecao(me),rs=J.rows.slice(0,7),ent=r=>r.rec,sai=r=>r.cvm+r.fix+r.parc+r.fat+r.gab-r.ac;
+    const J=projecao(me),rs=J.rows.slice(0,7),ent=r=>r.rec,sai=r=>r.cvm+r.fix+r.parc+r.fat+r.gab-r.ac-(r.res||0);
     h+=`<div class="card"><div class="ch"><h2>Fluxo de caixa projetado</h2></div><div class="fxl"><div class="fxr hd"><span>Hoje</span><b class="n">${brl0(realBal(me,today()))}</b></div>
       ${rs.map(r=>`<div class="fxr"><span><strong>${ymL(r.ym)}</strong><small><span class="pos">+${brl0(ent(r))}</span> · <span class="neg">−${brl0(sai(r))}</span></small></span><b class="n ${r.cash<0?'neg':''}">${brl0(r.cash)}</b></div>`).join('')}</div>
       <details class="fxn"><summary>Como é calculado</summary><p class="note">Caixa no fim = caixa anterior + entradas − saídas. Saídas já líquidas do acerto do casal (compensação, não receita). Mesma conta do Início e do Resultado mês a mês do Patrimônio. Só entra o que está no app: receitas fixas, contas fixas, parcelas, faturas já compradas e pendentes. Cada item sai na data de vencimento; se você paga antes, vale a data do pagamento.</p></details></div>`;
