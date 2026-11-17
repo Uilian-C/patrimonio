@@ -2318,6 +2318,7 @@ html.zm nav.tabs{zoom:var(--unz,1)}
 .cpplus{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;border:1.5px dashed color-mix(in srgb,var(--accent,#E2BA6E) 70%,transparent);color:var(--accent,#E2BA6E)}.cpplus .ic{width:18px;height:18px}.cpplus.lg{width:52px;height:52px}.cpplus.lg .ic{width:22px;height:22px}
 .cpnew .cpnm b{color:var(--accent,#E2BA6E)}.cptn span:last-child{color:var(--accent,#E2BA6E)}
 .cpnv{display:grid;gap:10px;padding:16px 2px}.cpnv b{font-size:16px}.cpnv input{font:inherit;font-size:17px;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:var(--tile);color:var(--ink);outline:none}
+button.dli{width:100%;border:0;border-top:1px solid var(--hair);background:none;color:inherit;font:inherit;text-align:left}
 </style>
 </head>
 <body>
@@ -3949,6 +3950,7 @@ function o4Rows(me){const fs=FILHOS(),P=PJ(),nk=S.cards.filter(c=>c.ativo!==fals
     +row('pontos','spark','Pontos e cashback',nk?`${nk} cart${nk===1?'ão':'ões'} com programa · melhor para gastar agora`:'qual cartão devolve mais')
     +row('assessor','shield','Acesso para assessor',L.length?`${L.length} pessoa${L.length===1?'':'s'} com acesso de leitura`:'leitura sem edição para assessor ou contador')}
 document.addEventListener('click',e=>{if(e.target.closest&&e.target.closest('[data-apagar]'))openAPagar()});
+document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-pli]');if(!b)return;const l=S.lanc.find(z=>z.id===b.dataset.pli);if(l)openLanc(l,{edit:true})});
 document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-o5]');if(!b)return;({prefs:openPrefs,frase:()=>openFrase(),retro:openRetro}[b.dataset.o5]||(()=>{}))()});
 document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-o4]');if(!b)return;const k=b.dataset.o4;({casa:openCasa,filhos:openFilhos,pj:openPJ,pontos:openPontos,assessor:openAssessor}[k]||(()=>{}))()});
 /* ===================== Onda 5: lançar por frase, lembretes, retrospectiva, modo simples, tamanho do texto ===================== */
@@ -5095,7 +5097,7 @@ function lrow(x,showD){
   const ico=O?`<span class="lxi">${ic(O[0])}</span>`:catBubble(l.categoria||'Outros');
   const srcN=x.isC?cardName(x.i.c):l.tipo==='transf'?`${(conta(l.conta)||{}).nome||'—'} → ${(conta(l.destino)||{}).nome||'outra conta'}`:l.tipo==='pagfat'?`${(conta(l.conta)||{}).nome||''} → ${cardName(card(l.cartao))}`:(x.src||{}).nome||'';
   const sub=[O?null:(l.subcategoria||l.categoria||'Outros'),srcN].filter(Boolean).join(' · ');
-  const t0=today(),late=(x.pend||x.prev)&&x.d&&x.d<t0,st=late?`<span class="pq late">em atraso · ${diffD(x.d,t0)}d</span>`:x.pend?'<span class="pq pend">pendente</span>':x.proj?'<span class="pq">prevista</span>':'';
+  const t0=today(),late=(x.pend||x.prev)&&x.d&&x.d<t0,st=late?`<span class="pq late">em atraso · ${diffD(x.d,t0)}d</span>`:x.pend?`<span class="pq pend">${(x.tipo||(x.l&&x.l.tipo))==='receita'?'a receber':'pendente'}</span>`:x.proj?'<span class="pq">prevista</span>':'';
   return `<button type="button" class="lx" data-l="${esc(l.id)}">${ico}<span class="lxm"><b>${esc(descSemParc(l.desc||(O&&O[1])||''))} ${x.i?parcBadge(l.desc,x.i.j,x.i.N):''}${st}</b><small>${showD&&x.d?fdate(x.d).slice(0,5)+(x.d.slice(0,4)!==today().slice(0,4)?'/'+x.d.slice(2,4):'')+' · ':''}${esc(sub)}${x.i&&x.i.comum?' · <span class="cm">Comum</span>':''}${(l.tags||[]).length?' '+l.tags.slice(0,2).map(t=>{const tg=cfg().tags.find(y=>y.nome===t);return `<span class="ltg" style="--tc:${tg?tg.cor:'var(--muted)'}">${esc(t)}</span>`}).join(''):''}</small></span><span class="lxv n ${x.v>0?'pos':''}">${x.v>0?'+':'−'}${brl(Math.abs(x.v))}</span></button>`;
 }
 function vLanc(){
@@ -5700,8 +5702,8 @@ function vRel(){document.querySelectorAll('body>.acsel').forEach(x=>x.remove());
       ${rs.map(r=>`<div class="fxr"><span><strong>${ymL(r.ym)}</strong><small><span class="pos">+${brl0(ent(r))}</span> · <span class="neg">−${brl0(sai(r))}</span></small></span><b class="n ${r.cash<0?'neg':''}">${brl0(r.cash)}</b></div>`).join('')}</div>
       <details class="fxn"><summary>Como é calculado</summary><p class="note">Caixa no fim = caixa anterior + entradas − saídas. Saídas já líquidas do acerto do casal (compensação, não receita). Mesma conta do Início e do Resultado mês a mês do Patrimônio. Só entra o que está no app: receitas fixas, contas fixas, parcelas, faturas já compradas e pendentes. Cada item sai na data de vencimento; se você paga antes, vale a data do pagamento.</p></details></div>`;
     h+=mesCard(me);
-    const pv=recPrevistos(today().slice(0,7),ymAdd(today().slice(0,7),1)).filter(x=>x.dono===me).sort((a,b)=>a.date.localeCompare(b.date));
-    h+=`<div class="card"><div class="ch"><h2>Previstos para confirmar</h2></div>${pv.length?`<div>${pv.map(x=>`<div class="lgr" style="grid-template-columns:minmax(0,1fr) auto auto"><span>${esc(x.nome)}<small>${x.tipo==='receita'?'receita':'despesa'} · ${fdate(x.date).slice(0,5)}</small></span><b class="n ${x.tipo==='receita'?'pos':''}">${x.tipo==='receita'?'+':'−'}${brl(x.valor)}</b><button class="btn sm" type="button" data-cf="${esc(x.r.id)}|${x.ym}">Confirmar</button></div>`).join('')}</div>`:'<p class="note">Nada previsto para este mês e o próximo.</p>'}</div>`;
+    const pv=recPrevistos(today().slice(0,7),ymAdd(today().slice(0,7),1)).filter(x=>x.dono===me).concat(S.lanc.filter(l=>l.pend&&(l.tipo==='receita'||(l.tipo||'despesa')==='despesa')&&l.conta&&fracOf((conta(l.conta)||{}).dono,me)>0&&(l.data||'')<=dayIn(ymAdd(today().slice(0,7),1),31)).map(l=>({nome:l.desc||'Pendente',tipo:l.tipo||'despesa',date:l.data,valor:+l.valor||0,lid:l.id}))).sort((a,b)=>a.date.localeCompare(b.date));
+    h+=`<div class="card"><div class="ch"><h2>Previstos para confirmar</h2></div>${pv.length?`<div>${pv.map(x=>`<div class="lgr" style="grid-template-columns:minmax(0,1fr) auto auto"><span>${esc(x.nome)}<small>${x.tipo==='receita'?'receita':'despesa'} · ${fdate(x.date).slice(0,5)}</small></span><b class="n ${x.tipo==='receita'?'pos':''}">${x.tipo==='receita'?'+':'−'}${brl(x.valor)}</b>${x.lid?`<button class="btn sm" type="button" data-cfl="${esc(x.lid)}">Confirmar</button>`:`<button class="btn sm" type="button" data-cf="${esc(x.r.id)}|${x.ym}">Confirmar</button>`}</div>`).join('')}</div>`:'<p class="note">Nada previsto para este mês e o próximo.</p>'}</div>`;
   }else if(RP==='acertos'){h+=acertosHTML()}
   else if(RP==='salvos'){h+=repListHTML()}
   else if(RP==='rel'){const r=S.reps.find(x=>x.id===RSEL);h+=r?repDashHTML(r):repListHTML()}
@@ -5711,6 +5713,7 @@ function vRel(){document.querySelectorAll('body>.acsel').forEach(x=>x.remove());
   el.querySelectorAll('[data-reg]').forEach(b=>b.onclick=()=>{RREG=b.dataset.reg;LSset('pt-reg',RREG);vRel()});
   el.querySelectorAll('[data-rk]').forEach(b=>b.onclick=()=>{RDS='';openRepDet(RP==='etiquetas'?'tag':'cat',b.dataset.rk,RYM,RREG)});
   el.querySelectorAll('[data-cf]').forEach(b=>b.onclick=()=>{const [id,ym]=b.dataset.cf.split('|');confirmRec(S.recs.find(r=>r.id===id),ym)});
+  el.querySelectorAll('[data-cfl]').forEach(b=>b.onclick=()=>{const l=S.lanc.find(z=>z.id===b.dataset.cfl);if(l)openLanc(l,{edit:true})});
   if(RP==='fluxo')el.querySelectorAll('[data-mym]').forEach(b=>b.onclick=()=>{MYM=ymAdd(MYM,+b.dataset.mym);vRel()});
   wireCommon(el);
 }
@@ -5751,7 +5754,7 @@ function periodoConta(a,ym){
   const d0=ym+'-01',fim=dayIn(ym,31),t=today(),ate=fim<t?fim:t,prev=dayIn(ymAdd(ym,-1),31);
   const L=S.lanc.filter(l=>(l.data||'')>=d0&&(l.data||'')<=fim&&(l.conta===a.id||l.destino===a.id));
   const k={rec:0,tin:0,tout:0,desp:0,fat:0,aj:0};const cats={};
-  L.forEach(l=>{const v=+l.valor||0,tp=l.tipo||'despesa';
+  L.filter(l=>!l.pend&&(l.data||'')<=ate).forEach(l=>{const v=+l.valor||0,tp=l.tipo||'despesa';
     if(l.destino===a.id&&tp==='transf')k.tin+=v;
     else if(tp==='receita')k.rec+=v;else if(tp==='transf')k.tout+=v;else if(tp==='pagfat')k.fat+=v;else if(tp==='ajuste')k.aj+=v;
     else if(tp==='despesa'){k.desp+=v;const c=l.categoria||'Outros';cats[c]=(cats[c]||0)+v}});
@@ -5759,6 +5762,8 @@ function periodoConta(a,ym){
   /* previsto até o fim do mês: fixas desta conta e faturas pagas por ela */
   let prevIn=0,prevOut=0;const it=[];
   if(fim>=t){recPrevistos(ym,ym).filter(x=>x.r.conta===a.id&&x.date>=t).forEach(x=>{if(x.tipo==='receita')prevIn+=x.valor;else prevOut+=x.valor;it.push({d:x.date,t:x.nome,v:x.tipo==='receita'?x.valor:-x.valor})});
+    /* lançamentos desta conta ainda não efetivados: pendentes (inclusive atrasados) e agendados com data futura */
+    S.lanc.filter(l=>(l.conta===a.id||(l.tipo==='transf'&&l.destino===a.id))&&(l.pend?(l.data||'')<=fim:(l.data||'')>t&&(l.data||'')<=fim)).forEach(l=>{const tp=l.tipo||'despesa',inn=tp==='receita'||(tp==='ajuste'&&+l.valor>0)||(tp==='transf'&&l.destino===a.id),v=Math.abs(+l.valor||0);if(inn)prevIn+=v;else prevOut+=v;it.push({d:l.data,t:(l.desc||(tp==='receita'?'Receita':'Despesa'))+(l.pend&&l.data<t?' · em atraso':l.pend?(inn?' · a receber':' · pendente'):''),v:inn?v:-v,id:l.id})});
     S.cards.filter(c=>c.conta===a.id).forEach(c=>{const f=movs().filter(i=>i.c===c&&i.ym===ym&&i.due>=t&&!fatPaga(c.id,ym));const v=sum(f,i=>i.tipo==='receita'?-i.valor:i.valor);if(v>.005){prevOut+=v;it.push({d:f[0].due,t:'Fatura '+c.nome,v:-v})}})}
   return {ym,ini,fin,k,cats,L:L.sort((x,y)=>(y.data||'').localeCompare(x.data||'')),prevIn,prevOut,prevFim:fin+prevIn-prevOut,it:it.sort((x,y)=>x.d.localeCompare(y.d))};
 }
@@ -5803,7 +5808,7 @@ function contaDetHTML(a,ym){
     <details class="cflow" ${CDMOV?'open':''}><summary><span>Saldo inicial <b class="n">${brl(R.ini)}</b></span><span class="n ${dm<0?'neg':'pos'}">${dm>=0?'+':'−'}${brl(Math.abs(dm))}</span>${ic('down','chev')}</summary>
       <div class="cflb">${mv.length?mv.map(([n,x,sg])=>`<div><span>${n}</span><b class="n ${sg==='+'?'pos':''}">${sg}${brl(x)}</b></div>`).join(''):'<div><span>Sem movimentos no mês</span><b></b></div>'}<div class="tt"><span>${cur?'Saldo hoje':'Saldo final'}</span><b class="n">${brl(R.fin)}</b></div></div></details>
     ${rendBox(a)}${invMini(a)}
-    ${R.it.length?`<section class="cds"><div class="cdsh"><h3>Programado até o fim do mês</h3></div><div class="dlist">${R.it.map(x=>`<div class="dli"><span class="n">${fdate(x.d).slice(0,5)}</span><span>${esc(x.t)}</span><b class="n ${x.v>0?'pos':''}">${x.v>0?'+':'−'}${brl(Math.abs(x.v))}</b></div>`).join('')}</div></section>`:''}
+    ${R.it.length?`<section class="cds"><div class="cdsh"><h3>Programado até o fim do mês</h3></div><div class="dlist">${R.it.map(x=>`<${x.id?`button type="button" data-pli="${esc(x.id)}"`:'div'} class="dli"><span class="n ${/em atraso/.test(x.t)?'neg':''}">${fdate(x.d).slice(0,5)}</span><span>${esc(x.t)}</span><b class="n ${x.v>0?'pos':''}">${x.v>0?'+':'−'}${brl(Math.abs(x.v))}</b></${x.id?'button':'div'}>`).join('')}</div></section>`:''}
     <div id="cd-an">${contaRank(R)}${contaEvo(a,ym)}</div>
     <section class="cds" id="cd-ext"><div class="cdsh"><h3>Extrato do mês</h3><small>${R.L.length} movimento${R.L.length===1?'':'s'}</small></div>
       ${(()=>{const ACX=S.acertos.filter(x=>x.conta===a.id&&acD(x)&&acD(x).slice(0,7)===R.ym).map(x=>({id:'',data:acD(x),acx:x}));return R.L.length||ACX.length?(()=>{const days={};R.L.concat(ACX).slice().sort((x,y)=>(y.data||'').localeCompare(x.data||'')).forEach(l=>(days[l.data]=days[l.data]||[]).push(l));return Object.entries(days).map(([d,ls])=>`<div class="cdd"><div class="cddh"><span>${fdate(d)} · ${['domingo','segunda','terça','quarta','quinta','sexta','sábado'][new Date(d+'T12:00:00').getDay()]}</span><span>saldo <b class="n">${brl(saldoConta(a,d))}</b></span></div>${ls.map(l=>{if(l.acx){const x=l.acx,inn=x.para===a.dono,ab=isAbat(x);return `<div class="cdi">${`<span class="cbub sm" style="--cb:var(--good)">${ICN.swap}</span>`}<span class="cdm"><strong>${ab?(abForma(x)==='entrada'?'Entrada · compras comuns':'Abatimento no repasse'):'Acerto com '+esc(other(a.dono).nome.split(' ')[0])}</strong><small>${ab?(abForma(x)==='entrada'?'quitou compras comuns · não é receita':'você transferiu menos · compensa os itens pagos integralmente'):'acerto do casal'}</small></span><b class="n ${inn?'pos':''}">${inn?'+':'−'}${brl(Math.abs(+x.valor||0))}</b></div>`}const inn=(l.destino===a.id&&l.tipo==='transf')||l.tipo==='receita'||(l.tipo==='ajuste'&&l.valor>0);return `<button class="cdi" type="button" data-l="${esc(l.id)}">${l.tipo==='transf'?`<span class="cbub sm" style="--cb:var(--muted)">${ICN.swap}</span>`:l.tipo==='pagfat'?`<span class="cbub sm" style="--cb:var(--accent)">${ICN.card}</span>`:catBubble(l.categoria||'Outros','sm')}<span class="cdm"><strong>${esc(l.desc||({transf:'Transferência',pagfat:'Pagamento de fatura',ajuste:'Ajuste'})[l.tipo]||'')}</strong><small>${esc(l.categoria||({transf:l.destino===a.id?'Transferência recebida':'Transferência enviada',pagfat:'Fatura',ajuste:'Ajuste'})[l.tipo]||'')}${l.pend?' · <span class="warn">pendente</span>':''}</small></span><b class="n ${inn?'pos':''}">${inn?'+':'−'}${brl(Math.abs(+l.valor||0))}</b></button>`}).join('')}</div>`).join('')})():'<p class="note">Nenhum movimento neste mês.</p>'})()}</section>`;
@@ -6289,7 +6294,7 @@ function semCheck(){const me=ME(),t=today(),W=semRev(),R=ROT()[W.k]||{},vis=R.vi
   out.push({k:'pend',ok:!pv.length,t:'Nada vencido em aberto',s:pv.length?`${pv.length} pendente${pv.length>1?'s':''} vencido${pv.length>1?'s':''} · ${brl0(sum(pv,l=>+l.valor||0))}`:'nenhuma pendência atrasada',act:pv.length?'Resolver':''});
   /* 4. próximos 7 dias */
   const ag=agendaPessoal(me,addD(t,7)).filter(x=>x.d>=t),sai=ag.filter(x=>x.v<0),ent=ag.filter(x=>x.v>0),ym=t.slice(0,7);
-  const nc=recPrevistos(ym,ym).filter(x=>x.tipo==='receita'&&x.dono===me&&x.date<t).length;
+  const nc=recPrevistos(ym,ym).filter(x=>x.tipo==='receita'&&x.dono===me&&x.date<t).length+S.lanc.filter(l=>l.pend&&l.tipo==='receita'&&(l.data||'')<t&&fracOf((conta(l.conta)||{}).dono,me)>0).length;
   out.push({k:'prox',ok:!!vis.prox,man:1,t:'Próximos 7 dias',s:`saem ${brl0(-sum(sai,x=>x.v))} (${sai.length})${ent.length?` · entram ${brl0(sum(ent,x=>x.v))}`:''}${nc?` · ${nc} receita${nc>1?'s':''} sem confirmação`:''}`,act:'Ver agenda',sai,ent});
   /* 5. saldos conferidos */
   const acc=S.contas.filter(a=>a.ativo!==false&&['corrente','dinheiro'].includes(a.tipo||'corrente')&&(fracOf(a.dono,me)>0)&&(Math.abs(saldoConta(a))>.005||S.lanc.some(l=>(l.conta===a.id||l.destino===a.id)&&(l.data||'')>=W.ini)));
@@ -6346,7 +6351,7 @@ function openRotinas(){const A=rotAgora(),W=A.W,rs=ROT()[W.k]||{},F=FECH(),cm=to
 /* quinzena que acabou de virar (o salário ou adiantamento acabou de entrar) */
 function qzRev(){const cur=perOf(today()),k=qPrev(cur);return {k,cur,ini:qDate(k),fim:perEnd(k),key:'q:'+k}}
 function qzCheck(){const me=ME(),t=today(),Z=qzRev(),R=ROT()[Z.key]||{},vis=R.vis||{},out=[];
-  const ym=t.slice(0,7),nc=recPrevistos(ymAdd(ym,-1),ym).filter(x=>x.tipo==='receita'&&x.dono===me&&x.date<=t&&x.date>=Z.ini);
+  const ym=t.slice(0,7),nc=recPrevistos(ymAdd(ym,-1),ym).filter(x=>x.tipo==='receita'&&x.dono===me&&x.date<=t&&x.date>=Z.ini).concat(S.lanc.filter(l=>l.pend&&l.tipo==='receita'&&(l.data||'')<=t&&(l.data||'')>=Z.ini&&fracOf((conta(l.conta)||{}).dono,me)>0).map(l=>({nome:l.desc||'Receita',valor:+l.valor||0,date:l.data})));
   out.push({k:'rec',ok:!nc.length,t:'Receitas confirmadas',s:nc.length?nc.map(x=>`${x.nome} ${brl0(x.valor)} (${fdate(x.date).slice(0,5)})`).join(' · ')+' sem confirmação':'salário e entradas confirmados',act:nc.length?'Confirmar':''});
   const pv=S.lanc.filter(l=>l.pend&&(l.venc||l.data||'')<=Z.fim);
   out.push({k:'pend',ok:!pv.length,t:'Contas da quinzena pagas',s:pv.length?`${pv.length} em aberto até ${fdate(Z.fim).slice(0,5)} · ${brl0(sum(pv,l=>+l.valor||0))}`:'nada em aberto',act:pv.length?'Resolver':''});

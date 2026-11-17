@@ -12,7 +12,7 @@ const EXPOR = ('S ME today ymAdd addD dayIn lastDay realBal saldoConta scopeCont
   'acerto acertoLedger credGab gabId candlesCaixa saidasDia margemCalc planoCalc mesCalc catWatch catMesMap contaMov isCaixa movs ' +
   'parseFrase rvCalc rvIR divSim divLista ORD metaCalc cenBase cenProj baseMes casaCalc pjMes filhoCalc progRet retroCalc semRev ' +
   'openRV openRVIR openCenarios openDividasPlano openCasa openPJ openPontos openFilhos openRetro openPrefs openFrase openSimCompra ' +
-  'openSemana openAjuda openRelMes openMeta openAssessor openInvestDash openSpread openBackups openLanc openTour openBemVindo openAPagar atrasos catList projecao relPeriodo mesCalc closeSheet').split(' ');
+  'openSemana openAjuda openRelMes openMeta openAssessor openInvestDash openSpread openBackups openLanc openTour openBemVindo openAPagar atrasos catList projecao relPeriodo mesCalc periodoConta closeSheet').split(' ');
 
 function montar(dados) {
   let h = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
@@ -128,6 +128,10 @@ window.__fbSair=()=>{};setTimeout(()=>window.__fbReady(api),0);})();</script>`;
         eq('plano: renda = mês', T.planoCalc(ym, me).renda, T.mesCalc(ym, me).rec);
         eq('categorias: alerta = mapa', sum(T.catWatch(me, ym), x => x.v), sum(Object.values(T.catMesMap(ym, me)), v => v), 1);
         T.S.contas.filter(a => T.isCaixa(a)).forEach(a => eq('extrato da conta ' + a.nome, T.contaMov(a).v, T.saldoConta(a)));
+        T.S.contas.filter(a => T.isCaixa(a)).forEach(a => { const R = T.periodoConta(a, ym), k = R.k;
+          eq('resumo da conta ' + a.nome + ': inicial + movimentos = hoje', R.ini + k.rec + k.tin - k.tout - k.desp - k.fat + k.aj, R.fin);
+          eq('resumo da conta ' + a.nome + ': hoje + programado = previsto', R.fin + sum(R.it, x => x.v), R.prevFim) });
+        { const fl = T.S.lanc.find(l => l.desc === 'Férias teste'); if (fl) { const R = T.periodoConta(T.S.contas.find(a => a.id === fl.conta), fl.data.slice(0, 7)); is(R.it.some(x => x.id === fl.id), 'resumo da conta: receita a receber aparece no programado') } }
         /* casa = soma das pessoas */
         const K = T.casaCalc(); eq('casa: caixa = soma', K.cx, sum(K.R, x => x.cx)); eq('casa: sobra = soma', K.rec - K.desp, sum(K.R, x => x.M.rec - x.M.desp));
         { const pr = T.S.lanc.filter(l => l.pend && l.tipo === 'receita' && l.data > t && l.data.slice(0, 7) === ym); if (pr.length) { const M = T.mesCalc(ym, me); is(M.recP >= sum(pr, l => +l.valor) - .01, 'mês: receita a receber conta como prevista', M.recP + '') } }
