@@ -2319,6 +2319,8 @@ html.zm nav.tabs{zoom:var(--unz,1)}
 .cpnew .cpnm b{color:var(--accent,#E2BA6E)}.cptn span:last-child{color:var(--accent,#E2BA6E)}
 .cpnv{display:grid;gap:10px;padding:16px 2px}.cpnv b{font-size:16px}.cpnv input{font:inherit;font-size:17px;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:var(--tile);color:var(--ink);outline:none}
 button.dli{width:100%;border:0;border-top:1px solid var(--hair);background:none;color:inherit;font:inherit;text-align:left}
+.pente{fill:var(--good)}.pfute{fill:none;stroke:var(--good);stroke-dasharray:2 2}.pvl{font-size:8.5px;fill:var(--muted);text-anchor:middle;font-variant-numeric:tabular-nums}.pvle{fill:var(--good)}.pvh{font-weight:700;fill:var(--ink)!important}
+.pfutI{display:inline-block;width:10px;height:10px;border:1.5px dashed var(--muted);border-radius:2px;margin-right:4px;vertical-align:middle}
 </style>
 </head>
 <body>
@@ -2657,7 +2659,7 @@ function fluxo(per,pid){
 }
 /* saldos */
 function saldoConta(a,ate){
-  let s=+a.saldoIni||0;const lim=ate||'9999';
+  let s=+a.saldoIni||0;const lim=ate||today();
   S.lanc.forEach(l=>{if((l.data||'')>lim||l.pend)return;const t=l.tipo||'despesa',v=+l.valor||0;
     if(l.conta===a.id){if(t==='receita'||t==='ajuste')s+=v;else if(t==='despesa'||t==='transf'||t==='pagfat')s-=v}
     if(t==='transf'&&l.destino===a.id)s+=v});
@@ -2805,7 +2807,7 @@ function projecao(pid){
     const cvm=-sum(its.filter(x=>x.k==='cv'),x=>x.v);
     for(let d=d0;d<=end;d=addD(d,1)){cash+=(byD[d]||0);if(cash<min.v)min={d,v:cash}}
     const S_=k=>sum(its.filter(k),x=>x.v);
-    const rec=S_(x=>x.k==='rec'||x.k==='pendr'),fix=-S_(x=>(x.k==='fix'&&!isParc(x))||x.k==='darf'),parc=-S_(x=>isParc(x)),fat=-S_(x=>x.k==='fat'),gab=-S_(x=>x.k==='gab'),ac=S_(x=>x.k==='ac');
+    const rec=S_(x=>x.k==='rec'||x.k==='pendr'||(x.k==='agd'&&x.v>0)),fix=-S_(x=>(x.k==='fix'&&!isParc(x))||x.k==='darf'||(x.k==='agd'&&x.v<0)),parc=-S_(x=>isParc(x)),fat=-S_(x=>x.k==='fat'),gab=-S_(x=>x.k==='gab'),ac=S_(x=>x.k==='ac');
     const sobra=rec-cvm-fix,livre=sobra-parc-fat-gab+ac,pass=passApos(m);
     rows.push({ym:m,parcial:m===cur,rec,cvm,fix,sobra,parc,fat,gab,ac,livre,cash:r2(cash),pass:r2(pass),pl:r2(cash+outros-pass)});
   }
@@ -2900,6 +2902,10 @@ function agendaPessoal(pid,ate,de,o){
   const pids=new Set(S.contas.filter(a=>!isBen(a)&&fracOf(a.dono,pid)>0).map(a=>a.id));
   S.lanc.filter(l=>l.pend&&(l.tipo||'despesa')==='despesa'&&pids.has(l.conta)&&(l.data||'')<=ate).forEach(l=>out.push({k:'pend',d:l.data,t:l.desc||'Pendente',s:l.data<t?'pendente · em atraso':'pendente',v:-(+l.valor||0)*fracOf((conta(l.conta)||{}).dono,pid),cor:'var(--warn)',nav:'l:'+l.id}));
   S.lanc.filter(l=>l.pend&&l.tipo==='receita'&&pids.has(l.conta)&&(l.data||'')<=ate).forEach(l=>out.push({k:'pendr',d:l.data,t:l.desc||'Receita pendente',s:l.data<t?'a receber · em atraso':'a receber',v:(+l.valor||0)*fracOf((conta(l.conta)||{}).dono,pid),cor:'var(--good)',nav:'l:'+l.id}));
+  {const tt=today(),sc=new Set(scopeContas(pid).map(a=>a.id)),fr=id=>fracOf((conta(id)||{}).dono,pid);
+    S.lanc.forEach(l=>{const d=l.data||'';if(l.pend||d<=tt||d<t||d>ate)return;const tp=l.tipo||'despesa',v=+l.valor||0,o=sc.has(l.conta),i=tp==='transf'&&sc.has(l.destino);let x=0;
+      if(tp==='transf'){if(o&&!i)x=-v*fr(l.conta);else if(i&&!o)x=v*fr(l.destino)}else if(o){x=(tp==='receita'||tp==='ajuste'?v:-v)*fr(l.conta)}
+      if(Math.abs(x)>=.005)out.push({k:'agd',tp,d,t:l.desc||(tp==='receita'?'Receita':tp==='transf'?'Transferência':tp==='pagfat'?'Pagamento de fatura':'Despesa'),s:tp==='receita'?'agendada · entra nesta data':'agendado',v:x,cor:x>0?'var(--good)':'var(--warn)',nav:'l:'+l.id})})}
   try{rvDarfAberto(pid).forEach(m=>{const d=m.venc<t?t:m.venc;if(d<=ate)out.push({k:'darf',d,t:'DARF renda variável · '+ymS(m.ym),s:m.venc<t?'em atraso · código 6015':'código 6015',v:-m.pagar,cor:'var(--warn)',nav:'rvir:'+m.ym})})}catch(e){}
   /* acerto do casal: na mesma data em que entra no repasse (relatório Pagar), para os dois números baterem */
   if(pid===ME()&&gabId()){try{const on=other(pid).nome;gabItems().filter(x=>x.acerto&&!x.paid&&qDate(nextP(x.acerto))<=ate&&Math.abs(x.v)>.005).forEach(x=>out.push({k:'ac',d:qDate(nextP(x.acerto)),t:'Acerto com '+on,s:x.v<0?'você recebe':'você transfere',v:-x.v,cor:'var(--g)',nav:'ac:'+x.acerto}))}catch(e){}}
@@ -2930,7 +2936,7 @@ function mesFluxo(ym,pid){
     else if(tp==='transf'){const o=ids.has(l.conta),i=ids.has(l.destino);if(o&&!i)R.res-=v*fr(l.conta);else if(i&&!o)R.res+=v*fr(l.destino)}});
   R.ac=acAdj(pid,fim>t?t:fim,dayIn(ini,31))+sum(S.acertos.filter(x=>{const d=acD(x);return x.conta&&ids.has(x.conta)&&d&&d>=d0&&d<=(fim>t?t:fim)}),x=>(x.para===(conta(x.conta)||{}).dono?1:-1)*(+x.valor||0)*fr(x.conta));
   /* previsto no mês (a partir de hoje) */
-  const ag=agAll.filter(x=>x.d>=d0&&x.d<=fim),Pv={rec:sum(ag.filter(x=>x.k==='rec'||x.k==='pendr'),x=>x.v)+sum(agAll.filter(x=>x.k==='pendr'&&x.d<d0),x=>x.v),desp:-sum(ag.filter(x=>x.k==='fix'||x.k==='div'||x.k==='pend'||x.k==='darf'),x=>x.v)-sum(agAll.filter(x=>(x.k==='pend'||x.k==='darf')&&x.d<d0),x=>x.v),fat:-sum(ag.filter(x=>x.k==='fat'),x=>x.v),ac:sum(ag.filter(x=>x.k==='ac'||x.k==='abt'),x=>x.v),cv:sum(ag.filter(x=>x.k==='cv'),x=>x.v),gab:sum(ag.filter(x=>x.k==='gab'),x=>x.v)+sum(agAll.filter(x=>x.k==='gab'&&x.d<d0),x=>x.v)};
+  const ag=agAll.filter(x=>x.d>=d0&&x.d<=fim),isA=(x,tp)=>x.k==='agd'&&(Array.isArray(tp)?tp.includes(x.tp):x.tp===tp),Pv={rec:sum(ag.filter(x=>x.k==='rec'||x.k==='pendr'||isA(x,'receita')),x=>x.v)+sum(agAll.filter(x=>x.k==='pendr'&&x.d<d0),x=>x.v),desp:-sum(ag.filter(x=>x.k==='fix'||x.k==='div'||x.k==='pend'||x.k==='darf'||isA(x,'despesa')),x=>x.v)-sum(agAll.filter(x=>(x.k==='pend'||x.k==='darf')&&x.d<d0),x=>x.v),fat:-sum(ag.filter(x=>x.k==='fat'||isA(x,'pagfat')),x=>x.v),res:sum(ag.filter(x=>isA(x,'transf')),x=>x.v),aj:sum(ag.filter(x=>isA(x,'ajuste')),x=>x.v),ac:sum(ag.filter(x=>x.k==='ac'||x.k==='abt'),x=>x.v),cv:sum(ag.filter(x=>x.k==='cv'),x=>x.v),gab:sum(ag.filter(x=>x.k==='gab'),x=>x.v)+sum(agAll.filter(x=>x.k==='gab'&&x.d<d0),x=>x.v)};
   const final=projAt(fim);
   /* série diária */
   const nd=lastDay(ym),serie=[];for(let i=1;i<=nd;i++){const d=ym+'-'+pad(i);serie.push({d,v:projAt(d),real:d<=t})}
@@ -2977,8 +2983,8 @@ function mesCard(me){
       ${row('Dia a dia','custo de vida estimado',0,F.Pv.cv||0)}
       ${row('Repasses','para '+esc(other(me).nome),0,F.Pv.gab||0)}
       ${row('Acerto','com '+esc(other(me).nome),F.R.ac,F.Pv.ac)}
-      ${row('Reservas','aportes e resgates',F.R.res,0)}
-      ${row('Ajustes','correções',F.R.aj,0)}
+      ${row('Reservas','aportes e resgates',F.R.res,F.Pv.res||0)}
+      ${row('Ajustes','correções',F.R.aj,F.Pv.aj||0)}
       <span class="tt"><b>${F.past?'Saldo final':'Saldo previsto'}</b><small>vira para ${nxt}</small></span><span class="tt"></span><span class="tt"></span><b class="n tt ${F.final<0?'neg':''}">${brl0(F.final)}</b></div>
     ${F.past?'':`<div class="stx"><span class="k">Situação das saídas do mês</span><div class="stb">${st.filter(x=>x[1]>.5).map(x=>`<i style="flex:${x[1]/tot};background:${x[2]}"></i>`).join('')}</div>
       <div class="stl">${st.map(x=>`<button type="button" class="sti" data-st="${x[0]}"><span><i style="background:${x[2]}"></i>${x[0]}</span><b class="n">${brl0(x[1])}</b><small>${pctf(x[1]/tot)}</small></button>`).join('')}</div></div>`}
@@ -3114,7 +3120,7 @@ function rvGo(nav){const [k,v]=String(nav||'').split(/:(.*)/s);
     else if(k==='dv')openDividaDet(S.dividas.find(d=>d.id===v));else if(k==='ac')openAcerto(v);else if(k==='ab'){const r=S.reps.find(isAcRep);if(r){RSEL=r.id;RP='rel';ROFF=0}else RP='salvos';go('relatorios')}
     else if(k==='rec'){const [id,ym]=v.split('|');const r=S.recs.find(x=>x.id===id);if(r)openPagarG({prev:{r,date:recDia(r,ym),ym,nome:recNome(r,ym)},desc:recNome(r,ym),v:+r.valor||0,due:recDia(r,ym),paid:false,cat:r.categoria||'Outros'})}}
 /* lista do "A pagar" do topo: o que está em atraso primeiro, item por item */
-function openAPagar(){const draw=sh=>{const me=ME(),t=today(),ym=t.slice(0,7),ents=agendaPessoal(me,dayIn(ymAdd(ym,2),31)).filter(x=>(x.k==='rec'||x.k==='pendr')&&x.d>t),E=ents[0],fimH=E?addD(E.d,-1):dayIn(ym,31);
+function openAPagar(){const draw=sh=>{const me=ME(),t=today(),ym=t.slice(0,7),ents=agendaPessoal(me,dayIn(ymAdd(ym,2),31)).filter(x=>(x.k==='rec'||x.k==='pendr'||(x.k==='agd'&&x.v>0))&&x.d>t),E=ents[0],fimH=E?addD(E.d,-1):dayIn(ym,31);
     const out=agendaPessoal(me,fimH>=t?fimH:t).filter(x=>(x.d<=fimH||x.d<t)&&x.v<0);{const sp=new Set(out.map(x=>x.nav+x.d));try{mesFluxo(ym,me).venc.forEach(x=>{if(x.d<t&&x.v<0&&!sp.has(x.nav+x.d)){sp.add(x.nav+x.d);out.push(x)}})}catch(e){}}out.sort((a,b)=>a.d.localeCompare(b.d)||a.v-b.v),atr=out.filter(x=>x.d<t),hj=out.filter(x=>x.d===t),fut=out.filter(x=>x.d>t);
     const row=x=>{const n=diffD(x.d,t),late=x.d<t;return `<button type="button" class="rvr ${late?'late':x.d===t?'now':''}" data-ap="${esc(x.nav||'')}"><span class="rvd"><b>${String(+x.d.slice(8)).padStart(2,'0')}</b><small>${MES[+x.d.slice(5,7)-1]}</small></span><span class="lxm"><b>${esc(x.t)}</b><small>${late?`<span class="neg">venceu há ${n} dia${n===1?'':'s'}</span> · `:x.d===t?'<span class="warn">vence hoje</span> · ':''}${esc(String(x.s||'').replace(/ · em atraso$/,''))}</small></span><span class="rvv"><b class="n ${late?'neg':''}">${brl(-x.v)}</b><small>${x.k==='pend'?'Pagar':x.k==='fat'?'Ver fatura':x.k==='ac'?'Acertar':'Ver'} ›</small></span></button>`};
     const sec=(tt,L,cls)=>L.length?`<section class="aps"><div class="apsh ${cls||''}"><b>${tt}</b><span class="n">${brl(sum(L,x=>-x.v))} · ${L.length} ite${L.length===1?'m':'ns'}</span></div><div class="rvl">${L.map(row).join('')}</div></section>`:'';
@@ -3169,7 +3175,7 @@ function heroComp(F,me,ym){
   const nxt=MESL[+ymAdd(ym,1).slice(5)-1].toLowerCase(),t=today(),N0=v=>Math.round(Math.abs(v)).toLocaleString('pt-BR'),Sg=v=>Math.abs(v)<.5?'0':(v<0?'−':'+')+N0(v);
   const R=F.R,Pv=F.Pv,gn=esc(other(me).nome.split(' ')[0]);
   const past=[['Receitas',R.rec],['Despesas',-R.desp],['Faturas pagas',-R.fat],['Acerto com '+gn,R.ac],['Reservas',R.res],['Ajustes',R.aj]].filter(x=>Math.abs(x[1])>=.5);
-  const fut=[['Receitas',Pv.rec],['Despesas',-Pv.desp],['Faturas',-Pv.fat],['Dia a dia (estimado)',Pv.cv||0],['Repasses para '+gn,Pv.gab||0],[Pv.ac>0?'Acerto · abate repasses':'Acerto · você completa',Pv.ac]].filter(x=>Math.abs(x[1])>=.5);
+  const fut=[['Receitas',Pv.rec],['Despesas',-Pv.desp],['Faturas',-Pv.fat],['Dia a dia (estimado)',Pv.cv||0],['Repasses para '+gn,Pv.gab||0],[Pv.ac>0?'Acerto · abate repasses':'Acerto · você completa',Pv.ac],['Reservas e transferências',Pv.res||0],['Ajustes agendados',Pv.aj||0]].filter(x=>Math.abs(x[1])>=.5);
   const dv=F.balHoje-F.inicial,cl=v=>v<0?'hzm':'hzp';
   const tot=F.efet+sum(F.venc,x=>-x.v)+sum(F.prox,x=>-x.v)+sum(F.dist,x=>-x.v)||1;
   const st=[['Efetivadas',F.efet,'var(--hero-good)'],['Vencidas',sum(F.venc,x=>-x.v),'var(--hero-neg)'],['Próx. 7 dias',sum(F.prox,x=>-x.v),'var(--hero-warn)'],['Mais adiante',sum(F.dist,x=>-x.v),'var(--hero-line2)']];
@@ -3189,7 +3195,7 @@ function heroComp(F,me,ym){
 }
 document.addEventListener('toggle',e=>{const d=e.target;if(d&&d.classList&&d.classList.contains('hcomp'))try{localStorage.setItem('pt-hx',d.open?'1':'0')}catch(_){}},true);
 function iniHero(X){
-  const {me,t,ym,saldo}=X,ents=agendaPessoal(me,dayIn(ymAdd(ym,2),31)).filter(x=>(x.k==='rec'||x.k==='pendr')&&x.d>t),E=ents[0];
+  const {me,t,ym,saldo}=X,ents=agendaPessoal(me,dayIn(ymAdd(ym,2),31)).filter(x=>(x.k==='rec'||x.k==='pendr'||(x.k==='agd'&&x.v>0))&&x.d>t),E=ents[0];
   const fimH=E?addD(E.d,-1):dayIn(ym,31),ag=agendaPessoal(me,fimH>=t?fimH:t).filter(x=>x.d<=fimH||x.d<t);
   const out=ag.filter(x=>x.v<0);{const sp=new Set(out.map(x=>x.nav+x.d));(X.F&&X.F.venc||[]).forEach(x=>{if(x.d<t&&x.v<0&&!sp.has(x.nav+x.d)){sp.add(x.nav+x.d);out.push(x)}})}
   const atr=out.filter(x=>x.d<t),comp=sum(out,x=>-x.v),cAtr=sum(atr,x=>-x.v),entra=sum(ag.filter(x=>x.v>0&&x.d>=t),x=>x.v);
@@ -3283,7 +3289,7 @@ function watchHTML(me,ym){const W=catWatch(me,ym),hasBase=mesesOk(ym,3).length>0
     <div class="wtabs">${[['ativo','Todas'],['altas','Maiores altas'],['baixas','Maiores baixas']].map(([k,l])=>`<button type="button" data-wtab="${k}" aria-pressed="${tab===k}" ${!hasBase&&k!=='ativo'?'disabled title="precisa de 1 mês completo de histórico"':''}>${l}</button>`).join('')}</div>
     ${!hasBase?'<p class="note wnb">Altas e baixas liberam com 1 mês completo de histórico. Por enquanto, os gastos do mês por categoria.</p>':''}${L.length?`<div class="wl">${watchRows(L.slice(0,8),hasBase?'':'nb')}</div>`:'<p class="note">Nada fora da média por enquanto.</p>'}</div>`}
 /* sobra de caixa até a próxima entrada de receita: a mesma conta do "Sobra se pagar tudo" do cartão principal */
-function caixaLivre(me){const t=today(),ym=t.slice(0,7),ents=agendaPessoal(me,dayIn(ymAdd(ym,2),31)).filter(x=>(x.k==='rec'||x.k==='pendr')&&x.d>t),E=ents[0];
+function caixaLivre(me){const t=today(),ym=t.slice(0,7),ents=agendaPessoal(me,dayIn(ymAdd(ym,2),31)).filter(x=>(x.k==='rec'||x.k==='pendr'||(x.k==='agd'&&x.v>0))&&x.d>t),E=ents[0];
   const fimH=E?addD(E.d,-1):dayIn(ym,31),ag=agendaPessoal(me,fimH>=t?fimH:t).filter(x=>x.d<=fimH||x.d<t);
   const comp=sum(ag.filter(x=>x.v<0),x=>-x.v),entra=sum(ag.filter(x=>x.v>0&&x.d>=t),x=>x.v);return {livre:r2(realBal(me,t)+entra-comp),ate:fimH,prox:E?E.d:''}}
 /* ===================== Margem do mês =====================
@@ -5097,7 +5103,7 @@ function lrow(x,showD){
   const ico=O?`<span class="lxi">${ic(O[0])}</span>`:catBubble(l.categoria||'Outros');
   const srcN=x.isC?cardName(x.i.c):l.tipo==='transf'?`${(conta(l.conta)||{}).nome||'—'} → ${(conta(l.destino)||{}).nome||'outra conta'}`:l.tipo==='pagfat'?`${(conta(l.conta)||{}).nome||''} → ${cardName(card(l.cartao))}`:(x.src||{}).nome||'';
   const sub=[O?null:(l.subcategoria||l.categoria||'Outros'),srcN].filter(Boolean).join(' · ');
-  const t0=today(),late=(x.pend||x.prev)&&x.d&&x.d<t0,st=late?`<span class="pq late">em atraso · ${diffD(x.d,t0)}d</span>`:x.pend?`<span class="pq pend">${(x.tipo||(x.l&&x.l.tipo))==='receita'?'a receber':'pendente'}</span>`:x.proj?'<span class="pq">prevista</span>':'';
+  const t0=today(),late=(x.pend||x.prev)&&x.d&&x.d<t0,st=late?`<span class="pq late">em atraso · ${diffD(x.d,t0)}d</span>`:x.pend?`<span class="pq pend">${(x.tipo||(x.l&&x.l.tipo))==='receita'?'a receber':'pendente'}</span>`:x.proj?'<span class="pq">prevista</span>':(x.d&&x.d>t0&&x.src!=='card'&&!(x.l&&x.l.cartao))?'<span class="pq">agendado</span>':'';
   return `<button type="button" class="lx" data-l="${esc(l.id)}">${ico}<span class="lxm"><b>${esc(descSemParc(l.desc||(O&&O[1])||''))} ${x.i?parcBadge(l.desc,x.i.j,x.i.N):''}${st}</b><small>${showD&&x.d?fdate(x.d).slice(0,5)+(x.d.slice(0,4)!==today().slice(0,4)?'/'+x.d.slice(2,4):'')+' · ':''}${esc(sub)}${x.i&&x.i.comum?' · <span class="cm">Comum</span>':''}${(l.tags||[]).length?' '+l.tags.slice(0,2).map(t=>{const tg=cfg().tags.find(y=>y.nome===t);return `<span class="ltg" style="--tc:${tg?tg.cor:'var(--muted)'}">${esc(t)}</span>`}).join(''):''}</small></span><span class="lxv n ${x.v>0?'pos':''}">${x.v>0?'+':'−'}${brl(Math.abs(x.v))}</span></button>`;
 }
 function vLanc(){
@@ -5108,7 +5114,7 @@ function vLanc(){
   const ent=sum(its.filter(x=>x.kind==='receita'),x=>x.v),sai=-sum(its.filter(x=>x.kind==='despesa'),x=>x.v),af=lfActive(),entP=sum(its.filter(x=>x.kind==='receita'&&(x.prev||x.pend)),x=>x.v),saiP=-sum(its.filter(x=>x.kind==='despesa'&&(x.prev||x.pend)),x=>x.v);
   let h=`<div class="lxh">
     <div class="lxm2">${(LF.per||'mes')==='mes'||LF.per==='ano'||LF.per==='m3'||LF.per==='m12'?`<button class="navb" type="button" data-m="-1" aria-label="Mês anterior">‹</button>`:'<span></span>'}<b>${(()=>{const R=lfYms();if(!R)return MESL[+LF.ym.slice(5)-1]+(LF.ym.slice(0,4)!==t.slice(0,4)?' '+LF.ym.slice(0,4):'');if(LF.per==='ano')return 'Ano de '+LF.ym.slice(0,4);if(LF.per==='tudo')return 'Todo o período';return `${MES[+R[0].slice(5)-1]}/${R[0].slice(2,4)} – ${MES[+R[1].slice(5)-1]}/${R[1].slice(2,4)}`})()}</b>${(LF.per||'mes')!=='tudo'?`<button class="navb" type="button" data-m="1" aria-label="Próximo mês">›</button>`:'<span></span>'}</div>
-    ${(()=>{const cx=(LF.per||'mes')==='mes'&&!af.filter(f=>f[0]!=='sit'||LF.sit!=='atr').length;if(cx){try{const F=mesFluxo(LF.ym,ME()),R=F.R,Pv=F.Pv,res=F.final-F.inicial,eN=R.rec+Pv.rec,oth=(R.ac||0)+(Pv.ac||0)+(R.res||0)+(R.aj||0)+(Pv.cv||0)+(Pv.gab||0),sN=eN+oth-res,ac=(R.ac||0)+(Pv.ac||0);
+    ${(()=>{const cx=(LF.per||'mes')==='mes'&&!af.filter(f=>f[0]!=='sit'||LF.sit!=='atr').length;if(cx){try{const F=mesFluxo(LF.ym,ME()),R=F.R,Pv=F.Pv,res=F.final-F.inicial,eN=R.rec+Pv.rec,oth=(R.ac||0)+(Pv.ac||0)+(R.res||0)+(R.aj||0)+(Pv.res||0)+(Pv.aj||0)+(Pv.cv||0)+(Pv.gab||0),sN=eN+oth-res,ac=(R.ac||0)+(Pv.ac||0);
       return `<div class="lxs"><span><small>Entradas</small><b class="n pos">+${brl0(eN)}</b>${Pv.rec>.5?`<em class="lxp">${brl0(Pv.rec)} previsto</em>`:''}</span><span><small>Saídas</small><b class="n neg">−${brl0(sN)}</b>${Pv.desp+Pv.fat>.5?`<em class="lxp">${brl0(Pv.desp+Pv.fat)} em aberto</em>`:''}</span><span><small>Resultado</small><b class="n ${res<0?'neg':''}">${res<0?'−':'+'}${brl0(Math.abs(res))}</b>${Math.abs(ac)>.5?`<em class="lxp">${ac>0?'+':'−'}${brl0(Math.abs(ac))} acerto</em>`:''}</span></div>
       <p class="lxcx">Caixa do mês, sua parte · faturas pelo vencimento · vira para ${MES[+ymAdd(LF.ym,1).slice(5)-1]} com <b class="n">${brl0(F.final)}</b></p>`}catch(e){console.error(e)}}
       return `<div class="lxs"><span><small>Entradas</small><b class="n pos">+${brl0(ent)}</b>${entP>.5?`<em class="lxp">${brl0(entP)} previsto</em>`:''}</span><span><small>Saídas</small><b class="n neg">−${brl0(sai)}</b>${saiP>.5?`<em class="lxp">${brl0(saiP)} em aberto</em>`:''}</span><span><small>Resultado</small><b class="n ${ent-sai<0?'neg':''}">${ent-sai<0?'−':'+'}${brl0(Math.abs(ent-sai))}</b></span></div>${af.length||(LF.per||'mes')!=='mes'?'<p class="lxcx">Soma dos lançamentos filtrados (valor cheio, compras pela data)</p>':''}`})()}
@@ -5602,7 +5608,11 @@ function relPeriodo(me){const R=PRK==='pers'?{a:PRA||addD(today(),-29),b:PRB||to
   sp.forEach(x=>{const its=D.its.filter(i=>{const d=D.dOf(i);return d>=x.a&&d<=x.b});x.s=r2(sum(its.filter(i=>i.tipo==='despesa'),D.v));x.e=r2(sum(its.filter(i=>i.tipo==='receita'&&i.src==='conta'),D.v));if(FU&&FU.ag&&x.b>tt){const g=FU.ag.filter(y=>y.d>=x.a&&y.d<=x.b);x.s=r2(x.s-sum(g.filter(y=>y.v<0),y=>y.v));x.e=r2(x.e+sum(g.filter(y=>y.v>0),y=>y.v))}});
   const W=330,H=140,pad=12,n=sp.length,gx=(W-pad*2)/n,bw=Math.max(2,Math.min(24,gx*.6)),mx=Math.max(...sp.map(x=>Math.max(x.s,x.e)),1),Y=v=>H-22-v/mx*(H-40),t=today();
   const step=n>16?Math.ceil(n/8):1;
-  const bars=sp.map((x,i)=>{const X=pad+gx*i+(gx-bw)/2;return `<rect x="${X}" y="${Y(x.s)}" width="${bw}" height="${Math.max(H-22-Y(x.s),0)}" rx="2" class="${x.a>t?'pfut':'sfe'}"/>${x.e>0?`<rect x="${X+bw*.25}" y="${Y(x.e)}" width="${bw*.5}" height="3" rx="1.5" class="pent"/>`:''}${i%step===0||i===n-1?`<text x="${X+bw/2}" y="${H-6}" class="sfl">${x.l}</text>`:''}`}).join('');
+  const kf=v=>v>=1000?(v/1000).toLocaleString('pt-BR',{maximumFractionDigits:1})+'k':String(Math.round(v)),lab=n<=16;
+  const bars=sp.map((x,i)=>{const X=pad+gx*i+(gx-bw)/2,hw=Math.max(bw/2-1,1.5),fu=x.a>t,hj=x.a<=t&&x.b>=t,hs=Math.max(H-22-Y(x.s),0),he=Math.max(H-22-Y(x.e),0);
+    return `${x.s>0?`<rect x="${X}" y="${Y(x.s)}" width="${hw}" height="${hs}" rx="2" class="${fu?'pfut':'sfe'}"/>`:''}${x.e>0?`<rect x="${X+hw+2}" y="${Y(x.e)}" width="${hw}" height="${he}" rx="2" class="${fu?'pfute':'pente'}"/>`:''}
+      ${lab&&x.s>0?`<text x="${X+hw/2}" y="${Y(x.s)-3}" class="pvl">${kf(x.s)}</text>`:''}${lab&&x.e>0?`<text x="${X+hw*1.5+2}" y="${Y(x.e)-3}" class="pvl pvle">${kf(x.e)}</text>`:''}
+      ${i%step===0||i===n-1||hj?`<text x="${X+bw/2}" y="${H-6}" class="sfl ${hj?'pvh':''}">${x.l}</text>`:''}`}).join('');
   /* categorias com variação */
   const cs=Object.keys({...D.cats,...E.cats}).map(c=>({c,a:r2(D.cats[c]||0),b:r2(E.cats[c]||0)})).filter(x=>x.a>0).sort((x,y)=>y.a-x.a).slice(0,8),cmx=Math.max(...cs.map(x=>x.a),1);
   const top=D.its.filter(i=>i.tipo==='despesa').map(i=>({i,v:D.v(i)})).filter(x=>x.v>0).sort((x,y)=>y.v-x.v).slice(0,5);
@@ -5614,7 +5624,7 @@ function relPeriodo(me){const R=PRK==='pers'?{a:PRA||addD(today(),-29),b:PRB||to
       <div class="prk3"><div><small>Entradas${parc?' até hoje':''}</small><b class="n pos">${brl0(D.ent)}</b>${dl(D.ent,E.ent)}${FU&&FU.ent>0?`<small class="rsd mu">+ ${brl0(FU.ent)} previstos até ${fdate(R.b).slice(0,5)}</small>`:''}</div><div><small>Saídas${parc?' até hoje':''}</small><b class="n">${brl0(D.sai)}</b>${dl(D.sai,E.sai,1)}${FU&&FU.sai>0?`<small class="rsd mu">+ ${brl0(FU.sai)} previstos até ${fdate(R.b).slice(0,5)}</small>`:''}</div><div><small>Resultado</small><b class="n ${D.res<0?'neg':'pos'}">${D.res<0?'−':''}${brl0(Math.abs(D.res))}</b>${dl(D.res,E.res)}${FU&&(FU.ent||FU.sai)?(()=>{const f=r2(D.res+FU.ent-FU.sai);return `<small class="rsd mu">≈ ${f<0?'−':''}${brl0(Math.abs(f))} até ${fdate(R.b).slice(0,5)}</small>`})():''}</div></div>
       <p class="mgn">${parc?`Período em andamento: comparado com os primeiros ${el0} dia${el0>1?'s':''} do período anterior.`:'Comparado com o período anterior.'} ${esp?`Dia a dia: <b class="n">${brl0(D.vari)}</b> ${D.vari>esp*1.05?`<b class="neg">acima</b> do normal (≈ ${brl0(esp)})`:D.vari<esp*.95?`<b class="pos">abaixo</b> do normal (≈ ${brl0(esp)})`:`dentro do normal (≈ ${brl0(esp)})`}.`:''}</p>
       <svg viewBox="0 0 ${W} ${H}" class="sfc prch" role="img" aria-label="Saídas por ${R.sub.slice(0,-1)}">${bars}</svg>
-      <div class="sfg"><span><i class="sfe"></i>saídas por ${R.sub==='dias'?'dia':R.sub==='semanas'?'semana':'mês'}</span><span><i class="pentI"></i>entradas</span></div>
+      <div class="sfg"><span><i class="sfe"></i>saídas por ${R.sub==='dias'?'dia':R.sub==='semanas'?'semana':'mês'}</span><span><i class="pentI" style="height:10px;width:8px;border-radius:2px"></i>entradas</span>${FU?'<span><i class="pfutI"></i>previsto</span>':''}</div>
       ${cs.length?`<div class="prcs"><div class="vch"><span>Categoria</span><span>No período</span><span>vs anterior</span></div>${cs.map(x=>{const d=x.a-x.b;return `<button type="button" class="vcr" data-wcat="${esc(x.c)}"><span class="vcn">${catBubble(x.c,'sm')}<span><b>${esc(x.c)}</b><small>${pctf(D.sai?x.a/D.sai:0)} das saídas</small></span></span><span class="n">${brl0(x.a)}</span><span class="n vcp ${Math.abs(d)<1||!cmpOk?'':d>0?'neg':'pos'}">${!cmpOk?'—':x.b?(d>0?'▲ ':'▼ ')+brl0(Math.abs(d)):'novo'}</span><span class="vcb"><i class="g" style="width:${x.a/cmx*100}%"></i></span></button>`}).join('')}</div>`:''}
       ${top.length?`<div class="prtop"><small>Maiores saídas</small>${top.map(x=>`<button type="button" class="ivar" data-ul="${esc(x.i.l.id)}"><i style="background:var(--accent,#E2BA6E)"></i><span class="ivam"><b>${esc(descSemParc(x.i.l.desc||''))}</b><small>${fdate(D.dOf(x.i)).slice(0,5)} · ${esc(x.i.l.categoria||'Outros')}</small></span><span class="ivav"><b class="n">${brl(x.v)}</b></span></button>`).join('')}</div>`:''}
     </div>`}

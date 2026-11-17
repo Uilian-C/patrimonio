@@ -45,6 +45,11 @@ function fixture(hoje) {
   }
   /* compra parcelada antiga e uma nova */
   add({ tipo: 'despesa', cartao: 'roxo', data: dayIn(ymAdd(ym, -3), 15), valor: 3600, desc: 'Geladeira', categoria: 'Casa', parcelas: 10, parcela: 1, divisao: 'comum' });
+  /* agendados: efetivados com data futura (não contam no saldo de hoje, entram na projeção) */
+  add({ tipo: 'receita', conta: 'cc', data: addD(t, 2), valor: 777, desc: 'Receita agendada', categoria: 'Renda extra' });
+  add({ tipo: 'despesa', conta: 'cc', data: addD(t, 1), valor: 123, desc: 'Boleto agendado', categoria: 'Casa' });
+  add({ tipo: 'transf', conta: 'cc', destino: 'res', data: addD(t, 3), valor: 200, desc: 'Guardar agendado' });
+  add({ tipo: 'receita', conta: 'cc', data: addD(t, 2), valor: 500, desc: 'A receber teste', categoria: 'Renda extra', pend: true });
   add({ tipo: 'despesa', cartao: 'lar', data: addD(t, -2), valor: 900, desc: 'Passagem', categoria: 'Viagem', parcelas: 3, parcela: 1, tags: ['viagem'] });
   /* faturas já vencidas pagas: pagamento pelo total da fatura (calculado no teste pelo próprio app seria circular; aqui usamos o valor aproximado) */
   const recs = [

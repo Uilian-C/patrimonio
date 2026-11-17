@@ -115,7 +115,7 @@ window.__fbSair=()=>{};setTimeout(()=>window.__fbReady(api),0);})();</script>`;
         for (const m of [T.ymAdd(ym, -1), ym, T.ymAdd(ym, 1)]) {
           const F = T.mesFluxo(m, me), Q = F.R;
           if (F.cur) { eq(m + ' início + realizado = hoje', F.inicial + Q.rec - Q.desp - Q.fat + Q.ac + Q.res + Q.aj, F.balHoje); eq(m + ' hoje + agenda = fim', F.balHoje + sum(T.agendaPessoal(me, T.dayIn(m, 31), t, { cv: 1 }), x => x.v), F.final) }
-          if (F.cur) { const P = F.Pv; eq(m + ' quadro: hoje + a realizar = previsto', F.balHoje + P.rec - P.desp - P.fat + P.ac + (P.cv || 0) + (P.gab || 0), F.final) }
+          if (F.cur) { const P = F.Pv; eq(m + ' quadro: hoje + a realizar = previsto', F.balHoje + P.rec - P.desp - P.fat + P.ac + (P.cv || 0) + (P.gab || 0) + (P.res || 0) + (P.aj || 0), F.final) }
           if (F.past) eq(m + ' passado início + realizado = fim', F.inicial + Q.rec - Q.desp - Q.fat + Q.ac + Q.res + Q.aj, F.final);
           eq(m + ' fim = início do seguinte', F.final, T.mesFluxo(T.ymAdd(m, 1), me).inicial);
         }
@@ -135,6 +135,11 @@ window.__fbSair=()=>{};setTimeout(()=>window.__fbReady(api),0);})();</script>`;
         /* casa = soma das pessoas */
         const K = T.casaCalc(); eq('casa: caixa = soma', K.cx, sum(K.R, x => x.cx)); eq('casa: sobra = soma', K.rec - K.desp, sum(K.R, x => x.M.rec - x.M.desp));
         { const pr = T.S.lanc.filter(l => l.pend && l.tipo === 'receita' && l.data > t && l.data.slice(0, 7) === ym); if (pr.length) { const M = T.mesCalc(ym, me); is(M.recP >= sum(pr, l => +l.valor) - .01, 'mês: receita a receber conta como prevista', M.recP + '') } }
+        { const fut = T.S.lanc.filter(l => (l.data || '') > t && ['Receita agendada', 'Boleto agendado', 'Guardar agendado', 'A receber teste'].includes(l.desc));
+          const fimAg = fut.reduce((m, l) => l.data > m ? l.data : m, t), AG = T.agendaPessoal(me, fimAg);
+          fut.forEach(l => is(AG.some(x => x.nav === 'l:' + l.id), 'agenda inclui ' + l.desc));
+          const cc = T.S.contas.find(a => a.id === 'cc'); eq('saldo de hoje não conta agendados', T.saldoConta(cc), T.saldoConta(cc, t));
+          const ymF = T.ymAdd(ym, 0), F2 = T.mesFluxo(fimAg.slice(0, 7), me); is(F2.final !== undefined, 'fluxo do mês com agendados') }
         const AT = T.atrasos(me); is(AT.pag.every(x => x.d < t && x.v < 0) && AT.rec.every(x => x.d < t && x.v > 0), 'atrasos: só o que já venceu'); eq('atrasos: total', AT.tp, sum(AT.pag, x => -x.v));
         /* frase */
         const f1 = T.parseFrase('mercado 182,40 no roxo ontem'); is(f1.valor === 182.4 && f1.cartao === 'roxo' && f1.data === T.addD(t, -1) && f1.categoria === 'Mercado', 'frase: valor, cartão, data e categoria', JSON.stringify(f1));
