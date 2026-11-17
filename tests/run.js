@@ -12,7 +12,7 @@ const EXPOR = ('S ME today ymAdd addD dayIn lastDay realBal saldoConta scopeCont
   'acerto acertoLedger credGab gabId candlesCaixa saidasDia margemCalc planoCalc mesCalc catWatch catMesMap contaMov isCaixa movs ' +
   'parseFrase rvCalc rvIR divSim divLista ORD metaCalc cenBase cenProj baseMes casaCalc pjMes filhoCalc progRet retroCalc semRev ' +
   'openRV openRVIR openCenarios openDividasPlano openCasa openPJ openPontos openFilhos openRetro openPrefs openFrase openSimCompra ' +
-  'openSemana openAjuda openRelMes openMeta openAssessor openInvestDash openSpread openBackups openLanc openTour openBemVindo openAPagar atrasos catList projecao relPeriodo mesCalc periodoConta aRealizar closeSheet').split(' ');
+  'openSemana openAjuda openRelMes openMeta openAssessor openInvestDash openSpread openBackups openLanc openTour openBemVindo openAPagar atrasos catList projecao relPeriodo mesCalc periodoConta aRealizar recPrevistos closeSheet').split(' ');
 
 function montar(dados) {
   let h = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
@@ -79,7 +79,7 @@ window.__fbSair=()=>{};setTimeout(()=>window.__fbReady(api),0);})();</script>`;
       const fut = await p.evaluate(() => window.__T.addD(window.__T.today(), 3));
       const casos = [
         ['despesa na conta', { tipo: 'despesa', conta: 'cc' }, ['Descrição', 'Categoria', 'Pago com', 'Repetir lançamento', 'Divisão'], { pg: true, chips: 3 }],
-        ['despesa no cartão', { tipo: 'despesa', cartao: 'roxo' }, ['Descrição', 'Categoria', 'Pago com', 'Repetir lançamento', 'Divisão'], { pg: false, chips: 2 }],
+        ['despesa no cartão', { tipo: 'despesa', cartao: 'roxo' }, ['Descrição', 'Categoria', 'Pago com', 'Repetir lançamento', 'Divisão'], { pg: false, chips: 3 }],
         ['receita na conta', { tipo: 'receita', conta: 'cc' }, ['Descrição', 'Categoria', 'Entrou em', 'Repetir lançamento'], { pg: true, chips: 2 }],
         ['transferência', { tipo: 'transf', conta: 'cc', destino: 'res' }, ['De', 'Para', 'Descrição'], { pg: false, chips: 0 }]];
       for (const [nome, pre, secs, exp] of casos) {
@@ -91,6 +91,14 @@ window.__fbSair=()=>{};setTimeout(()=>window.__fbReady(api),0);})();</script>`;
         ok(r.chips === exp.chips, 'formulário ' + nome + ': opções de repetir', String(r.chips));
         await p.evaluate(() => window.__T.closeSheet(true)); await p.waitForTimeout(150);
       }
+      /* assinatura no cartão: fixo mensal cria a recorrência no cartão e o mês seguinte já prevê a cobrança */
+      await p.evaluate(() => window.__T.openLanc({ tipo: 'despesa', cartao: 'roxo', desc: 'Assinatura teste', valor: 21.9, categoria: 'Assinaturas' })); await p.waitForTimeout(350);
+      await p.evaluate(() => document.querySelector('#overlay [data-rep="fixo"]').click()); await p.waitForTimeout(200);
+      await p.evaluate(() => document.querySelector('#lsv').click()); await p.waitForTimeout(600);
+      const ass = await p.evaluate(() => { const T = window.__T, r = T.S.recs.find(x => x.nome === 'Assinatura teste'), l = T.S.lanc.find(x => x.desc === 'Assinatura teste'), ym = T.today().slice(0, 7);
+        return { r: r && { cartao: r.cartao, valor: r.valor, conta: r.conta }, l: l && { cartao: l.cartao, rec: !!l.rec }, prox: r ? T.recPrevistos(T.ymAdd(ym, 1), T.ymAdd(ym, 1)).some(x => x.r.id === r.id) : false } });
+      ok(ass.r && ass.r.cartao === 'roxo' && !ass.r.conta && ass.l && ass.l.cartao === 'roxo' && ass.l.rec && ass.prox, 'cartão: fixo mensal cria recorrência no cartão', JSON.stringify(ass));
+      await p.evaluate(() => window.__T.closeSheet(true)); await p.waitForTimeout(150);
       /* receita com data futura nasce "a receber" e é salva como pendente */
       await p.evaluate(fut => window.__T.openLanc({ tipo: 'receita', conta: 'cc', data: fut, desc: 'Férias teste', valor: 1000, categoria: 'Salário' }), fut); await p.waitForTimeout(350);
       const rf = await p.evaluate(() => { const g = document.querySelector('#l-pg'); return g ? !g.checked : null });
