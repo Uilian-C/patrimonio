@@ -2392,6 +2392,10 @@ main{padding-left:max(10px,env(safe-area-inset-left,0px));padding-right:max(10px
 .hgd{white-space:nowrap;display:inline-flex;align-items:center;gap:5px;margin-top:8px;padding:6px 11px;border-radius:99px;border:1px solid color-mix(in srgb,#9FEBC6 45%,transparent);background:color-mix(in srgb,#9FEBC6 12%,transparent);color:#9FEBC6;font:inherit;font-size:12.5px;font-weight:600;cursor:pointer}.hgd svg{width:13px;height:13px}
 .gdn{display:flex;gap:12px;align-items:flex-start}.gdn>div{display:grid;gap:3px;min-width:0}.gdn small{font-size:12.5px;color:var(--muted)}.gdnb{display:flex;gap:14px;align-items:center;margin-top:6px}.gdnb .btn{flex:0 0 auto}
 .pngd{padding:0;margin-top:4px;font-size:13px;justify-self:start;text-align:left}
+.kmtl{display:grid}.kmtr{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;padding:12px 0;border-top:1px solid var(--hair)}.kmtr:first-child{border-top:0}
+.kmtn{display:grid;gap:2px;min-width:0}.kmtn b{display:flex;align-items:center;gap:6px;font-size:15px;font-weight:600}.kmtn small{font-size:12px;color:var(--muted)}.kmtn .kmth{color:var(--ink);opacity:.75}
+.kmts{display:flex;align-items:center;gap:4px}.kmtb{width:34px;height:34px;border-radius:10px;border:1px solid var(--line);background:var(--sunk);color:var(--ink);font-size:18px;line-height:1;cursor:pointer}
+.kmti{display:flex;align-items:baseline;gap:3px;padding:0 4px}.kmti input{width:52px;height:34px;border:0;border-bottom:1.5px solid var(--line);border-radius:0;background:none;color:var(--ink);font:inherit;font-size:16px;font-weight:650;text-align:right;padding:0}.kmti input:focus{outline:none;border-bottom-color:var(--accent)}.kmti em{font-style:normal;font-size:11.5px;color:var(--muted);white-space:nowrap;min-width:42px}.kmti input{width:46px}#mk-rs,#mk-ok{flex:1}
 </style>
 <div id="fbgate" hidden><div class="bx"><svg class="lg" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="139 90 228 332"><g transform="translate(-5 0)"><rect x="186" y="100" width="12" height="312" rx="6" fill="currentColor" opacity=".55"/><rect x="164" y="150" width="56" height="210" rx="16" fill="currentColor"/><path d="M244 150h38a70 70 0 0 1 0 140h-38z" fill="#E2BA6E"/></g></svg><h1>Patrimônio</h1><p id="fbmsg">Entre com a sua conta Google para ver as finanças da casa.</p><button type="button" id="fblogin">Entrar com Google</button></div></div>
 <script type="module">
@@ -5674,10 +5678,24 @@ function vPainel(me){const K=kpiVal(me),I=K.I,Pt=I.Pt,ks=Object.keys(KPID).filte
     <div class="png">${ks.map(tile).join('')}</div>
     <p class="sdm">Indicadores calculados com o que está no app (sua parte). Toque num indicador para ver como é calculado.</p>
     <div class="btnrow nosnap"><button class="btn sm" type="button" data-relm="1">${ic('pdf')} Relatório do mês (PDF)</button></div></div>`}
-function openMetasKpi(){const M=KPM();openSheet(`<h2>Metas dos indicadores</h2><p class="note">Ajuste ao seu momento. Verde quando atinge a meta, âmbar perto, vermelho longe.</p>
-  <form class="form" id="mkf">${Object.entries(KPID).map(([k,d])=>`<div class="field"><label for="mk-${k}">${d.n} <span class="opt">${d.inv?'mínimo':'máximo'} · ${d.d}</span></label><input id="mk-${k}" type="number" step="any" inputmode="decimal" value="${['pct','pctm','pctc'].includes(d.f)?Math.round(M[k]*100):d.f==='pcta'?(M[k]*100):M[k]}"><small class="note">${['pct','pctm','pctc'].includes(d.f)?'em %':d.f==='pcta'?'em % ao mês':d.f==='mes'?'em meses':'em vezes'}</small></div>`).join('')}
-  <button class="btn primary" type="submit">Salvar metas</button></form>`,sh=>{sh.querySelector('#mkf').onsubmit=async e=>{e.preventDefault();const o={};Object.entries(KPID).forEach(([k,d])=>{const v=parseFloat(sh.querySelector('#mk-'+k).value);if(isFinite(v))o[k]=['pct','pctm','pctc','pcta'].includes(d.f)?v/100:v});
-    try{await S.db.doc('config/app').set(Object.assign({},S.cfg||{},{metasKpi:o}));closeSheet();toast('Metas salvas')}catch(err){toast(writeErr(err))}}})}
+function openMetasKpi(){const me=ME();let K=null;try{K=kpiVal(me)}catch(e){}const M=KPM(),D0=Object.fromEntries(Object.entries(KPID).map(([k,d])=>[k,k==='res'?resMinMeses():d.m]));
+  const pc=k=>['pct','pctm','pctc','pcta'].includes(KPID[k].f),un=k=>({pct:'%',pctm:'%',pctc:'% CDI',pcta:'% a.m.',mes:'meses',x:'x'})[KPID[k].f]||'',stp=k=>({pcta:.25,mes:1,x:.1})[KPID[k].f]||5;
+  const toD=(k,m)=>pc(k)?r2(m*100):r2(m),fmtD=(k,v)=>v.toLocaleString('pt-BR',{maximumFractionDigits:2}),fromD=(k,v)=>pc(k)?v/100:v;
+  const stOf=(k,m)=>{const v=K&&K.v[k];if(v==null)return 'nn';const inv=KPID[k].inv;return inv?(v>=m?'ok':v>=m*.6?'warn':'crit'):(v<=m?'ok':v<=m*1.4?'warn':'crit')};
+  const cur=Object.assign({},M);let tmr=null;
+  const save=()=>{clearTimeout(tmr);tmr=setTimeout(async()=>{const o={};Object.keys(KPID).forEach(k=>{if(Math.abs(cur[k]-D0[k])>1e-9)o[k]=cur[k]});try{await S.db.doc('config/app').set(Object.assign({},S.cfg||{},{metasKpi:o}));toast('Metas salvas')}catch(err){toast(writeErr(err))}},700)};
+  openSheet(`<h2>Metas dos indicadores</h2><p class="note">Toque em − e + ou no número para mudar. Salva sozinho. O ponto mostra como você está hoje contra a meta.</p>
+    <div class="kmtl">${Object.entries(KPID).map(([k,d])=>`<div class="kmtr" data-mk="${k}"><span class="kmtn"><b><i class="sdot ${stOf(k,cur[k])}"></i>${d.n}</b><small>${d.inv?'no mínimo':'no máximo'} · ${d.d}</small><small class="kmth">hoje ${K?kfmt(k,K.v[k]):'—'}</small></span>
+      <span class="kmts"><button type="button" class="kmtb" data-mkd="-1" aria-label="Diminuir ${esc(d.n)}">−</button><label class="kmti"><input type="text" inputmode="decimal" value="${fmtD(k,toD(k,cur[k]))}" aria-label="Meta de ${esc(d.n)}"><em>${un(k)}</em></label><button type="button" class="kmtb" data-mkd="1" aria-label="Aumentar ${esc(d.n)}">+</button></span></div>`).join('')}</div>
+    <div class="btnrow"><button class="btn" type="button" id="mk-rs">Voltar aos padrões</button><button class="btn primary" type="button" id="mk-ok">Pronto</button></div>`,sh=>{
+    const set=(row,k,m,typing)=>{m=Math.max(0,m);cur[k]=pc(k)?r2(m*1e4)/1e4:r2(m);const inp=row.querySelector('input');if(!typing)inp.value=fmtD(k,toD(k,cur[k]));row.querySelector('.sdot').className='sdot '+stOf(k,cur[k]);save()};
+    sh.querySelectorAll('.kmtr').forEach(row=>{const k=row.dataset.mk,inp=row.querySelector('input');
+      row.querySelectorAll('[data-mkd]').forEach(b=>b.onclick=()=>{const v=toD(k,cur[k]),st=stp(k),n=Math.round((v+(+b.dataset.mkd)*st)/st)*st;set(row,k,fromD(k,r2(n)))});
+      inp.addEventListener('input',()=>{const v=brNum(inp.value);if(isFinite(v)&&v>=0)set(row,k,fromD(k,v),true)});
+      inp.addEventListener('focus',()=>inp.select());inp.addEventListener('blur',()=>{inp.value=fmtD(k,toD(k,cur[k]))})});
+    sh.querySelector('#mk-rs').onclick=()=>{sh.querySelectorAll('.kmtr').forEach(row=>{const k=row.dataset.mk;set(row,k,D0[k])})};
+    sh.querySelector('#mk-ok').onclick=()=>{if(tmr){clearTimeout(tmr);tmr=null;const o={};Object.keys(KPID).forEach(k=>{if(Math.abs(cur[k]-D0[k])>1e-9)o[k]=cur[k]});S.db.doc('config/app').set(Object.assign({},S.cfg||{},{metasKpi:o})).then(()=>toast('Metas salvas')).catch(err=>toast(writeErr(err)))}closeSheet()};
+  })}
 function openKpi(k){const me=ME(),K=kpiVal(me),d=KPID[k],ser=k==='pou'||k==='res'?kpiSerie(me,k,12):[];
   openSheet(`<h2>${d.n}</h2><div class="pnbig"><b class="n">${kfmt(k,K.v[k])}</b><span class="tg ${K.st[k]==='ok'?'ok':K.st[k]==='warn'?'warn':''}">meta ${d.inv?'≥':'≤'} ${kfmt(k,K.M[k])}</span></div><p class="note">${d.d}.</p>
     ${ser.length>1?`<div class="cfs">${sparkL(ser,'var(--accent)',320,70)}</div><p class="sdm">últimos ${ser.length} meses completos</p>`:''}

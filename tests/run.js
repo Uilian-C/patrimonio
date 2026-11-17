@@ -12,7 +12,7 @@ const EXPOR = ('S ME today ymAdd addD dayIn lastDay realBal saldoConta scopeCont
   'acerto acertoLedger credGab gabId candlesCaixa saidasDia margemCalc planoCalc mesCalc catWatch catMesMap contaMov isCaixa movs ' +
   'parseFrase rvCalc rvIR divSim divLista ORD metaCalc cenBase cenProj baseMes casaCalc pjMes filhoCalc progRet retroCalc semRev ' +
   'openRV openRVIR openCenarios openDividasPlano openCasa openPJ openPontos openFilhos openRetro openPrefs openFrase openSimCompra ' +
-  'openSemana openAjuda openRelMes openMeta openAssessor openInvestDash openSpread openBackups openLanc openTour openBemVindo openAPagar atrasos catList projecao relPeriodo mesCalc periodoConta aRealizar recPrevistos fatRecs caixaLivre openInvestDash openGuardar guardSug guardFeito guardMeta guardNudge openAbater faturasAbertas caixaNoDia realBal fatComp movKind fatTot openCardDet baseDue card closeSheet').split(' ');
+  'openSemana openAjuda openRelMes openMeta openAssessor openInvestDash openSpread openBackups openLanc openTour openBemVindo openAPagar atrasos catList projecao relPeriodo mesCalc periodoConta aRealizar recPrevistos fatRecs openMetasKpi KPM caixaLivre openInvestDash openGuardar guardSug guardFeito guardMeta guardNudge openAbater faturasAbertas caixaNoDia realBal fatComp movKind fatTot openCardDet baseDue card closeSheet').split(' ');
 
 function montar(dados) {
   let h = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
@@ -137,6 +137,11 @@ window.__fbSair=()=>{};setTimeout(()=>window.__fbReady(api),0);})();</script>`;
       const cl = await p.evaluate(async () => { const T = window.__T, w = ms => new Promise(r => setTimeout(r, ms)); location.hash = 'lanc'; await w(200); location.hash = 'inicio'; await w(600);
         const b = [...document.querySelectorAll('#v-inicio .hsplit > div')].find(d => /Sobra se pagar tudo/.test(d.innerText)), v = b ? b.querySelector('b').innerText : ''; return { v, cl: T.caixaLivre(T.ME()).livre } });
       ok(cl.v && Math.abs(parseFloat(cl.v.replace(/[^\d,−-]/g, '').replace(/\./g, '').replace(',', '.').replace('−', '-')) - Math.round(cl.cl)) <= 1, 'início: sobra do resumo = caixa livre (mesma regra, inclui faturas vencidas)', JSON.stringify(cl));
+      const mk = await p.evaluate(async () => { const T = window.__T, w = ms => new Promise(r => setTimeout(r, ms)); const m0 = T.KPM().pou; T.openMetasKpi(); await w(400);
+        const row = document.querySelector('.kmtr[data-mk="pou"]'); row.querySelector('[data-mkd="1"]').click(); await w(100); const v1 = row.querySelector('input').value;
+        const inp = document.querySelector('.kmtr[data-mk="pcta"], .kmtr[data-mk="cdv"] input'); const c = document.querySelector('.kmtr[data-mk="cdv"] input'); c.value = '1,5'; c.dispatchEvent(new Event('input')); await w(1000);
+        const r = { m0, v1, pou: T.KPM().pou, cdv: T.KPM().cdv }; document.querySelector('#mk-rs').click(); await w(1000); r.rs = T.KPM().pou; T.closeSheet(); await w(300); return r });
+      ok(mk.v1 === '25' && Math.abs(mk.pou - .25) < 1e-9 && Math.abs(mk.cdv - .015) < 1e-9 && Math.abs(mk.rs - .2) < 1e-9, 'metas: + e − e digitação com vírgula salvam sozinhos; padrões voltam', JSON.stringify(mk));
       ok(/Próxima entrada/.test(hx.h) && /A receber teste/.test(hx.h) && /Receita agendada/.test(hx.h), 'início: próxima entrada aparece no resumo (a receber e agendada)', hx.h);
       const pf = await p.evaluate(async () => { const T = window.__T, w = ms => new Promise(r => setTimeout(r, ms)); T.openLanc(null); await w(400);
         const tab = document.querySelector('.sheet [data-tpf]'); if (!tab) return { tab: false }; tab.click(); await w(400);
