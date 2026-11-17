@@ -12,7 +12,7 @@ const EXPOR = ('S ME today ymAdd addD dayIn lastDay realBal saldoConta scopeCont
   'acerto acertoLedger credGab gabId candlesCaixa saidasDia margemCalc planoCalc mesCalc catWatch catMesMap contaMov isCaixa movs ' +
   'parseFrase rvCalc rvIR divSim divLista ORD metaCalc cenBase cenProj baseMes casaCalc pjMes filhoCalc progRet retroCalc semRev ' +
   'openRV openRVIR openCenarios openDividasPlano openCasa openPJ openPontos openFilhos openRetro openPrefs openFrase openSimCompra ' +
-  'openSemana openAjuda openRelMes openMeta openAssessor openInvestDash openSpread openBackups openLanc openTour openBemVindo openAPagar atrasos catList projecao relPeriodo mesCalc periodoConta aRealizar recPrevistos fatRecs openAbater faturasAbertas caixaNoDia realBal fatComp movKind fatTot openCardDet baseDue card closeSheet').split(' ');
+  'openSemana openAjuda openRelMes openMeta openAssessor openInvestDash openSpread openBackups openLanc openTour openBemVindo openAPagar atrasos catList projecao relPeriodo mesCalc periodoConta aRealizar recPrevistos fatRecs openInvestDash openAbater faturasAbertas caixaNoDia realBal fatComp movKind fatTot openCardDet baseDue card closeSheet').split(' ');
 
 function montar(dados) {
   let h = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
@@ -118,6 +118,10 @@ window.__fbSair=()=>{};setTimeout(()=>window.__fbReady(api),0);})();</script>`;
         const n = document.querySelector('[data-abs="none"]'); if (!n) { T.closeSheet(); await w(300); return { semLista: true } } n.click(); await w(100); const a = [ok().disabled, ok().textContent];
         document.querySelector('[data-abs="all"]').click(); await w(100); const b = [ok().disabled, ok().textContent, document.querySelector('#ab-im').innerText]; T.closeSheet(); await w(300); return { a, b } });
       ok(ab.semLista || (ab.a[0] === true && ab.b[0] === false && /Abater R\$/.test(ab.b[1]) && /Abatendo/.test(ab.b[2])), 'abatimento: resumo vivo e botão com o valor ao marcar em lote', JSON.stringify(ab));
+      const iv = await p.evaluate(async () => { const T = window.__T, w = ms => new Promise(r => setTimeout(r, ms)); T.openInvestDash(); await w(500);
+        const f = [...document.querySelectorAll('.ivf b')].map(b => parseFloat(b.innerText.replace(/[^\d,−-]/g, '').replace(/\./g, '').replace(',', '.').replace('−', '-'))), lb = document.querySelector('.ivf span').innerText, pts = document.querySelectorAll('.ivs .chart polyline')[0].getAttribute('points').split(' ').length; T.closeSheet(); await w(300); return { f, lb, pts } });
+      ok(iv.f.length === 5 && Math.abs(iv.f[0] + iv.f[1] - Math.abs(iv.f[2]) + iv.f[3] - iv.f[4]) <= 2, 'investimentos: saldo inicial + aportes − resgates + rendimentos = hoje', JSON.stringify(iv));
+      ok(/Ao cadastrar/.test(iv.lb) && iv.pts <= 7, 'investimentos: gráfico começa quando as aplicações entraram no app', JSON.stringify(iv));
       ok(/Próxima entrada/.test(hx.h) && /A receber teste/.test(hx.h) && /Receita agendada/.test(hx.h), 'início: próxima entrada aparece no resumo (a receber e agendada)', hx.h);
       const pf = await p.evaluate(async () => { const T = window.__T, w = ms => new Promise(r => setTimeout(r, ms)); T.openLanc(null); await w(400);
         const tab = document.querySelector('.sheet [data-tpf]'); if (!tab) return { tab: false }; tab.click(); await w(400);

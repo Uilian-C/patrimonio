@@ -4574,13 +4574,15 @@ function iniQuin(X){
     <button class="acb" type="button" data-ac="${per}"><span class="k">Acerto de ${qLabel(per)} ${A.done?'<span class="pill ok">feito</span>':`<span class="pill ${dueIn<=2?'warn':'acc'}">${dueIn<=0?'hoje':dueIn===1?'amanhã':dueIn+' dias'}</span>`}</span><span class="acv"><b class="n">${brl(A.net)}</b><span class="flow">${A.net?`${whoChip(A.de)} → ${whoChip(A.para)}`:'nada a transferir'}</span></span><span class="go">›</span></button>
     <div class="quin">${[per,nextP(per)].map(k=>{const f=fluxo(k,me);return `<button class="qbox" type="button" data-go="relatorios" data-rp="fluxo"><span>${qLabel(k)} · ${esc(Q()[k.slice(8)].nome)}</span><b class="n" style="color:${f.sobra<0?'var(--crit)':'var(--ink)'}">${brl0(f.sobra)}</b><small class="tg ${f.sobra<0?'crit':''}">${f.sobra<0?'faltam':'sobram'} · entra ${kf(f.ent)}, sai ${kf(f.out)}</small></button>`}).join('')}</div></div>`;
 }
-function areaChart(vals,labels){
-  const W=340,H=140,L=6,R=W-6,T=12,B=H-22,mx=Math.max(...vals,0),mn=Math.min(...vals,0),rg=mx-mn||1,n=vals.length,xs=i=>L+i*(R-L)/(n-1),ys=v=>B-(v-mn)/rg*(B-T);
+function areaChart(vals,labels,o){o=o||{};if(vals.length===1){vals=[vals[0],vals[0]];labels=[labels[0],labels[0]]}
+  /* fit: escala ajustada aos valores (sem forçar o zero), para mostrar a evolução */
+  const W=340,H=140,L=6,R=W-6,T=12,B=H-22,v0=Math.min(...vals),v1=Math.max(...vals),pd=Math.max((v1-v0)*.15,Math.abs(v1)*.004,1),mx=o.fit?v1+pd:Math.max(...vals,0),mn=o.fit?Math.max(v0-pd,v0>=0?0:-Infinity):Math.min(...vals,0),rg=mx-mn||1,n=vals.length,xs=i=>L+i*(R-L)/(n-1),ys=v=>B-(v-mn)/rg*(B-T);
   const pts=vals.map((v,i)=>[xs(i),ys(v)]),line=pts.map(p=>p.join(',')).join(' '),col=vals[n-1]<0?'var(--crit)':'var(--accent)';
-  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Evolução do patrimônio"><line x1="${L}" x2="${R}" y1="${ys(0)}" y2="${ys(0)}" stroke="var(--line)" stroke-dasharray="2 3"/>
-    <path d="M${pts[0][0]},${ys(0)} L${line.replace(/ /g,' L')} L${pts[n-1][0]},${ys(0)} Z" fill="${col}" fill-opacity=".13"/><polyline points="${line}" fill="none" stroke="${col}" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>
+  const yb=o.fit?B:ys(0);
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${o.aria||'Evolução do patrimônio'}">${o.fit?'':`<line x1="${L}" x2="${R}" y1="${ys(0)}" y2="${ys(0)}" stroke="var(--line)" stroke-dasharray="2 3"/>`}
+    <path d="M${pts[0][0]},${yb} L${line.replace(/ /g,' L')} L${pts[n-1][0]},${yb} Z" fill="${col}" fill-opacity=".13"/><polyline points="${line}" fill="none" stroke="${col}" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>
     <circle cx="${pts[n-1][0]}" cy="${pts[n-1][1]}" r="4" fill="${col}" stroke="var(--surface)" stroke-width="2"/>
-    ${labels.map((l,i)=>(n-1-i)%2===0?`<text x="${xs(i)}" y="${H-6}" text-anchor="${i===0?'start':i===n-1?'end':'middle'}">${l}</text>`:'').join('')}</svg>`;
+    ${labels.map((l,i)=>(n<=7||(n-1-i)%2===0)?`<text x="${xs(i)}" y="${H-6}" text-anchor="${i===0?'start':i===n-1?'end':'middle'}">${l}</text>`:'').join('')}</svg>`;
 }
 function iniPat(X){
   const {me,ym}=X,Pt=patrimonio(me),ks=[11,10,9,8,7,6,5,4,3,2,1],ev=ks.map(k=>patrimonio(me,dayIn(ymAdd(ym,-k),31)).liq).concat([Pt.liq]),lb=ks.map(k=>MES[+ymAdd(ym,-k).slice(5)-1]).concat([MES[+ym.slice(5)-1]]);
@@ -6822,11 +6824,13 @@ function openConferir(a){
 async function markConf(a,v){v=r2(v);try{const cur=S.contas.find(x=>x.id===a.id)||a,d=Object.assign({},cur);delete d.id;d.conf={d:today(),v};await save('contas',a.id,d)}catch(e){}}
 /* ---------- painel de investimentos ---------- */
 const invContas=me=>S.contas.filter(a=>a.ativo!==false&&(a.tipo==='investimento'||a.tipo==='reserva')&&fracOf(a.dono,me)>0);
-function invMes(A,ym){const ids=new Set(A.map(a=>a.id)),L=S.lanc.filter(l=>!l.pend&&(l.data||'').slice(0,7)===ym);
+/* início de uma aplicação no app: data do saldo inicial ou, sem ela, o primeiro movimento */
+function invIni(a){if(a.dataIni)return a.dataIni;const d=S.lanc.filter(l=>l.conta===a.id||l.destino===a.id).map(l=>l.data||'').filter(Boolean).sort()[0];return d||histIni()}
+function invMes(A,ym){const ids=new Set(A.map(a=>a.id)),tt=today(),L=S.lanc.filter(l=>!l.pend&&(l.data||'').slice(0,7)===ym&&(l.data||'')<=tt);
   const rend=sum(L.filter(l=>l.tipo==='ajuste'&&ids.has(l.conta)),l=>+l.valor||0);
   const ap=sum(L.filter(l=>l.tipo==='transf'&&ids.has(l.destino)&&!ids.has(l.conta)),l=>+l.valor||0)+sum(L.filter(l=>l.tipo==='receita'&&ids.has(l.conta)),l=>+l.valor||0);
   const rg=sum(L.filter(l=>l.tipo==='transf'&&ids.has(l.conta)&&!ids.has(l.destino)),l=>+l.valor||0)+sum(L.filter(l=>(l.tipo==='despesa'||l.tipo==='pagfat')&&ids.has(l.conta)),l=>+l.valor||0);
-  const fim=sum(A,a=>saldoConta(a,dayIn(ym,31)));return {ym,rend:r2(rend),ap:r2(ap),rg:r2(rg),fim:r2(fim)}}
+  const fim=sum(A,a=>dayIn(ym,31)<invIni(a)?0:saldoConta(a,dayIn(ym,31)));return {ym,rend:r2(rend),ap:r2(ap),rg:r2(rg),fim:r2(fim)}}
 function invBars(M){const W=340,H=150,T=18,B=H-22,mx=Math.max(...M.map(m=>Math.max(m.rend,0)),1),bw=(W-12)/M.length;
   return `<svg class="ivc" viewBox="0 0 ${W} ${H}" role="img" aria-label="Rendimento por mês">${M.map((m,i)=>{const h=Math.max(m.rend,0)/mx*(B-T),x=6+i*bw+bw*.2,cur=i===M.length-1;
     return `<rect x="${x}" y="${B-h}" width="${bw*.6}" height="${Math.max(h,m.rend>0?2:0)}" rx="3" fill="${cur?'var(--accent)':'color-mix(in srgb,var(--accent) 45%,transparent)'}"/>${m.rend>0&&(cur||m.rend===mx)?`<text x="${x+bw*.3}" y="${B-h-5}" text-anchor="middle" class="rv">${kf(m.rend)}</text>`:''}<text x="${x+bw*.3}" y="${H-6}" text-anchor="middle" class="${cur?'rcur':''}">${MES[+m.ym.slice(5)-1].slice(0,3)}</text>`}).join('')}<line x1="6" x2="${W-6}" y1="${B}" y2="${B}" stroke="var(--line)"/></svg>`}
@@ -6837,8 +6841,12 @@ function openInvestDash(){
     if(!A.length){sh.querySelector('#ivx').innerHTML=`<div class="empty"><strong>Nenhuma aplicação ainda</strong>Cadastre cofrinho, CDB, Tesouro ou sua reserva de emergência. Com a taxa, o app estima o rendimento.</div>${addB}`;wireAdd();return}
     const rows=A.map(a=>{const v=saldoConta(a)*fracOf(a.dono,me),E=rendEst(a),mI=invMes([a],ym),ini=saldoConta(a,dayIn(ymAdd(ym,-1),31));return {a,v,E,est:E?E.hoje*fracOf(a.dono,me):v,mr:mI.rend,pm:ini>0?mI.rend/ini:null}}).filter(r=>Math.abs(r.v)>=.005||(r.a.rend&&r.a.rend.tipo)||+r.a.meta).sort((x,y)=>y.est-x.est);
     const tot=sum(rows,r=>r.v),totE=sum(rows,r=>r.est),pend=r2(totE-tot);
-    const M=[];for(let k=11;k>=0;k--)M.push(invMes(A,ymAdd(ym,-k)));
-    const r12=sum(M,m=>m.rend),rMes=M.at(-1).rend,ap12=sum(M,m=>m.ap),rg12=sum(M,m=>m.rg),ini12=sum(A,a=>saldoConta(a,dayIn(ymAdd(ym,-12),31)));
+    /* janela: últimos 12 meses, mas só a partir de quando as aplicações entraram no app (antes disso não há dado) */
+    const i0=A.map(invIni).sort()[0]||t,w0=[ymAdd(ym,-11),i0.slice(0,7)].sort()[1],nW=Math.max(1,(+ym.slice(0,4)-+w0.slice(0,4))*12+(+ym.slice(5)-+w0.slice(5))+1),curto=nW<12;
+    const M=[];for(let k=nW-1;k>=0;k--)M.push(invMes(A,ymAdd(ym,-k)));
+    const r12=sum(M,m=>m.rend),rMes=M.at(-1).rend,ap12=sum(M,m=>m.ap),rg12=sum(M,m=>m.rg),ini12=r2(sum(A,a=>invIni(a)<w0+'-01'?saldoConta(a,dayIn(ymAdd(w0,-1),31)):+a.saldoIni||0));
+    const rmEst=sum(rows,r=>r.est*(taxaMesInv(r.a)||0));
+    const serV=[ini12].concat(M.map(m=>m.fim)),serL=[curto?'início':MES[+ymAdd(w0,-1).slice(5)-1].slice(0,3)].concat(M.map(m=>MES[+m.ym.slice(5)-1].slice(0,3)));
     const rendTot=sum(S.lanc.filter(l=>l.tipo==='ajuste'&&A.some(a=>a.id===l.conta)&&!l.pend&&(l.data||'')<=t),l=>+l.valor||0);
     const cores=['var(--accent)','var(--good)','var(--inv)','var(--g)','var(--warn)','var(--muted)'];
     const desp=(()=>{try{const ms=[1,2,3].map(k=>mesCalc(ymAdd(ym,-k),me).desp).filter(x=>x>0);return ms.length?sum(ms,x=>x)/ms.length:0}catch(e){return 0}})();
@@ -6846,9 +6854,9 @@ function openInvestDash(){
     sh.querySelector('#ivx').innerHTML=`
       <div class="ivh"><span class="k">Total investido</span><div class="big n">${brl(tot)}</div>
         ${pend>=.01?`<span class="ivp">${ic('spark')}<span>Estimado hoje <b class="n">${brl(totE)}</b> · <b class="n pos">+${brl(pend)}</b> a registrar</span></span>`:''}</div>
-      <div class="ivk"><div><small>Rendeu no mês</small><b class="n ${rMes<0?'neg':'pos'}">${rMes>=0?'+':'−'}${brl0(Math.abs(rMes))}</b></div><div><small>Em 12 meses</small><b class="n ${r12<0?'neg':'pos'}">${r12>=0?'+':'−'}${brl0(Math.abs(r12))}</b></div><div><small>Desde o início</small><b class="n pos">+${brl0(rendTot)}</b></div></div>
-      <section class="ivs"><div class="ivsh"><h3>Evolução</h3><small>saldo no fim de cada mês</small></div><div class="chart">${areaChart(M.map(m=>m.fim),M.map(m=>MES[+m.ym.slice(5)-1].slice(0,3)))}</div>
-        <div class="ivf"><span>Há 12 meses <b class="n">${brl0(ini12)}</b></span><span>Aportes <b class="n pos">+${brl0(ap12)}</b></span><span>Resgates <b class="n">−${brl0(rg12)}</b></span><span>Rendimentos <b class="n pos">+${brl0(r12)}</b></span><span class="tt">Hoje <b class="n">${brl0(tot)}</b></span></div></section>
+      <div class="ivk"><div><small>Rendeu no mês</small><b class="n ${rMes<0?'neg':'pos'}">${rMes>=0?'+':'−'}${brl0(Math.abs(rMes))}</b></div>${curto?`<div><small>Desde ${MES[+w0.slice(5)-1].slice(0,3).toLowerCase()}/${w0.slice(2,4)}</small><b class="n ${r12<0?'neg':'pos'}">${r12>=0?'+':'−'}${brl0(Math.abs(r12))}</b></div><div><small>Rende por mês</small><b class="n pos">≈ ${brl0(rmEst)}</b></div>`:`<div><small>Em 12 meses</small><b class="n ${r12<0?'neg':'pos'}">${r12>=0?'+':'−'}${brl0(Math.abs(r12))}</b></div><div><small>Desde o início</small><b class="n pos">+${brl0(rendTot)}</b></div>`}</div>
+      <section class="ivs"><div class="ivsh"><h3>Evolução</h3><small>${curto?'desde que entrou no app':'saldo no fim de cada mês'}</small></div><div class="chart">${areaChart(serV,serL,{fit:1,aria:'Evolução dos investimentos'})}</div>
+        <div class="ivf"><span>${curto?'Ao cadastrar':'Há 12 meses'} <b class="n">${brl0(ini12)}</b></span><span>Aportes <b class="n pos">+${brl0(ap12)}</b></span><span>Resgates <b class="n">−${brl0(rg12)}</b></span><span>Rendimentos <b class="n pos">+${brl0(r12)}</b></span><span class="tt">Hoje <b class="n">${brl0(tot)}</b></span></div></section>
       <section class="ivs"><div class="ivsh"><h3>Rendimento por mês</h3><small>o que foi registrado</small></div>${invBars(M)}</section>
       <section class="ivs"><div class="ivsh"><h3>Onde está o dinheiro</h3><small>${rows.length} aplicaç${rows.length===1?'ão':'ões'}</small></div>
         <div class="stb ivst">${rows.map((r,i)=>`<i style="flex:${Math.max(r.est,0)};background:${cores[i%cores.length]}"></i>`).join('')}</div>
