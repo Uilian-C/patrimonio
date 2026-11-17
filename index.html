@@ -2364,6 +2364,7 @@ main{padding-left:max(10px,env(safe-area-inset-left,0px));padding-right:max(10px
 .ag{scroll-snap-type:x proximity;padding-right:32px!important;-webkit-mask-image:linear-gradient(to right,#000 calc(100% - 32px),transparent);mask-image:linear-gradient(to right,#000 calc(100% - 32px),transparent)}.agd{scroll-snap-align:start}
 .agd small.agx.ok{color:var(--good)}.agd small.agx.crit{color:var(--crit)}
 .fpk .cxr{width:100%}.fpkv{display:grid;justify-items:end;gap:3px}.fpkv .cst{font-size:11px}.fpkv .cst.crit{color:var(--crit)}
+.hsplit>.hnx{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;gap:10px;cursor:pointer;border-left:0!important;border-top:1px solid var(--hero-line)!important;padding:12px 0 0!important;margin-top:6px}.hsplit>.hnx small{white-space:nowrap}.hsplit>.hnx b{font-size:20px}.hsplit>.hnx span{display:grid;gap:1px;min-width:0}.hsplit>.hnx em{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.hsplit>.hnx b{color:#9FEBC6;white-space:nowrap}
 </style>
 <div id="fbgate" hidden><div class="bx"><svg class="lg" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="139 90 228 332"><g transform="translate(-5 0)"><rect x="186" y="100" width="12" height="312" rx="6" fill="currentColor" opacity=".55"/><rect x="164" y="150" width="56" height="210" rx="16" fill="currentColor"/><path d="M244 150h38a70 70 0 0 1 0 140h-38z" fill="#E2BA6E"/></g></svg><h1>Patrimônio</h1><p id="fbmsg">Entre com a sua conta Google para ver as finanças da casa.</p><button type="button" id="fblogin">Entrar com Google</button></div></div>
 <script type="module">
@@ -3189,7 +3190,7 @@ function heroChart(F,ym){
   const sr=F.serie,n=sr.length;if(n<2)return '';const W=320,H=122,L=3,R=W-3,T=18,B=98,vs=sr.map(x=>x.v),mx=Math.max(...vs,F.inicial,0),mn=Math.min(...vs,0),rg=(mx-mn)||1;
   const xs=i=>L+i*(R-L)/(n-1),ys=v=>B-((v-mn)/rg)*(B-T),pt=i=>`${xs(i).toFixed(1)},${ys(sr[i].v).toFixed(1)}`;
   const ri=sr.filter(x=>x.real).length-1,P1=sr.map((x,i)=>i).slice(0,ri+1),P2=sr.map((x,i)=>i).slice(Math.max(ri,0));
-  const ent=sr.map((x,i)=>({i,d:i?x.v-sr[i-1].v:0})).filter(x=>x.d>50).sort((a,b)=>b.d-a.d).slice(0,3);
+  const ent=sr.map((x,i)=>({i,d:i?x.v-sr[i-1].v:0})).filter(x=>x.d>50).sort((a,b)=>b.d-a.d).reduce((k,e)=>(k.length<3&&k.every(o=>Math.abs(o.i-e.i)*(R-L)/(n-1)>=38)?k.concat(e):k),[]);
   const mi=F.min&&F.min.v<Math.min(F.final,sr[Math.max(ri,0)].v)-1?sr.findIndex(x=>x.d===F.min.d):-1;
   const ticks=[0,7,14,21,n-1];
   return `<svg viewBox="0 0 ${W} ${H}" class="hch" role="img" aria-label="Saldo dia a dia no mês">
@@ -3231,7 +3232,8 @@ function iniHero(X){
   const {me,t,ym,saldo}=X,ents=agendaPessoal(me,dayIn(ymAdd(ym,2),31)).filter(x=>(x.k==='rec'||x.k==='pendr'||(x.k==='agd'&&x.v>0))&&x.d>t),E=ents[0];
   const fimH=E?addD(E.d,-1):dayIn(ym,31),ag=agendaPessoal(me,fimH>=t?fimH:t).filter(x=>x.d<=fimH||x.d<t);
   const out=ag.filter(x=>x.v<0);{const sp=new Set(out.map(x=>x.nav+x.d));(X.F&&X.F.venc||[]).forEach(x=>{if(x.d<t&&x.v<0&&!sp.has(x.nav+x.d)){sp.add(x.nav+x.d);out.push(x)}})}
-  const atr=out.filter(x=>x.d<t),comp=sum(out,x=>-x.v),cAtr=sum(atr,x=>-x.v),entra=sum(ag.filter(x=>x.v>0&&x.d>=t),x=>x.v);
+  const atr=out.filter(x=>x.d<t),comp=sum(out,x=>-x.v),cAtr=sum(atr,x=>-x.v),entra=sum(ag.filter(x=>x.v>0),x=>x.v);
+  const EN=E?ents.filter(x=>x.d===E.d):[],enV=sum(EN,x=>x.v);
   const livre=r2(saldo+entra-comp),dias=Math.max(diffD(t,E?E.d:addD(dayIn(ym,31),1)),1),base=Math.max(saldo+entra,comp,1);
   return `<section class="hero">
     <div class="hr1"><span>${saud()}, ${esc(P(me).nome)}</span><button type="button" class="eye" id="eye" aria-label="${HV?'Mostrar':'Ocultar'} valores">${HV?ICN.eyeoff:ICN.eye}</button></div>
@@ -3247,8 +3249,9 @@ function iniHero(X){
       <span class="hfn"><span class="${dv>=0?'up':'dn'}">${dv>=0?'↑':'↓'} ${brl0(Math.abs(dv))} no mês</span> · projeção com tudo que entra e sai até ${lastDay(ym)}/${ym.slice(5)}</span>`:heroPeriodo(me)}
       ${heroComp(F,me,ym)}</div>`})()}
     <div class="hsplit">
-      <button type="button" data-apagar="1"><small>A pagar até ${E?fdate(E.d).slice(0,5):'o fim do mês'}</small><b class="n">${brl0(comp)}</b><em>${out.length} ite${out.length===1?'m':'ns'}${cAtr>.5?` · <span class="atr">${brl0(cAtr)} em atraso</span>`:''}</em></button>
-      <div><small>Sobra se pagar tudo</small><b class="n ${livre<0?'neg':''}">${brl0(livre)}</b><em>${livre>0?`≈ ${brl0(livre/dias)}/dia por ${dias} dias`:'faltará dinheiro'}${entra>.5?` · conta +${brl0(entra)} a receber`:''}</em></div>
+      <button type="button" data-apagar="1"><small>A pagar ${E?'antes de '+fdate(E.d).slice(0,5):'até o fim do mês'}</small><b class="n">${brl0(comp)}</b><em>${out.length} ite${out.length===1?'m':'ns'}${cAtr>.5?` · <span class="atr">${brl0(cAtr)} em atraso</span>`:''}</em></button>
+      <div><small>Sobra se pagar tudo</small><b class="n ${livre<0?'neg':''}">${brl0(livre)}</b><em>${livre>0?`≈ ${brl0(livre/dias)}/dia por ${dias} dia${dias===1?'':'s'}${E?' até a entrada':''}`:'faltará dinheiro'}${entra>.5?` · conta +${brl0(entra)} a receber antes`:''}</em></div>
+      ${E?`<button type="button" class="hnx" data-hnx="${esc(EN.length===1?EN[0].nav||'':'')}"><span><small>Próxima entrada · ${fdate(E.d).slice(0,5)}${diffD(t,E.d)===1?' · amanhã':` · em ${diffD(t,E.d)} dias`}</small><em>${EN.map(x=>esc(x.t)).join(' · ')}${EN.some(x=>x.k==='pendr')?' · a receber':EN.some(x=>x.k==='rec')?' · prevista':''}</em></span><b class="n">+${brl0(enV)}</b></button>`:''}
     </div>
   </section>`;
 }
@@ -3324,7 +3327,7 @@ function watchHTML(me,ym){const W=catWatch(me,ym),hasBase=mesesOk(ym,3).length>0
 /* sobra de caixa até a próxima entrada de receita: a mesma conta do "Sobra se pagar tudo" do cartão principal */
 function caixaLivre(me){const t=today(),ym=t.slice(0,7),ents=agendaPessoal(me,dayIn(ymAdd(ym,2),31)).filter(x=>(x.k==='rec'||x.k==='pendr'||(x.k==='agd'&&x.v>0))&&x.d>t),E=ents[0];
   const fimH=E?addD(E.d,-1):dayIn(ym,31),ag=agendaPessoal(me,fimH>=t?fimH:t).filter(x=>x.d<=fimH||x.d<t);
-  const comp=sum(ag.filter(x=>x.v<0),x=>-x.v),entra=sum(ag.filter(x=>x.v>0&&x.d>=t),x=>x.v);return {livre:r2(realBal(me,t)+entra-comp),ate:fimH,prox:E?E.d:''}}
+  const comp=sum(ag.filter(x=>x.v<0),x=>-x.v),entra=sum(ag.filter(x=>x.v>0),x=>x.v);return {livre:r2(realBal(me,t)+entra-comp),ate:fimH,prox:E?E.d:''}}
 /* ===================== Margem do mês =====================
    Dinheiro livre do mês = renda − compromissos (fixas, parcelas, faturas) − colchão.
    O velocímetro mostra quanto desse livre os gastos variáveis já usaram, comparando com o ritmo do mês. */
@@ -3989,6 +3992,7 @@ function o4Rows(me){const fs=FILHOS(),P=PJ(),nk=S.cards.filter(c=>c.ativo!==fals
     +row('pontos','spark','Pontos e cashback',nk?`${nk} cart${nk===1?'ão':'ões'} com programa · melhor para gastar agora`:'qual cartão devolve mais')
     +row('assessor','shield','Acesso para assessor',L.length?`${L.length} pessoa${L.length===1?'':'s'} com acesso de leitura`:'leitura sem edição para assessor ou contador')}
 document.addEventListener('click',e=>{if(e.target.closest&&e.target.closest('[data-apagar]'))openAPagar()});
+document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-hnx]');if(!b)return;const n=b.dataset.hnx||'';if(n.startsWith('l:')){const l=S.lanc.find(z=>z.id===n.slice(2));if(l)return openLanc(l)}if(n.startsWith('rec:')){const r=S.recs.find(z=>z.id===n.slice(4).split('|')[0]);if(r)return openRec(r)}go('lanc')});
 document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-pli]');if(!b)return;const l=S.lanc.find(z=>z.id===b.dataset.pli);if(l)openLanc(l,{edit:true})});
 document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-o5]');if(!b)return;({prefs:openPrefs,frase:()=>openFrase(),retro:openRetro}[b.dataset.o5]||(()=>{}))()});
 document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-o4]');if(!b)return;const k=b.dataset.o4;({casa:openCasa,filhos:openFilhos,pj:openPJ,pontos:openPontos,assessor:openAssessor}[k]||(()=>{}))()});
