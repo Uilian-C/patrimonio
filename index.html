@@ -2336,13 +2336,15 @@ button.dli{width:100%;border:0;border-top:1px solid var(--hair);background:none;
 #fbgate p{margin:0;color:#9B9990;font-size:15px;line-height:1.5}
 #fbgate button{width:100%;border:0;border-radius:16px;padding:15px 18px;font:600 16px 'Geist',system-ui;background:#E2BA6E;color:#1A1408;cursor:pointer;margin-top:8px}
 #fbgate .er{color:#FF8B7E}
-/* ===== layout "edge": menos moldura, mais conteúdo (gutter 12px, hero de ponta a ponta) ===== */
+/* ===== layout "edge" v2: gutter de 10px, cartões flutuando, conteúdo a ~30px da borda ===== */
 html,body{margin:0}
-main{padding-left:max(12px,env(safe-area-inset-left,0px));padding-right:max(12px,env(safe-area-inset-right,0px))}
-.top{padding-left:max(18px,env(safe-area-inset-left,0px));padding-right:max(14px,env(safe-area-inset-right,0px))}
+main{padding-left:max(10px,env(safe-area-inset-left,0px));padding-right:max(10px,env(safe-area-inset-right,0px))}
+.top{padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(14px,env(safe-area-inset-right,0px))}
 .view{gap:10px}
-.card{padding:16px;border-radius:22px}
-.view>.hero{margin-inline:calc(-1 * max(12px,env(safe-area-inset-left,0px)));border-radius:0 0 30px 30px;padding:14px 20px 20px;margin-top:-4px;border:0}
+.card{padding:18px;border-radius:24px}
+.view>.hero{border-radius:28px;padding:18px 22px 20px}
+/* blocos sem moldura alinham o texto com o conteúdo dos cartões */
+.view>.lxh,.view>.lxd,.view>.dch,.view>.custom,.view>.anl>summary{padding-inline:8px}
 </style>
 <div id="fbgate" hidden><div class="bx"><svg class="lg" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="139 90 228 332"><g transform="translate(-5 0)"><rect x="186" y="100" width="12" height="312" rx="6" fill="currentColor" opacity=".55"/><rect x="164" y="150" width="56" height="210" rx="16" fill="currentColor"/><path d="M244 150h38a70 70 0 0 1 0 140h-38z" fill="#E2BA6E"/></g></svg><h1>Patrimônio</h1><p id="fbmsg">Entre com a sua conta Google para ver as finanças da casa.</p><button type="button" id="fblogin">Entrar com Google</button></div></div>
 <script type="module">
