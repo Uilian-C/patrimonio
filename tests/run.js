@@ -12,7 +12,7 @@ const EXPOR = ('S ME today ymAdd addD dayIn lastDay realBal saldoConta scopeCont
   'acerto acertoLedger credGab gabId candlesCaixa saidasDia margemCalc planoCalc mesCalc catWatch catMesMap contaMov isCaixa movs ' +
   'parseFrase rvCalc rvIR divSim divLista ORD metaCalc cenBase cenProj baseMes casaCalc pjMes filhoCalc progRet retroCalc semRev ' +
   'openRV openRVIR openCenarios openDividasPlano openCasa openPJ openPontos openFilhos openRetro openPrefs openFrase openSimCompra ' +
-  'openSemana openAjuda openRelMes openMeta openAssessor openInvestDash openSpread openBackups openLanc openTour openBemVindo openAPagar atrasos catList projecao relPeriodo mesCalc periodoConta aRealizar recPrevistos fatRecs openInvestDash openAbater faturasAbertas caixaNoDia realBal fatComp movKind fatTot openCardDet baseDue card closeSheet').split(' ');
+  'openSemana openAjuda openRelMes openMeta openAssessor openInvestDash openSpread openBackups openLanc openTour openBemVindo openAPagar atrasos catList projecao relPeriodo mesCalc periodoConta aRealizar recPrevistos fatRecs caixaLivre openInvestDash openGuardar guardSug guardFeito guardMeta guardNudge openAbater faturasAbertas caixaNoDia realBal fatComp movKind fatTot openCardDet baseDue card closeSheet').split(' ');
 
 function montar(dados) {
   let h = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
@@ -122,6 +122,21 @@ window.__fbSair=()=>{};setTimeout(()=>window.__fbReady(api),0);})();</script>`;
         const f = [...document.querySelectorAll('.ivf b')].map(b => parseFloat(b.innerText.replace(/[^\d,−-]/g, '').replace(/\./g, '').replace(',', '.').replace('−', '-'))), lb = document.querySelector('.ivf span').innerText, pts = document.querySelectorAll('.ivs .chart polyline')[0].getAttribute('points').split(' ').length, nums = [...document.querySelectorAll('.ivs .chart text.acv')].map(x => x.textContent); T.closeSheet(); await w(300); return { f, lb, pts, nums } });
       ok(iv.f.length === 5 && Math.abs(iv.f[0] + iv.f[1] - Math.abs(iv.f[2]) + iv.f[3] - iv.f[4]) <= 2, 'investimentos: saldo inicial + aportes − resgates + rendimentos = hoje', JSON.stringify(iv));
       ok(/Ao cadastrar/.test(iv.lb) && iv.pts <= 7 && iv.nums.length === iv.pts && iv.nums.at(-1) === (iv.f[4] / 1000).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + 'k', 'investimentos: gráfico começa quando as aplicações entraram no app', JSON.stringify(iv));
+      const nd = await p.evaluate(async () => { const T = window.__T, w = ms => new Promise(r => setTimeout(r, ms)), me = T.ME(); const a0 = T.guardNudge(me);
+        await T.S.db.collection('lanc').add({ tipo: 'receita', conta: 'cc', data: T.today(), valor: 6000, desc: 'Bônus teste', categoria: 'Renda extra', tags: [], divisao: 'pessoal', criadoEm: new Date().toISOString() }); await w(400);
+        const a1 = T.guardNudge(me); return { a0: !!a0, a1: /Entrou/.test(a1) && /data-guardar/.test(a1) } });
+      ok(nd.a1, 'início: lembrete de guardar depois de uma entrada grande', JSON.stringify(nd));
+      const gd = await p.evaluate(async () => { const T = window.__T, w = ms => new Promise(r => setTimeout(r, ms)), me = T.ME(), ym = T.today().slice(0, 7);
+        const s0 = T.guardSug(me), g0 = T.guardFeito(ym, me); T.openGuardar({ v: 100 }); await w(400); const ok = document.querySelector('#gd-ok'), txt = ok ? ok.textContent : '';
+        const dests = [...document.querySelectorAll('[data-gdt]')].map(b => b.innerText.split('\n')[0]); ok.click(); await w(800);
+        const g1 = T.guardFeito(ym, me); location.hash = 'inicio'; await w(200); location.hash = 'decidir'; await w(600); const card = (document.querySelector('.gdc') || {}).innerText || '';
+        return { s0: { v: s0.v, meta: s0.M.v, fonte: s0.M.fonte, safe: s0.sg.v }, g0, g1, txt, dests, card: card.replace(/\s+/g, ' ') } });
+      ok(/Guardar R\$\s100,00 em/.test(gd.txt) && /Reserva/.test(gd.dests[0]), 'guardar: abre com valor, reserva sugerida primeiro', JSON.stringify(gd));
+      ok(Math.abs(gd.g1 - gd.g0 - 100) < .01, 'guardar: a transferência conta no guardado do mês', JSON.stringify(gd));
+      ok(/Guardado em/.test(gd.card) && /Últimos 6 meses/.test(gd.card) && gd.s0.meta > 0, 'decidir: cartão Guardar com meta, progresso e histórico', gd.card);
+      const cl = await p.evaluate(async () => { const T = window.__T, w = ms => new Promise(r => setTimeout(r, ms)); location.hash = 'lanc'; await w(200); location.hash = 'inicio'; await w(600);
+        const b = [...document.querySelectorAll('#v-inicio .hsplit > div')].find(d => /Sobra se pagar tudo/.test(d.innerText)), v = b ? b.querySelector('b').innerText : ''; return { v, cl: T.caixaLivre(T.ME()).livre } });
+      ok(cl.v && Math.abs(parseFloat(cl.v.replace(/[^\d,−-]/g, '').replace(/\./g, '').replace(',', '.').replace('−', '-')) - Math.round(cl.cl)) <= 1, 'início: sobra do resumo = caixa livre (mesma regra, inclui faturas vencidas)', JSON.stringify(cl));
       ok(/Próxima entrada/.test(hx.h) && /A receber teste/.test(hx.h) && /Receita agendada/.test(hx.h), 'início: próxima entrada aparece no resumo (a receber e agendada)', hx.h);
       const pf = await p.evaluate(async () => { const T = window.__T, w = ms => new Promise(r => setTimeout(r, ms)); T.openLanc(null); await w(400);
         const tab = document.querySelector('.sheet [data-tpf]'); if (!tab) return { tab: false }; tab.click(); await w(400);

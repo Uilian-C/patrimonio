@@ -2380,6 +2380,18 @@ main{padding-left:max(10px,env(safe-area-inset-left,0px));padding-right:max(10px
 .pnt .pnh{white-space:normal;overflow:visible;line-height:1.25}.pnhd b{overflow-wrap:anywhere}
 .pns .spk{position:static!important;display:block;width:100%!important;height:18px!important;margin-top:4px}
 .chart svg text.acv{font-size:10.5px;fill:var(--muted);font-variant-numeric:tabular-nums}.chart svg text.acv.last{fill:var(--ink);font-weight:650}
+.gds{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:2px 0 12px}.gds>div{display:grid;gap:2px;padding:12px;border-radius:14px;background:var(--sunk)}.gds small{font-size:12px;color:var(--muted)}.gds b{font-size:19px;font-weight:700}.gds b span{font-size:13px;font-weight:500;color:var(--muted)}.gds em{font-size:11.5px;color:var(--muted);font-style:normal}
+.gdb{display:block;height:5px;border-radius:3px;background:var(--hair);overflow:hidden;margin:3px 0 1px}.gdb i{display:block;height:100%;background:var(--good);border-radius:3px}
+.gdw{display:flex;gap:6px;align-items:flex-start;color:var(--warn)}.gdw svg{width:15px;height:15px;flex:0 0 auto;margin-top:2px}
+.gdl{display:grid;gap:6px}.gdo{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 12px;border-radius:12px;border:1px solid var(--line);background:none;color:inherit;font:inherit;text-align:left;cursor:pointer}.gdo[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft)}.gdo>span:first-child{display:grid;gap:1px;min-width:0}.gdo small{font-size:12px;color:var(--muted)}.gdo .pill{font-size:10.5px;padding:1px 6px;font-style:normal;margin-left:4px}.gdr{font-size:12.5px;color:var(--good);white-space:nowrap}
+.gdhd{display:flex;gap:14px;align-items:center}.gdhd>div{display:grid;gap:2px;min-width:0}.gdhd small{font-size:12.5px;color:var(--muted)}.gdhd b{font-size:22px;font-weight:700}.gdhd b span{font-size:14px;font-weight:500;color:var(--muted)}.gdhd em{font-size:12px;color:var(--muted);font-style:normal}
+.gdrg{width:58px;height:58px;flex:0 0 auto;transform:rotate(-90deg)}.gdrg circle{fill:none;stroke-width:7}.gdrg .g0{stroke:var(--hair)}.gdrg .g1{stroke:var(--good);stroke-linecap:round}
+.gdgo{width:100%;margin-top:12px}.gdx{margin-top:12px;border-top:1px solid var(--hair);padding-top:10px}.gdsv{width:100%;height:auto;display:block}
+.gdsv .gdh{fill:color-mix(in srgb,var(--good) 45%,transparent)}.gdsv .gdh.ok{fill:var(--good)}.gdsv .gdh.cur{stroke:var(--good);stroke-width:1}.gdsv .gdm{stroke:var(--ink);stroke-width:1.6;stroke-dasharray:3 2;opacity:.6}.gdsv .gdt{font-size:10px;fill:var(--muted);text-anchor:middle}.gdsv .gdt.cur{fill:var(--ink);font-weight:650}
+.sfg i.gdhI{background:var(--good)}.sfg i.gdmI{height:0!important;border-top:2px dashed var(--ink);opacity:.6;border-radius:0}
+.hgd{white-space:nowrap;display:inline-flex;align-items:center;gap:5px;margin-top:8px;padding:6px 11px;border-radius:99px;border:1px solid color-mix(in srgb,#9FEBC6 45%,transparent);background:color-mix(in srgb,#9FEBC6 12%,transparent);color:#9FEBC6;font:inherit;font-size:12.5px;font-weight:600;cursor:pointer}.hgd svg{width:13px;height:13px}
+.gdn{display:flex;gap:12px;align-items:flex-start}.gdn>div{display:grid;gap:3px;min-width:0}.gdn small{font-size:12.5px;color:var(--muted)}.gdnb{display:flex;gap:14px;align-items:center;margin-top:6px}.gdnb .btn{flex:0 0 auto}
+.pngd{padding:0;margin-top:4px;font-size:13px;justify-self:start;text-align:left}
 </style>
 <div id="fbgate" hidden><div class="bx"><svg class="lg" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="139 90 228 332"><g transform="translate(-5 0)"><rect x="186" y="100" width="12" height="312" rx="6" fill="currentColor" opacity=".55"/><rect x="164" y="150" width="56" height="210" rx="16" fill="currentColor"/><path d="M244 150h38a70 70 0 0 1 0 140h-38z" fill="#E2BA6E"/></g></svg><h1>Patrimônio</h1><p id="fbmsg">Entre com a sua conta Google para ver as finanças da casa.</p><button type="button" id="fblogin">Entrar com Google</button></div></div>
 <script type="module">
@@ -3277,7 +3289,7 @@ function iniHero(X){
       ${heroComp(F,me,ym)}</div>`})()}
     <div class="hsplit">
       <button type="button" data-apagar="1"><small>A pagar ${E?'antes de '+fdate(E.d).slice(0,5):'até o fim do mês'}</small><b class="n">${brl0(comp)}</b><em>${out.length} ite${out.length===1?'m':'ns'}${cAtr>.5?` · <span class="atr">${brl0(cAtr)} em atraso</span>`:''}</em></button>
-      <div><small>Sobra se pagar tudo</small><b class="n ${livre<0?'neg':''}">${brl0(livre)}</b><em>${livre>0?`≈ ${brl0(livre/dias)}/dia por ${dias} dia${dias===1?'':'s'}${E?' até a entrada':''}`:'faltará dinheiro'}${entra>.5?` · conta +${brl0(entra)} a receber antes`:''}</em></div>
+      <div><small>Sobra se pagar tudo</small><b class="n ${livre<0?'neg':''}">${brl0(livre)}</b><em>${livre>0?`≈ ${brl0(livre/dias)}/dia por ${dias} dia${dias===1?'':'s'}${E?' até a entrada':''}`:'faltará dinheiro'}${entra>.5?` · conta +${brl0(entra)} a receber antes`:''}</em>${(()=>{let g=0;try{g=guardSug(me).v}catch(e){}return g>=50?`<button type="button" class="hgd" data-guardar="${g}">${ic('spark')} Guardar ${brl0(g)}</button>`:''})()}</div>
       ${E?`<button type="button" class="hnx" data-hnx="${esc(EN.length===1?EN[0].nav||'':'')}"><span><small>Próxima entrada · ${fdate(E.d).slice(0,5)}${diffD(t,E.d)===1?' · amanhã':` · em ${diffD(t,E.d)} dias`}</small><em>${EN.map(x=>esc(x.t)).join(' · ')}${EN.some(x=>x.k==='pendr')?' · a receber':EN.some(x=>x.k==='rec')?' · prevista':''}</em></span><b class="n">+${brl0(enV)}</b></button>`:''}
     </div>
   </section>`;
@@ -3365,7 +3377,9 @@ function watchHTML(me,ym){const W=catWatch(me,ym),hasBase=mesesOk(ym,3).length>0
 /* sobra de caixa até a próxima entrada de receita: a mesma conta do "Sobra se pagar tudo" do cartão principal */
 function caixaLivre(me){const t=today(),ym=t.slice(0,7),ents=agendaPessoal(me,dayIn(ymAdd(ym,2),31)).filter(x=>(x.k==='rec'||x.k==='pendr'||(x.k==='agd'&&x.v>0))&&x.d>t),E=ents[0];
   const fimH=E?addD(E.d,-1):dayIn(ym,31),ag=agendaPessoal(me,fimH>=t?fimH:t).filter(x=>x.d<=fimH||x.d<t);
-  const comp=sum(ag.filter(x=>x.v<0),x=>-x.v),entra=sum(ag.filter(x=>x.v>0),x=>x.v);return {livre:r2(realBal(me,t)+entra-comp),ate:fimH,prox:E?E.d:''}}
+  /* mesma regra do Início: faturas vencidas e não pagas também saem do que sobra */
+  const out=ag.filter(x=>x.v<0);{const sp=new Set(out.map(x=>x.nav+x.d));let F=null;try{F=mesFluxo(ym,me)}catch(e){}((F&&F.venc)||[]).forEach(x=>{if(x.d<t&&x.v<0&&!sp.has(x.nav+x.d)){sp.add(x.nav+x.d);out.push(x)}})}
+  const comp=sum(out,x=>-x.v),entra=sum(ag.filter(x=>x.v>0),x=>x.v);return {livre:r2(realBal(me,t)+entra-comp),ate:fimH,prox:E?E.d:''}}
 /* ===================== Margem do mês =====================
    Dinheiro livre do mês = renda − compromissos (fixas, parcelas, faturas) − colchão.
    O velocímetro mostra quanto desse livre os gastos variáveis já usaram, comparando com o ritmo do mês. */
@@ -4206,8 +4220,9 @@ function vDecidir(){
     ${ords.length?`<div class="dcol"><small>Ordens salvas</small>${ords.map(o=>`<button type="button" class="cxr" data-dord="${esc(o.id)}"><span class="bk ${prontas.has(o.id)?'bk-g':''}">${ic(prontas.has(o.id)?'check':'clock')}</span><span class="cxm"><strong>${esc(o.desc||'Compra planejada')}</strong><small>${brl(o.v)} · ${esc(simForma(o.f))} · ${prontas.has(o.id)?'<span class="pos">já cabe</span>':'aguardando caber'}</small></span><span class="go">›</span></button>`).join('')}</div>`:''}</div>`;
   /* investir: abertura e projeção */
   let G=null;try{G=gastoLentes(me,ym)}catch(e){}const sob=G?Math.max(0,Math.min(G.L.sobra[1],G.L.caixa[1])):0,im=cdiMes();
+  h+=`<h3 class="dch">Guardar</h3>${(()=>{try{return guardCard(me)}catch(e){console.error('guardar',e);return ''}})()}`;
   if(!SIMPLES)h+=`<h3 class="dch">Investir</h3>${iniInvest(me)}${(()=>{try{return rvCard(me)}catch(e){console.error('rv',e);return ''}})()}
-    ${sob>50?`<div class="card dcc"><div class="dcsob" style="margin:0"><span>Se aplicar o que está livre agora (<b class="n">${brl0(sob)}</b>), renderia ≈ <b class="n pos">${brl0(sob*im)}/mês</b> e <b class="n pos">${brl0(sob*(Math.pow(1+im,12)-1))}</b> em 1 ano no CDI (antes do IR).</span></div></div>`:''}
+
     ${iniSpread(X)||''}`;
   if(!SIMPLES)try{h+=iniPlanejar(me)}catch(e){console.error('plan',e)}
   el.innerHTML=h;wireMg(el,vDecidir);wireRV(el,vDecidir);wirePlanejar(el);
@@ -4220,6 +4235,61 @@ function vDecidir(){
   el.querySelectorAll('.vcard [data-wcat]').forEach(b=>b.onclick=()=>openCatFicha(b.dataset.wcat));
   {const ap=el.querySelector('#iv-ap');if(ap)ap.onclick=()=>openCalc(APM||'',v=>{APM=r2(Math.max(0,v));LSset('pt-apm',String(APM));vDecidir()})}
 }
+/* ===================== Guardar =====================
+   Meta do mês: o "Guardar" do plano do mês; sem plano, a meta da taxa de poupança (Painel) × renda do mês.
+   Guardado: aportes − resgates nas reservas e investimentos (transferências registradas), até hoje.
+   Seguro para guardar hoje: o que sobra se pagar tudo até a próxima entrada (mesma regra do Início) − colchão. */
+function guardMeta(ym,me){const pl=planoOf(ym),g=pl?+pl.guardar||0:0;let renda=0;try{renda=planoCalc(ym,me).renda||0}catch(e){}
+  if(g>0)return {v:r2(g),fonte:'plano',renda};const pc=KPM().pou||.2;return {v:r2(renda*pc),fonte:'pct',pc,renda}}
+function guardFeito(ym,me){const A=invContas(me);return r2(sum(A,a=>{const m=invMes([a],ym);return (m.ap-m.rg)*fracOf(a.dono,me)}))}
+function guardSeguro(me){let L={livre:0,ate:today()};try{L=caixaLivre(me)}catch(e){}const cz=colchao()||0;return {L,cz,v:Math.max(0,Math.floor((L.livre-cz)/10)*10)}}
+function guardSug(me){const ym=today().slice(0,7),M=guardMeta(ym,me),g=guardFeito(ym,me),sg=guardSeguro(me),falta=r2(Math.max(0,M.v-g));return {M,g,falta,sg,v:falta>0?Math.min(sg.v,Math.ceil(falta)):sg.v}}
+/* destinos em ordem: reserva até a meta de meses, metas com prazo, depois investimentos pela taxa */
+function guardDestinos(me){const A=invContas(me),ym=today().slice(0,7);let desp=0;try{const ms=[1,2,3].map(k=>mesCalc(ymAdd(ym,-k),me).desp).filter(x=>x>0);desp=ms.length?sum(ms,x=>x)/ms.length:0}catch(e){}
+  const resv=sum(A.filter(a=>a.tipo==='reserva'),a=>saldoConta(a)*fracOf(a.dono,me)),resMeta=(KPM().res||3)*desp,falRes=r2(Math.max(0,resMeta-resv));
+  const mp=(cfg().metasP||[]).filter(m=>m.conta&&A.some(a=>a.id===m.conta));
+  const tx=a=>{const R=a.rend||{};return R.tipo==='cdi'?`${String(R.taxa).replace('.',',')}% do CDI`:R.tipo==='cdimais'?`CDI + ${String(R.taxa).replace('.',',')}%`:R.tipo==='pre'?`${String(R.taxa).replace('.',',')}% a.a.`:'sem taxa'};
+  const D=A.map(a=>{const m=mp.find(z=>z.conta===a.id);let pri=3,mot='';if(a.tipo==='reserva'&&falRes>0){pri=0;mot=`completa a reserva · faltam ${brl0(falRes)}`}else if(m){const f=r2(Math.max(0,(+m.valor||0)-saldoConta(a)));if(f>0){pri=1;mot=`meta ${esc(m.nome)} · faltam ${brl0(f)}`}}else if(a.tipo==='reserva'){pri=2;mot='reserva já na meta'}
+    return {a,pri,mot,tx:tx(a),im:taxaMesInv(a)||0}}).sort((x,y)=>x.pri-y.pri||y.im-x.im);
+  return {D,falRes,desp}}
+function guardHist(me,n){const ym=today().slice(0,7);return [...Array(n)].map((_,k)=>{const y=ymAdd(ym,k-n+1);return {y,g:guardFeito(y,me),m:guardMeta(y,me).v}})}
+function openGuardar(o){o=o||{};const me=ME(),S0=guardSug(me),G=guardDestinos(me);if(!G.D.length){toast('Cadastre uma reserva ou investimento primeiro');openConta({tipo:'reserva'});return}
+  let dest=o.dest||G.D[0].a.id;const v0=o.v>0?o.v:S0.v,ymN=MESL[+today().slice(5,7)-1].toLowerCase();
+  openSheet(`<h2>Guardar</h2>
+    <div class="gds"><div><small>Pode guardar com segurança hoje</small><b class="n">${brl0(S0.sg.v)}</b><em>sobra até ${fdate(S0.sg.L.ate).slice(0,5)} ${brl0(S0.sg.L.livre)} − colchão ${brl0(S0.sg.cz)}</em></div>
+      <div><small>Meta de ${ymN}</small><b class="n">${brl0(S0.g)} <span>de ${brl0(S0.M.v)}</span></b><span class="gdb"><i style="width:${S0.M.v>0?Math.min(S0.g/S0.M.v,1)*100:0}%"></i></span><em>${S0.M.fonte==='plano'?'do plano do mês':`${Math.round(S0.M.pc*100)}% da renda`}${S0.falta>0?` · faltam ${brl0(S0.falta)}`:' · meta batida'}</em></div></div>
+    ${S0.sg.v<10?`<p class="note gdw">${ic('alert')} Até ${fdate(S0.sg.L.ate).slice(0,5)} você precisa do que tem em caixa. Guardar agora pode faltar para as contas.</p>`:''}
+    <form class="form" id="fgd" novalidate>
+    <div class="f2"><div class="field"><label for="gd-v">Valor (R$)</label><input id="gd-v" type="text" inputmode="decimal" value="${v0>0?String(v0).replace('.',','):''}" placeholder="0,00"></div><div class="field"><label for="gd-d">Data</label><input id="gd-d" type="date" value="${today()}"></div></div>
+    <div class="field"><label for="gd-c">Sai de</label><select id="gd-c">${contasOpts(contaPadrao(),['corrente','dinheiro'])}</select></div>
+    <div class="field"><label>Vai para</label><div class="gdl">${G.D.map((x,i)=>`<button type="button" class="gdo" data-gdt="${esc(x.a.id)}" aria-pressed="${x.a.id===dest}"><span><b>${esc(x.a.nome)}${i===0?' <em class="pill acc">sugerido</em>':''}</b><small>${x.tx}${x.mot?' · '+x.mot:''}</small></span><span class="gdr n" data-gdr="${x.im}"></span></button>`).join('')}</div></div>
+    <div class="btnrow"><button class="btn primary" type="submit" id="gd-ok">Guardar</button></div></form>`,sh=>{
+    const V=sh.querySelector('#gd-v'),OK=sh.querySelector('#gd-ok'),nm=()=>(G.D.find(x=>x.a.id===dest)||G.D[0]).a.nome;
+    const upd=()=>{const v=brNum(V.value)||0;sh.querySelectorAll('[data-gdr]').forEach(e=>{const im=+e.dataset.gdr;e.textContent=v>0&&im>0?`≈ +${brl(v*im)}/mês`:''});OK.textContent=v>0?`Guardar ${brl(v)} em ${nm()}`:'Guardar';OK.disabled=!(v>0)};upd();
+    V.addEventListener('input',upd);
+    sh.querySelectorAll('[data-gdt]').forEach(b=>b.onclick=()=>{dest=b.dataset.gdt;sh.querySelectorAll('[data-gdt]').forEach(z=>z.setAttribute('aria-pressed',String(z===b)));upd()});
+    sh.querySelector('#fgd').onsubmit=async e=>{e.preventDefault();const v=brNum(V.value),c=sh.querySelector('#gd-c').value;if(!(v>0)){toast('Informe o valor');return}if(!c){toast('Escolha a conta de origem');return}if(c===dest){toast('Origem e destino iguais');return}
+      try{await S.db.collection('lanc').add({tipo:'transf',conta:c,destino:dest,valor:r2(v),data:sh.querySelector('#gd-d').value||today(),desc:'Guardar',tags:[],divisao:'pessoal',guardar:true,criadoEm:new Date().toISOString()});
+        closeSheet();toast(`${brl(v)} guardado em ${nm()}`)}catch(err){toast(writeErr(err))}};
+  })}
+function guardRing(p){const c=2*Math.PI*26,v=Math.max(0,Math.min(p,1));return `<svg viewBox="0 0 64 64" class="gdrg"><circle cx="32" cy="32" r="26" class="g0"/><circle cx="32" cy="32" r="26" class="g1" style="stroke-dasharray:${(c*v).toFixed(1)} ${c.toFixed(1)}"/></svg>`}
+function guardCard(me){if(!invContas(me).length)return `<div class="card dcc"><p class="note">Cadastre uma reserva ou investimento para acompanhar quanto você guarda por mês.</p><button class="btn sm" type="button" data-addc="reserva">${ic('plus')} Reserva</button></div>`;
+  const ym=today().slice(0,7),S0=guardSug(me),H=guardHist(me,6),p=S0.M.v>0?S0.g/S0.M.v:0,acc=sum(H,x=>x.g),mx=Math.max(1,...H.map(x=>Math.max(x.g,x.m))),W=300,Hh=92,bw=26,gx=W/6;
+  const bars=H.map((x,i)=>{const cx=gx*i+gx/2,hg=Math.max(x.g,0)/mx*(Hh-34),hm=x.m/mx*(Hh-34),yb=Hh-18,ok=x.m>0&&x.g>=x.m-.5,cur=x.y===ym;
+    return `<rect x="${cx-bw/2}" y="${yb-hg}" width="${bw}" height="${Math.max(hg,1.5)}" rx="4" class="gdh ${ok?'ok':''} ${cur?'cur':''}"/>${x.m>0?`<line x1="${cx-bw/2-3}" x2="${cx+bw/2+3}" y1="${yb-hm}" y2="${yb-hm}" class="gdm"/>`:''}<text x="${cx}" y="${yb-Math.max(hg,1.5)-5}" class="gdt">${x.g>=1000?(x.g/1000).toLocaleString('pt-BR',{maximumFractionDigits:1})+'k':Math.round(x.g)}</text><text x="${cx}" y="${Hh-4}" class="gdt mo ${cur?'cur':''}">${MES[+x.y.slice(5)-1].slice(0,3)}</text>`}).join('');
+  return `<div class="card dcc gdc"><div class="gdhd">${guardRing(p)}<div><small>Guardado em ${MESL[+ym.slice(5)-1].toLowerCase()}</small><b class="n">${brl0(S0.g)} <span>de ${brl0(S0.M.v)}</span></b><em>${S0.M.fonte==='plano'?'meta do plano do mês':`meta: ${Math.round(S0.M.pc*100)}% da renda (${brl0(S0.M.renda)})`} · ${S0.M.v>0?Math.round(p*100)+'%':'—'}</em></div></div>
+    <button class="btn primary gdgo" type="button" data-guardar="${S0.v}" ${S0.v>=10?'':'disabled'}>${S0.v>=10?`Guardar ${brl0(S0.v)} agora`:'Sem folga segura hoje'}</button>
+    <p class="sdm">${S0.v>=10?`Seguro até ${fdate(S0.sg.L.ate).slice(0,5)}: sobra ${brl0(S0.sg.L.livre)} − colchão ${brl0(S0.sg.cz)}.`:`Até ${fdate(S0.sg.L.ate).slice(0,5)} o caixa está comprometido com as contas.`}${S0.falta>0?` Faltam ${brl0(S0.falta)} para a meta do mês.`:' Meta do mês batida.'}</p>
+    <div class="gdx"><div class="sfh"><b>Últimos 6 meses</b><span class="n">acumulado ${brl0(acc)}</span></div><svg viewBox="0 0 ${W} ${Hh}" class="gdsv" role="img" aria-label="Guardado por mês contra a meta">${bars}</svg><div class="sfg"><span><i class="gdhI"></i>guardado</span><span><i class="gdmI"></i>meta</span></div></div></div>`}
+/* lembrete: entrou dinheiro grande e ainda não guardou nada depois */
+function guardNudge(me){try{const t=today(),ids=new Set(scopeContas(me).map(a=>a.id)),IA=new Set(invContas(me).map(a=>a.id));let renda=0;try{renda=planoCalc(t.slice(0,7),me).renda||0}catch(e){}
+  const R=S.lanc.filter(l=>l.tipo==='receita'&&!l.pend&&ids.has(l.conta)&&!IA.has(l.conta)&&(l.data||'')<=t&&(l.data||'')>=addD(t,-3)&&(+l.valor||0)>=Math.max(800,renda*.25)).sort((a,b)=>(+b.valor||0)-(+a.valor||0))[0];
+  if(!R||LS('pt-gn-'+R.id,'')==='x')return '';
+  if(S.lanc.some(l=>l.tipo==='transf'&&IA.has(l.destino)&&!IA.has(l.conta)&&(l.data||'')>=R.data&&(l.data||'')<=t))return '';
+  const S0=guardSug(me);if(S0.v<50)return '';
+  return `<div class="card gdn"><span class="bk bk-g">${ic('spark')}</span><div><b>Entrou ${brl0(+R.valor||0)}${R.desc?' · '+esc(R.desc):''}</b><small>${S0.falta>0?`faltam ${brl0(S0.falta)} para a meta do mês`:'a meta do mês já foi batida'} · seguro guardar até ${brl0(S0.sg.v)}</small><div class="gdnb"><button class="btn sm primary" type="button" data-guardar="${S0.v}">Guardar ${brl0(S0.v)}</button><button class="lk" type="button" data-gnx="${esc(R.id)}">Agora não</button></div></div></div>`}catch(e){console.error('nudge',e);return ''}}
+document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-guardar]');if(b&&!b.disabled){e.stopPropagation();openGuardar({v:+b.dataset.guardar||0});return}
+  const x=e.target.closest&&e.target.closest('[data-gnx]');if(x){LSset('pt-gn-'+x.dataset.gnx,'x');const c=x.closest('.gdn');if(c)c.remove()}},true);
 function openColchao(){const me=ME();let pct=colchaoPct();
   openSheet(`<h2>Colchão de segurança</h2><p class="note">Parte da renda que fica sempre guardada no caixa. Ela sai do Livre do mês e o "Posso comprar?" não deixa a compra encostar nela.</p>
     <div id="cz-g"></div>
@@ -4604,7 +4674,7 @@ function vInicio(){
   const ok=setup.filter(s=>s[0]).length,nx=setup.find(s=>!s[0]);
   if(nx&&!SETUPX)h+=`<div class="setup"><span class="sp">${setup.map(s=>`<i class="${s[0]?'on':''}"></i>`).join('')}</span><button class="lk" type="button" data-setup="${nx[2]}">${ok}/${setup.length} · ${nx[1]} ›</button><button class="sx2" type="button" id="stx" aria-label="Ocultar">×</button></div>`;
   const X={me,t,ym,saldo:realBal(me,t),M:mesCalc(ym,me),F:mesFluxo(ym,me)};
-  const B={rotina:iniRotina,margem:iniGastoMini,ticker:iniTicker,mesx:iniMesX,cats:iniCats,hero:iniHero,acoes:iniAcoes,alertas:iniResolver,ultimos:iniUltimos,spread:iniSpread,contas:iniContas,beneficios:iniBen,mes:()=>mesCard(me),agenda:iniAgenda,credito:()=>creditoDash(true),gastos:iniGastos2,planejado:iniPlan,fluxo6:iniEvo,kpis:iniKpis,orcamento:()=>'',plano:iniPlano,dre:iniDre,saude:iniSaude,fecha:iniFecha,quinzenas:iniQuin,patrimonio:iniPat};
+  const B={rotina:iniRotina,margem:iniGastoMini,ticker:iniTicker,mesx:iniMesX,cats:iniCats,hero:X=>iniHero(X)+guardNudge(X.me),acoes:iniAcoes,alertas:iniResolver,ultimos:iniUltimos,spread:iniSpread,contas:iniContas,beneficios:iniBen,mes:()=>mesCard(me),agenda:iniAgenda,credito:()=>creditoDash(true),gastos:iniGastos2,planejado:iniPlan,fluxo6:iniEvo,kpis:iniKpis,orcamento:()=>'',plano:iniPlano,dre:iniDre,saude:iniSaude,fecha:iniFecha,quinzenas:iniQuin,patrimonio:iniPat};
   const CORE=SIMPLES?['ticker','hero','acoes','alertas','margem','ultimos']:['ticker','hero','acoes','rotina','alertas','margem','ultimos'];let ha='';
   layOrder().forEach(k=>{if((LAY.off||[]).includes(k))return;if(SIMPLES&&!CORE.includes(k))return;let x='';try{x=B[k](X)||''}catch(e){console.error('início/'+k,e)}if(CORE.includes(k))h+=x;else ha+=x});
   if(ha)h+=`<details class="anl" ${ANLO?'open':''}><summary><span><b>Análises do mês</b><small>candles, categorias, saúde e o que mais estiver ligado</small></span>${ic('down','chev')}</summary><div class="anlb">${ha}</div></details>`;
@@ -5599,7 +5669,7 @@ function vPainel(me){const K=kpiVal(me),I=K.I,Pt=I.Pt,ks=Object.keys(KPID).filte
   return `<div class="card pnc"><div class="pnhd"><div>${ring(nota/100,nota>=70?'var(--good)':nota>=45?'var(--warn,#C8913A)':'var(--crit,#E0705F)')}</div><div><span class="k">Saúde financeira</span><b>${ok} de ${ks.length} indicadores na meta</b><small>${nota>=70?'Estrutura sólida.':nota>=45?'No caminho, com pontos de atenção.':'Pede ajustes — veja os alertas abaixo.'}</small></div>
       <span class="mgca nosnap"><button class="icb" type="button" data-pnimg="1" aria-label="Exportar imagem">${ic('share')}</button><button class="lk" type="button" data-pnm="1">Metas ›</button></span></div>
     <div class="pnk"><div><small>Patrimônio líquido</small><b class="n ${Pt.liq<0?'neg':''}">${Pt.liq<0?'−':''}${brl0(Math.abs(Pt.liq))}</b><em class="${I.dPL>=0?'pos':'neg'}">${I.dPL>=0?'▲':'▼'} ${brl0(Math.abs(I.dPL))} no mês</em>${plS?`<span class="pns">${plS}</span>`:''}</div>
-      <div><small>Livre do mês</small><b class="n ${G&&G.L.orc[1]<0?'neg':''}">${G?brl0(G.L.orc[1]):'—'}</b><em>${folga!=null?`folga ${folga<0?'−':''}${brl0(Math.abs(folga))} após o dia a dia`:''}</em></div></div>
+      <div><small>Livre do mês</small><b class="n ${G&&G.L.orc[1]<0?'neg':''}">${G?brl0(G.L.orc[1]):'—'}</b><em>${folga!=null?`folga ${folga<0?'−':''}${brl0(Math.abs(folga))} após o dia a dia`:''}</em>${(()=>{let g=0;try{g=guardSug(me).v}catch(e){}return g>=50?`<button type="button" class="lk pngd nosnap" data-guardar="${g}">Guardar ${brl0(g)} ›</button>`:''})()}</div></div>
     ${alert.length?`<div class="pna">${alert.map(k=>`<button type="button" class="rvs ${K.st[k]==='crit'?'stop':''}" data-pna="${act[k][1]}"><span class="bk">${ic(K.st[k]==='crit'?'alert':'info')}</span><span><b>${KPID[k].n}: ${kfmt(k,K.v[k])}</b><small>${KPID[k].d} · meta ${KPID[k].inv?'≥':'≤'} ${kfmt(k,K.M[k])}</small></span><span class="go">${act[k][0]} ›</span></button>`).join('')}</div>`:''}
     <div class="png">${ks.map(tile).join('')}</div>
     <p class="sdm">Indicadores calculados com o que está no app (sua parte). Toque num indicador para ver como é calculado.</p>
@@ -6737,6 +6807,7 @@ function openAjuda(q0){
 function openPremissas(){
   const P2=[['Saldo de hoje','Só o que já aconteceu: lançamentos efetivados com data até hoje. Lançamento com data futura é “agendado” e só entra no saldo no dia dele.'],
     ['A realizar (regra única)','Tudo o que ainda vai mexer na conta, numa lista só, usada por todas as telas (Início, fluxo do mês, projeção, período, resumo da conta, A pagar, Quanto posso gastar, “caixa cobre” dos cartões): contas fixas e salários previstos, pendentes e “a receber”, agendados, faturas, parcelas de dívidas e DARF. O que venceu e não foi pago entra como hoje.'],
+    ['Guardar','Meta do mês: o “Guardar” do plano do mês; sem plano, a meta da taxa de poupança × renda do mês. Guardado: transferências para reservas e investimentos menos resgates, até hoje. Seguro para guardar: o que sobra se pagar tudo até a próxima entrada (inclui faturas vencidas) menos o colchão.'],
     ['Previsto do mês','Saldo de hoje + tudo a realizar até o fim do mês. Cada tela mostra a mesma conta: inicial + realizado = hoje; hoje + a realizar = previsto.'],
     ['Caixa','O saldo em conta só muda quando o lançamento é efetivado. Itens pendentes ficam previstos até você marcar como pago, com data e conta.'],
     ['Resultado do mês','Receitas menos despesas do mês de referência. Compras no cartão contam no mês da fatura; parcelas, uma por mês.'],
