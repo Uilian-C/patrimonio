@@ -3130,6 +3130,9 @@ function openAPagar(){const draw=sh=>{const me=ME(),t=today(),ym=t.slice(0,7),en
     sh.querySelectorAll('[data-ap]').forEach(b=>b.onclick=()=>{const n=b.dataset.ap;if(/^(gab|ab):/.test(n)){closeSheet();setTimeout(()=>rvGo(n),250)}else rvGo(n)})};
   openSheet(`<h2>A pagar</h2><div id="apx"></div>`,draw)}
 /* ---------- atrasos: o que venceu e não foi pago (ou recebido), com baixa rápida ---------- */
+/* tudo o que ainda vai mexer no caixa até 'ate' (premissa central): previstos, pendentes (inclusive atrasados), agendados, faturas, dívidas e DARF.
+   'e' é a data em que entra na conta: o que já venceu e não foi pago entra hoje. Dia a dia estimado (cv) fica de fora. */
+function aRealizar(me,ate){const t=today();return agendaPessoal(me,ate).filter(x=>x.k!=='cv').map(x=>Object.assign({},x,{e:x.d<t?t:x.d,late:x.d<t}))}
 function atrasos(me){const t=today(),ym=t.slice(0,7),AG=agendaPessoal(me,t).filter(x=>x.d<t);
   const pag=AG.filter(x=>x.v<0),sp=new Set(pag.map(x=>x.nav+x.d));try{mesFluxo(ym,me).venc.forEach(x=>{if(x.d<t&&x.v<0&&!sp.has(x.nav+x.d)){sp.add(x.nav+x.d);pag.push(x)}})}catch(e){}
   pag.sort((a,b)=>a.d.localeCompare(b.d));
@@ -5599,18 +5602,19 @@ function perDados(a,b,me){const caixa=RREG==='caixa',dOf=i=>caixa?(i.src==='card
   return {its,ent,sai,res:r2(ent-sai),cats,vari,dOf,v}}
 function relPeriodo(me){const R=PRK==='pers'?{a:PRA||addD(today(),-29),b:PRB||today(),lab:'',sub:'dias'}:perRange(PRK,PRO);
   const dias=diffD(R.a,R.b)+1,Pa=PRK==='pers'?{a:addD(R.a,-dias),b:addD(R.a,-1)}:perRange(PRK,PRO-1),tt=today(),parc=R.a<=tt&&R.b>tt,el0=parc?diffD(R.a,tt)+1:0,Pb=parc?[addD(Pa.a,el0-1),Pa.b].sort()[0]:Pa.b,D=perDados(R.a,parc?tt:R.b,me),E=perDados(Pa.a,Pb,me),FU=parc?(()=>{/* regime de caixa: o previsto vem da agenda (contas fixas, faturas, parcelas, receitas a receber, dívidas) */
-    const ag=agendaPessoal(me,R.b).filter(x=>x.d>tt&&x.k!=='cv');return {ag,ent:r2(sum(ag.filter(x=>x.v>0),x=>x.v)),sai:r2(-sum(ag.filter(x=>x.v<0),x=>x.v))}})():null;
+    const ag=aRealizar(me,R.b);return {ag,ent:r2(sum(ag.filter(x=>x.v>0),x=>x.v)),sai:r2(-sum(ag.filter(x=>x.v<0),x=>x.v))}})():null;
   const cmpOk=Pa.a>=histIni();const dl=(a,b,inv)=>{if(!b||!cmpOk)return '<small class="rsd mu">sem comparação</small>';const x=a-b,good=inv?x<=0:x>=0,pc=Math.abs(x/b);return `<small class="rsd ${Math.abs(x)<1?'mu':good?'ok':'crit'}">${x>=0?'▲':'▼'} ${brl0(Math.abs(x))}${pc<=9.99?` (${pctf(pc)})`:''}</small>`};
   /* barras por subperíodo */
   const sp=[];if(R.sub==='meses'){let m=R.a.slice(0,7);while(m<=R.b.slice(0,7)){sp.push({a:dayIn(m,1),b:dayIn(m,31),l:MES[+m.slice(5)-1].slice(0,3)});m=ymAdd(m,1)}}
   else if(R.sub==='semanas'){let s=R.a;while(s<=R.b){const e=[addD(s,6),R.b].sort()[0];sp.push({a:s,b:e,l:fdate(s).slice(0,2)});s=addD(e,1)}}
   else{for(let d=R.a;d<=R.b;d=addD(d,1))sp.push({a:d,b:d,l:String(+d.slice(8))})}
-  sp.forEach(x=>{const its=D.its.filter(i=>{const d=D.dOf(i);return d>=x.a&&d<=x.b});x.s=r2(sum(its.filter(i=>i.tipo==='despesa'),D.v));x.e=r2(sum(its.filter(i=>i.tipo==='receita'&&i.src==='conta'),D.v));if(FU&&FU.ag&&x.b>tt){const g=FU.ag.filter(y=>y.d>=x.a&&y.d<=x.b);x.s=r2(x.s-sum(g.filter(y=>y.v<0),y=>y.v));x.e=r2(x.e+sum(g.filter(y=>y.v>0),y=>y.v))}});
+  sp.forEach(x=>{const its=D.its.filter(i=>{const d=D.dOf(i);return d>=x.a&&d<=x.b});x.s=r2(sum(its.filter(i=>i.tipo==='despesa'),D.v));x.e=r2(sum(its.filter(i=>i.tipo==='receita'&&i.src==='conta'),D.v));x.rs=x.s;x.re=x.e;if(FU&&FU.ag&&x.b>=tt){const g=FU.ag.filter(y=>y.e>=x.a&&y.e<=x.b);x.s=r2(x.s-sum(g.filter(y=>y.v<0),y=>y.v));x.e=r2(x.e+sum(g.filter(y=>y.v>0),y=>y.v))}});
   const W=330,H=140,pad=12,n=sp.length,gx=(W-pad*2)/n,bw=Math.max(2,Math.min(24,gx*.6)),mx=Math.max(...sp.map(x=>Math.max(x.s,x.e)),1),Y=v=>H-22-v/mx*(H-40),t=today();
   const step=n>16?Math.ceil(n/8):1;
   const kf=v=>v>=1000?(v/1000).toLocaleString('pt-BR',{maximumFractionDigits:1})+'k':String(Math.round(v)),lab=n<=16;
   const bars=sp.map((x,i)=>{const X=pad+gx*i+(gx-bw)/2,hw=Math.max(bw/2-1,1.5),fu=x.a>t,hj=x.a<=t&&x.b>=t,hs=Math.max(H-22-Y(x.s),0),he=Math.max(H-22-Y(x.e),0);
-    return `${x.s>0?`<rect x="${X}" y="${Y(x.s)}" width="${hw}" height="${hs}" rx="2" class="${fu?'pfut':'sfe'}"/>`:''}${x.e>0?`<rect x="${X+hw+2}" y="${Y(x.e)}" width="${hw}" height="${he}" rx="2" class="${fu?'pfute':'pente'}"/>`:''}
+    const hrs=Math.max(H-22-Y(x.rs||0),0),hre=Math.max(H-22-Y(x.re||0),0);
+    return `${x.rs>0?`<rect x="${X}" y="${Y(x.rs)}" width="${hw}" height="${hrs}" rx="2" class="sfe"/>`:''}${x.s-(x.rs||0)>.5?`<rect x="${X}" y="${Y(x.s)}" width="${hw}" height="${Math.max(hs-hrs,0)}" rx="2" class="pfut"/>`:''}${x.re>0?`<rect x="${X+hw+2}" y="${Y(x.re)}" width="${hw}" height="${hre}" rx="2" class="pente"/>`:''}${x.e-(x.re||0)>.5?`<rect x="${X+hw+2}" y="${Y(x.e)}" width="${hw}" height="${Math.max(he-hre,0)}" rx="2" class="pfute"/>`:''}
       ${lab&&x.s>0?`<text x="${X+hw/2}" y="${Y(x.s)-3}" class="pvl">${kf(x.s)}</text>`:''}${lab&&x.e>0?`<text x="${X+hw*1.5+2}" y="${Y(x.e)-3}" class="pvl pvle">${kf(x.e)}</text>`:''}
       ${i%step===0||i===n-1||hj?`<text x="${X+bw/2}" y="${H-6}" class="sfl ${hj?'pvh':''}">${x.l}</text>`:''}`}).join('');
   /* categorias com variação */
@@ -6368,7 +6372,7 @@ function qzCheck(){const me=ME(),t=today(),Z=qzRev(),R=ROT()[Z.key]||{},vis=R.vi
   let gab=null;try{if(gabId()){const G=gabCalc(),ws=G.W.filter(w=>w.open>.005&&w.w<=t);let cr=0;try{cr=credGab().cred}catch(e){}gab={ws,cr};out.push({k:'gab',ok:!ws.length,t:`Acerto com ${P(gabId()).nome.split(' ')[0]}`,s:ws.length?ws.map(w=>`${wLab(w.w)} ${brl0(w.open)} a transferir`).join(' · '):`tudo transferido${cr>1?` · ${P(gabId()).nome.split(' ')[0]} te deve ${brl0(cr)}`:''}`,act:ws.length?'Abrir':cr>1?'Abater':''})}}catch(e){}
   const D=perDados(Z.ini,Z.fim<t?Z.fim:t,me);
   out.push({k:'res',ok:!!vis.res,man:1,t:'Resultado da quinzena',s:`entrou ${brl0(D.ent)} · saiu ${brl0(D.sai)} · ${D.res>=0?'sobrou':'faltou'} ${brl0(Math.abs(D.res))}`,act:'Ver período',res:D.res});
-  const ag=agendaPessoal(me,perEnd(Z.cur)).filter(x=>x.d>=t),sai=-sum(ag.filter(x=>x.v<0),x=>x.v),ent=sum(ag.filter(x=>x.v>0),x=>x.v),bal=realBal(me,t);
+  const ag=aRealizar(me,perEnd(Z.cur)),sai=-sum(ag.filter(x=>x.v<0),x=>x.v),ent=sum(ag.filter(x=>x.v>0),x=>x.v),bal=realBal(me,t);
   out.push({k:'prox',ok:!!vis.prox,man:1,t:'Próxima quinzena',s:`saldo hoje ${brl0(bal)} · saem ${brl0(sai)} até ${fdate(perEnd(Z.cur)).slice(0,5)}${ent?` · entram ${brl0(ent)}`:''} → fica ≈ ${brl0(bal-sai+ent)}`,act:''});
   return {Z,R,C:out,gab,D}}
 function openQuinzena(){const {Z,R,C,gab,D}=qzCheck(),ok=C.filter(x=>x.ok).length,rs=S.contas.find(a=>a.ativo!==false&&a.tipo==='reserva'),cc=contaPadrao();
@@ -6594,7 +6598,10 @@ function openAjuda(q0){
     Q.oninput=f;if(q0)f();
     sh.querySelectorAll('[data-fa]').forEach(b=>b.onclick=()=>{const fn=run[b.dataset.fa];fn&&fn()})})}
 function openPremissas(){
-  const P2=[['Caixa','O saldo em conta só muda quando o lançamento é efetivado. Itens pendentes ficam previstos até você marcar como pago, com data e conta.'],
+  const P2=[['Saldo de hoje','Só o que já aconteceu: lançamentos efetivados com data até hoje. Lançamento com data futura é “agendado” e só entra no saldo no dia dele.'],
+    ['A realizar (regra única)','Tudo o que ainda vai mexer na conta, numa lista só, usada por todas as telas (Início, fluxo do mês, projeção, período, resumo da conta, A pagar, Quanto posso gastar): contas fixas e salários previstos, pendentes e “a receber”, agendados, faturas, parcelas de dívidas e DARF. O que venceu e não foi pago entra como hoje.'],
+    ['Previsto do mês','Saldo de hoje + tudo a realizar até o fim do mês. Cada tela mostra a mesma conta: inicial + realizado = hoje; hoje + a realizar = previsto.'],
+    ['Caixa','O saldo em conta só muda quando o lançamento é efetivado. Itens pendentes ficam previstos até você marcar como pago, com data e conta.'],
     ['Resultado do mês','Receitas menos despesas do mês de referência. Compras no cartão contam no mês da fatura; parcelas, uma por mês.'],
     ['Divisão do casal','“Comum” divide 50/50; “Só sua” é 100% sua. Totais pessoais usam sempre a sua parte.'],
     ['Cartões','A fatura é dívida desde a compra. Parcelas futuras já compradas entram como compromisso nos próximos meses.'],

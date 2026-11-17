@@ -12,7 +12,7 @@ const EXPOR = ('S ME today ymAdd addD dayIn lastDay realBal saldoConta scopeCont
   'acerto acertoLedger credGab gabId candlesCaixa saidasDia margemCalc planoCalc mesCalc catWatch catMesMap contaMov isCaixa movs ' +
   'parseFrase rvCalc rvIR divSim divLista ORD metaCalc cenBase cenProj baseMes casaCalc pjMes filhoCalc progRet retroCalc semRev ' +
   'openRV openRVIR openCenarios openDividasPlano openCasa openPJ openPontos openFilhos openRetro openPrefs openFrase openSimCompra ' +
-  'openSemana openAjuda openRelMes openMeta openAssessor openInvestDash openSpread openBackups openLanc openTour openBemVindo openAPagar atrasos catList projecao relPeriodo mesCalc periodoConta closeSheet').split(' ');
+  'openSemana openAjuda openRelMes openMeta openAssessor openInvestDash openSpread openBackups openLanc openTour openBemVindo openAPagar atrasos catList projecao relPeriodo mesCalc periodoConta aRealizar closeSheet').split(' ');
 
 function montar(dados) {
   let h = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
@@ -102,6 +102,20 @@ window.__fbSair=()=>{};setTimeout(()=>window.__fbReady(api),0);})();</script>`;
       await p.evaluate(() => location.hash = 'lanc'); await p.waitForTimeout(400);
       const atv = await p.evaluate(() => { const b = document.querySelector('[data-atrv]'); if (b) b.click(); return !!b }); await p.waitForTimeout(400);
       if (atv) { const n = await p.evaluate(() => document.querySelectorAll('.atr').length); ok(n > 0, 'lançamentos: lista de atrasos', String(n)) }
+      /* período: tudo o que está a realizar (agendado, pendente de hoje ou atrasado, previsto) aparece nas entradas e saídas previstas */
+      for (const prk of ['semana', 'quinzena', 'mes', 'tri']) {
+        await p.evaluate(k => { localStorage.setItem('pt-prk', k); location.hash = 'inicio' }, prk); await p.waitForTimeout(150);
+        await p.evaluate(() => location.hash = 'relatorios'); await p.waitForTimeout(300);
+        await p.evaluate(() => { const c = [...document.querySelectorAll('.chips.rp .chip')].find(x => /Período/.test(x.textContent)); c && c.click() }); await p.waitForTimeout(300);
+        await p.evaluate(k => { const c = document.querySelector(`[data-prk="${k}"]`); c && c.click() }, prk); await p.waitForTimeout(400);
+        const r = await p.evaluate(() => { const T = window.__T, txt = document.querySelector('.prk3') ? document.querySelector('.prk3').innerText : '';
+          const fim = (txt.match(/previstos até (\d\d)\/(\d\d)/) || []); const num = s => +String(s).replace(/[^\d,]/g, '').replace(',', '.');
+          const m = txt.match(/Entradas[\s\S]*?\+\s*R\$\s*([\d.]+)\s*previstos/); const ms = txt.match(/Saídas[\s\S]*?\+\s*R\$\s*([\d.]+)\s*previstos/);
+          const y = T.today().slice(0, 4), b = fim[1] ? `${y}-${fim[2]}-${fim[1]}` : null; if (!b) return { txt };
+          const ag = T.aRealizar(T.ME(), b), e = ag.filter(x => x.v > 0).reduce((a, x) => a + x.v, 0), o = -ag.filter(x => x.v < 0).reduce((a, x) => a + x.v, 0);
+          return { b, ent: m ? num(m[1]) : 0, sai: ms ? num(ms[1]) : 0, e: Math.round(e), o: Math.round(o), txt: txt.slice(0, 200) } });
+        ok(r.b && Math.abs(r.ent - r.e) <= 1 && Math.abs(r.sai - r.o) <= 1, 'período ' + prk + ': previstos = tudo a realizar', JSON.stringify(r));
+      }
       /* legenda das saídas do mês (já quebrou por conflito de nome de estilo) */
       await p.evaluate(() => location.hash = 'relatorios'); await p.waitForTimeout(400);
       await p.evaluate(() => { const c = [...document.querySelectorAll('.chips.rp .chip')].find(x => /Fluxo/.test(x.textContent)); c && c.click() }); await p.waitForTimeout(500);
@@ -119,6 +133,11 @@ window.__fbSair=()=>{};setTimeout(()=>window.__fbReady(api),0);})();</script>`;
           if (F.past) eq(m + ' passado início + realizado = fim', F.inicial + Q.rec - Q.desp - Q.fat + Q.ac + Q.res + Q.aj, F.final);
           eq(m + ' fim = início do seguinte', F.final, T.mesFluxo(T.ymAdd(m, 1), me).inicial);
         }
+        { /* premissa central: uma única lista "a realizar" amarra o fluxo do mês, a projeção e o período */
+          const eom = T.dayIn(ym, 31), F = T.mesFluxo(ym, me), AR = T.aRealizar(me, eom), soma = sum(AR, x => x.v);
+          eq('premissa: previsto do mês = hoje + a realizar', F.final - (F.Pv.cv || 0), F.balHoje + soma);
+          eq('premissa: projeção começa no previsto do mês', T.projecao(me).rows[0].cash, F.final);
+          is(AR.every(x => x.e >= t), 'premissa: nada a realizar fica antes de hoje') }
         { const PJ = T.projecao(me); let prev = T.realBal(me, t); PJ.rows.forEach(r => { eq('projeção ' + r.ym + ': caixa = anterior + movimentos', r.cash, prev + r.livre - r.cvm * 0, 1); prev = r.cash }) }
         const Pt = T.patrimonio(me), B = T.balanco(Pt);
         eq('patrimônio = ativos − passivos', Pt.liq, Pt.ativos - Pt.passivos); eq('balanço: ativo', B.AT, Pt.ativos); eq('balanço: passivo', B.PC + B.PL, Pt.passivos);

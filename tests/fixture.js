@@ -50,6 +50,9 @@ function fixture(hoje) {
   add({ tipo: 'despesa', conta: 'cc', data: addD(t, 1), valor: 123, desc: 'Boleto agendado', categoria: 'Casa' });
   add({ tipo: 'transf', conta: 'cc', destino: 'res', data: addD(t, 3), valor: 200, desc: 'Guardar agendado' });
   add({ tipo: 'receita', conta: 'cc', data: addD(t, 2), valor: 500, desc: 'A receber teste', categoria: 'Renda extra', pend: true });
+  add({ tipo: 'receita', conta: 'cc', data: t, valor: 640, desc: 'A receber hoje', categoria: 'Renda extra', pend: true });
+  add({ tipo: 'receita', conta: 'ccb', data: addD(t, -2), valor: 310, desc: 'A receber atrasada', categoria: 'Renda extra', pend: true });
+  add({ tipo: 'despesa', conta: 'cc', data: t, valor: 95, desc: 'Boleto pendente hoje', categoria: 'Casa', pend: true });
   add({ tipo: 'despesa', cartao: 'lar', data: addD(t, -2), valor: 900, desc: 'Passagem', categoria: 'Viagem', parcelas: 3, parcela: 1, tags: ['viagem'] });
   /* faturas já vencidas pagas: pagamento pelo total da fatura (calculado no teste pelo próprio app seria circular; aqui usamos o valor aproximado) */
   const recs = [
