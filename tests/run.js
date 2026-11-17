@@ -12,7 +12,7 @@ const EXPOR = ('S ME today ymAdd addD dayIn lastDay realBal saldoConta scopeCont
   'acerto acertoLedger credGab gabId candlesCaixa saidasDia margemCalc planoCalc mesCalc catWatch catMesMap contaMov isCaixa movs ' +
   'parseFrase rvCalc rvIR divSim divLista ORD metaCalc cenBase cenProj baseMes casaCalc pjMes filhoCalc progRet retroCalc semRev ' +
   'openRV openRVIR openCenarios openDividasPlano openCasa openPJ openPontos openFilhos openRetro openPrefs openFrase openSimCompra ' +
-  'openSemana openAjuda openRelMes openMeta openAssessor openInvestDash openSpread openBackups openLanc openTour openBemVindo openAPagar atrasos catList projecao relPeriodo mesCalc periodoConta aRealizar recPrevistos fatRecs caixaNoDia realBal fatComp movKind fatTot openCardDet baseDue card closeSheet').split(' ');
+  'openSemana openAjuda openRelMes openMeta openAssessor openInvestDash openSpread openBackups openLanc openTour openBemVindo openAPagar atrasos catList projecao relPeriodo mesCalc periodoConta aRealizar recPrevistos fatRecs faturasAbertas caixaNoDia realBal fatComp movKind fatTot openCardDet baseDue card closeSheet').split(' ');
 
 function montar(dados) {
   let h = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
@@ -110,6 +110,12 @@ window.__fbSair=()=>{};setTimeout(()=>window.__fbReady(api),0);})();</script>`;
         location.hash = 'inicio'; await new Promise(r => setTimeout(r, 300)); location.hash = 'cartoes'; await new Promise(r => setTimeout(r, 500)); const as = document.querySelector('#c-assin');
         return { soma: Math.abs(k.parc + k.fix + k.avu - T.fatTot(c, ym)) < .01, rows, rec, n0, n1, chip: !!chip, as: as ? as.innerText : '' } });
       ok(cp.soma, 'cartão: parcelas + fixos + avulsos = total lançado da fatura', JSON.stringify(cp));
+      const pf = await p.evaluate(async () => { const T = window.__T, w = ms => new Promise(r => setTimeout(r, ms)); T.openLanc(null); await w(400);
+        const tab = document.querySelector('.sheet [data-tpf]'); if (!tab) return { tab: false }; tab.click(); await w(400);
+        const rows = [...document.querySelectorAll('.sheet [data-pfk]')], n = rows.length, F = T.faturasAbertas(); if (!n) return { tab: true, n };
+        rows[0].click(); await w(700); const h = /Pagar fatura/.test(document.querySelector('#overlay').innerText) ? 'Pagar fatura' : '', v = document.querySelector('.sheet #l-v');
+        const r = { tab: true, n, nf: F.length, h, v: v && v.value, tot: F[0].tot }; T.closeSheet(); await w(300); return r });
+      ok(pf.tab && pf.n > 0 && pf.n === pf.nf && pf.h === 'Pagar fatura' && pf.v && Math.abs(parseFloat(String(pf.v).replace(/\./g, '').replace(',', '.')) - pf.tot) < .01, 'lançamento: aba Fatura escolhe a fatura e abre o pagamento com o total', JSON.stringify(pf));
       const fe = await p.evaluate(() => { const T = window.__T, c = Object.assign({}, T.card('roxo')), d = '2026-11-03';
         const a = T.baseDue({ data: d }, c), b = T.baseDue({ data: '2026-11-02' }, c); c.fechaInc = true; const x = T.baseDue({ data: d }, c), y = T.baseDue({ data: '2026-11-04' }, c); return { a, b, x, y } });
       ok(fe.a === '2026-12' && fe.b === '2026-11' && fe.x === '2026-11' && fe.y === '2026-12', 'cartão: compra no dia do fechamento segue a opção do cartão', JSON.stringify(fe));

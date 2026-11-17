@@ -2363,6 +2363,7 @@ main{padding-left:max(10px,env(safe-area-inset-left,0px));padding-right:max(10px
 .ccd .kpis.ck2{grid-template-columns:1fr 1fr}.ccd .kpis.ck2>div:nth-child(3){border-left:0!important;padding-left:0!important}.ccd .kpis.ck2>div:nth-child(n+3){border-top:1px solid var(--sep)!important}
 .ag{scroll-snap-type:x proximity;padding-right:32px!important;-webkit-mask-image:linear-gradient(to right,#000 calc(100% - 32px),transparent);mask-image:linear-gradient(to right,#000 calc(100% - 32px),transparent)}.agd{scroll-snap-align:start}
 .agd small.agx.ok{color:var(--good)}.agd small.agx.crit{color:var(--crit)}
+.fpk .cxr{width:100%}.fpkv{display:grid;justify-items:end;gap:3px}.fpkv .cst{font-size:11px}.fpkv .cst.crit{color:var(--crit)}
 </style>
 <div id="fbgate" hidden><div class="bx"><svg class="lg" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="139 90 228 332"><g transform="translate(-5 0)"><rect x="186" y="100" width="12" height="312" rx="6" fill="currentColor" opacity=".55"/><rect x="164" y="150" width="56" height="210" rx="16" fill="currentColor"/><path d="M244 150h38a70 70 0 0 1 0 140h-38z" fill="#E2BA6E"/></g></svg><h1>Patrimônio</h1><p id="fbmsg">Entre com a sua conta Google para ver as finanças da casa.</p><button type="button" id="fblogin">Entrar com Google</button></div></div>
 <script type="module">
@@ -7145,6 +7146,11 @@ function openDividaDet(d){
     sh.querySelectorAll('[data-pay]').forEach(b=>b.onclick=()=>{const r=s.rows.find(x=>x.n===+b.dataset.pay);openLanc({tipo:'despesa',divida:d.id,dn:r.n,valor:r2(r.enc*s.parte),desc:d.nome+' · parcela '+r.n,categoria:'Dívidas',divisao:'pessoal',data:r.date&&r.date<=today()?r.date:today(),quem:me})});
   });
 }
+/* escolher qual fatura pagar (a partir do formulário de lançamento) */
+function faturasAbertas(){const t=today(),cm=t.slice(0,7),out=[];S.cards.filter(c=>c.ativo!==false).forEach(c=>{for(let k=-3;k<=1;k++){const f=fatInfo(c,ymAdd(cm,k));if(f.tot>.005&&!f.paga)out.push(f)}});return out.sort((a,b)=>a.due.localeCompare(b.due))}
+function openFatPick(){const F=faturasAbertas(),stL={vencida:['crit','vencida'],fechada:['warn','fechada'],aberta:['acc','aberta']},dI=d=>Math.round((new Date(d+'T12:00:00')-new Date(today()+'T12:00:00'))/864e5);
+  openSheet(`<h2>Pagar fatura</h2><div class="fpk">${F.length?F.map(f=>{const s=stL[f.st]||['','—'],n=dI(f.due);return `<button type="button" class="cxr" data-pfk="${esc(f.c.id)}|${f.ym}">${cardGlyph(f.c)}<span class="cxm"><strong>${esc(f.c.nome)}${f.c.dono!==ME()?` <small>· ${esc(P(f.c.dono).nome.split(' ')[0])}</small>`:''}</strong><small>Fatura de ${MESL[+f.ym.slice(5)-1].toLowerCase()} · vence ${fdate(f.due).slice(0,5)} · <span class="${s[0]==='crit'?'neg':''}">${n<0?'venceu há '+(-n)+' dia'+(n===-1?'':'s'):n===0?'vence hoje':n===1?'amanhã':'em '+n+' dias'}</span></small></span><span class="fpkv"><b class="n">${brl(f.tot)}</b><span class="cst ${s[0]}">${s[1]}</span></span></button>`}).join('')+'<p class="note">O valor vem preenchido com o total da fatura; dá para ajustar se pagar só uma parte.</p>':'<p class="note">Nenhuma fatura em aberto.</p>'}</div>`,sh=>{
+    sh.querySelectorAll('[data-pfk]').forEach(b=>b.onclick=()=>{const [cid,ym]=b.dataset.pfk.split('|');closeSheet();setTimeout(()=>openPagFat(card(cid),ym),180)})})}
 function openPagFat(c,ym){
   const tot=r2(sum(movs().filter(i=>i.c===c&&i.ym===ym),i=>i.tipo==='receita'?-i.valor:i.valor));
   openLanc({tipo:'pagfat',cartao:c.id,conta:c.conta||'',fatura:ym,valor:tot,data:dayIn(ym,c.vencimento)<=today()?dayIn(ym,c.vencimento):today(),desc:'Fatura '+c.nome+' '+ymL(ym)});
@@ -7554,7 +7560,7 @@ function openLanc(l,opts){
     const wd=['dom','seg','ter','qua','qui','sex','sáb'][new Date(st.data+'T12:00:00').getDay()];
     let h=`<div class="lh lh-${col}">`;
     if(isNew&&!l.divida&&t!=='pagfat'&&t!=='ajuste'&&!(opts&&opts.cont))h+=`<button type="button" class="lfr" id="l-fr">${ic('edit')}<span>Escrever ou falar o lançamento</span></button>`;
-    if(isNew&&!l.divida&&t!=='pagfat'&&t!=='ajuste')h+=`<div class="lt" role="tablist">${['despesa','receita','transf'].map(k=>`<button type="button" role="tab" data-tp="${k}" aria-selected="${t===k}">${TIPOS[k][0]}</button>`).join('')}</div>`;
+    if(isNew&&!l.divida&&t!=='pagfat'&&t!=='ajuste')h+=`<div class="lt" role="tablist">${['despesa','receita','transf'].map(k=>`<button type="button" role="tab" data-tp="${k}" aria-selected="${t===k}">${TIPOS[k][0]}</button>`).join('')}${S.cards.some(c=>c.ativo!==false)?`<button type="button" role="tab" data-tpf="1" aria-selected="false">Fatura</button>`:''}</div>`;
     else h+=`<div class="lt one"><span>${l.divida?'Pagamento de dívida':TIPOS[t][0]}</span></div>`;
     h+=`<div class="la">${t==='ajuste'?`<button type="button" class="sgn" id="l-sg" aria-label="Trocar sinal">${st.neg?'−':'+'}</button>`:''}<span class="cur">R$</span><input id="l-v" inputmode="none" readonly autocomplete="off" placeholder="0,00" value="${st.valor?fmtMoney(st.valor):''}" aria-label="Valor"></div>
       <p class="lah" id="l-hint"></p></div><div class="lbody">`;
@@ -7607,6 +7613,7 @@ function openLanc(l,opts){
     lv.onclick=()=>openCalc(st.valor,setV);lv.onkeydown=e=>{if(/^\d$|^Enter$/.test(e.key)){e.preventDefault();openCalc(st.valor,setV)}};
     const sg=sh.querySelector('#l-sg');if(sg)sg.onclick=()=>{st.neg=!st.neg;draw(sh)};
     const ds=sh.querySelector('#l-ds');if(ds)ds.oninput=()=>{st.desc=ds.value;if(isNew&&st.tipo==='despesa'){const g=guessFromHist(ds.value,st.src.slice(5));if(g&&g.categoria&&(g.categoria!==st.cat||(g.subcategoria||'')!==st.sub)&&ds.value.length>=4){st.cat=g.categoria;st.sub=g.subcategoria||'';if(g.divisao)st.div=g.divisao==='pessoal'?'pessoal':'comum';const pos=ds.selectionStart;draw(sh);const n=sh.querySelector('#l-ds');n.focus();n.setSelectionRange(pos,pos)}}};
+    {const tf=sh.querySelector('[data-tpf]');if(tf)tf.onclick=openFatPick}
     sh.querySelectorAll('[data-tp]').forEach(b=>b.onclick=()=>{st.tipo=b.dataset.tp;st.open='';st.sub='';st.rep='unica';if(st.tipo==='receita'){st.cat='Salário';if(st.src.startsWith('card:'))st.src=S.contas[0]?'acct:'+S.contas[0].id:''}else if(st.tipo==='transf'){if(!st.src.startsWith('acct:'))st.src=S.contas[0]?'acct:'+S.contas[0].id:''}else{st.cat=CATS.includes(st.cat)?st.cat:'Mercado'}draw(sh)});
     sh.querySelectorAll('[data-tog]').forEach(b=>b.onclick=()=>{st.open=st.open===b.dataset.tog?'':b.dataset.tog;draw(sh)});
     sh.querySelectorAll('[data-pick]').forEach(b=>b.onclick=()=>{if(b.dataset.pick==='dest')st.dest=b.dataset.v.slice(5);else{st.src=b.dataset.v;if(!isCard()){st.n=1;if(st.rep==='parc'&&st.tipo!=='despesa')st.rep='unica'}else if(st.rep==='fixo')st.n=1}st.open='';draw(sh)});
