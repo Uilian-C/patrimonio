@@ -2368,6 +2368,13 @@ main{padding-left:max(10px,env(safe-area-inset-left,0px));padding-right:max(10px
 .vbars{height:46px!important}.vbars .vbz{stroke:var(--hero-line);stroke-width:.6}
 .vbars rect.in{fill:color-mix(in srgb,var(--good) 75%,transparent)}.vbars rect.in.fut{fill:none;stroke:var(--good);stroke-width:.9;stroke-dasharray:2 1.5}
 .vbl .vk{display:inline-block;width:7px;height:7px;border-radius:2px;margin:0 3px 0 6px;background:color-mix(in srgb,var(--hero-neg) 70%,transparent)}.vbl .vk.in{margin-left:0;background:var(--good)}
+.abtl{display:flex;gap:14px;margin:-2px 0 6px}.abtl .lk{padding:0;font-size:13px}
+.abck.off{opacity:.55}
+.abim{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 14px;border-radius:14px;background:var(--accent-soft);border:1px solid color-mix(in srgb,var(--accent) 35%,transparent);margin:2px 0 10px}
+.abimv{display:grid;gap:1px}.abimv small{font-size:12px;color:var(--muted)}.abimv b{font-size:20px;font-weight:700;color:var(--accent)}
+.abimd{display:grid;gap:2px;text-align:right;font-size:12px;color:var(--muted)}
+.abim.fl{animation:abfl .6s ease}@keyframes abfl{0%{transform:scale(1)}30%{transform:scale(1.025);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 35%,transparent)}100%{transform:scale(1)}}
+@media (prefers-reduced-motion:reduce){.abim.fl{animation:none}}
 </style>
 <div id="fbgate" hidden><div class="bx"><svg class="lg" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="139 90 228 332"><g transform="translate(-5 0)"><rect x="186" y="100" width="12" height="312" rx="6" fill="currentColor" opacity=".55"/><rect x="164" y="150" width="56" height="210" rx="16" fill="currentColor"/><path d="M244 150h38a70 70 0 0 1 0 140h-38z" fill="#E2BA6E"/></g></svg><h1>Patrimônio</h1><p id="fbmsg">Entre com a sua conta Google para ver as finanças da casa.</p><button type="button" id="fblogin">Entrar com Google</button></div></div>
 <script type="module">
@@ -2629,16 +2636,26 @@ function openAbater(sug,q,onDone,o){o=o||{};const me=ME(),gid=gabId(),ed=o.doc||
   openSheet(`<h2>${ed?'Editar abatimento':'Abater compras comuns'}</h2><p class="note">${gn} te deve <b>${brl(C.cred)}</b> de compras comuns que você pagou. O que não abater continua acumulado.</p>
     <form class="form" id="fab2" novalidate>
     <div class="field"><label>Como ${gn} vai te pagar</label><div class="seg abseg" role="radiogroup"><button type="button" data-abf="abat" aria-pressed="${forma==='abat'}">Abater da transferência</button><button type="button" data-abf="entrada" aria-pressed="${forma==='entrada'}">Entrada na conta</button></div><p class="note abfx" id="ab-fx">${FX[forma]}</p></div>
-    <div class="field"><label>Composição <small class="abcnt" id="ab-cn"></small></label>${op.length?`<div class="abcl">${op.map(x=>`<label class="abck"><input type="checkbox" value="${esc(x.k)}" ${sel.has(x.k)?'checked':''}><span class="abm"><b>${esc(x.desc)}</b><small>${fdate(x.d).slice(0,5)} · total ${brl(x.total)}${x.quit.length?' · já abatido '+brl(sum(x.quit,z=>z.v)):''}</small></span><b class="n">${brl(x.rest)}</b></label>`).join('')}</div>`:'<p class="note">Nenhuma compra comum em aberto.</p>'}</div>
+    <div class="field"><label>Composição <small class="abcnt" id="ab-cn"></small></label>${op.length>1?`<div class="abtl"><button type="button" class="lk" data-abs="all">Marcar todas</button><button type="button" class="lk" data-abs="none">Limpar</button></div>`:''}${op.length?`<div class="abcl">${op.map(x=>`<label class="abck"><input type="checkbox" value="${esc(x.k)}" ${sel.has(x.k)?'checked':''}><span class="abm"><b>${esc(x.desc)}</b><small>${fdate(x.d).slice(0,5)} · total ${brl(x.total)}${x.quit.length?' · já abatido '+brl(sum(x.quit,z=>z.v)):''}</small></span><b class="n">${brl(x.rest)}</b></label>`).join('')}</div>`:'<p class="note">Nenhuma compra comum em aberto.</p>'}</div>
+    <div class="abim" id="ab-im" aria-live="polite"></div>
     <div class="f2"><div class="field"><label for="ab-v">Valor (R$)</label><input id="ab-v" type="text" inputmode="decimal" value="${String(r2(v0)).replace('.',',')}"></div><div class="field"><label for="ab-d">Data</label><input id="ab-d" type="date" value="${ed?ed.data:today()}"></div></div>
     <div class="field"><label for="ab-c" id="ab-cl">${forma==='entrada'?'Conta onde entrou':'Conta de onde sai a transferência'}</label><select id="ab-c">${contasOpts(ed&&ed.conta||contaPadrao(),['corrente','dinheiro'])}</select></div>
     <div id="ab-pgw" ${forma==='entrada'?'hidden':''}><label class="chk"><input type="checkbox" id="ab-pg" ${ed&&ed.pago?'checked':''}> Transferência já feita</label>
     <div class="field" id="ab-pdw" ${ed&&ed.pago?'':'hidden'}><label for="ab-pd">Data da transferência (conta no caixa nesse dia)</label><input id="ab-pd" type="date" value="${ed&&ed.pagoEm||today()}"></div></div>
-    <div class="btnrow"><button class="btn primary" type="submit">${ed?'Salvar':'Aplicar'}</button>${ed?'<button class="btn danger" type="button" id="ab-del">Excluir</button>':''}</div></form>`,sh=>{
+    <div class="btnrow"><button class="btn primary" type="submit" id="ab-ok">${ed?'Salvar':'Aplicar'}</button>${ed?'<button class="btn danger" type="button" id="ab-del">Excluir</button>':''}</div></form>`,sh=>{
     {const pg=sh.querySelector('#ab-pg'),pw=sh.querySelector('#ab-pdw');if(pg&&pw)pg.addEventListener('change',()=>{pw.hidden=!pg.checked})}
-    const V=sh.querySelector('#ab-v'),cn=()=>{const n=sel.size,t=selV();sh.querySelector('#ab-cn').textContent=n?`${n} compra${n===1?'':'s'} · ${brl(t)}`:'nenhuma marcada'};cn();
-    sh.querySelectorAll('.abck input').forEach(c=>c.onchange=()=>{c.checked?sel.add(c.value):sel.delete(c.value);cn();V.value=String(Math.abs(selV()-C.cred)<=.05?selV():Math.min(selV(),C.cred)).replace('.',',')});
-    sh.querySelectorAll('[data-abf]').forEach(b=>b.onclick=()=>{forma=b.dataset.abf;sh.querySelectorAll('[data-abf]').forEach(z=>z.setAttribute('aria-pressed',String(z===b)));sh.querySelector('#ab-fx').innerHTML=FX[forma];sh.querySelector('#ab-cl').textContent=forma==='entrada'?'Conta onde entrou':'Conta de onde sai a transferência';sh.querySelector('#ab-pgw').hidden=forma==='entrada'});
+    const V=sh.querySelector('#ab-v'),IM=sh.querySelector('#ab-im'),OK=sh.querySelector('#ab-ok');
+    /* resumo vivo: o que está sendo abatido agora, o que fica para depois e o botão com o valor */
+    const imp=flash=>{const v=Math.max(brNum(V.value)||0,0),n=op.filter(x=>sel.has(x.k)).length,fica=r2(Math.max(C.cred-v,0));
+      IM.innerHTML=v>.005?`<span class="abimv"><small>${forma==='entrada'?`${gn} te transfere`:'Abatendo da transferência'}</small><b class="n">${brl(v)}</b></span><span class="abimd"><span>${n} compra${n===1?'':'s'} quitada${n===1?'':'s'}</span><span>${fica>.005?`fica para depois ${brl(fica)}`:`zera o crédito com ${gn}`}</span></span>`:`<span class="abimv"><small>Nada marcado</small><b class="n">R$ 0,00</b></span><span class="abimd"><span>marque as compras que entram neste acerto</span></span>`;
+      if(flash){IM.classList.remove('fl');void IM.offsetWidth;IM.classList.add('fl')}
+      if(OK)OK.textContent=ed?'Salvar':v>.005?(forma==='entrada'?`Registrar entrada de ${brl(v)}`:`Abater ${brl(v)} · ${n} compra${n===1?'':'s'}`):'Aplicar';if(OK)OK.disabled=!(v>.005)};
+    const cn=()=>{const n=sel.size,t=selV();sh.querySelector('#ab-cn').textContent=n?`${n} compra${n===1?'':'s'} · ${brl(t)}`:'nenhuma marcada';sh.querySelectorAll('.abck').forEach(l=>l.classList.toggle('off',!l.querySelector('input').checked))};cn();imp(false);
+    const sync=()=>{cn();V.value=String(Math.abs(selV()-C.cred)<=.05?selV():Math.min(selV(),C.cred)).replace('.',',');imp(true)};
+    sh.querySelectorAll('.abck input').forEach(c=>c.onchange=()=>{c.checked?sel.add(c.value):sel.delete(c.value);sync()});
+    sh.querySelectorAll('[data-abs]').forEach(b=>b.onclick=()=>{const all=b.dataset.abs==='all';sh.querySelectorAll('.abck input').forEach(c=>{c.checked=all;all?sel.add(c.value):sel.delete(c.value)});sync()});
+    V.addEventListener('input',()=>imp(false));
+    sh.querySelectorAll('[data-abf]').forEach(b=>b.onclick=()=>{forma=b.dataset.abf;sh.querySelectorAll('[data-abf]').forEach(z=>z.setAttribute('aria-pressed',String(z===b)));sh.querySelector('#ab-fx').innerHTML=FX[forma];sh.querySelector('#ab-cl').textContent=forma==='entrada'?'Conta onde entrou':'Conta de onde sai a transferência';sh.querySelector('#ab-pgw').hidden=forma==='entrada';imp(false)});
     const del=sh.querySelector('#ab-del');if(del)confirmBtn(del,'Toque de novo para excluir',async()=>{await delDoc('acertos',ed.id,'Abatimento excluído');onDone&&onDone()});
     sh.querySelector('#fab2').onsubmit=async e=>{e.preventDefault();const v=brNum(V.value);if(!(v>0)){toast('Informe o valor');return}if(v>C.cred+.05){toast('Maior que o crédito acumulado ('+brl(C.cred)+')');return}
       /* composição: as compras marcadas, na ordem de data, até o valor */

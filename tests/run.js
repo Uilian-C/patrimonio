@@ -12,7 +12,7 @@ const EXPOR = ('S ME today ymAdd addD dayIn lastDay realBal saldoConta scopeCont
   'acerto acertoLedger credGab gabId candlesCaixa saidasDia margemCalc planoCalc mesCalc catWatch catMesMap contaMov isCaixa movs ' +
   'parseFrase rvCalc rvIR divSim divLista ORD metaCalc cenBase cenProj baseMes casaCalc pjMes filhoCalc progRet retroCalc semRev ' +
   'openRV openRVIR openCenarios openDividasPlano openCasa openPJ openPontos openFilhos openRetro openPrefs openFrase openSimCompra ' +
-  'openSemana openAjuda openRelMes openMeta openAssessor openInvestDash openSpread openBackups openLanc openTour openBemVindo openAPagar atrasos catList projecao relPeriodo mesCalc periodoConta aRealizar recPrevistos fatRecs faturasAbertas caixaNoDia realBal fatComp movKind fatTot openCardDet baseDue card closeSheet').split(' ');
+  'openSemana openAjuda openRelMes openMeta openAssessor openInvestDash openSpread openBackups openLanc openTour openBemVindo openAPagar atrasos catList projecao relPeriodo mesCalc periodoConta aRealizar recPrevistos fatRecs openAbater faturasAbertas caixaNoDia realBal fatComp movKind fatTot openCardDet baseDue card closeSheet').split(' ');
 
 function montar(dados) {
   let h = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
@@ -114,6 +114,10 @@ window.__fbSair=()=>{};setTimeout(()=>window.__fbReady(api),0);})();</script>`;
         const h = document.querySelector('#v-inicio .hnx'), ag = (document.querySelector('#v-inicio') || {}).innerText || ''; return { h: h ? h.innerText.replace(/\s+/g, ' ') : '', ag: /A receber teste/.test(ag.replace(h ? h.innerText : '', '')) } });
       const vb = await p.evaluate(() => { const r = [...document.querySelectorAll('#v-inicio .hero .vbars rect.in')]; return { n: r.length, fut: r.filter(x => x.classList.contains('fut')).map(x => x.dataset.vb.split('|')[0]) } });
       ok(vb.n > 0 && vb.fut.length > 0, 'início: entradas no gráfico do mês, com previstas tracejadas', JSON.stringify(vb));
+      const ab = await p.evaluate(async () => { const T = window.__T, w = ms => new Promise(r => setTimeout(r, ms)); T.openAbater(); await w(400); const ok = () => document.querySelector('#ab-ok');
+        const n = document.querySelector('[data-abs="none"]'); if (!n) { T.closeSheet(); await w(300); return { semLista: true } } n.click(); await w(100); const a = [ok().disabled, ok().textContent];
+        document.querySelector('[data-abs="all"]').click(); await w(100); const b = [ok().disabled, ok().textContent, document.querySelector('#ab-im').innerText]; T.closeSheet(); await w(300); return { a, b } });
+      ok(ab.semLista || (ab.a[0] === true && ab.b[0] === false && /Abater R\$/.test(ab.b[1]) && /Abatendo/.test(ab.b[2])), 'abatimento: resumo vivo e botão com o valor ao marcar em lote', JSON.stringify(ab));
       ok(/Próxima entrada/.test(hx.h) && /A receber teste/.test(hx.h) && /Receita agendada/.test(hx.h), 'início: próxima entrada aparece no resumo (a receber e agendada)', hx.h);
       const pf = await p.evaluate(async () => { const T = window.__T, w = ms => new Promise(r => setTimeout(r, ms)); T.openLanc(null); await w(400);
         const tab = document.querySelector('.sheet [data-tpf]'); if (!tab) return { tab: false }; tab.click(); await w(400);
