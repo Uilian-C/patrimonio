@@ -691,7 +691,7 @@ svg.frc{width:16px;height:16px;color:var(--faint);transition:transform .2s}.fr.o
 .hsplit{position:relative;z-index:1;display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .hsplit>*{display:grid;gap:1px;align-content:start;padding:10px 12px;border:0;border-radius:14px;background:rgba(0,0,0,.16);color:#fff;text-align:left;min-width:0}
 .hsplit small{font-size:11.5px;color:rgba(255,255,255,.72)}.hsplit b{font-size:17px;font-weight:650}.hsplit b.neg{color:#FFB3AA}
-.hsplit em{font-style:normal;font-size:11px;color:rgba(255,255,255,.7);line-height:1.3}.hsplit .atr{color:#FFB3AA;font-weight:600}
+.hsplit em{font-style:normal;font-size:11px;color:rgba(255,255,255,.7);line-height:1.3}.hsplit .atr{color:var(--hero-neg,#FFB3AA);font-weight:600}
 .hsplit>button:first-child b{color:#FFD29E}.hsplit>div b{color:#9FEBC6}
 .kpi .kd0{display:block}
 .pgh{display:flex;align-items:center;gap:12px;margin:4px 0 14px}.pgh small{display:block;font-size:12.5px;color:var(--muted)}
@@ -2285,7 +2285,7 @@ details.ivs>summary{cursor:pointer;font-weight:600;padding:8px 0}
 svg.sfc.cnc{background:none;padding:0;border-radius:0;height:auto}
 body.ro #fab,body.ro .cxadd{display:none!important}body.ro::after{content:'Modo leitura';position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom));z-index:60;background:var(--ink);color:var(--surface);font-size:12px;font-weight:600;padding:5px 12px;border-radius:99px;opacity:.85;pointer-events:none}
 .pjck{display:grid;gap:4px;margin:6px 0 10px}.pjck small{color:var(--muted);font-size:11px;margin-left:4px}
-.pjb{display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));gap:6px;align-items:end;margin-top:8px}.pjm{display:grid;justify-items:center;gap:3px}.pjbs{display:flex;gap:3px;align-items:flex-end;height:90px;width:100%;justify-content:center}.pjbs i{width:38%;max-width:16px;border-radius:3px 3px 0 0;min-height:2px}.pjbs i.r,.pjI.r{background:var(--good)}.pjbs i.d,.pjI.d{background:var(--muted);opacity:.6}.pjm small{font-size:10.5px;color:var(--muted)}.pjm b{font-size:11px;font-weight:600}
+.bar6{display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));gap:6px;align-items:end;margin-top:8px}.pjm{display:grid;justify-items:center;gap:3px}.pjbs{display:flex;gap:3px;align-items:flex-end;height:90px;width:100%;justify-content:center}.pjbs i{width:38%;max-width:16px;border-radius:3px 3px 0 0;min-height:2px}.pjbs i.r,.pjI.r{background:var(--good)}.pjbs i.d,.pjI.d{background:var(--muted);opacity:.6}.pjm small{font-size:10.5px;color:var(--muted)}.pjm b{font-size:11px;font-weight:600}
 .pjI{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:4px;vertical-align:middle}
 .csr{display:grid;grid-template-columns:100px minmax(0,1fr) 70px;gap:8px;align-items:center;font-size:12.5px;padding:4px 0}.csr>span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.csr>i{height:8px;border-radius:4px;background:var(--sunk);display:block;overflow:hidden}.csr>i>b{display:block;height:100%;background:var(--accent,#E2BA6E);border-radius:4px}.csr>em{font-style:normal;text-align:right;font-weight:600}
 .fhb{display:flex;gap:3px;align-items:flex-end;height:46px;margin:10px 0 2px}.fhb i{flex:1;background:var(--accent,#E2BA6E);opacity:.75;border-radius:2px 2px 0 0}
@@ -2308,7 +2308,7 @@ html.zm nav.tabs{zoom:var(--unz,1)}
 .aps{margin-top:12px}.apsh{display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding:0 2px 6px;font-size:13px}.apsh span{color:var(--muted);font-size:12px}.apsh.crit b{color:var(--crit,#E0705F)}.apsh.warn b{color:var(--warn)}
 .lxatr{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;width:100%;margin:2px 0 12px;padding:11px 14px;border:0;border-radius:16px;background:color-mix(in srgb,var(--crit,#E0705F) 12%,transparent);color:inherit;font:inherit;text-align:left}.lxatr>svg{color:var(--crit,#E0705F);width:18px;height:18px}.lxatr b{display:block;font-size:14px}.lxatr small{color:var(--muted);font-size:12px}.lxatr .go{color:var(--crit,#E0705F)}
 .pq.late{color:var(--crit,#E0705F)}
-.atr{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;padding:8px 0;border-top:1px solid var(--sep,var(--hair));transition:opacity .25s}.atr.done{opacity:.35;pointer-events:none}
+.atrw{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;padding:8px 0;border-top:1px solid var(--sep,var(--hair));transition:opacity .25s}.atrw.done{opacity:.35;pointer-events:none}
 .atrm{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;border:0;background:none;color:inherit;font:inherit;text-align:left;padding:0;min-width:0}.atrm .lxm b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.atrm .lxm small{font-size:12px;color:var(--muted)}.atrm>.n{font-size:14px;white-space:nowrap}
 .atrq{display:flex;align-items:center;gap:4px;height:34px;padding:0 12px;border-radius:17px;border:0;background:var(--ink);color:var(--surface);font:inherit;font-size:12.5px;font-weight:600;white-space:nowrap}.atrq svg{width:14px;height:14px}.atrq.in{background:var(--good);color:#fff}.atrq.ghost{background:var(--sunk);color:inherit}
 .lxatn{margin:4px 2px 14px}
@@ -2336,6 +2336,13 @@ button.dli{width:100%;border:0;border-top:1px solid var(--hair);background:none;
 #fbgate p{margin:0;color:#9B9990;font-size:15px;line-height:1.5}
 #fbgate button{width:100%;border:0;border-radius:16px;padding:15px 18px;font:600 16px 'Geist',system-ui;background:#E2BA6E;color:#1A1408;cursor:pointer;margin-top:8px}
 #fbgate .er{color:#FF8B7E}
+/* ===== layout "edge": menos moldura, mais conteúdo (gutter 12px, hero de ponta a ponta) ===== */
+html,body{margin:0}
+main{padding-left:max(12px,env(safe-area-inset-left,0px));padding-right:max(12px,env(safe-area-inset-right,0px))}
+.top{padding-left:max(18px,env(safe-area-inset-left,0px));padding-right:max(14px,env(safe-area-inset-right,0px))}
+.view{gap:10px}
+.card{padding:16px;border-radius:22px}
+.view>.hero{margin-inline:calc(-1 * max(12px,env(safe-area-inset-left,0px)));border-radius:0 0 30px 30px;padding:14px 20px 20px;margin-top:-4px;border:0}
 </style>
 <div id="fbgate" hidden><div class="bx"><svg class="lg" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="139 90 228 332"><g transform="translate(-5 0)"><rect x="186" y="100" width="12" height="312" rx="6" fill="currentColor" opacity=".55"/><rect x="164" y="150" width="56" height="210" rx="16" fill="currentColor"/><path d="M244 150h38a70 70 0 0 1 0 140h-38z" fill="#E2BA6E"/></g></svg><h1>Patrimônio</h1><p id="fbmsg">Entre com a sua conta Google para ver as finanças da casa.</p><button type="button" id="fblogin">Entrar com Google</button></div></div>
 <script type="module">
@@ -3149,7 +3156,7 @@ async function baixaRapida(x){const t=today(),nav=x.nav||'';
       const ref=await S.db.collection('lanc').add(n);toastAct(`${rc?'Recebido':'Pago'}: ${recNome(r,ym)} · ${brl(+r.valor||0)}`,'Desfazer',async()=>{try{if(ref&&ref.id)await S.db.doc('lanc/'+ref.id).delete();toast('Desfeito')}catch(e){toast(writeErr(e))}})}
     else rvGo(nav)}catch(e){toast(writeErr(e))}}
 function atrRow(x){const t=today(),n=diffD(x.d,t),pos=x.v>0,q=podeBaixar(x);
-  return `<div class="atr"><button type="button" class="atrm" data-atn="${esc(x.nav||'')}"><span class="rvd"><b>${String(+x.d.slice(8)).padStart(2,'0')}</b><small>${MES[+x.d.slice(5,7)-1]}</small></span><span class="lxm"><b>${esc(descSemParc(x.t))}</b><small><span class="neg">${n} dia${n===1?'':'s'} de atraso</span>${x.s?' · '+esc(String(x.s).replace(/ · em atraso$/,'').replace(/^(pendente|a receber) · em atraso$/,'$1')):''}</small></span><b class="n ${pos?'pos':'neg'}">${pos?'+':''}${brl(Math.abs(x.v))}</b></button>
+  return `<div class="atrw"><button type="button" class="atrm" data-atn="${esc(x.nav||'')}"><span class="rvd"><b>${String(+x.d.slice(8)).padStart(2,'0')}</b><small>${MES[+x.d.slice(5,7)-1]}</small></span><span class="lxm"><b>${esc(descSemParc(x.t))}</b><small><span class="neg">${n} dia${n===1?'':'s'} de atraso</span>${x.s?' · '+esc(String(x.s).replace(/ · em atraso$/,'').replace(/^(pendente|a receber) · em atraso$/,'$1')):''}</small></span><b class="n ${pos?'pos':'neg'}">${pos?'+':''}${brl(Math.abs(x.v))}</b></button>
     ${q?`<button type="button" class="atrq ${pos?'in':''}" data-atq="${esc(x.nav)}">${ic('check')}<span>${pos?'Recebi':'Paguei'}</span></button>`:`<button type="button" class="atrq ghost" data-atn="${esc(x.nav||'')}"><span>Abrir</span></button>`}</div>`}
 function lancAtrasoView(me){const A=atrasos(me);if(!A.pag.length&&!A.rec.length)return `<div class="card emp">${ic('check')}<strong>Nada em atraso</strong><small>Tudo o que venceu está pago ou recebido.</small></div>`;
   return `${A.pag.length?`<div class="lxd atrd"><div class="lxdh"><span>A pagar em atraso</span><span class="n neg">−${brl(A.tp)}</span></div>${A.pag.map(atrRow).join('')}</div>`:''}
@@ -3815,7 +3822,7 @@ function openPJ(){const draw=sh=>{const P=PJ(),box=sh.querySelector('#pjx'),ym=t
     const cats=Object.entries(cur.cats).sort((a,b)=>b[1]-a[1]).slice(0,5);
     box.innerHTML=`<div class="ivh"><span class="k">${esc(P.nome||'Empresa')} · caixa hoje</span><div class="big n">${brl(saldo)}</div><span class="ivp">${ic('trend')}<span>${P.separar?'Separada das visões pessoais':'<span class="warn">Ainda misturada com as visões pessoais</span>'}</span></span></div>
       <div class="ivk"><div><small>Faturou em ${MES[+ym.slice(5)-1].toLowerCase().slice(0,3)}</small><b class="n pos">${brl0(cur.rec)}</b></div><div><small>Despesas</small><b class="n">${brl0(cur.desp)}</b></div><div><small>Resultado</small><b class="n ${cur.res<0?'neg':'pos'}">${cur.res<0?'−':''}${brl0(Math.abs(cur.res))}</b><small>${cur.rec?'margem '+pctf(cur.res/cur.rec):''}</small></div></div>
-      <section class="ivs"><div class="ivsh"><h3>Últimos 6 meses</h3><small>faturamento × despesas</small></div><div class="pjb">${M.map(m=>`<div class="pjm"><span class="pjbs"><i class="r" style="height:${(m.rec/mx*100).toFixed(1)}%"></i><i class="d" style="height:${(m.desp/mx*100).toFixed(1)}%"></i></span><small>${MES[+m.ym.slice(5)-1].slice(0,3)}</small><b class="n ${m.res<0?'neg':''}">${m.res<0?'−':''}${Math.abs(m.res)>=1000?(Math.abs(m.res)/1000).toLocaleString('pt-BR',{maximumFractionDigits:1})+'k':Math.round(Math.abs(m.res))}</b></div>`).join('')}</div>
+      <section class="ivs"><div class="ivsh"><h3>Últimos 6 meses</h3><small>faturamento × despesas</small></div><div class="bar6">${M.map(m=>`<div class="pjm"><span class="pjbs"><i class="r" style="height:${(m.rec/mx*100).toFixed(1)}%"></i><i class="d" style="height:${(m.desp/mx*100).toFixed(1)}%"></i></span><small>${MES[+m.ym.slice(5)-1].slice(0,3)}</small><b class="n ${m.res<0?'neg':''}">${m.res<0?'−':''}${Math.abs(m.res)>=1000?(Math.abs(m.res)/1000).toLocaleString('pt-BR',{maximumFractionDigits:1})+'k':Math.round(Math.abs(m.res))}</b></div>`).join('')}</div>
         <div class="sfg"><span><i class="pjI r"></i>faturamento</span><span><i class="pjI d"></i>despesas</span><span>número = resultado</span></div>
         ${comp.length?`<p class="rvsug">Média dos meses anteriores: faturamento <b class="n">${brl0(mRec)}</b>, resultado <b class="n">${brl0(mRes)}</b>/mês.</p>`:''}</section>
       <section class="ivs"><div class="ivsh"><h3>Empresa ↔ pessoa física</h3><small>${MES[+ym.slice(5)-1].toLowerCase()}</small></div>
@@ -3845,7 +3852,7 @@ function openCasa(){const C=casaCalc(),ym=today().slice(0,7),sg=v=>(v<0?'−':''
       <tr><td>Investido</td>${C.R.map(x=>`<td class="n">${brl0(x.inv)}</td>`).join('')}<td class="n"><b>${brl0(C.inv)}</b></td></tr>
       <tr><td>Patrimônio</td>${C.R.map(x=>`<td class="n">${sg(x.pl)}</td>`).join('')}<td class="n"><b>${sg(C.pl)}</b></td></tr></tbody></table>
       ${Math.abs(C.ac)>=1?`<p class="note">Acerto em aberto entre vocês: ${brl0(Math.abs(C.ac))}. Ele muda quem tem quanto, mas não muda o total da casa — por isso fica fora do patrimônio somado.</p>`:''}</section>
-    <section class="ivs"><div class="ivsh"><h3>Entradas e saídas da casa</h3><small>regime de caixa</small></div><div class="pjb">${C.meses.map(m=>`<div class="pjm"><span class="pjbs"><i class="r" style="height:${(m.rec/mx*100).toFixed(1)}%"></i><i class="d" style="height:${(m.desp/mx*100).toFixed(1)}%"></i></span><small>${MES[+m.ym.slice(5)-1].slice(0,3)}${m.ym===ym?'*':''}</small><b class="n ${m.rec-m.desp<0?'neg':''}">${sg(m.rec-m.desp).replace('R$','').trim()}</b></div>`).join('')}</div>
+    <section class="ivs"><div class="ivsh"><h3>Entradas e saídas da casa</h3><small>regime de caixa</small></div><div class="bar6">${C.meses.map(m=>`<div class="pjm"><span class="pjbs"><i class="r" style="height:${(m.rec/mx*100).toFixed(1)}%"></i><i class="d" style="height:${(m.desp/mx*100).toFixed(1)}%"></i></span><small>${MES[+m.ym.slice(5)-1].slice(0,3)}${m.ym===ym?'*':''}</small><b class="n ${m.rec-m.desp<0?'neg':''}">${sg(m.rec-m.desp).replace('R$','').trim()}</b></div>`).join('')}</div>
       <div class="sfg"><span><i class="pjI r"></i>entradas</span><span><i class="pjI d"></i>saídas</span><span>* mês em andamento, com o previsto</span></div></section>
     ${C.cat.length?`<section class="ivs"><div class="ivsh"><h3>Onde a casa gasta</h3><small>${MES[+ym.slice(5)-1].toLowerCase()}</small></div>${C.cat.map(([k,v])=>`<div class="csr"><span>${esc(k)}</span><i><b style="width:${(v/cm*100).toFixed(1)}%"></b></i><em class="n">${brl0(v)}</em></div>`).join('')}</section>`:''}
     <p class="note">Soma das duas visões individuais: cada compra comum já está dividida meio a meio, então somar dá o total da casa sem contar nada duas vezes.</p></div>`)}
@@ -5160,7 +5167,7 @@ function vLanc(){
   el.querySelectorAll('[data-l]').forEach(b=>b.onclick=()=>{const id=b.dataset.l;if(id.startsWith('prev:'))return openPrevista(id);openLanc(S.lanc.find(x=>x.id===id))});
   el.querySelectorAll('[data-atrv]').forEach(b=>b.onclick=()=>{LF.sit='atr';vLanc();window.scrollTo({top:0})});
   el.querySelectorAll('[data-atn]').forEach(b=>b.onclick=()=>rvGo(b.dataset.atn));
-  el.querySelectorAll('[data-atq]').forEach(b=>b.onclick=async()=>{b.disabled=true;const A=atrasos(ME()),x=A.pag.concat(A.rec).find(z=>z.nav===b.dataset.atq);if(x){b.closest('.atr').classList.add('done');await baixaRapida(x)}});
+  el.querySelectorAll('[data-atq]').forEach(b=>b.onclick=async()=>{b.disabled=true;const A=atrasos(ME()),x=A.pag.concat(A.rec).find(z=>z.nav===b.dataset.atq);if(x){b.closest('.atrw').classList.add('done');await baixaRapida(x)}});
 }
 function openLanFiltros(){
   const T=Object.assign({},LF);

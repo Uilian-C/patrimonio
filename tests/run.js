@@ -39,6 +39,7 @@ window.__fbSair=()=>{};setTimeout(()=>window.__fbReady(api),0);})();</script>`;
 (async () => {
   const dados = fixture(), arq = montar(dados), falhas = [], oks = [];
   const ok = (c, n, det) => (c ? oks : falhas).push(n + (c || !det ? '' : ' — ' + det));
+  { const ruins = require('./estilos'); ok(!ruins.length, 'estilos sem conflito de nomes', ruins.join(' | ')) }
   const b = await chromium.launch();
   for (const [w, esquema] of [[390, 'light'], [390, 'dark'], [1280, 'light']]) {
     const p = await b.newPage({ viewport: { width: w, height: 844 }, colorScheme: esquema }), erros = [];
@@ -101,7 +102,7 @@ window.__fbSair=()=>{};setTimeout(()=>window.__fbReady(api),0);})();</script>`;
       /* lançamentos › em atraso */
       await p.evaluate(() => location.hash = 'lanc'); await p.waitForTimeout(400);
       const atv = await p.evaluate(() => { const b = document.querySelector('[data-atrv]'); if (b) b.click(); return !!b }); await p.waitForTimeout(400);
-      if (atv) { const n = await p.evaluate(() => document.querySelectorAll('.atr').length); ok(n > 0, 'lançamentos: lista de atrasos', String(n)) }
+      if (atv) { const n = await p.evaluate(() => document.querySelectorAll('.atrw').length); ok(n > 0, 'lançamentos: lista de atrasos', String(n)) }
       /* período: tudo o que está a realizar (agendado, pendente de hoje ou atrasado, previsto) aparece nas entradas e saídas previstas */
       for (const prk of ['semana', 'quinzena', 'mes', 'tri']) {
         await p.evaluate(k => { localStorage.setItem('pt-prk', k); location.hash = 'inicio' }, prk); await p.waitForTimeout(150);
