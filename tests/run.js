@@ -328,13 +328,14 @@ window.__fbSair=()=>{};setTimeout(()=>window.__fbReady(api),0);})();</script>`;
     ok(await p.evaluate(() => [...document.querySelectorAll('#v-inicio .card.acx')].length) <= 1, 'início: "Para fazer agora" aparece uma vez só');
     /* herói: camada 1 com caixa, a pagar, pode gastar e próxima entrada; o mês abre no lugar */
     const h1 = await p.evaluate(() => { const h = document.querySelector('.hero'); return [h.innerText, !!h.querySelector('.hmes'), h.querySelector('.hmes .fob').hidden] });
-    ok(/Em caixa hoje/.test(h1[0]) && /Pode gastar sem faltar|Vai faltar/.test(h1[0]) && /A pagar/.test(h1[0]) && h1[1] && h1[2], 'início: herói enxuto com o mês recolhido', JSON.stringify(h1.slice(1)));
+    ok(/Em caixa hoje/.test(h1[0]) && /Pode gastar sem faltar|Vai faltar/.test(h1[0]) && /A pagar/.test(h1[0]) && h1[1] && !h1[2], 'início: herói com o gráfico do mês já aberto', JSON.stringify(h1.slice(1)));
+    await p.evaluate(() => document.querySelector('.hmes>.foh').click()); await p.waitForTimeout(400);
+    ok(await p.evaluate(() => document.querySelector('.hmes .fob').hidden && JSON.parse(localStorage.getItem('pt-fo') || '{}').hmes === 0), 'início: o mês recolhe e fica lembrado');
     await p.evaluate(() => document.querySelector('.hmes>.foh').click()); await p.waitForTimeout(400);
     const h2 = await p.evaluate(() => { const f = document.querySelector('.hmes'); return [f.classList.contains('on'), f.querySelector('.foh').getAttribute('aria-expanded'), !!f.querySelector('.hflow') && f.querySelector('.hflow').getBoundingClientRect().height > 100, JSON.parse(localStorage.getItem('pt-fo') || '{}').hmes] });
     ok(h2[0] && h2[1] === 'true' && h2[2] && h2[3] === 1, 'início: o mês abre no lugar e fica lembrado', JSON.stringify(h2));
     await p.evaluate(() => location.hash = 'lanc'); await p.waitForTimeout(300); await p.evaluate(() => location.hash = 'inicio'); await p.waitForTimeout(500);
     ok(await p.evaluate(() => document.querySelector('.hmes').classList.contains('on') && !document.querySelector('.hmes .fob').hidden), 'início: dobra continua aberta ao voltar');
-    await p.evaluate(() => document.querySelector('.hmes>.foh').click()); await p.waitForTimeout(350);
     /* listas: 3 à vista, o resto abre no lugar */
     const rv = await p.evaluate(() => { const l = document.querySelector('.rsv2 .rvl'); if (!l) return null; const vis = [...l.querySelectorAll('.rvr')].filter(x => x.offsetParent).length, all = l.querySelectorAll('.rvr').length; return [vis, all] });
     ok(rv && rv[0] === Math.min(3, rv[1]), 'início: para resolver mostra 3 e guarda o resto', JSON.stringify(rv));

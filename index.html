@@ -3434,7 +3434,7 @@ function iniHero(X){
       <span class="hper" role="group" aria-label="Período do gráfico">${[['m','Mês'],['3m','3M'],['6m','6M'],['1a','1A']].map(([k,l])=>`<button type="button" data-hper="${k}" aria-pressed="${HPER===k}">${l}</button>`).join('')}</span>
       ${HPER==='m'?`<span class="hfs">${heroChart(F,ym)}${(()=>{try{return barsSaidas(me,dayIn(ym,1),dayIn(ym,31),(i,n)=>3+i*314/Math.max(n-1,1))}catch(e){return ''}})()}</span>
       <span class="hfn"><span class="${dv>=0?'up':'dn'}">${dv>=0?'↑':'↓'} ${brl0(Math.abs(dv))} no mês</span> · projeção com tudo que entra e sai até ${lastDay(ym)}/${ym.slice(5)}</span>`:heroPeriodo(me)}
-      ${heroComp(F,me,ym)}</div>`})(),false,'hmes')})()}
+      ${heroComp(F,me,ym)}</div>`})(),true,'hmes')})()}
   </section>`;
 }
 function iniContas(X){
