@@ -317,6 +317,65 @@ window.__fbSair=()=>{};setTimeout(()=>window.__fbReady(api),0);})();</script>`;
     ok(!erros.length, `sem erros de script (${w}px ${esquema})`, erros.slice(0, 3).join(' | '));
     await p.close();
   }
+  /* camadas: o essencial à vista, o detalhe abre no lugar — sem perder nenhum recurso */
+  { const p = await b.newPage({ viewport: { width: 375, height: 812 }, colorScheme: 'dark' }), erros = [];
+    p.on('pageerror', e => erros.push(e.message));
+    await p.addInitScript(() => { try { localStorage.setItem('pt-tour', '1') } catch (e) { } });
+    await p.route(/fonts\.(googleapis|gstatic)|gstatic|cdnjs|bcb\.gov|brapi/, r => r.abort());
+    await p.goto('file://' + arq); await p.waitForTimeout(1500);
+    const vis = sel => p.evaluate(s => { const e = document.querySelector(s); return !!e && !!e.offsetParent && e.getBoundingClientRect().height > 0 }, sel);
+    await p.evaluate(() => location.hash = 'inicio'); await p.waitForTimeout(500);
+    ok(await p.evaluate(() => [...document.querySelectorAll('#v-inicio .card.acx')].length) <= 1, 'início: "Para fazer agora" aparece uma vez só');
+    /* herói: camada 1 com caixa, a pagar, pode gastar e próxima entrada; o mês abre no lugar */
+    const h1 = await p.evaluate(() => { const h = document.querySelector('.hero'); return [h.innerText, !!h.querySelector('.hmes'), h.querySelector('.hmes .fob').hidden] });
+    ok(/Em caixa hoje/.test(h1[0]) && /Pode gastar sem faltar|Vai faltar/.test(h1[0]) && /A pagar/.test(h1[0]) && h1[1] && h1[2], 'início: herói enxuto com o mês recolhido', JSON.stringify(h1.slice(1)));
+    await p.evaluate(() => document.querySelector('.hmes>.foh').click()); await p.waitForTimeout(400);
+    const h2 = await p.evaluate(() => { const f = document.querySelector('.hmes'); return [f.classList.contains('on'), f.querySelector('.foh').getAttribute('aria-expanded'), !!f.querySelector('.hflow') && f.querySelector('.hflow').getBoundingClientRect().height > 100, JSON.parse(localStorage.getItem('pt-fo') || '{}').hmes] });
+    ok(h2[0] && h2[1] === 'true' && h2[2] && h2[3] === 1, 'início: o mês abre no lugar e fica lembrado', JSON.stringify(h2));
+    await p.evaluate(() => location.hash = 'lanc'); await p.waitForTimeout(300); await p.evaluate(() => location.hash = 'inicio'); await p.waitForTimeout(500);
+    ok(await p.evaluate(() => document.querySelector('.hmes').classList.contains('on') && !document.querySelector('.hmes .fob').hidden), 'início: dobra continua aberta ao voltar');
+    await p.evaluate(() => document.querySelector('.hmes>.foh').click()); await p.waitForTimeout(350);
+    /* listas: 3 à vista, o resto abre no lugar */
+    const rv = await p.evaluate(() => { const l = document.querySelector('.rsv2 .rvl'); if (!l) return null; const vis = [...l.querySelectorAll('.rvr')].filter(x => x.offsetParent).length, all = l.querySelectorAll('.rvr').length; return [vis, all] });
+    ok(rv && rv[0] === Math.min(3, rv[1]), 'início: para resolver mostra 3 e guarda o resto', JSON.stringify(rv));
+    if (rv && rv[1] > 3) { await p.evaluate(() => document.querySelector('.rsv2 .fmore>.foh').click()); await p.waitForTimeout(350);
+      ok(await p.evaluate(() => [...document.querySelectorAll('.rsv2 .rvl .rvr')].every(x => x.offsetParent) && /Mostrar menos/.test(document.querySelector('.rsv2 .fmore>.foh').innerText)), 'início: "mostrar mais" abre todos no lugar');
+      await p.evaluate(() => document.querySelector('.rsv2 .fmore>.foh').click()); await p.waitForTimeout(350) }
+    /* cartão que começa recolhido mostra o resumo e abre ao toque (teclado também) */
+    const gm = await p.evaluate(() => { const c = document.querySelector('.card.gmc'); if (!c) return null; const s = c.querySelector('.colsum'); return [c.classList.contains('colp'), s && s.offsetParent ? s.innerText : '', c.querySelector('.ch>h2').getAttribute('aria-expanded'), c.querySelector('.ch>h2').tabIndex] });
+    ok(gm && gm[0] && /R\$/.test(gm[1]) && gm[2] === 'false' && gm[3] === 0, 'início: "quanto posso gastar" recolhido com resumo', JSON.stringify(gm));
+    if (gm) { await p.focus('.card.gmc>.ch>h2'); await p.keyboard.press('Enter'); await p.waitForTimeout(350);
+      ok(await p.evaluate(() => { const c = document.querySelector('.card.gmc'); return !c.classList.contains('colp') && c.querySelectorAll('.gmi').length === 3 && [...c.querySelectorAll('.gmi')].every(x => x.offsetParent) }), 'início: abre pelo teclado com as três visões');
+      await p.evaluate(() => document.querySelector('.card.gmc>.ch>h2').click()); await p.waitForTimeout(300) }
+    /* Carteira: cada área é uma linha com o número-chave; o detalhe completo está dentro */
+    await p.evaluate(() => location.hash = 'carteira'); await p.waitForTimeout(600);
+    const cx = await p.evaluate(() => ['invest', 'guardar', 'patrim'].map(k => { const s = document.querySelector(`.cx[data-cx="${k}"]`); return s ? [k, s.querySelector('.cxv').innerText.trim(), s.querySelector('.cxb').hidden] : [k, null] }));
+    ok(cx.every(x => x[1] && /R\$/.test(x[1]) && x[2] === true), 'carteira: investimentos, guardar e patrimônio em linhas com valor', JSON.stringify(cx));
+    for (const k of ['invest', 'guardar', 'patrim']) { await p.evaluate(k => document.querySelector(`.cx[data-cx="${k}"] .cxh`).click(), k); await p.waitForTimeout(350) }
+    const ct = await p.evaluate(() => document.querySelector('#v-carteira').innerText);
+    const falta = ['Rendimento em 12 meses', 'Aportar por mês', 'Abertura', 'Renda variável', 'Guardado em', 'Últimos 6 meses', 'Ativo', 'Passivo', 'Patrimônio líquido de'].filter(t => !ct.includes(t));
+    ok(!falta.length, 'carteira: ao abrir, todo o detalhe de antes está lá', falta.join(', '));
+    ok(await p.evaluate(() => document.documentElement.scrollWidth) <= 377, 'carteira aberta cabe na tela');
+    for (const k of ['invest', 'guardar', 'patrim']) await p.evaluate(k => document.querySelector(`.cx[data-cx="${k}"] .cxh`).click(), k);
+    /* Cartões e Decidir: detalhe recolhido, mas presente */
+    await p.evaluate(() => location.hash = 'cartoes'); await p.waitForTimeout(600);
+    const cr = await p.evaluate(() => { const v = document.querySelector('#v-cartoes'); const c = [...v.querySelectorAll('.card')].filter(x => /Faturas: passado|Parcelas em andamento/.test((x.querySelector('.ch>h2') || {}).textContent || '')); return [c.length, c.every(x => x.classList.contains('colp')), /Por tipo/.test(v.textContent), (c[0] && c[0].querySelector('.colsum') || {}).innerText || ''] });
+    ok(cr[0] === 2 && cr[1] && cr[2] && /R\$/.test(cr[3]), 'cartões: faturas e parcelas recolhidas com resumo', JSON.stringify(cr));
+    await p.evaluate(() => location.hash = 'decidir'); await p.waitForTimeout(600);
+    const dc = await p.evaluate(() => { const f = document.querySelector('.fo.fcat'); return f ? [f.querySelector('.fob').hidden, /Categoria/.test(f.textContent)] : null });
+    ok(dc && dc[0] && dc[1], 'decidir: categorias do dia a dia abrem no lugar', JSON.stringify(dc));
+    /* tudo aberto a 320 px: nada vaza */
+    await p.setViewportSize({ width: 320, height: 800 });
+    const ovs = {};
+    for (const v of ['inicio', 'carteira', 'cartoes', 'decidir']) {
+      await p.evaluate(v => location.hash = v, v); await p.waitForTimeout(500);
+      await p.evaluate(() => { document.querySelectorAll('.fo:not(.on)>.foh').forEach(h => h.click()); document.querySelectorAll('.colp>.ch>h2').forEach(h => h.click()); document.querySelectorAll('.cx:not(.open)>.cxh').forEach(h => h.click()) }); await p.waitForTimeout(500);
+      const sw = await p.evaluate(() => document.documentElement.scrollWidth); if (sw > 322) ovs[v] = sw;
+      await p.evaluate(() => { document.querySelectorAll('.fo.on>.foh').forEach(h => h.click()) }) }
+    ok(!Object.keys(ovs).length, 'camadas: tudo aberto a 320 px cabe na tela', JSON.stringify(ovs));
+    await p.evaluate(() => { try { localStorage.removeItem('pt-fo'); localStorage.removeItem('pt-col'); localStorage.removeItem('pt-colo'); localStorage.removeItem('pt-cx') } catch (e) { } });
+    ok(!erros.length, 'camadas: sem erros de script', erros.slice(0, 3).join(' | '));
+    await p.close() }
   await b.close();
   console.log(`${oks.length} ok · ${falhas.length} falha${falhas.length === 1 ? '' : 's'}`);
   falhas.forEach(f => console.log('FALHA  ' + f));
