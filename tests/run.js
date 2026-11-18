@@ -365,6 +365,19 @@ window.__fbSair=()=>{};setTimeout(()=>window.__fbReady(api),0);})();</script>`;
     await p.evaluate(() => location.hash = 'decidir'); await p.waitForTimeout(600);
     const dc = await p.evaluate(() => { const f = document.querySelector('.fo.fcat'); return f ? [f.querySelector('.fob').hidden, /Categoria/.test(f.textContent)] : null });
     ok(dc && dc[0] && dc[1], 'decidir: categorias do dia a dia abrem no lugar', JSON.stringify(dc));
+    /* gráficos: todo gráfico mostra números e nenhum texto fica abaixo de 10 px na tela */
+    { const ruins = {}, semNum = [];
+      for (const v of ['inicio', 'cartoes', 'carteira', 'decidir']) {
+        await p.evaluate(v => location.hash = v, v); await p.waitForTimeout(500);
+        await p.evaluate(() => { document.querySelectorAll('.fo:not(.on)>.foh').forEach(h => h.click()); document.querySelectorAll('.colp>.ch>h2').forEach(h => h.click()); document.querySelectorAll('.cx:not(.open)>.cxh').forEach(h => h.click()) }); await p.waitForTimeout(600);
+        const r = await p.evaluate(() => { const out = { small: [], none: [] }; document.querySelectorAll('svg[viewBox][role="img"]').forEach(g => { const bb = g.getBoundingClientRect(); if (bb.width < 200 || bb.height < 50) return; const m = g.getScreenCTM(); if (!m) return; const sc = Math.min(m.a, m.d);
+          const T = [...g.querySelectorAll('text')].filter(t => t.getBBox().width > 0), lab = g.getAttribute('aria-label') || '?';
+          T.forEach(t => { const fs = parseFloat(getComputedStyle(t).fontSize) * sc; if (fs < 9.9) out.small.push(lab + ':' + t.textContent.trim() + '@' + fs.toFixed(1)) });
+          if (!T.some(t => /\d[\d.,]*k?$|R\$/.test(t.textContent.trim()) && !/^\d{1,2}$/.test(t.textContent.trim()))) out.none.push(lab) }); return out });
+        if (r.small.length) ruins[v] = r.small.slice(0, 4); semNum.push(...r.none.map(x => v + ':' + x));
+        await p.evaluate(() => { document.querySelectorAll('.fo.on>.foh').forEach(h => h.click()) }) }
+      ok(!Object.keys(ruins).length, 'gráficos: textos legíveis (≥ 10 px na tela)', JSON.stringify(ruins));
+      ok(!semNum.length, 'gráficos: todos mostram números', semNum.join(', ')) }
     /* tudo aberto a 320 px: nada vaza */
     await p.setViewportSize({ width: 320, height: 800 });
     const ovs = {};
