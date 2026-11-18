@@ -2443,6 +2443,10 @@ nav.tabs a{min-width:0;white-space:nowrap}nav.tabs .tl-s{display:none}
 .acxm{display:grid;gap:1px;min-width:0}.acxm b{font-size:14px;font-weight:600}.acxm small{font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .hsplit .hgdw{grid-column:1/-1;display:flex;justify-content:flex-start;padding:0!important;border:0!important;margin-top:-4px}.hsplit .hgdw:empty{display:none}
 .frpaste{display:inline-flex;align-items:center;gap:6px;margin:4px 0 2px}.frpaste svg{width:15px;height:15px}
+.rmes{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-top:8px}.rmes .chip{justify-content:center;padding:6px 0}
+.szc{display:grid;gap:2px}.szh{display:grid;gap:2px;padding-bottom:6px}.szh>span{display:grid;gap:2px}.szh small{font-size:12.5px;color:var(--muted)}.szh b{font-size:24px;font-weight:700}.szh em{font-style:normal;font-size:12px;color:var(--muted)}
+.szc .cxr{display:flex;align-items:center;gap:12px;width:100%}.szc .cxr>.cxm{flex:1;min-width:0}.szs{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:8px}.szs small{color:var(--muted);font-size:12px}
+.szold{display:grid;gap:6px;padding:12px;border-radius:14px;background:var(--accent-soft);margin-bottom:12px}.szold small{color:var(--muted);font-size:12.5px}.szold .btn{justify-self:start}
 </style>
 <div id="fbgate" hidden><div class="bx"><svg class="lg" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="139 90 228 332"><g transform="translate(-5 0)"><rect x="186" y="100" width="12" height="312" rx="6" fill="currentColor" opacity=".55"/><rect x="164" y="150" width="56" height="210" rx="16" fill="currentColor"/><path d="M244 150h38a70 70 0 0 1 0 140h-38z" fill="#E2BA6E"/></g></svg><h1>Patrimônio</h1><p id="fbmsg">Entre com a sua conta Google para ver as finanças da casa.</p><button type="button" id="fblogin">Entrar com Google</button></div></div>
 <script type="module">
@@ -2679,7 +2683,7 @@ const recN=(r,ym)=>r.parcelas?(+r.parcelaIni||1)+mdiff(r.inicio||ym,ym):0;
 const recNome=(r,ym)=>r.nome+(r.parcelas?` ${recN(r,ym)}/${r.parcelas}`:'');
 function recPrevistos(fromYm,toYm){
   const out=[],cur=today().slice(0,7);S.recs.filter(r=>r.ativo!==false).forEach(r=>{let ym=fromYm<cur?cur:fromYm;while(ym<=toYm){
-    if((!r.inicio||ym>=r.inicio)&&(!r.fim||ym<=r.fim)&&!(r.parcelas&&recN(r,ym)>+r.parcelas)&&!(r.pula||[]).includes(ym)&&!S.lanc.some(l=>l.rec===r.id&&l.recYm===ym)){const d=recDia(r,ym);out.push({r,ym,date:d,per:perOf(d),valor:+r.valor||0,tipo:r.tipo,dono:r.dono||ME(),nome:recNome(r,ym),n:recN(r,ym),N:+r.parcelas||0})}
+    if((!r.inicio||ym>=r.inicio)&&(!r.fim||ym<=r.fim)&&(!(r.meses&&r.meses.length)||r.meses.includes(+ym.slice(5)))&&!(r.parcelas&&recN(r,ym)>+r.parcelas)&&!(r.pula||[]).includes(ym)&&!S.lanc.some(l=>l.rec===r.id&&l.recYm===ym)){const d=recDia(r,ym);out.push({r,ym,date:d,per:perOf(d),valor:+r.valor||0,tipo:r.tipo,dono:r.dono||ME(),nome:recNome(r,ym),n:recN(r,ym),N:+r.parcelas||0})}
     ym=ymAdd(ym,1)}});return out;
 }
 
@@ -4318,6 +4322,7 @@ function vDecidir(){
   /* investir: abertura e projeção */
   let G=null;try{G=gastoLentes(me,ym)}catch(e){}const sob=G?Math.max(0,Math.min(G.L.sobra[1],G.L.caixa[1])):0,im=cdiMes();
   h+=`<h3 class="dch">Guardar</h3>${(()=>{try{return guardCard(me)}catch(e){console.error('guardar',e);return ''}})()}`;
+  h+=`<h3 class="dch">Despesas do ano</h3>${(()=>{try{return sazCard(me)}catch(e){console.error('saz',e);return ''}})()}`;
   if(!SIMPLES)h+=`<h3 class="dch">Investir</h3>${iniInvest(me)}${(()=>{try{return rvCard(me)}catch(e){console.error('rv',e);return ''}})()}
 
     ${iniSpread(X)||''}`;
@@ -4336,8 +4341,28 @@ function vDecidir(){
    Meta do mês: o "Guardar" do plano do mês; sem plano, a meta da taxa de poupança (Painel) × renda do mês.
    Guardado: aportes − resgates nas reservas e investimentos (transferências registradas), até hoje.
    Seguro para guardar hoje: o que sobra se pagar tudo até a próxima entrada (mesma regra do Início) − colchão. */
+/* ===================== Despesas do ano =====================
+   Recorrências que caem só em alguns meses (IPVA, IPTU, seguro…). Entram em todas as projeções pela data;
+   aqui o app mostra quanto separar por mês para cada uma não pesar no mês em que cai. */
+const ehSaz=r=>r&&r.ativo!==false&&r.meses&&r.meses.length;
+function sazProxR(r,de){for(let k=0;k<24;k++){const ym=ymAdd(de,k);if(r.meses.includes(+ym.slice(5))&&(!r.inicio||ym>=r.inicio)&&(!r.fim||ym<=r.fim)&&!S.lanc.some(l=>l.rec===r.id&&l.recYm===ym))return ym}return null}
+function sazLista(me){const cm=today().slice(0,7);return S.recs.filter(r=>ehSaz(r)&&(r.dono||me)===me).map(r=>{const ym=sazProxR(r,cm);if(!ym)return null;
+  /* ocorrência = o bloco de meses seguidos (ex.: IPVA jan, fev, mar) */let tot=0,fimY=ym;for(let k=0;k<12;k++){const y=ymAdd(ym,k);if(r.meses.includes(+y.slice(5))){tot+=+r.valor||0;fimY=y}else break}
+  const m=Math.max(mdiff(cm,ym),1),porMes=r2(tot/m);return {r,ym,tot:r2(tot),fimY,m,porMes}}).filter(Boolean).sort((a,b)=>a.ym.localeCompare(b.ym))}
+function sazProv(me){return r2(sum(sazLista(me).filter(x=>x.r.tipo!=='receita'),x=>x.porMes))}
+const SAZT=[['IPVA','Transporte',[1]],['Licenciamento','Transporte',[3]],['IPTU','Casa',[2]],['Seguro do carro','Transporte',[]],['Material escolar','Educação',[1]],['Presentes de fim de ano','Presentes',[12]],['13º salário','',[11,12],'receita'],['Férias','',[],'receita']];
+function sazCard(me){const L=sazLista(me),D=L.filter(x=>x.r.tipo!=='receita'),R=L.filter(x=>x.r.tipo==='receita'),prov=r2(sum(D,x=>x.porMes)),ymL=y=>`${MES[+y.slice(5)-1].slice(0,3).toLowerCase()}/${y.slice(2,4)}`;
+  const row=x=>`<button class="cxr" type="button" data-szr="${esc(x.r.id)}"><span class="cxm"><strong>${esc(x.r.nome)}</strong><small>${ymL(x.ym)}${x.fimY!==x.ym?' a '+ymL(x.fimY):''} · ${brl0(x.tot)}${x.r.tipo==='receita'?'':` · separar ${brl0(x.porMes)}/mês por ${x.m} ${x.m===1?'mês':'meses'}`}</small></span><b class="n ${x.r.tipo==='receita'?'pos':''}">${x.r.tipo==='receita'?'+':''}${brl0(x.r.tipo==='receita'?x.tot:x.porMes)}</b></button>`;
+  const usados=new Set(S.recs.filter(ehSaz).map(r=>norm(r.nome))),sug=SAZT.filter(t=>!usados.has(norm(t[0])));
+  return `<div class="card dcc szc"><div class="szh"><span><small>Separar por mês para as despesas do ano</small><b class="n">${brl0(prov)}</b></span><em>${D.length?`${D.length} despesa${D.length===1?'':'s'} · a próxima: ${esc(D[0].r.nome)} em ${ymL(D[0].ym)}`:'nenhuma cadastrada'}</em></div>
+    ${D.map(row).join('')}${R.length?`<p class="cgsh">Entradas do ano</p>${R.map(row).join('')}`:''}
+    ${sug.length?`<div class="szs"><small>Adicionar:</small>${sug.map((t,i)=>`<button type="button" class="chip" data-szt="${SAZT.indexOf(t)}">${t[0]}</button>`).join('')}</div>`:''}
+    <p class="sdm">Elas já entram no “pode gastar sem faltar”, nas projeções e na meta de Guardar. Quando pagar, confirme como qualquer conta fixa.</p></div>`}
+document.addEventListener('click',e=>{const r=e.target.closest&&e.target.closest('[data-szr]');if(r){const x=S.recs.find(z=>z.id===r.dataset.szr);if(x)openRec(x);return}
+  const t=e.target.closest&&e.target.closest('[data-szt]');if(t){const [nome,cat,ms,tp]=SAZT[+t.dataset.szt];const c=tp==='receita'?(CATR.find(z=>/sal/i.test(z))||CATR[0]):(CATS.includes(cat)?cat:'Outros');openRec({tipo:tp||'despesa',nome,categoria:c,meses:ms.length?ms:[+today().slice(5,7)%12+1],dia:10,conta:contaPadrao()||''})}});
 function guardMeta(ym,me){const pl=planoOf(ym),g=pl?+pl.guardar||0:0;let renda=0;try{renda=planoCalc(ym,me).renda||0}catch(e){}
-  if(g>0)return {v:r2(g),fonte:'plano',renda};const pc=KPM().pou||.2;return {v:r2(renda*pc),fonte:'pct',pc,renda}}
+  const prov=ym===today().slice(0,7)?(()=>{try{return sazProv(me)}catch(e){return 0}})():0;
+  if(g>0)return {v:r2(g+prov),fonte:'plano',renda,prov};const pc=KPM().pou||.2;return {v:r2(renda*pc+prov),fonte:'pct',pc,renda,prov}}
 function guardFeito(ym,me){const A=invContas(me);return r2(sum(A,a=>{const m=invMes([a],ym);return (m.ap-m.rg)*fracOf(a.dono,me)}))}
 function guardSeguro(me){let L={livre:0,ate:today()};try{L=caixaLivre(me)}catch(e){}const cz=colchao()||0;return {L,cz,v:Math.max(0,Math.floor((L.livre-cz)/10)*10)}}
 function guardSug(me){const ym=today().slice(0,7),M=guardMeta(ym,me),g=guardFeito(ym,me),sg=guardSeguro(me),falta=r2(Math.max(0,M.v-g));return {M,g,falta,sg,v:falta>0?Math.min(sg.v,Math.ceil(falta)):sg.v}}
@@ -4374,7 +4399,7 @@ function guardCard(me){if(!invContas(me).length)return `<div class="card dcc"><p
   const ym=today().slice(0,7),S0=guardSug(me),H=guardHist(me,6),p=S0.M.v>0?S0.g/S0.M.v:0,acc=sum(H,x=>x.g),mx=Math.max(1,...H.map(x=>Math.max(x.g,x.m))),W=300,Hh=92,bw=26,gx=W/6;
   const bars=H.map((x,i)=>{const cx=gx*i+gx/2,hg=Math.max(x.g,0)/mx*(Hh-34),hm=x.m/mx*(Hh-34),yb=Hh-18,ok=x.m>0&&x.g>=x.m-.5,cur=x.y===ym;
     return `<rect x="${cx-bw/2}" y="${yb-hg}" width="${bw}" height="${Math.max(hg,1.5)}" rx="4" class="gdh ${ok?'ok':''} ${cur?'cur':''}"/>${x.m>0?`<line x1="${cx-bw/2-3}" x2="${cx+bw/2+3}" y1="${yb-hm}" y2="${yb-hm}" class="gdm"/>`:''}<text x="${cx}" y="${yb-Math.max(hg,1.5)-5}" class="gdt">${x.g>=1000?(x.g/1000).toLocaleString('pt-BR',{maximumFractionDigits:1})+'k':Math.round(x.g)}</text><text x="${cx}" y="${Hh-4}" class="gdt mo ${cur?'cur':''}">${MES[+x.y.slice(5)-1].slice(0,3)}</text>`}).join('');
-  return `<div class="card dcc gdc"><div class="gdhd">${guardRing(p)}<div><small>Guardado em ${MESL[+ym.slice(5)-1].toLowerCase()}</small><b class="n">${brl0(S0.g)} <span>de ${brl0(S0.M.v)}</span></b><em>${S0.M.fonte==='plano'?'meta do plano do mês':`meta: ${Math.round(S0.M.pc*100)}% da renda (${brl0(S0.M.renda)})`} · ${S0.M.v>0?Math.round(p*100)+'%':'—'}</em></div></div>
+  return `<div class="card dcc gdc"><div class="gdhd">${guardRing(p)}<div><small>Guardado em ${MESL[+ym.slice(5)-1].toLowerCase()}</small><b class="n">${brl0(S0.g)} <span>de ${brl0(S0.M.v)}</span></b><em>${S0.M.fonte==='plano'?'meta do plano do mês':`meta: ${Math.round(S0.M.pc*100)}% da renda (${brl0(S0.M.renda)})`}${S0.M.prov>.5?` + ${brl0(S0.M.prov)} para despesas do ano`:''} · ${S0.M.v>0?Math.round(p*100)+'%':'—'}</em></div></div>
     <button class="btn primary gdgo" type="button" data-guardar="${S0.v}" ${S0.v>=10?'':'disabled'}>${S0.v>=10?`Guardar ${brl0(S0.v)} agora`:'Sem folga segura hoje'}</button>
     <p class="sdm">${S0.v>=10?`Seguro: pode gastar sem faltar ${brl0(S0.sg.L.livre)} (mínimo em ${fdate(S0.sg.L.ate).slice(0,5)}) − colchão ${brl0(S0.sg.cz)}.`:`Em ${fdate(S0.sg.L.ate).slice(0,5)} o caixa chega ao mínimo de ${brl0(S0.sg.L.livre)}: não sobra para guardar.`}${S0.falta>0?` Faltam ${brl0(S0.falta)} para a meta do mês.`:' Meta do mês batida.'}</p>
     <div class="gdx"><div class="sfh"><b>Últimos 6 meses</b><span class="n">acumulado ${brl0(acc)}</span></div><svg viewBox="0 0 ${W} ${Hh}" class="gdsv" role="img" aria-label="Guardado por mês contra a meta">${bars}</svg><div class="sfg"><span><i class="gdhI"></i>guardado</span><span><i class="gdmI"></i>meta</span></div></div></div>`}
@@ -6705,7 +6730,7 @@ function openRotinas(){const A=rotAgora(),W=A.W,rs=ROT()[W.k]||{},F=FECH(),cm=to
     <section class="fsec"><h3>Quinzenal</h3>${(()=>{const Z=A.Z,r=Z&&ROT()[Z.key]||{};return Z?it('swap','Fechar quinzena',r.em?`${fdate(Z.ini).slice(0,5)} a ${fdate(Z.fim).slice(0,5)} · fechada em ${fdate(r.em)}`:`${fdate(Z.ini).slice(0,5)} a ${fdate(Z.fim).slice(0,5)} · pendente`,'data-rqz="1"',r.em?'ok':''):''})()}</section>
     <section class="fsec"><h3>Bimestral</h3>${it('repeat','Revisar contas fixas',(ROT()[A.B.key]||{}).em?`revisadas em ${fdate(ROT()[A.B.key].em)}`:`${A.B.lab} · reajuste × inflação, custo anual`,'data-rbim="1"',(ROT()[A.B.key]||{}).em?'ok':'')}</section>
     <section class="fsec"><h3>Trimestral</h3>${it('health','Saúde do trimestre',(ROT()[A.T.key]||{}).em?`revisada em ${fdate(ROT()[A.T.key].em)}`:`${A.T.lab} · reserva, spread, limites e poupança`,'data-rtri="1"',(ROT()[A.T.key]||{}).em?'ok':'')}</section>
-    <section class="fsec"><h3>Anual</h3>${it('calendar','Calendário do ano',`${SAZ().length} ite${SAZ().length===1?'m':'ns'} · guardar ${brl0(sazProvisao())}/mês`,'data-rano="1"',SAZ().length?'ok':'')}${it('doc','Apoio ao IR',`ano-base ${+today().slice(0,4)-1} · rendimentos, dedutíveis e bens`,'data-rir="1"','')}</section>`,sh=>{
+    <section class="fsec"><h3>Anual</h3>${it('calendar','Calendário do ano',`${(()=>{let n=SAZ().length;try{n+=sazLista(ME()).length}catch(e){}return n})()} ite${SAZ().length===1?'m':'ns'} · guardar ${brl0(sazProvisao())}/mês`,'data-rano="1"',SAZ().length?'ok':'')}${it('doc','Apoio ao IR',`ano-base ${+today().slice(0,4)-1} · rendimentos, dedutíveis e bens`,'data-rir="1"','')}</section>`,sh=>{
     sh.querySelectorAll('[data-rbim]').forEach(b=>b.onclick=openRevRec);sh.querySelectorAll('[data-rtri]').forEach(b=>b.onclick=openSaudeTri);sh.querySelectorAll('[data-rano]').forEach(b=>b.onclick=openSazonais);sh.querySelectorAll('[data-rir]').forEach(b=>b.onclick=()=>openIR());
     sh.querySelectorAll('[data-rsem]').forEach(b=>b.onclick=openSemana);sh.querySelectorAll('[data-rqz]').forEach(b=>b.onclick=openQuinzena)})}
 /* quinzena que acabou de virar (o salário ou adiantamento acabou de entrar) */
@@ -6774,24 +6799,12 @@ const SAZP=[['IPVA',1,'Carro'],['IPTU',2,'Casa'],['Material escolar',1,'Educaç�
 const SAZ=()=>(cfg().sazonais||[]);
 async function sazSave(L){try{await S.db.doc('config/app').set(Object.assign({},S.cfg||{},{sazonais:L}))}catch(e){toast(writeErr(e))}}
 function sazProx(x){const t=today(),y=+t.slice(0,4),m=+t.slice(5,7),yy=x.mes>=m?y:y+1;return {ym:`${yy}-${String(x.mes).padStart(2,'0')}`,meses:(yy-y)*12+x.mes-m}}
-function sazProvisao(){return r2(sum(SAZ(),x=>{const p=sazProx(x);return (+x.valor||0)/(p.meses+1)}))}
-function openSazonais(){const L=SAZ().slice().sort((a,b)=>sazProx(a).meses-sazProx(b).meses),tot=sum(L,x=>+x.valor||0),prov=sazProvisao();
-  const by=Array(12).fill(0);L.forEach(x=>by[x.mes-1]+=+x.valor||0);const mx=Math.max(...by,1),cm=+today().slice(5,7);
-  openSheet(`<h2>Calendário do ano</h2><p class="note">Despesas que vêm uma vez por ano (IPVA, IPTU, material escolar…). Ao cadastrar, o app calcula quanto guardar por mês para chegar no vencimento sem aperto.</p>
-    <div class="prk3"><div><small>No ano</small><b class="n">${brl0(tot)}</b></div><div><small>Guardar por mês</small><b class="n pos">${brl0(prov)}</b></div><div><small>Itens</small><b class="n">${L.length}</b></div></div>
-    <div class="szb">${by.map((v,i)=>`<span class="${i+1===cm?'on':''}"><i style="height:${v?Math.max(8,v/mx*100):0}%"></i><small>${MES[i].slice(0,1)}</small></span>`).join('')}</div>
-    <div class="ivab">${L.map((x,i)=>{const p=sazProx(x);return `<div class="ivar"><i style="background:var(--accent,#E2BA6E)"></i><span class="ivam"><b>${esc(x.nome)}</b><small>${MESL[x.mes-1]} · ${p.meses?`em ${p.meses} ${p.meses>1?'meses':'mês'} · guarde ${brl0((+x.valor||0)/(p.meses+1))}/mês`:'vence este mês'}</small></span><span class="ivav"><b class="n">${brl0(+x.valor||0)}</b><small><button class="lk" type="button" data-szx="${esc(x.id)}">remover</button></small></span></div>`}).join('')||'<p class="note">Nada cadastrado ainda.</p>'}</div>
-    <h3 class="dch" style="margin-top:16px">Adicionar</h3>
-    <div class="chips szp">${SAZP.filter(([n])=>!L.some(x=>x.nome===n)).map(([n,m])=>`<button type="button" class="chip" data-szp="${esc(n)}" data-szm="${m}">+ ${esc(n)}</button>`).join('')}</div>
-    <form class="form" id="szf" novalidate><div class="f2"><div class="field"><label for="sz-n">Nome</label><input id="sz-n" placeholder="Ex.: IPVA"></div><div class="field"><label for="sz-m">Mês</label><select id="sz-m">${MESL.map((m,i)=>`<option value="${i+1}">${m}</option>`).join('')}</select></div></div>
-      <div class="field"><label for="sz-v">Valor estimado (R$)</label><input id="sz-v" type="number" inputmode="decimal" step="0.01" placeholder="0,00"></div><button class="btn primary" type="submit">Adicionar ao calendário</button></form>
-    <p class="note">É planejamento: não entra no saldo nem nas projeções. Quando o mês chegar, lance a despesa normalmente.</p>`,sh=>{
-    sh.querySelectorAll('[data-szp]').forEach(b=>b.onclick=()=>{sh.querySelector('#sz-n').value=b.dataset.szp;if(+b.dataset.szm)sh.querySelector('#sz-m').value=b.dataset.szm;sh.querySelector('#sz-v').focus()});
-    sh.querySelectorAll('[data-szx]').forEach(b=>b.onclick=async()=>{await sazSave(SAZ().filter(x=>x.id!==b.dataset.szx));openSazonais()});
-    sh.querySelector('#szf').onsubmit=async e=>{e.preventDefault();const n=sh.querySelector('#sz-n').value.trim(),m=+sh.querySelector('#sz-m').value,v=r2(parseFloat(sh.querySelector('#sz-v').value));if(!n||!(v>0)){toast('Informe nome e valor');return}
-      await sazSave(SAZ().concat([{id:'z'+Date.now().toString(36),nome:n,mes:m,valor:v}]));toast(`${n} no calendário`);openSazonais()}})}
-/* ---------- anual: apoio à declaração do IR ---------- */
-const IRDED=/sa[uú]de|m[eé]dic|dent|plano de sa|hospital|exame|psic|terap|fisio|educa|escola|faculd|curso|col[eé]gio/i;
+function sazProvisao(){let v=0;try{v=sazProv(ME())}catch(e){}return r2(v+sum(SAZ(),x=>{const p=sazProx(x);return (+x.valor||0)/(p.meses+1)}))}
+function openSazonais(){const me=ME(),O=SAZ();
+  openSheet(`<h2>Despesas do ano</h2>${O.length?`<div class="szold"><b>${O.length} ite${O.length===1?'m':'ns'} no calendário antigo</b><small>Eram só planejamento e não entravam nas projeções: ${O.map(x=>esc(x.nome)).join(', ')}.</small><button class="btn sm primary" type="button" id="sz-mig">Levar para as projeções</button></div>`:''}${sazCard(me)}`,sh=>{
+    const m=sh.querySelector('#sz-mig');if(m)m.onclick=async()=>{try{for(const x of SAZ()){const cat=CATS.includes(x.cat)?x.cat:(CATS.find(c=>/transp|carro/i.test(c))&&/ipva|licenc|seguro/i.test(x.nome)?CATS.find(c=>/transp|carro/i.test(c)):'Outros');
+        await S.db.collection('recorrentes').add({tipo:'despesa',nome:x.nome,valor:r2(+x.valor||0),dia:10,dono:me,conta:contaPadrao()||'',categoria:cat,meses:[+x.mes||1],ativo:true})}
+      await sazSave([]);toast('Despesas do ano nas projeções');closeSheet()}catch(e){toast(writeErr(e))}}})}
 function openIR(ano){ano=ano||String(+today().slice(5,7)<=6?+today().slice(0,4)-1:+today().slice(0,4));const me=ME(),a=ano+'-01-01',b=ano+'-12-31',ant=String(+ano-1)+'-12-31';
   const L=S.lanc.filter(l=>!l.pend&&(l.data||'')>=a&&(l.data||'')<=b),sh=l=>(l.divisao==='comum'?.5:1)*(+l.valor||0);
   const rec={};L.filter(l=>l.tipo==='receita').forEach(l=>{const c=l.categoria||'Outros';rec[c]=(rec[c]||0)+sh(l)});
@@ -6947,6 +6960,7 @@ function openPremissas(){
   const P2=[['Saldo de hoje','Só o que já aconteceu: lançamentos efetivados com data até hoje. Lançamento com data futura é “agendado” e só entra no saldo no dia dele.'],
     ['A realizar (regra única)','Tudo o que ainda vai mexer na conta, numa lista só, usada por todas as telas (Início, fluxo do mês, projeção, período, resumo da conta, A pagar, Quanto posso gastar, “caixa cobre” dos cartões): contas fixas e salários previstos, pendentes e “a receber”, agendados, faturas, parcelas de dívidas e DARF. O que venceu e não foi pago entra como hoje.'],
     ['Guardar','Meta do mês: o “Guardar” do plano do mês; sem plano, a meta da taxa de poupança × renda do mês. Guardado: transferências para reservas e investimentos menos resgates, até hoje. Seguro para guardar: “pode gastar sem faltar” menos o colchão.'],
+    ['Despesas do ano','Contas fixas que caem só em alguns meses (IPVA, IPTU, seguro, presentes) e entradas do ano (13º, férias). Entram pela data em todas as projeções. Separar por mês = valor do próximo bloco ÷ meses até ele; essa soma entra na meta de Guardar do mês.'],
     ['Pode gastar sem faltar','Regra única de quanto dá para gastar: o menor saldo previsto nos próximos 30 dias, simulando o caixa dia a dia com tudo o que está registrado (vencidos e não pagos saem hoje). Mesmo número no Início, Carteira, Decidir, Guardar e “Posso comprar?”. Não inclui estimativa do dia a dia.'],
     ['Previsto do mês','Saldo de hoje + tudo a realizar até o fim do mês. Cada tela mostra a mesma conta: inicial + realizado = hoje; hoje + a realizar = previsto.'],
     ['Caixa','O saldo em conta só muda quando o lançamento é efetivado. Itens pendentes ficam previstos até você marcar como pago, com data e conta.'],
@@ -7386,15 +7400,21 @@ function openRec(r){
     <div class="field"><label for="r-u">Data</label><select id="r-u">${opts([['','Dia fixo do mês'],['antes','Dia fixo, antecipa se cair em fim de semana ou feriado'],['ult','Último dia útil do mês']],r.util||'')}</select></div>
     <div class="f3"><div class="field"><label for="r-d">Dia</label><input id="r-d" type="number" min="1" max="31" value="${r.dia}"></div><div class="field"><label for="r-p">De quem</label><select id="r-p">${pessoasOpts(r.dono)}</select></div><div class="field"><label for="r-c">Conta</label><select id="r-c"><option value="">—</option>${contasOpts(r.conta,['corrente','dinheiro'])}</select></div></div>
     <div class="field"><label for="r-cat">Categoria</label><select id="r-cat">${opts(r.tipo==='receita'?CATR:CATS,r.categoria)}</select></div>
+    <div class="field"><label>Repete</label><div class="seg" id="r-rp"><button type="button" data-v="m" aria-pressed="${!(r.meses&&r.meses.length)}">Todo mês</button><button type="button" data-v="a" aria-pressed="${!!(r.meses&&r.meses.length)}">Só em alguns meses</button></div>
+      <div class="rmes" id="r-ms" ${r.meses&&r.meses.length?'':'hidden'}>${MES.map((m,i)=>`<button type="button" class="chip" data-m="${i+1}" aria-pressed="${!!(r.meses||[]).includes(i+1)}">${m.slice(0,3)}</button>`).join('')}</div>
+      <small class="note" id="r-msn" ${r.meses&&r.meses.length?'':'hidden'}>Para despesas do ano (IPVA, IPTU, seguro, material escolar) e entradas do ano (13º, férias). Várias parcelas = vários meses.</small></div>
     <div class="f2"><div class="field"><label for="r-i">Começa em</label><input id="r-i" type="month" value="${esc(r.inicio||'')}"></div><div class="field"><label for="r-f">Termina em</label><input id="r-f" type="month" value="${esc(r.fim||'')}"></div></div>
     <div class="f2"><div class="field"><label for="r-pn">Total de parcelas</label><input id="r-pn" type="number" min="0" inputmode="numeric" value="${r.parcelas||''}" placeholder="vazio = sem fim"></div><div class="field"><label for="r-pk">Parcela no mês de início</label><input id="r-pk" type="number" min="1" inputmode="numeric" value="${r.parcelaIni||''}" placeholder="1"></div></div>
     <div class="field"><label for="r-tx">Juros ao mês (%)</label><input id="r-tx" type="number" inputmode="decimal" step="0.01" min="0" value="${r.taxaAm||''}" placeholder="só para empréstimos · vazio = sem juros"></div>
     <label class="chk"><input type="checkbox" id="r-a" ${r.ativo!==false?'checked':''}> Ativa</label>
     <p class="note">Entra como prevista no fluxo da quinzena. Em Relatórios › Fluxo, “Confirmar” vira um lançamento real na conta.</p>
     <div class="btnrow"><button class="btn primary" type="submit">Salvar</button>${isNew?'':'<button class="btn danger" type="button" id="rdel">Excluir</button>'}</div></form>`,sh=>{
+    let meses=(r.meses||[]).slice();sh.querySelectorAll('#r-rp button').forEach(b=>b.onclick=()=>{const a=b.dataset.v==='a';sh.querySelectorAll('#r-rp button').forEach(o=>o.setAttribute('aria-pressed',String(o===b)));sh.querySelector('#r-ms').hidden=!a;sh.querySelector('#r-msn').hidden=!a;if(!a)meses=[]});
+    sh.querySelectorAll('#r-ms [data-m]').forEach(b=>b.onclick=()=>{const m=+b.dataset.m;meses=meses.includes(m)?meses.filter(x=>x!==m):meses.concat(m).sort((a,b)=>a-b);b.setAttribute('aria-pressed',String(meses.includes(m)))});
     let tipo=r.tipo;sh.querySelectorAll('#r-t button').forEach(b=>b.onclick=()=>{tipo=b.dataset.v;sh.querySelectorAll('#r-t button').forEach(o=>o.setAttribute('aria-pressed',String(o===b)));sh.querySelector('#r-cat').innerHTML=opts(tipo==='receita'?CATR:CATS,'')});
     sh.querySelector('#fr').onsubmit=async e=>{e.preventDefault();const nome=sh.querySelector('#r-n').value.trim(),v=parseFloat(sh.querySelector('#r-v').value);if(!nome||!(v>0)){toast('Informe nome e valor');return}
-      const ru=sh.querySelector('#r-u').value;const d={tipo,nome,valor:r2(v),util:ru,dia:ru==='ult'?31:Math.min(Math.max(+sh.querySelector('#r-d').value||1,1),31),dono:sh.querySelector('#r-p').value,conta:sh.querySelector('#r-c').value,categoria:sh.querySelector('#r-cat').value,inicio:sh.querySelector('#r-i').value,fim:sh.querySelector('#r-f').value,ativo:sh.querySelector('#r-a').checked};
+      const ru=sh.querySelector('#r-u').value;const d={tipo,nome,valor:r2(v),util:ru,dia:ru==='ult'?31:Math.min(Math.max(+sh.querySelector('#r-d').value||1,1),31),dono:sh.querySelector('#r-p').value,conta:sh.querySelector('#r-c').value,categoria:sh.querySelector('#r-cat').value,inicio:sh.querySelector('#r-i').value,fim:sh.querySelector('#r-f').value,ativo:sh.querySelector('#r-a').checked,meses:sh.querySelector('#r-rp [data-v="a"]').getAttribute('aria-pressed')==='true'?meses:[]};
+      if(d.meses===undefined)d.meses=[];if(sh.querySelector('#r-rp [data-v="a"]').getAttribute('aria-pressed')==='true'&&!meses.length){toast('Escolha os meses');return}
       const pn=parseInt(sh.querySelector('#r-pn').value)||0,pk=parseInt(sh.querySelector('#r-pk').value)||1;
       Object.assign(d,{parcelas:pn,parcelaIni:pn?pk:0,taxaAm:pn?Math.max(parseFloat(sh.querySelector('#r-tx').value)||0,0):0});if(pn&&d.inicio)d.fim=ymAdd(d.inicio,pn-pk);
       const keep=Object.assign({},r);delete keep.id;Object.assign(keep,d);

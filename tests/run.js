@@ -12,7 +12,7 @@ const EXPOR = ('S ME today ymAdd addD dayIn lastDay realBal saldoConta scopeCont
   'acerto acertoLedger credGab gabId candlesCaixa saidasDia margemCalc planoCalc mesCalc catWatch catMesMap contaMov isCaixa movs ' +
   'parseFrase rvCalc rvIR divSim divLista ORD metaCalc cenBase cenProj baseMes casaCalc pjMes filhoCalc progRet retroCalc semRev ' +
   'openRV openRVIR openCenarios openDividasPlano openCasa openPJ openPontos openFilhos openRetro openPrefs openFrase openSimCompra ' +
-  'openSemana openAjuda openRelMes openMeta openAssessor openInvestDash openSpread openBackups openLanc openTour openBemVindo openAPagar atrasos catList projecao relPeriodo mesCalc periodoConta aRealizar recPrevistos fatRecs ntfDecisao parseFrase carteiraGeral caixaSim addD openKpi kpiVal openMetasKpi KPM caixaLivre openInvestDash openGuardar guardSug guardFeito guardMeta guardNudge openAbater faturasAbertas caixaNoDia realBal fatComp movKind fatTot openCardDet baseDue card closeSheet').split(' ');
+  'openSemana openAjuda openRelMes openMeta openAssessor openInvestDash openSpread openBackups openLanc openTour openBemVindo openAPagar atrasos catList projecao relPeriodo mesCalc periodoConta aRealizar recPrevistos fatRecs sazLista sazProv mdiff ntfDecisao parseFrase carteiraGeral caixaSim addD openKpi kpiVal openMetasKpi KPM caixaLivre openInvestDash openGuardar guardSug guardFeito guardMeta guardNudge openAbater faturasAbertas caixaNoDia realBal fatComp movKind fatTot openCardDet baseDue card closeSheet').split(' ');
 
 function montar(dados) {
   let h = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
@@ -175,6 +175,13 @@ window.__fbSair=()=>{};setTimeout(()=>window.__fbReady(api),0);})();</script>`;
         const ref = await T.S.db.collection('lanc').add({ tipo: 'despesa', cartao: 'roxo', data: T.today(), valor: 49.9, desc: 'Streaming', categoria: 'Assinaturas', rec: 'stream', recYm: T.today().slice(0, 7), parcelas: 1, parcela: 1, tags: [], divisao: 'pessoal', criadoEm: new Date().toISOString() }); await new Promise(r => setTimeout(r, 300));
         const b = T.ntfDecisao(me); const id = ref && ref.id || (T.S.lanc.find(l => l.rec === 'stream' && l.valor === 49.9) || {}).id; if (id) await T.S.db.doc('lanc/' + id).delete(); await new Promise(r => setTimeout(r, 300)); return { a, b: b.map(x => x.id.split('|')[0] + ':' + x.t), del: !T.S.lanc.some(l => l.id === id) } });
       ok(nd2.b.some(x => /^asr:Streaming cobrou/.test(x)) && nd2.b.every(x => !/undefined|NaN/.test(x)), 'avisos: assinatura que mudou de valor gera alerta', JSON.stringify(nd2));
+      const sz = await p.evaluate(async () => { const T = window.__T, me = T.ME(), cm = T.today().slice(0, 7), w = ms => new Promise(r => setTimeout(r, ms)); const g0 = T.guardMeta(cm, me).v;
+        const prox = T.ymAdd(cm, 2), m1 = +prox.slice(5), m2 = +T.ymAdd(cm, 3).slice(5);
+        await T.S.db.collection('recorrentes').add({ tipo: 'despesa', nome: 'IPVA teste', valor: 600, dia: 15, dono: me, conta: 'cc', categoria: 'Transporte', meses: [m1, m2], ativo: true }); await w(300);
+        const L = T.sazLista(me).find(x => x.r.nome === 'IPVA teste'), prev = T.recPrevistos(cm, T.ymAdd(cm, 4)).filter(x => x.r.nome === 'IPVA teste').map(x => x.ym), g1 = T.guardMeta(cm, me).v;
+        location.hash = 'inicio'; await w(200); location.hash = 'decidir'; await w(600); const card = (document.querySelector('.szc') || {}).innerText || '';
+        return { L: L && { ym: L.ym, tot: L.tot, m: L.m, porMes: L.porMes }, prev, exp: [prox, T.ymAdd(cm, 3)], dg: Math.round((g1 - g0) * 100) / 100, card: card.slice(0, 120) } });
+      ok(sz.L && sz.L.tot === 1200 && sz.L.ym === sz.exp[0] && sz.L.m === 2 && sz.L.porMes === 600 && JSON.stringify(sz.prev) === JSON.stringify(sz.exp) && Math.abs(sz.dg - 600) < .02 && /IPVA teste/.test(sz.card), 'despesas do ano: só nos meses escolhidos, separar por mês e meta de guardar', JSON.stringify(sz));
       ok(/Próxima entrada/.test(hx.h) && /A receber teste/.test(hx.h) && /Receita agendada/.test(hx.h), 'início: próxima entrada aparece no resumo (a receber e agendada)', hx.h);
       const pf = await p.evaluate(async () => { const T = window.__T, w = ms => new Promise(r => setTimeout(r, ms)); T.openLanc(null); await w(400);
         const tab = document.querySelector('.sheet [data-tpf]'); if (!tab) return { tab: false }; tab.click(); await w(400);
