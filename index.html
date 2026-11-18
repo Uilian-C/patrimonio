@@ -2408,6 +2408,14 @@ main{padding-left:max(10px,env(safe-area-inset-left,0px));padding-right:max(10px
 .cgpl{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr) auto minmax(0,1fr);gap:6px;align-items:center;padding:12px;border-radius:14px;background:var(--sunk);margin-top:4px}.cgpl span{display:grid;gap:2px;min-width:0}.cgpl small{font-size:11.5px;color:var(--muted)}.cgpl b{font-size:15px;font-weight:650;white-space:nowrap}.cgpl i{font-style:normal;color:var(--muted)}.cgpl .r b{color:var(--accent)}
 .cggo{justify-self:start;padding:0;font-size:13px}
 .blkq{display:grid;gap:2px;text-align:left;background:none;border:0;color:inherit;font:inherit;padding:0;cursor:pointer}.blkq small{color:var(--accent)}
+.cgm{max-width:280px}.cgh .wrn{color:var(--warn)}.cgh em b{font-weight:650}
+.cgsp{width:100%;height:56px;display:block;overflow:visible}.cgsp .t{font-size:9.5px;fill:var(--muted)}.cgsp .t.c{text-anchor:middle;fill:var(--ink);font-weight:650}.cgsp .l{fill:none;stroke:var(--accent);stroke-width:2;stroke-linejoin:round}.cgsp .z{stroke:var(--line);stroke-dasharray:2 3}.cgsp .m{fill:var(--accent);stroke:var(--surface);stroke-width:2}.cgsp .m.neg{fill:var(--crit)}
+.cgsh{margin:8px 0 2px;font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}.cgb small.wrn{color:var(--warn)}
+.cgcr{display:grid;gap:8px;padding:14px;border-radius:16px;border:1px dashed color-mix(in srgb,var(--muted) 45%,transparent);margin-top:4px}
+.cgcrh{display:flex;justify-content:space-between;gap:12px}.cgcrh>span{display:grid;gap:2px;min-width:0}.cgcrh .r{text-align:right}.cgcrh small{font-size:12px;color:var(--muted)}.cgcrh b{font-size:20px;font-weight:700}.cgcrh .r b{color:var(--good)}.cgcrh em{font-style:normal;font-size:11.5px;color:var(--muted)}
+.cgcb{position:relative;height:10px;border-radius:6px;background:repeating-linear-gradient(45deg,var(--hair) 0 4px,transparent 4px 8px);overflow:hidden;display:flex}.cgcb i{display:block;height:100%}.cgcb .u{background:var(--muted);opacity:.55}.cgcb .s{background:var(--good)}
+.cgk i.o{background:repeating-linear-gradient(45deg,var(--muted) 0 2px,transparent 2px 4px)}
+.cgcv{display:grid;justify-items:end;gap:1px}.cgcv small{font-size:11px;color:var(--muted)}
 </style>
 <div id="fbgate" hidden><div class="bx"><svg class="lg" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="139 90 228 332"><g transform="translate(-5 0)"><rect x="186" y="100" width="12" height="312" rx="6" fill="currentColor" opacity=".55"/><rect x="164" y="150" width="56" height="210" rx="16" fill="currentColor"/><path d="M244 150h38a70 70 0 0 1 0 140h-38z" fill="#E2BA6E"/></g></svg><h1>Patrimônio</h1><p id="fbmsg">Entre com a sua conta Google para ver as finanças da casa.</p><button type="button" id="fblogin">Entrar com Google</button></div></div>
 <script type="module">
@@ -7055,32 +7063,56 @@ function indCard(me){
 /* ===================== Carteira · visão geral =====================
    Livre para usar = o que está em conta + o que entra antes da próxima receita − o que vence até lá (mesma regra do Início).
    A reserva fica fora do livre de propósito. */
+/* caixa dia a dia: saldo de hoje + tudo a realizar na data efetiva (atrasado conta hoje). Sem estimativa de dia a dia. */
+function caixaSim(me,ate){const t=today(),A=aRealizar(me,ate),bal=r2(realBal(me,t)),by={};
+  /* vencidos e não pagos (contas fixas, faturas, parcelas): saem hoje, mesma regra do Início */
+  {const sp=new Set(A.map(x=>x.nav+x.d));let F=null;try{F=mesFluxo(t.slice(0,7),me)}catch(e){}((F&&F.venc)||[]).forEach(x=>{if(x.d<t&&x.v<0&&!sp.has(x.nav+x.d)){sp.add(x.nav+x.d);A.push(Object.assign({},x,{e:t,late:true}))}})}A.forEach(x=>{(by[x.e]=by[x.e]||[]).push(x)});
+  const dias=[];let c=bal;for(let d=t;d<=ate;d=addD(d,1)){const its=by[d]||[];c=r2(c+sum(its,x=>x.v));dias.push({d,v:c,its})}return {bal,dias,A}}
+function minDe(S0,de){const D=S0.dias.filter(x=>x.d>=de);if(!D.length)return null;let m=D[0];D.forEach(x=>{if(x.v<m.v)m=x});return m}
+/* por que o caixa chega no mínimo: a maior saída até aquele dia */
+function causaMin(S0,m){const its=S0.dias.filter(x=>x.d<=m.d).flatMap(x=>x.its).filter(x=>x.v<0).sort((a,b)=>a.v-b.v)[0];return its?`${esc(its.t)} ${brl0(-its.v)} em ${fdate(its.e).slice(0,5)}`:''}
+function sparkCaixa(S0,m){const D=S0.dias,W=320,H=56,vs=D.map(x=>x.v),v0=Math.min(...vs),v1=Math.max(...vs),pd=Math.max((v1-v0)*.12,1),mn=v0<0?Math.min(v0,0)-pd:v0-pd,mx=v1+pd,rg=mx-mn||1,x=i=>4+i*(W-8)/Math.max(D.length-1,1),y=v=>14+(mx-v)/rg*(H-28),mi=D.indexOf(m);
+  return `<svg viewBox="0 0 ${W} ${H}" class="cgsp" role="img" aria-label="Caixa nos próximos 30 dias">${mn<0?`<line x1="0" x2="${W}" y1="${y(0)}" y2="${y(0)}" class="z"/>`:""}<text x="2" y="${Math.max(y(D[0].v)-5,9)}" class="t">hoje ${brl0(D[0].v)}</text>${mi>=0?`<text x="${Math.min(Math.max(x(mi),30),W-30)}" y="${Math.min(y(m.v)+13,H-1)}" class="t c">mín. ${brl0(m.v)}</text>`:""}<polyline points="${D.map((p,i)=>x(i).toFixed(1)+','+y(p.v).toFixed(1)).join(' ')}" class="l"/>${mi>=0?`<circle cx="${x(mi)}" cy="${y(m.v)}" r="3.5" class="m ${m.v<0?'neg':''}"/>`:''}</svg>`}
 const CGO=k=>LS('pt-cg-'+k,'0')==='1';
-function carteiraGeral(me){const t=today(),L=caixaLivre(me),Pt=patrimonio(me),B=balanco(Pt),PAS=r2(B.PC+B.PL),fr=a=>fracOf(a.dono,me);
+function carteiraGeral(me){const t=today(),H=addD(t,30),S0=caixaSim(me,H),m0=minDe(S0,t),Pt=patrimonio(me),B=balanco(Pt),PAS=r2(B.PC+B.PL),fr=a=>fracOf(a.dono,me),modo=LS('pt-cgm','30');
   const tp=k=>S.contas.filter(a=>a.ativo!==false&&a.tipo===k&&fr(a)>0),rs=tp('reserva'),iv=tp('investimento'),bn=tp('beneficio');
   const tRS=r2(sum(rs,a=>saldoConta(a)*fr(a))),tIV=r2(sum(iv,a=>saldoConta(a)*fr(a))+(Pt.rv||0)),tBN=r2(sum(bn,a=>saldoConta(a)));
-  const livre=L.livre,comp=r2(Math.min(L.comp,Math.max(L.bal+L.entra,0))),ate=fdate(L.ate).slice(0,5);
-  const seg=[['livre','Para usar',Math.max(livre,0),'var(--accent)'],['comp','Comprometido',comp,'var(--warn)'],['res','Reserva',tRS,'var(--good)'],['inv','Investido',tIV,'var(--inv)'],['ben','Benefícios',tBN,'#7C5CD6']].filter(x=>x[2]>.5),tot=sum(seg,x=>x[2])||1;
-  const it=(n,sub,v,attr)=>`<button class="cxr" type="button" ${attr||''}><span class="cxm"><strong>${n}</strong>${sub?`<small>${sub}</small>`:''}</span><b class="n ${v<0?'neg':''}">${brl(v)}</b></button>`;
-  const ag=x=>it(esc(x.t||'—'),`${x.d<t?'atrasado desde ':''}${fdate(x.d).slice(0,5)}`,x.v,x.nav&&String(x.nav).startsWith('l:')?`data-cgl="${esc(String(x.nav).slice(2))}"`:'');
+  const bal=S0.bal,seguro=m0?m0.v:bal,out=S0.A.filter(x=>x.v<0).sort((a,b)=>a.e.localeCompare(b.e)||a.d.localeCompare(b.d)),ins=S0.A.filter(x=>x.v>0).sort((a,b)=>a.e.localeCompare(b.e)),tOut=r2(-sum(out,x=>x.v)),tIn=r2(sum(ins,x=>x.v)),late=out.filter(x=>x.late);
+  const seg=[['conta','Em conta',Math.max(bal,0),'var(--accent)'],['res','Reserva',tRS,'var(--good)'],['inv','Investido',tIV,'var(--inv)'],['ben','Benefícios',tBN,'#7C5CD6']].filter(x=>x[2]>.5),tot=sum(seg,x=>x[2])||1;
+  const it=(n,sub,v,attr,cls)=>`<button class="cxr" type="button" ${attr||''}><span class="cxm"><strong>${n}</strong>${sub?`<small class="${cls||''}">${sub}</small>`:''}</span><b class="n ${v<0?'neg':v>0?'pos':''}">${v>0?'+':''}${brl(v)}</b></button>`;
+  const ag=x=>it(esc(x.t||'—'),x.late?`atrasado desde ${fdate(x.d).slice(0,5)}`:fdate(x.e).slice(0,5),x.v,x.nav&&String(x.nav).startsWith('l:')?`data-cgl="${esc(String(x.nav).slice(2))}"`:'',x.late?'wrn':'');
   const rowA=a=>{const v=saldoConta(a),E=rendEst(a);return `<button class="cxr" type="button" data-ct="${esc(a.id)}">${bankBadge(a,a.tipo)}<span class="cxm"><strong>${esc(a.nome)}${a.dono!==me?' '+whoChip(a.dono):''}</strong><small>${E?rendLabel(a):esc(a.instituicao||TCONTA[a.tipo]||'')}</small></span><b class="n">${brl(v)}</b></button>`};
-  const tier=(k,cor,t1,sub,v,body)=>`<details class="cgt" data-cgk="${k}" ${CGO(k)?'open':''}><summary><i style="background:${cor}"></i><span><b>${t1}</b><small>${sub}</small></span><b class="n ${v<0?'neg':''}">${brl0(v)}</b>${ic('down','chev')}</summary><div class="cgb">${body}</div></details>`;
-  let h=`<div class="card cgc"><div class="cgh"><small>Livre para usar</small><b class="n ${livre<0?'neg':''}">${livre<0?'−':''}${brl(Math.abs(livre))}</b>
-    <em>em conta ${brl0(L.bal)}${L.entra>.5?` + entra ${brl0(L.entra)}`:''} − vence até ${ate} ${brl0(L.comp)}${L.E?` · próxima entrada ${fdate(L.E.d).slice(0,5)}`:''}</em></div>
+  const tier=(k,cor,t1,sub,v,body)=>`<details class="cgt" data-cgk="${k}" ${CGO(k)?'open':''}><summary><i style="background:${cor}"></i><span><b>${t1}</b><small>${sub}</small></span><b class="n ${v<0?'neg':''}">${v<0?'−':''}${brl0(Math.abs(v))}</b>${ic('down','chev')}</summary><div class="cgb">${body}</div></details>`;
+  const cz=m0?causaMin(S0,m0):'',mD=m0?fdate(m0.d).slice(0,5):'';
+  const topo=modo==='agora'
+    ?`<small>Saldo em conta agora</small><b class="n ${bal<0?'neg':''}">${bal<0?'−':''}${brl(Math.abs(bal))}</b><em>o que dá para pagar neste momento${late.length?` · <span class="wrn">${late.length} conta${late.length===1?'':'s'} em atraso (${brl0(-sum(late,x=>x.v))})</span>`:''}${m0&&m0.v<bal-.5?` · nos próximos 30 dias chega a <b class="${m0.v<0?'neg':''}">${brl0(m0.v)}</b> em ${mD}`:''}</em>`
+    :`<small>${seguro<0?'Vai faltar dinheiro':'Pode gastar hoje sem faltar'}</small><b class="n ${seguro<0?'neg':''}">${seguro<0?'−':''}${brl(Math.abs(seguro))}</b><em>${seguro<0?`o caixa fica negativo em ${mD}`:`menor saldo previsto nos próximos 30 dias, em ${mD}`}${cz?` · depois de ${cz}`:''} · em conta agora ${brl0(bal)}</em>`;
+  /* crédito: poder de compra, não dinheiro. Seguro = menor caixa previsto a partir do vencimento da fatura em que a compra cai */
+  const cs=S.cards.filter(c=>c.ativo!==false&&(c.dono||me)===me).map(c=>{try{return cardStats(c)}catch(e){return null}}).filter(x=>x&&x.lim);
+  let cred='';if(cs.length){const BC=bestCards(cs).slice(0,3),lim=sum(cs,x=>x.lim),disp=r2(Math.max(0,sum(cs,x=>x.disp))),used=r2(lim-disp),Hc=BC.length?[addD(BC[0].bdue,30),H].sort()[1]:H,S1=Hc>H?caixaSim(me,Hc):S0;
+    const sv=BC.map(x=>{const m=minDe(S1,x.bdue),cx=m?Math.max(0,m.v):0;return {...x,cx,seg:r2(Math.min(cx,x.disp)),m}}),best=sv[0],segT=best?best.seg:0;
+    cred=`<div class="cgcr"><div class="cgcrh"><span><small>Crédito · poder de compra</small><b class="n">${brl0(disp)}</b><em>livres de ${brl0(lim)} · não é dinheiro: vira saída no vencimento</em></span>${best?`<span class="r"><small>Compra segura</small><b class="n ${segT<=0?'neg':''}">${brl0(segT)}</b><em>no ${esc(best.c.nome)}</em></span>`:''}</div>
+      <div class="cgcb"><i class="u" style="width:${lim?used/lim*100:0}%"></i><i class="s" style="width:${lim?segT/lim*100:0}%"></i></div><div class="cgk"><span><i style="background:var(--muted)"></i>usado ${brl0(used)}</span><span><i style="background:var(--good)"></i>seguro ${brl0(segT)}</span><span><i class="o"></i>livre ${brl0(disp)}</span></div>
+      ${sv.map(x=>`<button class="cxr" type="button" data-cgc="${esc(x.c.id)}"><span class="cxm"><strong>${esc(x.c.nome)}</strong><small>comprando hoje, paga em ${fdate(x.bdue).slice(0,5)} (${x.dias} dias) · limite livre ${brl0(x.disp)}</small></span><span class="cgcv"><b class="n ${x.seg<=0?'neg':''}">${brl0(x.seg)}</b><small>${x.seg<x.disp-.5?'o caixa aguenta':'cabe no limite'}</small></span></button>`).join('')}
+      <p class="sdm">Compra segura: quanto dá para comprar hoje nesse cartão sem o caixa ficar negativo quando a fatura vencer (menor saldo previsto a partir do vencimento).</p></div>`}
+  return `<div class="card cgc"><div class="seg cgm" role="tablist"><button type="button" data-cgm="agora" aria-pressed="${modo==='agora'}">Agora</button><button type="button" data-cgm="30" aria-pressed="${modo!=='agora'}">Próximos 30 dias</button></div>
+    <div class="cgh">${topo}</div>${modo!=='agora'&&S0.dias.length>1?sparkCaixa(S0,m0):''}
     <div class="cgbar" role="img" aria-label="Onde está seu dinheiro">${seg.map(x=>`<i style="flex:${x[2]/tot};background:${x[3]}" title="${x[1]}"></i>`).join('')}</div>
     <div class="cgk">${seg.map(x=>`<span><i style="background:${x[3]}"></i>${x[1]} ${pctf(x[2]/tot)}</span>`).join('')}</div>
-    ${tier('conta','var(--accent)','Para usar hoje',`em conta · livre ${brl0(Math.max(livre,0))}`,L.bal,saldoContas(me).replace('class="card sxc','class="sxc cgsx'))}
-    ${tier('comp','var(--warn)','Já comprometido',`vence até ${ate}${L.out.some(x=>x.d<t)?' · inclui atrasados':''}`,-L.comp,L.out.length?L.out.slice().sort((a,b)=>a.d.localeCompare(b.d)).map(ag).join('')+(L.ins.length?`<p class="sdm">Entra antes disso: ${L.ins.map(x=>`${esc(x.t)} ${brl0(x.v)}`).join(' · ')}</p>`:''):'<p class="sdm">Nada vence até a próxima entrada.</p>')}
+    ${tier('conta','var(--accent)','Em conta','saldo de hoje, por conta',bal,saldoContas(me).replace('class="card sxc','class="sxc cgsx'))}
+    ${tier('comp','var(--warn)','Próximos 30 dias',`sai ${brl0(tOut)} · entra ${brl0(tIn)}${late.length?` · ${late.length} em atraso`:''}`,r2(tIn-tOut),(out.length?`<p class="cgsh">Saídas</p>`+out.map(ag).join(''):'<p class="sdm">Nenhuma saída prevista.</p>')+(ins.length?`<p class="cgsh">Entradas</p>`+ins.map(ag).join(''):''))}
     ${tier('res','var(--good)','Reserva','saque imediato, mas é sua proteção',tRS,rs.length?rs.map(rowA).join(''):'<p class="sdm">Nenhuma reserva cadastrada.</p><button class="cxadd" type="button" data-addc="reserva">'+ic('plus')+'<span>Adicionar reserva</span></button>')}
     ${tier('inv','var(--inv)','Investido','pode ter prazo ou perder rendimento se resgatar',tIV,iv.map(rowA).join('')+(Pt.rv?it('Renda variável','ações, FIIs, ETFs pela cotação',Pt.rv,'data-go="relatorios" data-rp="rv"'):'')+`<button class="cxr" type="button" id="ivgo"><span class="cxm"><strong>Abrir investimentos</strong><small>evolução, rendimento por mês, onde está</small></span><span class="go">›</span></button>`)}
     ${bn.length?tier('ben','#7C5CD6','Benefícios','só para compras específicas (VR, VA)',tBN,bn.map(a=>{const C=benCiclo(a);return `<button class="cxr" type="button" data-ct="${esc(a.id)}">${bankBadge(a,'beneficio')}<span class="cxm"><strong>${esc(a.nome)}</strong><small>${brl0(Math.max(C.porDia,0))}/dia · recarga ${fdate(C.prox).slice(0,5)}${C.valorProx?' · +'+brl0(C.valorProx):''}</small></span><b class="n">${brl(C.saldo)}</b></button>`}).join('')+'<button class="cxadd" type="button" data-addc="beneficio">'+ic('plus')+'<span>Adicionar</span></button>'):''}
-    <div class="cgpl"><span><small>Tem</small><b class="n">${brl0(B.AT)}</b></span><i>−</i><span><small>Deve</small><b class="n">${brl0(PAS)}</b></span><i>=</i><span class="r"><small>Patrimônio${Pt.comp?'':' (só hoje)'}</small><b class="n ${Pt.liq<0?'neg':''}">${Pt.liq<0?'−':''}${brl0(Math.abs(Pt.liq))}</b></span></div>
-    <button class="lk cggo" type="button" data-cgpat="1">Ver ativo e passivo em detalhe ›</button></div>`;
-  return h}
+    ${cred}
+    <div class="cgpl"><span><small>Tem</small><b class="n">${brl0(B.AT)}</b></span><i>−</i><span><small>Deve</small><b class="n">${brl0(PAS)}</b></span><i>=</i><span class="r"><small>Patrimônio</small><b class="n ${Pt.liq<0?'neg':''}">${Pt.liq<0?'−':''}${brl0(Math.abs(Pt.liq))}</b></span></div>
+    <button class="lk cggo" type="button" data-cgpat="1">Ver ativo e passivo em detalhe ›</button></div>`}
 document.addEventListener('toggle',e=>{const d=e.target;if(d&&d.classList&&d.classList.contains('cgt'))LSset('pt-cg-'+d.dataset.cgk,d.open?'1':'0')},true);
 document.addEventListener('click',e=>{const l=e.target.closest&&e.target.closest('[data-cgl]');if(l){const x=S.lanc.find(z=>z.id===l.dataset.cgl);if(x)openLanc(x);return}
   const p=e.target.closest&&e.target.closest('[data-cgpat]');if(p){const c=document.querySelector('#v-carteira .cxs.pat');if(c)c.scrollIntoView({behavior:'smooth',block:'start'});return}
-  const k=e.target.closest&&e.target.closest('[data-okpi]');if(k)openKpi(k.dataset.okpi)});
+  const k=e.target.closest&&e.target.closest('[data-okpi]');if(k){openKpi(k.dataset.okpi);return}
+  const m=e.target.closest&&e.target.closest('[data-cgm]');if(m){LSset('pt-cgm',m.dataset.cgm);if(S.view==='carteira')vCart();return}
+  const c=e.target.closest&&e.target.closest('[data-cgc]');if(c){const x=card(c.dataset.cgc);if(x)openCardDet(x)}});
 function vCart(){
   const el=$('#v-carteira');if(!ready()){el.innerHTML=loading();return}
   const me=ME(),byT=t=>S.contas.filter(a=>a.ativo!==false&&((a.tipo||'corrente')===t||(t==='corrente'&&a.tipo==='dinheiro'))),val=a=>saldoConta(a)*fracOf(a.dono,me);
