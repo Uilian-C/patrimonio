@@ -2491,6 +2491,8 @@ nav.tabs a{min-width:0;white-space:nowrap}nav.tabs .tl-s{display:none}
 .colp>.ch:has(>.colsum)>.aside{display:none!important}
 .mgc>.ch>h2{min-width:0}.mgca{flex:none;gap:2px}@media (min-width:360px){.mgc>.ch>h2{white-space:nowrap}.mgc>.ch{flex-wrap:nowrap;gap:6px}}.mgca .lk{white-space:nowrap}
 .fo.fcat{margin-top:10px;border-top:1px solid var(--hair);padding-top:4px}.fo.fcat>.foh{min-height:44px;font-size:14px;font-weight:600}.fo.fcat>.fob{padding-top:6px}
+.ivpv{font-size:11px;font-weight:650;fill:var(--ink);font-family:var(--f-num);letter-spacing:-.02em;paint-order:stroke;stroke:var(--sunk);stroke-width:3px;stroke-linejoin:round}.ivpd{fill:var(--sunk);stroke:var(--accent);stroke-width:1.6}.ivpd.h{fill:var(--accent)}
+.ivmini .sfl{font-size:10.5px}
 </style>
 <div id="fbgate" hidden><div class="bx"><svg class="lg" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="139 90 228 332"><g transform="translate(-5 0)"><rect x="186" y="100" width="12" height="312" rx="6" fill="currentColor" opacity=".55"/><rect x="164" y="150" width="56" height="210" rx="16" fill="currentColor"/><path d="M244 150h38a70 70 0 0 1 0 140h-38z" fill="#E2BA6E"/></g></svg><h1>Patrimônio</h1><p id="fbmsg">Entre com a sua conta Google para ver as finanças da casa.</p><button type="button" id="fblogin">Entrar com Google</button></div></div>
 <script type="module">
@@ -3625,11 +3627,11 @@ function iniInvest(me){const C=invCarteira(me);if(!C.length)return `<div class="
     <div class="btnrow"><button class="btn sm" type="button" data-ivd="1">${ic('chart')} Relatório completo</button>${S.view==='carteira'?'':'<button class="lk" type="button" data-go="carteira">Carteira ›</button>'}</div></div>`}
 /* na conta de investimento: projeção de 12 meses só daquela aplicação */
 function invMini(a){const i=taxaMesInv(a);if(!i)return '';const E=rendEst(a),v0=E?E.hoje:saldoConta(a);if(!(v0>0))return '';
-  const P=[...Array(13)].map((_,k)=>r2(v0*Math.pow(1+i,k))),W=320,H=90,pad=14,X=k=>pad+k*(W-pad*2)/12,lo=P[0]*.995,hi=P[12]*1.003,Y=v=>10+(hi-v)/((hi-lo)||1)*(H-34),ym=today().slice(0,7);
+  const P=[...Array(13)].map((_,k)=>r2(v0*Math.pow(1+i,k))),W=320,H=118,pad=14,X=k=>pad+k*(W-pad*2)/12,lo=P[0]*.995,hi=P[12]*1.003,Y=v=>30+(hi-v)/((hi-lo)||1)*(H-58),ym=today().slice(0,7);
   const L=P.map((v,k)=>`${k?'L':'M'}${X(k).toFixed(1)},${Y(v).toFixed(1)}`).join('');
   return `<div class="rnd ivmini"><div class="rndh"><span>${ic('trend')} Projeção · ${rendLabel(a)}</span></div>
     <div class="rndv"><div><small>Em 6 meses</small><b class="n">${brl(P[6])}</b><em class="pos">+${brl(P[6]-v0)}</em></div><div><small>Em 12 meses</small><b class="n">${brl(P[12])}</b><em class="pos">+${brl(P[12]-v0)}</em></div></div>
-    <svg viewBox="0 0 ${W} ${H}" class="sfc" role="img" aria-label="Projeção de 12 meses"><path d="${L}L${X(12)},${H-24}L${X(0)},${H-24}Z" class="ivpa"/><path d="${L}" class="ivpp"/>${[0,3,6,9,12].map(k=>`<text x="${X(k)}" y="${H-8}" class="sfl" text-anchor="${k===0?'start':k===12?'end':'middle'}">${k===0?'hoje':ymS(ymAdd(ym,k))}</text>`).join('')}</svg>
+    <svg viewBox="0 0 ${W} ${H}" class="sfc" role="img" aria-label="Projeção de 12 meses"><path d="${L}L${X(12)},${H-24}L${X(0)},${H-24}Z" class="ivpa"/><path d="${L}" class="ivpp"/>${[0,3,6,9,12].map(k=>{const x=X(k),y=Y(P[k]);return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${k?2.6:3.2}" class="ivpd ${k?'':'h'}"/><text x="${x.toFixed(1)}" y="${(y-9).toFixed(1)}" class="ivpv" text-anchor="${k===0?'start':k===12?'end':'middle'}">${brl0(P[k])}</text>`}).join('')}${[0,3,6,9,12].map(k=>`<text x="${X(k)}" y="${H-8}" class="sfl" text-anchor="${k===0?'start':k===12?'end':'middle'}">${k===0?'hoje':ymS(ymAdd(ym,k))}</text>`).join('')}</svg>
     <p class="note">Bruto, juros compostos, sem novos aportes. Líquido de IR em 12 meses ≈ ${brl((P[12]-v0)*(1-IRF(12)))} de rendimento.</p></div>`}
 /* ===================== Renda variável: ações, FIIs, ETFs e BDRs =====================
    Dados em config/rv: ops (compras e vendas), prov (proventos), tipos, man (cotação manual), alvo (alocação), tok (chave brapi), ibov (pontos do índice).
