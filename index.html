@@ -2364,7 +2364,7 @@ main{padding-left:max(10px,env(safe-area-inset-left,0px));padding-right:max(10px
 .ag{scroll-snap-type:x proximity;padding-right:32px!important;-webkit-mask-image:linear-gradient(to right,#000 calc(100% - 32px),transparent);mask-image:linear-gradient(to right,#000 calc(100% - 32px),transparent)}.agd{scroll-snap-align:start}
 .agd small.agx.ok{color:var(--good)}.agd small.agx.crit{color:var(--crit)}
 .fpk .cxr{width:100%}.fpkv{display:grid;justify-items:end;gap:3px}.fpkv .cst{font-size:11px}.fpkv .cst.crit{color:var(--crit)}
-.hsplit>.hnx{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;gap:10px;cursor:pointer;border-left:0!important;border-top:1px solid var(--hero-line)!important;padding:12px 0 0!important;margin-top:6px}.hsplit>.hnx small{white-space:nowrap}.hsplit>.hnx b{font-size:20px}.hsplit>.hnx span{display:grid;gap:1px;min-width:0}.hsplit>.hnx em{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.hsplit>.hnx b{color:#9FEBC6;white-space:nowrap}
+.hsplit>.hnx{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;gap:10px;cursor:pointer;border-left:0!important;border-top:1px solid var(--hero-line)!important;padding:12px 0 0!important;margin-top:6px}.hsplit>.hnx small{white-space:nowrap}.hsplit>.hnx b{font-size:20px}.hsplit>.hnx span{display:grid;gap:1px;min-width:0}.hsplit>.hnx em{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.hsplit>.hnx b{color:var(--hero-good,#9FEBC6);white-space:nowrap}
 .vbars{height:46px!important}.vbars .vbz{stroke:var(--hero-line);stroke-width:.6}
 .vbars rect.in{fill:color-mix(in srgb,var(--good) 75%,transparent)}.vbars rect.in.fut{fill:none;stroke:var(--good);stroke-width:.9;stroke-dasharray:2 1.5}
 .vbl .vk{display:inline-block;width:7px;height:7px;border-radius:2px;margin:0 3px 0 6px;background:color-mix(in srgb,var(--hero-neg) 70%,transparent)}.vbl .vk.in{margin-left:0;background:var(--good)}
@@ -2437,6 +2437,11 @@ nav.tabs a{min-width:0;white-space:nowrap}nav.tabs .tl-s{display:none}
 .cc{grid-template-columns:minmax(0,1fr)}.cc>*{min-width:0}.cc-h>:first-child{min-width:0}.cc-h .big,.cc-h b.n{overflow-wrap:anywhere}
 .agh{flex-wrap:wrap}.agh .k{white-space:normal}
 @media (max-width:380px){.cc-h .big{font-size:clamp(30px,10vw,44px)!important}.cc-g{width:66px;height:66px}.cc-g svg{width:66px;height:66px}.cc-g b{font-size:12px!important}.cc-g small{font-size:9.5px}}
+.acx{display:grid;gap:2px;padding:12px 14px}.acxh{display:flex;justify-content:space-between;align-items:baseline;padding:2px 0 6px}.acxh b{font-size:14px;font-weight:650}.acxh small{color:var(--muted);font-size:12px}
+.acxr{display:grid;grid-template-columns:34px minmax(0,1fr) auto;gap:10px;align-items:center;padding:9px 0;border:0;border-top:1px solid var(--hair);background:none;color:inherit;font:inherit;text-align:left;cursor:pointer}.acxr:first-of-type{border-top:0}
+.acxi{width:34px;height:34px;border-radius:11px;display:grid;place-items:center}.acxi svg{width:17px;height:17px}.acxr.crit .acxi{background:color-mix(in srgb,var(--crit) 14%,transparent);color:var(--crit)}.acxr.warn .acxi{background:color-mix(in srgb,var(--warn) 16%,transparent);color:var(--warn)}.acxr.good .acxi{background:color-mix(in srgb,var(--good) 15%,transparent);color:var(--good)}
+.acxm{display:grid;gap:1px;min-width:0}.acxm b{font-size:14px;font-weight:600}.acxm small{font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hsplit .hgdw{grid-column:1/-1;display:flex;justify-content:flex-start;padding:0!important;border:0!important;margin-top:-4px}.hsplit .hgdw:empty{display:none}
 </style>
 <div id="fbgate" hidden><div class="bx"><svg class="lg" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="139 90 228 332"><g transform="translate(-5 0)"><rect x="186" y="100" width="12" height="312" rx="6" fill="currentColor" opacity=".55"/><rect x="164" y="150" width="56" height="210" rx="16" fill="currentColor"/><path d="M244 150h38a70 70 0 0 1 0 140h-38z" fill="#E2BA6E"/></g></svg><h1>Patrimônio</h1><p id="fbmsg">Entre com a sua conta Google para ver as finanças da casa.</p><button type="button" id="fblogin">Entrar com Google</button></div></div>
 <script type="module">
@@ -3319,13 +3324,26 @@ function heroComp(F,me,ym){
   </details>`;
 }
 document.addEventListener('toggle',e=>{const d=e.target;if(d&&d.classList&&d.classList.contains('hcomp'))try{localStorage.setItem('pt-hx',d.open?'1':'0')}catch(_){}},true);
+/* ===================== Para fazer agora: a próxima ação, por prioridade ===================== */
+function assinRevisar(me){const t=today(),cm=t.slice(0,7);let n=0;try{const PV=recPrevistos(ymAdd(cm,-1),cm);S.recs.filter(r=>r.ativo!==false&&r.cartao&&card(r.cartao)&&r.tipo!=='receita'&&(r.dono||me)===me&&(!r.fim||r.fim>=cm)).forEach(r=>{
+  const ul=S.lanc.filter(l=>l.rec===r.id&&l.tipo!=='receita').sort((a,b)=>(b.data||'').localeCompare(a.data||''))[0];
+  if((ul&&Math.abs((+ul.valor||0)-(+r.valor||0))>.01)||PV.some(x=>x.r.id===r.id&&x.date<t))n++})}catch(e){}return n}
+function iniAcoes(X){const {me,t}=X,L=X.L||caixaLivre(me),A=[];
+  const late=L.out.filter(x=>x.late);if(late.length)A.push({p:1,cor:'crit',ic:'alert',t:`${late.length} conta${late.length===1?'':'s'} em atraso · ${brl0(-sum(late,x=>x.v))}`,s:'dar baixa no que já foi pago ou pagar agora',a:'data-apagar="1"'});
+  if(L.livre<0)A.push({p:2,cor:'crit',ic:'alert',t:`O caixa fica negativo em ${fdate(L.ate).slice(0,5)}`,s:`faltam ${brl0(-L.livre)} · veja o que dá para adiar`,a:'data-go="carteira"'});
+  L.out.filter(x=>x.k==='fat'&&!x.late&&diffD(t,x.e)<=3).forEach(x=>A.push({p:3,cor:'warn',ic:'card',t:`${esc(x.t)} vence ${diffD(t,x.e)===0?'hoje':diffD(t,x.e)===1?'amanhã':'em '+diffD(t,x.e)+' dias'}`,s:brl(-x.v),a:`data-acfat="${esc(String(x.nav||'').slice(4))}"`}));
+  let g=0;try{g=guardSug(me).v}catch(e){}if(g>=50&&L.livre>=0)A.push({p:4,cor:'good',ic:'spark',t:`Guardar ${brl0(g)}`,s:'cabe com segurança nos próximos 30 dias',a:`data-guardar="${g}"`});
+  const nr=assinRevisar(me);if(nr)A.push({p:5,cor:'warn',ic:'card',t:`${nr} assinatura${nr===1?'':'s'} para revisar`,s:'valor mudou ou cobrança não apareceu',a:'data-go="cartoes"'});
+  if(!A.length)return '';const sh=A.sort((a,b)=>a.p-b.p).slice(0,3);
+  return `<div class="card acx"><div class="acxh"><b>Para fazer agora</b>${A.length>3?`<small>+${A.length-3}</small>`:''}</div>${sh.map(x=>`<button type="button" class="acxr ${x.cor}" ${x.a}><span class="acxi">${ic(x.ic)}</span><span class="acxm"><b>${x.t}</b><small>${x.s}</small></span><span class="go">›</span></button>`).join('')}</div>`}
+document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-acfat]');if(!b)return;const [cid,ym]=b.dataset.acfat.split('|'),c=card(cid);if(c&&ym)openPagFat(c,ym)});
 function iniHero(X){
   const {me,t,ym,saldo}=X,ents=agendaPessoal(me,dayIn(ymAdd(ym,2),31)).filter(x=>(x.k==='rec'||x.k==='pendr'||(x.k==='agd'&&x.v>0))&&x.d>t),E=ents[0];
   const fimH=E?addD(E.d,-1):dayIn(ym,31),ag=agendaPessoal(me,fimH>=t?fimH:t).filter(x=>x.d<=fimH||x.d<t);
   const out=ag.filter(x=>x.v<0);{const sp=new Set(out.map(x=>x.nav+x.d));(X.F&&X.F.venc||[]).forEach(x=>{if(x.d<t&&x.v<0&&!sp.has(x.nav+x.d)){sp.add(x.nav+x.d);out.push(x)}})}
   const atr=out.filter(x=>x.d<t),comp=sum(out,x=>-x.v),cAtr=sum(atr,x=>-x.v),entra=sum(ag.filter(x=>x.v>0),x=>x.v);
   const EN=E?ents.filter(x=>x.d===E.d):[],enV=sum(EN,x=>x.v);
-  const livre=r2(saldo+entra-comp),dias=Math.max(diffD(t,E?E.d:addD(dayIn(ym,31),1)),1),base=Math.max(saldo+entra,comp,1);
+  if(!X.L)X.L=caixaLivre(me);
   return `<section class="hero">
     <div class="hr1"><span>${saud()}, ${esc(P(me).nome)}</span><button type="button" class="eye" id="eye" aria-label="${HV?'Mostrar':'Ocultar'} valores">${HV?ICN.eyeoff:ICN.eye}</button></div>
     <span class="hlab">Em caixa hoje</span>
@@ -3341,7 +3359,7 @@ function iniHero(X){
       ${heroComp(F,me,ym)}</div>`})()}
     <div class="hsplit">
       <button type="button" data-apagar="1"><small>A pagar ${E?'antes de '+fdate(E.d).slice(0,5):'até o fim do mês'}</small><b class="n">${brl0(comp)}</b><em>${out.length} ite${out.length===1?'m':'ns'}${cAtr>.5?` · <span class="atr">${brl0(cAtr)} em atraso</span>`:''}</em></button>
-      <div><small>Sobra se pagar tudo</small><b class="n ${livre<0?'neg':''}">${brl0(livre)}</b><em>${livre>0?`≈ ${brl0(livre/dias)}/dia por ${dias} dia${dias===1?'':'s'}${E?' até a entrada':''}`:'faltará dinheiro'}${entra>.5?` · conta +${brl0(entra)} a receber antes`:''}</em>${(()=>{let g=0;try{g=guardSug(me).v}catch(e){}return g>=50?`<button type="button" class="hgd" data-guardar="${g}">${ic('spark')} Guardar ${brl0(g)}</button>`:''})()}</div>
+      ${(()=>{const L=X.L;return `<button type="button" data-go="carteira"><small>${L.livre<0?'Vai faltar dinheiro':'Pode gastar sem faltar'}</small><b class="n ${L.livre<0?'neg':''}">${L.livre<0?'−':''}${brl0(Math.abs(L.livre))}</b><em>${L.livre<0?`o caixa fica negativo em ${fdate(L.ate).slice(0,5)}`:L.ate===t&&L.comp>.5?'próximos 30 dias · as entradas chegam antes das contas':`próximos 30 dias · mínimo em ${fdate(L.ate).slice(0,5)}`}</em></button>`})()}
       ${E?`<button type="button" class="hnx" data-hnx="${esc(EN.length===1?EN[0].nav||'':'')}"><span><small>Próxima entrada · ${fdate(E.d).slice(0,5)}${diffD(t,E.d)===1?' · amanhã':` · em ${diffD(t,E.d)} dias`}</small><em>${EN.map(x=>esc(x.t)).join(' · ')}${EN.some(x=>x.k==='pendr')?' · a receber':EN.some(x=>x.k==='rec')?' · prevista':''}</em></span><b class="n">+${brl0(enV)}</b></button>`:''}
     </div>
   </section>`;
@@ -3427,11 +3445,12 @@ function watchHTML(me,ym){const W=catWatch(me,ym),hasBase=mesesOk(ym,3).length>0
     <div class="wtabs">${[['ativo','Todas'],['altas','Maiores altas'],['baixas','Maiores baixas']].map(([k,l])=>`<button type="button" data-wtab="${k}" aria-pressed="${tab===k}" ${!hasBase&&k!=='ativo'?'disabled title="precisa de 1 mês completo de histórico"':''}>${l}</button>`).join('')}</div>
     ${!hasBase?'<p class="note wnb">Altas e baixas liberam com 1 mês completo de histórico. Por enquanto, os gastos do mês por categoria.</p>':''}${L.length?`<div class="wl">${watchRows(L.slice(0,8),hasBase?'':'nb')}</div>`:'<p class="note">Nada fora da média por enquanto.</p>'}</div>`}
 /* sobra de caixa até a próxima entrada de receita: a mesma conta do "Sobra se pagar tudo" do cartão principal */
-function caixaLivre(me){const t=today(),ym=t.slice(0,7),ents=agendaPessoal(me,dayIn(ymAdd(ym,2),31)).filter(x=>(x.k==='rec'||x.k==='pendr'||(x.k==='agd'&&x.v>0))&&x.d>t),E=ents[0];
-  const fimH=E?addD(E.d,-1):dayIn(ym,31),ag=agendaPessoal(me,fimH>=t?fimH:t).filter(x=>x.d<=fimH||x.d<t);
-  /* mesma regra do Início: faturas vencidas e não pagas também saem do que sobra */
-  const out=ag.filter(x=>x.v<0);{const sp=new Set(out.map(x=>x.nav+x.d));let F=null;try{F=mesFluxo(ym,me)}catch(e){}((F&&F.venc)||[]).forEach(x=>{if(x.d<t&&x.v<0&&!sp.has(x.nav+x.d)){sp.add(x.nav+x.d);out.push(x)}})}
-  const ins=ag.filter(x=>x.v>0),comp=sum(out,x=>-x.v),entra=sum(ins,x=>x.v),bal=realBal(me,t);return {livre:r2(bal+entra-comp),ate:fimH,prox:E?E.d:'',bal:r2(bal),comp:r2(comp),entra:r2(entra),out,ins,E}}
+function caixaLivre(me){const t=today(),S0=caixaSim(me,addD(t,30)),m=minDe(S0,t)||{d:t,v:S0.bal};
+  /* regra única de "quanto posso gastar": o menor saldo previsto nos próximos 30 dias (caixa dia a dia, vencidos saem hoje).
+     Início, Carteira, Decidir, Guardar e "Posso comprar?" usam este mesmo número. */
+  const E=S0.A.filter(x=>x.v>0&&x.d>t&&(x.k==='rec'||x.k==='pendr'||(x.k==='agd'&&x.tp!=='transf'))).sort((a,b)=>a.d.localeCompare(b.d))[0];
+  const out=S0.A.filter(x=>x.v<0),ins=S0.A.filter(x=>x.v>0);
+  return {livre:r2(m.v),ate:m.d,min:m,prox:E?E.d:'',E,bal:S0.bal,comp:r2(-sum(out,x=>x.v)),entra:r2(sum(ins,x=>x.v)),out,ins,S0}}
 /* ===================== Margem do mês =====================
    Dinheiro livre do mês = renda − compromissos (fixas, parcelas, faturas) − colchão.
    O velocímetro mostra quanto desse livre os gastos variáveis já usaram, comparando com o ritmo do mês. */
@@ -4308,9 +4327,9 @@ function guardHist(me,n){const ym=today().slice(0,7);return [...Array(n)].map((_
 function openGuardar(o){o=o||{};const me=ME(),S0=guardSug(me),G=guardDestinos(me);if(!G.D.length){toast('Cadastre uma reserva ou investimento primeiro');openConta({tipo:'reserva'});return}
   let dest=o.dest||G.D[0].a.id;const v0=o.v>0?o.v:S0.v,ymN=MESL[+today().slice(5,7)-1].toLowerCase();
   openSheet(`<h2>Guardar</h2>
-    <div class="gds"><div><small>Pode guardar com segurança hoje</small><b class="n">${brl0(S0.sg.v)}</b><em>sobra até ${fdate(S0.sg.L.ate).slice(0,5)} ${brl0(S0.sg.L.livre)} − colchão ${brl0(S0.sg.cz)}</em></div>
+    <div class="gds"><div><small>Pode guardar com segurança hoje</small><b class="n">${brl0(S0.sg.v)}</b><em>pode gastar sem faltar ${brl0(S0.sg.L.livre)} − colchão ${brl0(S0.sg.cz)}</em></div>
       <div><small>Meta de ${ymN}</small><b class="n">${brl0(S0.g)} <span>de ${brl0(S0.M.v)}</span></b><span class="gdb"><i style="width:${S0.M.v>0?Math.min(S0.g/S0.M.v,1)*100:0}%"></i></span><em>${S0.M.fonte==='plano'?'do plano do mês':`${Math.round(S0.M.pc*100)}% da renda`}${S0.falta>0?` · faltam ${brl0(S0.falta)}`:' · meta batida'}</em></div></div>
-    ${S0.sg.v<10?`<p class="note gdw">${ic('alert')} Até ${fdate(S0.sg.L.ate).slice(0,5)} você precisa do que tem em caixa. Guardar agora pode faltar para as contas.</p>`:''}
+    ${S0.sg.v<10?`<p class="note gdw">${ic('alert')} Em ${fdate(S0.sg.L.ate).slice(0,5)} o caixa chega ao mínimo de ${brl0(S0.sg.L.livre)}. Guardar agora pode faltar para as contas.</p>`:''}
     <form class="form" id="fgd" novalidate>
     <div class="f2"><div class="field"><label for="gd-v">Valor (R$)</label><input id="gd-v" type="text" inputmode="decimal" value="${v0>0?String(v0).replace('.',','):''}" placeholder="0,00"></div><div class="field"><label for="gd-d">Data</label><input id="gd-d" type="date" value="${today()}"></div></div>
     <div class="field"><label for="gd-c">Sai de</label><select id="gd-c">${contasOpts(contaPadrao(),['corrente','dinheiro'])}</select></div>
@@ -4331,7 +4350,7 @@ function guardCard(me){if(!invContas(me).length)return `<div class="card dcc"><p
     return `<rect x="${cx-bw/2}" y="${yb-hg}" width="${bw}" height="${Math.max(hg,1.5)}" rx="4" class="gdh ${ok?'ok':''} ${cur?'cur':''}"/>${x.m>0?`<line x1="${cx-bw/2-3}" x2="${cx+bw/2+3}" y1="${yb-hm}" y2="${yb-hm}" class="gdm"/>`:''}<text x="${cx}" y="${yb-Math.max(hg,1.5)-5}" class="gdt">${x.g>=1000?(x.g/1000).toLocaleString('pt-BR',{maximumFractionDigits:1})+'k':Math.round(x.g)}</text><text x="${cx}" y="${Hh-4}" class="gdt mo ${cur?'cur':''}">${MES[+x.y.slice(5)-1].slice(0,3)}</text>`}).join('');
   return `<div class="card dcc gdc"><div class="gdhd">${guardRing(p)}<div><small>Guardado em ${MESL[+ym.slice(5)-1].toLowerCase()}</small><b class="n">${brl0(S0.g)} <span>de ${brl0(S0.M.v)}</span></b><em>${S0.M.fonte==='plano'?'meta do plano do mês':`meta: ${Math.round(S0.M.pc*100)}% da renda (${brl0(S0.M.renda)})`} · ${S0.M.v>0?Math.round(p*100)+'%':'—'}</em></div></div>
     <button class="btn primary gdgo" type="button" data-guardar="${S0.v}" ${S0.v>=10?'':'disabled'}>${S0.v>=10?`Guardar ${brl0(S0.v)} agora`:'Sem folga segura hoje'}</button>
-    <p class="sdm">${S0.v>=10?`Seguro até ${fdate(S0.sg.L.ate).slice(0,5)}: sobra ${brl0(S0.sg.L.livre)} − colchão ${brl0(S0.sg.cz)}.`:`Até ${fdate(S0.sg.L.ate).slice(0,5)} o caixa está comprometido com as contas.`}${S0.falta>0?` Faltam ${brl0(S0.falta)} para a meta do mês.`:' Meta do mês batida.'}</p>
+    <p class="sdm">${S0.v>=10?`Seguro: pode gastar sem faltar ${brl0(S0.sg.L.livre)} (mínimo em ${fdate(S0.sg.L.ate).slice(0,5)}) − colchão ${brl0(S0.sg.cz)}.`:`Em ${fdate(S0.sg.L.ate).slice(0,5)} o caixa chega ao mínimo de ${brl0(S0.sg.L.livre)}: não sobra para guardar.`}${S0.falta>0?` Faltam ${brl0(S0.falta)} para a meta do mês.`:' Meta do mês batida.'}</p>
     <div class="gdx"><div class="sfh"><b>Últimos 6 meses</b><span class="n">acumulado ${brl0(acc)}</span></div><svg viewBox="0 0 ${W} ${Hh}" class="gdsv" role="img" aria-label="Guardado por mês contra a meta">${bars}</svg><div class="sfg"><span><i class="gdhI"></i>guardado</span><span><i class="gdmI"></i>meta</span></div></div></div>`}
 /* lembrete: entrou dinheiro grande e ainda não guardou nada depois */
 function guardNudge(me){try{const t=today(),ids=new Set(scopeContas(me).map(a=>a.id)),IA=new Set(invContas(me).map(a=>a.id));let renda=0;try{renda=planoCalc(t.slice(0,7),me).renda||0}catch(e){}
@@ -4726,7 +4745,7 @@ function vInicio(){
   const ok=setup.filter(s=>s[0]).length,nx=setup.find(s=>!s[0]);
   if(nx&&!SETUPX)h+=`<div class="setup"><span class="sp">${setup.map(s=>`<i class="${s[0]?'on':''}"></i>`).join('')}</span><button class="lk" type="button" data-setup="${nx[2]}">${ok}/${setup.length} · ${nx[1]} ›</button><button class="sx2" type="button" id="stx" aria-label="Ocultar">×</button></div>`;
   const X={me,t,ym,saldo:realBal(me,t),M:mesCalc(ym,me),F:mesFluxo(ym,me)};
-  const B={rotina:iniRotina,margem:iniGastoMini,ticker:iniTicker,mesx:iniMesX,cats:iniCats,hero:X=>iniHero(X)+guardNudge(X.me),acoes:iniAcoes,alertas:iniResolver,ultimos:iniUltimos,spread:iniSpread,contas:iniContas,beneficios:iniBen,mes:()=>mesCard(me),agenda:iniAgenda,credito:()=>creditoDash(true),gastos:iniGastos2,planejado:iniPlan,fluxo6:iniEvo,kpis:iniKpis,orcamento:()=>'',plano:iniPlano,dre:iniDre,saude:iniSaude,fecha:iniFecha,quinzenas:iniQuin,patrimonio:iniPat};
+  const B={rotina:iniRotina,margem:iniGastoMini,ticker:iniTicker,mesx:iniMesX,cats:iniCats,hero:X=>{X.L=X.L||caixaLivre(X.me);return iniHero(X)+iniAcoes(X)},acoes:iniAcoes,alertas:iniResolver,ultimos:iniUltimos,spread:iniSpread,contas:iniContas,beneficios:iniBen,mes:()=>mesCard(me),agenda:iniAgenda,credito:()=>creditoDash(true),gastos:iniGastos2,planejado:iniPlan,fluxo6:iniEvo,kpis:iniKpis,orcamento:()=>'',plano:iniPlano,dre:iniDre,saude:iniSaude,fecha:iniFecha,quinzenas:iniQuin,patrimonio:iniPat};
   const CORE=SIMPLES?['ticker','hero','acoes','alertas','margem','ultimos']:['ticker','hero','acoes','rotina','alertas','margem','ultimos'];let ha='';
   layOrder().forEach(k=>{if((LAY.off||[]).includes(k))return;if(SIMPLES&&!CORE.includes(k))return;let x='';try{x=B[k](X)||''}catch(e){console.error('início/'+k,e)}if(CORE.includes(k))h+=x;else ha+=x});
   if(ha)h+=`<details class="anl" ${ANLO?'open':''}><summary><span><b>Análises do mês</b><small>candles, categorias, saúde e o que mais estiver ligado</small></span>${ic('down','chev')}</summary><div class="anlb">${ha}</div></details>`;
@@ -6901,7 +6920,8 @@ function openAjuda(q0){
 function openPremissas(){
   const P2=[['Saldo de hoje','Só o que já aconteceu: lançamentos efetivados com data até hoje. Lançamento com data futura é “agendado” e só entra no saldo no dia dele.'],
     ['A realizar (regra única)','Tudo o que ainda vai mexer na conta, numa lista só, usada por todas as telas (Início, fluxo do mês, projeção, período, resumo da conta, A pagar, Quanto posso gastar, “caixa cobre” dos cartões): contas fixas e salários previstos, pendentes e “a receber”, agendados, faturas, parcelas de dívidas e DARF. O que venceu e não foi pago entra como hoje.'],
-    ['Guardar','Meta do mês: o “Guardar” do plano do mês; sem plano, a meta da taxa de poupança × renda do mês. Guardado: transferências para reservas e investimentos menos resgates, até hoje. Seguro para guardar: o que sobra se pagar tudo até a próxima entrada (inclui faturas vencidas) menos o colchão.'],
+    ['Guardar','Meta do mês: o “Guardar” do plano do mês; sem plano, a meta da taxa de poupança × renda do mês. Guardado: transferências para reservas e investimentos menos resgates, até hoje. Seguro para guardar: “pode gastar sem faltar” menos o colchão.'],
+    ['Pode gastar sem faltar','Regra única de quanto dá para gastar: o menor saldo previsto nos próximos 30 dias, simulando o caixa dia a dia com tudo o que está registrado (vencidos e não pagos saem hoje). Mesmo número no Início, Carteira, Decidir, Guardar e “Posso comprar?”. Não inclui estimativa do dia a dia.'],
     ['Previsto do mês','Saldo de hoje + tudo a realizar até o fim do mês. Cada tela mostra a mesma conta: inicial + realizado = hoje; hoje + a realizar = previsto.'],
     ['Caixa','O saldo em conta só muda quando o lançamento é efetivado. Itens pendentes ficam previstos até você marcar como pago, com data e conta.'],
     ['Resultado do mês','Receitas menos despesas do mês de referência. Compras no cartão contam no mês da fatura; parcelas, uma por mês.'],
