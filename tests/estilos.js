@@ -10,7 +10,7 @@ for (const m of s.matchAll(/(?:^|[}\n,;])\s*\.([a-zA-Z][\w-]*)\{([^{}]*)\}/g)) {
   (defs[m[1]] = defs[m[1]] || []).push({ at: m.index, props, txt: m[2].slice(0, 70), txtAll: m[2] });
 }
 /* sobrescritas intencionais de tema/versão (mesmo componente, ajuste de layout) */
-const OK = new Set(['hs', 'lfab', 'sheet', 'sbar', 'ltg', 'lfoot', 'qa', 'pll', 'thumbs', 'lva', 'sheet-bar', 'cqa']);
+const OK = new Set(['hs', 'lfab', 'sheet', 'sbar', 'ltg', 'lfoot', 'qa', 'pll', 'thumbs', 'lva', 'sheet-bar', 'cqa', 'rgrid']);
 const ruins = [];
 for (const [c, L] of Object.entries(defs)) {
   if (OK.has(c) || L.length < 2) continue;
