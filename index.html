@@ -3366,8 +3366,11 @@ function iniAcoes(X){const {me,t}=X,L=X.L||caixaLivre(me),A=[];
   L.out.filter(x=>x.k==='fat'&&!x.late&&diffD(t,x.e)<=3).forEach(x=>A.push({p:3,cor:'warn',ic:'card',t:`${esc(x.t)} vence ${diffD(t,x.e)===0?'hoje':diffD(t,x.e)===1?'amanhã':'em '+diffD(t,x.e)+' dias'}`,s:brl(-x.v),a:`data-acfat="${esc(String(x.nav||'').slice(4))}"`}));
   let g=0;try{g=guardSug(me).v}catch(e){}if(g>=50&&L.livre>=0)A.push({p:4,cor:'good',ic:'spark',t:`Guardar ${brl0(g)}`,s:'cabe com segurança nos próximos 30 dias',a:`data-guardar="${g}"`});
   const nr=assinRevisar(me);if(nr)A.push({p:5,cor:'warn',ic:'card',t:`${nr} assinatura${nr===1?'':'s'} para revisar`,s:'valor mudou ou cobrança não apareceu',a:'data-go="cartoes"'});
+  try{if(ntfOk()&&!NTF().on&&Notification.permission!=='denied'&&LS('pt-ntfask','')!=='x')A.push({p:9,cor:'good',ic:'bell',t:'Ligar avisos no celular',s:'vencimentos, caixa que vai faltar, entrada que não caiu',a:'data-ntfon="1"'})}catch(e){}
   if(!A.length)return '';const sh=A.sort((a,b)=>a.p-b.p).slice(0,3);
   return `<div class="card acx"><div class="acxh"><b>Para fazer agora</b>${A.length>3?`<small>+${A.length-3}</small>`:''}</div>${sh.map(x=>`<button type="button" class="acxr ${x.cor}" ${x.a}><span class="acxi">${ic(x.ic)}</span><span class="acxm"><b>${x.t}</b><small>${x.s}</small></span><span class="go">›</span></button>`).join('')}</div>`}
+document.addEventListener('click',async e=>{const b=e.target.closest&&e.target.closest('[data-ntfon]');if(!b)return;try{let p=Notification.permission;if(p!=='granted')p=await Notification.requestPermission();
+  if(p!=='granted'){LSset('pt-ntfask','x');toast('Sem permissão: dá para ligar depois em Preferências');renderView();return}const n=NTF();n.on=true;LSset('pt-ntf',JSON.stringify(n));await ntfSync(true);toast('Avisos ligados');renderView()}catch(err){toast('Não deu para ligar os avisos aqui')}});
 document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-acfat]');if(!b)return;const [cid,ym]=b.dataset.acfat.split('|'),c=card(cid);if(c&&ym)openPagFat(c,ym)});
 function iniHero(X){
   const {me,t,ym,saldo}=X,ents=agendaPessoal(me,dayIn(ymAdd(ym,2),31)).filter(x=>(x.k==='rec'||x.k==='pendr'||(x.k==='agd'&&x.v>0))&&x.d>t),E=ents[0];

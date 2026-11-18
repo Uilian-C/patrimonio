@@ -3,4 +3,5 @@
     <string name="appName">Patrimônio</string>
     <string name="launchUrl">https://uilian-c.github.io/patrimonio/</string>
     <string name="assetStatements" translatable="false">[{ \"relation\": [\"delegate_permission/common.handle_all_urls\"], \"target\": { \"namespace\": \"web\", \"site\": \"https://uilian-c.github.io\" } }]</string>
+    <string name="shareTarget" translatable="false">{\"action\": \"https://uilian-c.github.io/patrimonio/\", \"method\": \"GET\", \"params\": {\"title\": \"st\", \"text\": \"sx\", \"url\": \"su\"}}</string>
 </resources>
