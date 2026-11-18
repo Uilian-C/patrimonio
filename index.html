@@ -2449,6 +2449,10 @@ nav.tabs a{min-width:0;white-space:nowrap}nav.tabs .tl-s{display:none}
 .szold{display:grid;gap:6px;padding:12px;border-radius:14px;background:var(--accent-soft);margin-bottom:12px}.szold small{color:var(--muted);font-size:12.5px}.szold .btn{justify-self:start}
 .rpi{display:grid;gap:8px;padding:12px 0;border-bottom:1px solid var(--hair)}.rpih{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.rpih span{display:grid;gap:2px;min-width:0}.rpih small{font-size:12px;color:var(--muted)}
 .rpb{justify-self:stretch;text-align:left;white-space:normal}.rpbs{display:flex;gap:8px;flex-wrap:wrap}
+.topd{width:auto!important;padding:0 12px!important;gap:6px;display:inline-flex;align-items:center;font-size:13px;font-weight:600;color:var(--accent)!important}.topd svg{width:17px;height:17px}
+@media (max-width:360px){.topd span{display:none}.topd{padding:0!important;width:44px!important;justify-content:center}}
+.card.cvinv{background:none!important;box-shadow:none!important;border:0!important;padding:0!important;display:grid;gap:10px}.cvinv>h2.dch{margin:6px 0 -2px}
+.topd{text-decoration:none}
 </style>
 <div id="fbgate" hidden><div class="bx"><svg class="lg" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="139 90 228 332"><g transform="translate(-5 0)"><rect x="186" y="100" width="12" height="312" rx="6" fill="currentColor" opacity=".55"/><rect x="164" y="150" width="56" height="210" rx="16" fill="currentColor"/><path d="M244 150h38a70 70 0 0 1 0 140h-38z" fill="#E2BA6E"/></g></svg><h1>Patrimônio</h1><p id="fbmsg">Entre com a sua conta Google para ver as finanças da casa.</p><button type="button" id="fblogin">Entrar com Google</button></div></div>
 <script type="module">
@@ -2546,7 +2550,7 @@ onAuthStateChanged(auth,u=>{if(u){gate.hidden=true;window.__fbUser={email:u.emai
 </defs></svg>
 <header class="top"><div class="in">
   <div class="tl"><button type="button" class="navback" id="navback" hidden aria-label="Voltar"><svg class="ic" aria-hidden="true"><use href="#i-back"/></svg><span id="navbl">Voltar</span></button><h1 id="ttl">Patrimônio</h1><div class="sub" id="sub"></div></div>
-  <span class="topr"><span class="live" id="live"><i></i><span id="livet">Conectando</span></span><button class="topw" type="button" id="topsr" aria-label="Buscar"><svg class="ic"><use href="#i-search"/></svg></button><a class="topw" href="#carteira" data-v="carteira" aria-label="Carteira: contas, cartões e ajustes"><svg class="ic"><use href="#i-wallet"/></svg></a></span>
+  <span class="topr"><span class="live" id="live"><i></i><span id="livet">Conectando</span></span><button class="topw" type="button" id="topsr" aria-label="Buscar"><svg class="ic"><use href="#i-search"/></svg></button><a class="topw topd" href="#decidir" data-v="decidir" aria-label="Decidir: quanto posso gastar, posso comprar, planejar"><svg class="ic"><use href="#i-spark"/></svg><span>Decidir</span></a></span>
 </div></header>
 
 <main>
@@ -2563,8 +2567,8 @@ onAuthStateChanged(auth,u=>{if(u){gate.hidden=true;window.__fbUser={email:u.emai
   <a href="#lanc" data-v="lanc"><svg class="ic"><use href="#i-list"/></svg><span class="tl-l">Lançamentos</span><span class="tl-s">Extrato</span></a>
   <button class="fab" id="fab" type="button" aria-label="Adicionar"><svg class="ic"><use href="#i-plus"/></svg></button>
   <a href="#cartoes" data-v="cartoes"><svg class="ic"><use href="#i-card"/></svg>Cartões</a>
+  <a href="#carteira" data-v="carteira"><svg class="ic"><use href="#i-wallet"/></svg>Carteira</a>
   <a href="#relatorios" data-v="relatorios"><svg class="ic"><use href="#i-chart"/></svg>Relatórios</a>
-  <a href="#decidir" data-v="decidir"><svg class="ic"><use href="#i-trend"/></svg>Decidir</a>
 </nav>
 <div id="overlay" hidden></div>
 <div class="toast" id="toast" hidden></div>
@@ -3584,7 +3588,7 @@ function iniInvest(me){const C=invCarteira(me);if(!C.length)return `<div class="
       <div class="stb ivst">${C.map((x,i)=>`<i style="flex:${Math.max(x.v,0)};background:${cores[i%cores.length]}"></i>`).join('')}</div>
       <div class="ivab">${C.map((x,i)=>{const f=r2(x.v*Math.pow(1+x.i,12));return `<button type="button" class="ivar" data-ct="${esc(x.a.id)}"><i style="background:${cores[i%cores.length]}"></i><span class="ivam"><b>${esc(x.a.nome)}</b><small>${x.a.rend&&x.a.rend.tipo?rendLabel(x.a):'sem taxa — cadastre para projetar'} · ${pctf(tot?x.v/tot:0)}</small></span><span class="ivav"><b class="n">${brl0(x.v)}</b><small class="${x.i?'pos':''}">${x.i?`≈ +${brl0(x.v*x.i)}/mês · 12m ${brl0(f)}`:'—'}</small></span></button>`}).join('')}</div></div>
     <p class="sdm">Projeção pela taxa de cada aplicação (CDI atual ${cdiAA().toLocaleString('pt-BR',{maximumFractionDigits:2})}% a.a.), juros compostos, bruto; o líquido usa o IR regressivo de 12 meses (${Math.round(IRF(N)*100)}%). Aportes rendem pela taxa média da carteira.</p>
-    <div class="btnrow"><button class="btn sm" type="button" data-ivd="1">${ic('chart')} Relatório completo</button><button class="lk" type="button" data-go="carteira">Carteira ›</button></div></div>`}
+    <div class="btnrow"><button class="btn sm" type="button" data-ivd="1">${ic('chart')} Relatório completo</button>${S.view==='carteira'?'':'<button class="lk" type="button" data-go="carteira">Carteira ›</button>'}</div></div>`}
 /* na conta de investimento: projeção de 12 meses só daquela aplicação */
 function invMini(a){const i=taxaMesInv(a);if(!i)return '';const E=rendEst(a),v0=E?E.hoje:saldoConta(a);if(!(v0>0))return '';
   const P=[...Array(13)].map((_,k)=>r2(v0*Math.pow(1+i,k))),W=320,H=90,pad=14,X=k=>pad+k*(W-pad*2)/12,lo=P[0]*.995,hi=P[12]*1.003,Y=v=>10+(hi-v)/((hi-lo)||1)*(H-34),ym=today().slice(0,7);
@@ -4351,11 +4355,8 @@ function vDecidir(){
     ${ords.length?`<div class="dcol"><small>Ordens salvas</small>${ords.map(o=>`<button type="button" class="cxr" data-dord="${esc(o.id)}"><span class="bk ${prontas.has(o.id)?'bk-g':''}">${ic(prontas.has(o.id)?'check':'clock')}</span><span class="cxm"><strong>${esc(o.desc||'Compra planejada')}</strong><small>${brl(o.v)} · ${esc(simForma(o.f))} · ${prontas.has(o.id)?'<span class="pos">já cabe</span>':'aguardando caber'}</small></span><span class="go">›</span></button>`).join('')}</div>`:''}</div>`;
   /* investir: abertura e projeção */
   let G=null;try{G=gastoLentes(me,ym)}catch(e){}const sob=G?Math.max(0,Math.min(G.L.sobra[1],G.L.caixa[1])):0,im=cdiMes();
-  h+=`<h3 class="dch">Guardar</h3>${(()=>{try{return guardCard(me)}catch(e){console.error('guardar',e);return ''}})()}`;
   h+=`<h3 class="dch">Despesas do ano</h3>${(()=>{try{return sazCard(me)}catch(e){console.error('saz',e);return ''}})()}`;
-  if(!SIMPLES)h+=`<h3 class="dch">Investir</h3>${iniInvest(me)}${(()=>{try{return rvCard(me)}catch(e){console.error('rv',e);return ''}})()}
-
-    ${iniSpread(X)||''}`;
+  h+=`<button type="button" class="cxs2 dcgo" data-go="carteira"><span class="cxi a">${ic('trend')}</span><span class="cxm"><strong>Investimentos e guardar</strong><small>agora ficam na Carteira</small></span><span class="go">›</span></button>`;
   if(!SIMPLES)try{h+=iniPlanejar(me)}catch(e){console.error('plan',e)}
   el.innerHTML=h;wireMg(el,vDecidir);wireRV(el,vDecidir);wirePlanejar(el);
   el.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>go(b.dataset.go));
@@ -7247,7 +7248,10 @@ function vCart(){
   const rowA=a=>{const v=saldoConta(a),m=+a.meta||0,E=rendEst(a);return `<button class="cxr" type="button" data-ct="${esc(a.id)}">${bankBadge(a,a.tipo)}<span class="cxm"><strong>${esc(a.nome)}${a.dono!==me?' '+whoChip(a.dono):''}</strong><small>${E?`${rendLabel(a)} · <span class="pos">≈ ${brl(E.hoje)} hoje</span>${m?' · '+pctf(E.hoje/m)+' da meta':''}`:m?`${pctf(v/m)} de ${brl0(m)}`:esc(a.instituicao||TCONTA[a.tipo||'corrente'])}${a.chequeEspecial?' · cheque especial '+brl0(a.chequeEspecial):''}</small>${m?`<span class="cxt"><i style="width:${Math.min(v/m,1)*100}%;background:${a.tipo==='reserva'?'var(--good)':'var(--inv)'}"></i></span>`:''}</span><b class="n ${v<0?'neg':''}">${brl(v)}</b></button>`};
   const empty=t=>`<p class="note cxe">${t}</p>`;
   const Pt=patrimonio(me);
-  let h=(()=>{try{return carteiraGeral(me)}catch(e){console.error('carteiraGeral',e);return saldoContas(me)}})()+`<div class="card cxs pat">${patHead(Pt,me)}${patComp(Pt,me)}</div>`;
+  let h=(()=>{try{return carteiraGeral(me)}catch(e){console.error('carteiraGeral',e);return saldoContas(me)}})();
+  /* investimentos moram na Carteira: guardar (aporte), carteira de investimentos, renda variável e spread */
+  if(!SIMPLES)h+=(()=>{try{const t=today(),ym=t.slice(0,7),X={me,t,ym,saldo:realBal(me,t),M:mesCalc(ym,me),F:mesFluxo(ym,me)};return `<div class="card cvinv"><h2 class="dch">Investimentos</h2>${iniInvest(me)}${rvCard(me)}${iniSpread(X)||''}<h2 class="dch">Guardar</h2>${guardCard(me)}</div>`}catch(e){console.error('inv carteira',e);return ''}})();
+  h+=`<div class="card cxs pat">${patHead(Pt,me)}${patComp(Pt,me)}</div>`;
   h+=`<button class="cxs2" type="button" data-go="cartoes"><span class="cxi a">${ic('card')}</span><span class="cxm"><strong>Cartões</strong><small>${cards.length} cartões · ${brl0(cLim-cUse)} livres de ${brl0(cLim)}</small></span><span class="go">›</span></button>`;
   const DB=divBlock(me);
   h+=grp('dividas',I('<path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/>'),'Dívidas',-DB.D.tot,`${DB.D.at.length} ativa${DB.D.at.length===1?'':'s'}${DB.D.fim?' · livre em '+ymS(DB.D.fim):''}${DB.D.pv.length?' · '+DB.D.pv.length+' prevista'+(DB.D.pv.length>1?'s':''):''}`,'id="addDv"',DB.h,'c');
@@ -7269,7 +7273,9 @@ function vCart(){
     ${S.downloads?`
     <button class="cxr" type="button" id="csv"><span class="bk bk-g">${I('<path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4"/>')}</span><span class="cxm"><strong>Exportar lançamentos</strong><small>planilha CSV</small></span><span class="go">›</span></button>`:''}
     ${window.__fbSair?`<button class="cxr" type="button" id="sair"><span class="bk bk-g">${I('<path d="M15 4h4v16h-4M10 8l-4 4 4 4M6 12h10"/>')}</span><span class="cxm"><strong>Sair</strong><small>${esc((window.__fbUser||{}).email||'')}</small></span><span class="go">›</span></button>`:''}`,'s');
-  el.innerHTML=h;
+  el.innerHTML=h;try{wireRV(el,vCart)}catch(e){}
+  el.querySelectorAll('[data-spread]').forEach(x=>x.onclick=openSpread);el.querySelectorAll('[data-ivd]').forEach(x=>x.onclick=openInvestDash);
+  {const ap=el.querySelector('#iv-ap');if(ap)ap.onclick=()=>openCalc(APM||'',v=>{APM=r2(Math.max(0,v));LSset('pt-apm',String(APM));vCart()})}
   el.querySelectorAll('.cxh').forEach(b=>b.onclick=()=>{const s=b.parentElement,k=s.dataset.cx,o=!CXO[k];CXO[k]=o;cxSave();s.classList.toggle('open',o);b.setAttribute('aria-expanded',String(o));s.querySelector('.cxb').hidden=!o});
   el.querySelectorAll('[data-addc]').forEach(b=>b.onclick=()=>openConta({tipo:b.dataset.addc}));
   el.querySelectorAll('[data-ct]').forEach(b=>b.onclick=()=>openContaDet(conta(b.dataset.ct)));
