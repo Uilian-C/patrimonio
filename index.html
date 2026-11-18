@@ -2400,6 +2400,14 @@ main{padding-left:max(10px,env(safe-area-inset-left,0px));padding-right:max(10px
 .kpceq{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr) auto minmax(0,1fr);gap:6px;align-items:center;padding:12px;border-radius:14px;background:var(--sunk);margin-bottom:12px}.kpceq span{display:grid;gap:2px;min-width:0}.kpceq small{font-size:11px;color:var(--muted);line-height:1.2}.kpceq b{font-size:15px;font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.kpceq i{font-style:normal;color:var(--muted);font-size:16px}.kpceq .r b{color:var(--accent)}
 .kpcg{margin-bottom:12px}.kpcgh{display:flex;justify-content:space-between;align-items:baseline;padding:6px 0;border-bottom:1px solid var(--line);font-size:13.5px;font-weight:600}.kpcgh b{font-weight:650}
 .kpci{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--hair)}.kpci span{display:grid;gap:1px;min-width:0}.kpci span b{font-weight:500;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.kpci small{font-size:12px;color:var(--muted)}.kpci>b{font-size:14px;white-space:nowrap}
+.cgc{display:grid;gap:10px}.cgh{display:grid;gap:2px}.cgh small{font-size:13px;color:var(--muted)}.cgh>b{font-size:34px;font-weight:700;letter-spacing:-.02em;line-height:1.1}.cgh em{font-style:normal;font-size:12.5px;color:var(--muted)}
+.cgbar{display:flex;gap:2px;height:12px;border-radius:7px;overflow:hidden;margin-top:4px}.cgbar i{display:block;min-width:4px}
+.cgk{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:12px;color:var(--muted)}.cgk i{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:4px}
+.cgt{border-top:1px solid var(--hair)}.cgt>summary{display:grid;grid-template-columns:10px minmax(0,1fr) auto 18px;gap:10px;align-items:center;padding:12px 0;cursor:pointer;list-style:none}.cgt>summary::-webkit-details-marker{display:none}.cgt>summary>i{width:10px;height:10px;border-radius:3px}.cgt>summary>span{display:grid;gap:1px;min-width:0}.cgt>summary small{font-size:12px;color:var(--muted)}.cgt>summary>b{font-size:16px}.cgt>summary .chev{width:16px;height:16px;transition:transform .2s}.cgt[open]>summary .chev{transform:rotate(180deg)}
+.cgb{padding:0 0 10px}.cgb .cxr{width:100%;display:flex;align-items:center;gap:12px}.cgb .cxr>.cxm{flex:1;min-width:0}.cgb .cxr>b{white-space:nowrap}.cgsx{box-shadow:none!important;background:none!important;padding:0!important;border:0!important;margin:0!important}
+.cgpl{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr) auto minmax(0,1fr);gap:6px;align-items:center;padding:12px;border-radius:14px;background:var(--sunk);margin-top:4px}.cgpl span{display:grid;gap:2px;min-width:0}.cgpl small{font-size:11.5px;color:var(--muted)}.cgpl b{font-size:15px;font-weight:650;white-space:nowrap}.cgpl i{font-style:normal;color:var(--muted)}.cgpl .r b{color:var(--accent)}
+.cggo{justify-self:start;padding:0;font-size:13px}
+.blkq{display:grid;gap:2px;text-align:left;background:none;border:0;color:inherit;font:inherit;padding:0;cursor:pointer}.blkq small{color:var(--accent)}
 </style>
 <div id="fbgate" hidden><div class="bx"><svg class="lg" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="139 90 228 332"><g transform="translate(-5 0)"><rect x="186" y="100" width="12" height="312" rx="6" fill="currentColor" opacity=".55"/><rect x="164" y="150" width="56" height="210" rx="16" fill="currentColor"/><path d="M244 150h38a70 70 0 0 1 0 140h-38z" fill="#E2BA6E"/></g></svg><h1>Patrimônio</h1><p id="fbmsg">Entre com a sua conta Google para ver as finanças da casa.</p><button type="button" id="fblogin">Entrar com Google</button></div></div>
 <script type="module">
@@ -2818,7 +2826,7 @@ function patHead(Pt,me){
   const B=balanco(Pt),PAS=r2(B.PC+B.PL),liqC=r2(B.AT-B.PC);
   return `<div class="pth"><span class="k">Patrimônio líquido de ${esc(P(me).nome)}${S.view==="carteira"?' · <button class="lk" type="button" data-go="relatorios" data-rp="patrimonio">indicadores ›</button>':''}</span><div class="seg pseg sm" role="tablist"><button type="button" data-patm="comp" aria-pressed="${Pt.comp}">Com compromissos</button><button type="button" data-patm="hoje" aria-pressed="${!Pt.comp}">Só hoje</button></div></div>
     <div class="big n ${Pt.liq<0?'neg':''}">${Pt.liq<0?'−':''}${brl0(Math.abs(Pt.liq))}</div>
-    <div class="blk"><div><small>Ativo</small><b class="n">${brl0(B.AT)}</b></div><div><small>Passivo</small><b class="n">${brl0(PAS)}</b></div><div><small>Liquidez corrente</small><b class="n ${B.PC&&B.AT/B.PC<1?'neg':''}">${B.PC?(B.AT/B.PC).toLocaleString('pt-BR',{maximumFractionDigits:2})+'x':'—'}</b></div></div>`;
+    <div class="blk"><div><small>Ativo</small><b class="n">${brl0(B.AT)}</b></div><div><small>Passivo</small><b class="n">${brl0(PAS)}</b></div><button type="button" class="blkq" data-okpi="liq"><small>Liquidez ›</small><b class="n ${B.PC&&B.AT/B.PC<1?'neg':''}">${B.PC?(B.AT/B.PC).toLocaleString('pt-BR',{maximumFractionDigits:2})+'x':'—'}</b></button></div>`;
 }
 
 /* ---------- BALANÇO PROJETADO: caixa, patrimônio e resultado mês a mês até a última parcela ---------- */
@@ -3388,7 +3396,7 @@ function caixaLivre(me){const t=today(),ym=t.slice(0,7),ents=agendaPessoal(me,da
   const fimH=E?addD(E.d,-1):dayIn(ym,31),ag=agendaPessoal(me,fimH>=t?fimH:t).filter(x=>x.d<=fimH||x.d<t);
   /* mesma regra do Início: faturas vencidas e não pagas também saem do que sobra */
   const out=ag.filter(x=>x.v<0);{const sp=new Set(out.map(x=>x.nav+x.d));let F=null;try{F=mesFluxo(ym,me)}catch(e){}((F&&F.venc)||[]).forEach(x=>{if(x.d<t&&x.v<0&&!sp.has(x.nav+x.d)){sp.add(x.nav+x.d);out.push(x)}})}
-  const comp=sum(out,x=>-x.v),entra=sum(ag.filter(x=>x.v>0),x=>x.v);return {livre:r2(realBal(me,t)+entra-comp),ate:fimH,prox:E?E.d:''}}
+  const ins=ag.filter(x=>x.v>0),comp=sum(out,x=>-x.v),entra=sum(ins,x=>x.v),bal=realBal(me,t);return {livre:r2(bal+entra-comp),ate:fimH,prox:E?E.d:'',bal:r2(bal),comp:r2(comp),entra:r2(entra),out,ins,E}}
 /* ===================== Margem do mês =====================
    Dinheiro livre do mês = renda − compromissos (fixas, parcelas, faturas) − colchão.
    O velocímetro mostra quanto desse livre os gastos variáveis já usaram, comparando com o ritmo do mês. */
@@ -7044,6 +7052,35 @@ function indCard(me){
     ${dvx!=null&&gan>0?`<p class="inl">${ic('spark')}<span><b>Antecipar dívida rende mais que investir.</b> Cada R$ 1.000 usados para antecipar parcelas economizam cerca de <b>${brl(1000*dvx)}/mês</b> em juros; investidos, renderiam cerca de <b>${brl(1000*I.invM)}/mês</b>. Mantenha antes a reserva de emergência.</span></p>`:''}
     <p class="note">Só entram indicadores calculados com o que está registrado. Ações e cotações de mercado não entram: o app não acompanha carteira de renda variável.</p></div>`;
 }
+/* ===================== Carteira · visão geral =====================
+   Livre para usar = o que está em conta + o que entra antes da próxima receita − o que vence até lá (mesma regra do Início).
+   A reserva fica fora do livre de propósito. */
+const CGO=k=>LS('pt-cg-'+k,'0')==='1';
+function carteiraGeral(me){const t=today(),L=caixaLivre(me),Pt=patrimonio(me),B=balanco(Pt),PAS=r2(B.PC+B.PL),fr=a=>fracOf(a.dono,me);
+  const tp=k=>S.contas.filter(a=>a.ativo!==false&&a.tipo===k&&fr(a)>0),rs=tp('reserva'),iv=tp('investimento'),bn=tp('beneficio');
+  const tRS=r2(sum(rs,a=>saldoConta(a)*fr(a))),tIV=r2(sum(iv,a=>saldoConta(a)*fr(a))+(Pt.rv||0)),tBN=r2(sum(bn,a=>saldoConta(a)));
+  const livre=L.livre,comp=r2(Math.min(L.comp,Math.max(L.bal+L.entra,0))),ate=fdate(L.ate).slice(0,5);
+  const seg=[['livre','Para usar',Math.max(livre,0),'var(--accent)'],['comp','Comprometido',comp,'var(--warn)'],['res','Reserva',tRS,'var(--good)'],['inv','Investido',tIV,'var(--inv)'],['ben','Benefícios',tBN,'#7C5CD6']].filter(x=>x[2]>.5),tot=sum(seg,x=>x[2])||1;
+  const it=(n,sub,v,attr)=>`<button class="cxr" type="button" ${attr||''}><span class="cxm"><strong>${n}</strong>${sub?`<small>${sub}</small>`:''}</span><b class="n ${v<0?'neg':''}">${brl(v)}</b></button>`;
+  const ag=x=>it(esc(x.t||'—'),`${x.d<t?'atrasado desde ':''}${fdate(x.d).slice(0,5)}`,x.v,x.nav&&String(x.nav).startsWith('l:')?`data-cgl="${esc(String(x.nav).slice(2))}"`:'');
+  const rowA=a=>{const v=saldoConta(a),E=rendEst(a);return `<button class="cxr" type="button" data-ct="${esc(a.id)}">${bankBadge(a,a.tipo)}<span class="cxm"><strong>${esc(a.nome)}${a.dono!==me?' '+whoChip(a.dono):''}</strong><small>${E?rendLabel(a):esc(a.instituicao||TCONTA[a.tipo]||'')}</small></span><b class="n">${brl(v)}</b></button>`};
+  const tier=(k,cor,t1,sub,v,body)=>`<details class="cgt" data-cgk="${k}" ${CGO(k)?'open':''}><summary><i style="background:${cor}"></i><span><b>${t1}</b><small>${sub}</small></span><b class="n ${v<0?'neg':''}">${brl0(v)}</b>${ic('down','chev')}</summary><div class="cgb">${body}</div></details>`;
+  let h=`<div class="card cgc"><div class="cgh"><small>Livre para usar</small><b class="n ${livre<0?'neg':''}">${livre<0?'−':''}${brl(Math.abs(livre))}</b>
+    <em>em conta ${brl0(L.bal)}${L.entra>.5?` + entra ${brl0(L.entra)}`:''} − vence até ${ate} ${brl0(L.comp)}${L.E?` · próxima entrada ${fdate(L.E.d).slice(0,5)}`:''}</em></div>
+    <div class="cgbar" role="img" aria-label="Onde está seu dinheiro">${seg.map(x=>`<i style="flex:${x[2]/tot};background:${x[3]}" title="${x[1]}"></i>`).join('')}</div>
+    <div class="cgk">${seg.map(x=>`<span><i style="background:${x[3]}"></i>${x[1]} ${pctf(x[2]/tot)}</span>`).join('')}</div>
+    ${tier('conta','var(--accent)','Para usar hoje',`em conta · livre ${brl0(Math.max(livre,0))}`,L.bal,saldoContas(me).replace('class="card sxc','class="sxc cgsx'))}
+    ${tier('comp','var(--warn)','Já comprometido',`vence até ${ate}${L.out.some(x=>x.d<t)?' · inclui atrasados':''}`,-L.comp,L.out.length?L.out.slice().sort((a,b)=>a.d.localeCompare(b.d)).map(ag).join('')+(L.ins.length?`<p class="sdm">Entra antes disso: ${L.ins.map(x=>`${esc(x.t)} ${brl0(x.v)}`).join(' · ')}</p>`:''):'<p class="sdm">Nada vence até a próxima entrada.</p>')}
+    ${tier('res','var(--good)','Reserva','saque imediato, mas é sua proteção',tRS,rs.length?rs.map(rowA).join(''):'<p class="sdm">Nenhuma reserva cadastrada.</p><button class="cxadd" type="button" data-addc="reserva">'+ic('plus')+'<span>Adicionar reserva</span></button>')}
+    ${tier('inv','var(--inv)','Investido','pode ter prazo ou perder rendimento se resgatar',tIV,iv.map(rowA).join('')+(Pt.rv?it('Renda variável','ações, FIIs, ETFs pela cotação',Pt.rv,'data-go="relatorios" data-rp="rv"'):'')+`<button class="cxr" type="button" id="ivgo"><span class="cxm"><strong>Abrir investimentos</strong><small>evolução, rendimento por mês, onde está</small></span><span class="go">›</span></button>`)}
+    ${bn.length?tier('ben','#7C5CD6','Benefícios','só para compras específicas (VR, VA)',tBN,bn.map(a=>{const C=benCiclo(a);return `<button class="cxr" type="button" data-ct="${esc(a.id)}">${bankBadge(a,'beneficio')}<span class="cxm"><strong>${esc(a.nome)}</strong><small>${brl0(Math.max(C.porDia,0))}/dia · recarga ${fdate(C.prox).slice(0,5)}${C.valorProx?' · +'+brl0(C.valorProx):''}</small></span><b class="n">${brl(C.saldo)}</b></button>`}).join('')+'<button class="cxadd" type="button" data-addc="beneficio">'+ic('plus')+'<span>Adicionar</span></button>'):''}
+    <div class="cgpl"><span><small>Tem</small><b class="n">${brl0(B.AT)}</b></span><i>−</i><span><small>Deve</small><b class="n">${brl0(PAS)}</b></span><i>=</i><span class="r"><small>Patrimônio${Pt.comp?'':' (só hoje)'}</small><b class="n ${Pt.liq<0?'neg':''}">${Pt.liq<0?'−':''}${brl0(Math.abs(Pt.liq))}</b></span></div>
+    <button class="lk cggo" type="button" data-cgpat="1">Ver ativo e passivo em detalhe ›</button></div>`;
+  return h}
+document.addEventListener('toggle',e=>{const d=e.target;if(d&&d.classList&&d.classList.contains('cgt'))LSset('pt-cg-'+d.dataset.cgk,d.open?'1':'0')},true);
+document.addEventListener('click',e=>{const l=e.target.closest&&e.target.closest('[data-cgl]');if(l){const x=S.lanc.find(z=>z.id===l.dataset.cgl);if(x)openLanc(x);return}
+  const p=e.target.closest&&e.target.closest('[data-cgpat]');if(p){const c=document.querySelector('#v-carteira .cxs.pat');if(c)c.scrollIntoView({behavior:'smooth',block:'start'});return}
+  const k=e.target.closest&&e.target.closest('[data-okpi]');if(k)openKpi(k.dataset.okpi)});
 function vCart(){
   const el=$('#v-carteira');if(!ready()){el.innerHTML=loading();return}
   const me=ME(),byT=t=>S.contas.filter(a=>a.ativo!==false&&((a.tipo||'corrente')===t||(t==='corrente'&&a.tipo==='dinheiro'))),val=a=>saldoConta(a)*fracOf(a.dono,me);
@@ -7059,10 +7096,7 @@ function vCart(){
   const rowA=a=>{const v=saldoConta(a),m=+a.meta||0,E=rendEst(a);return `<button class="cxr" type="button" data-ct="${esc(a.id)}">${bankBadge(a,a.tipo)}<span class="cxm"><strong>${esc(a.nome)}${a.dono!==me?' '+whoChip(a.dono):''}</strong><small>${E?`${rendLabel(a)} · <span class="pos">≈ ${brl(E.hoje)} hoje</span>${m?' · '+pctf(E.hoje/m)+' da meta':''}`:m?`${pctf(v/m)} de ${brl0(m)}`:esc(a.instituicao||TCONTA[a.tipo||'corrente'])}${a.chequeEspecial?' · cheque especial '+brl0(a.chequeEspecial):''}</small>${m?`<span class="cxt"><i style="width:${Math.min(v/m,1)*100}%;background:${a.tipo==='reserva'?'var(--good)':'var(--inv)'}"></i></span>`:''}</span><b class="n ${v<0?'neg':''}">${brl(v)}</b></button>`};
   const empty=t=>`<p class="note cxe">${t}</p>`;
   const Pt=patrimonio(me);
-  let h=saldoContas(me)+`<div class="card cxs pat">${patHead(Pt,me)}${patComp(Pt,me)}</div>`;
-  h+=grp('beneficios',I('<path d="M7 3v8M5 3v4a2 2 0 0 0 4 0V3M7 11v10M16 3c-2 0-3 2.5-3 6h3v12"/>'),'Benefícios',sum(bn,a=>saldoConta(a)),bn.length?`${bn.length} cart${bn.length===1?'ão':'ões'} · VR, VA, flexível`:'VR, VA, flexível','data-addc="beneficio"',
-    bn.length?bn.map(a=>{const C=benCiclo(a);return `<button class="cxr" type="button" data-ct="${esc(a.id)}">${bankBadge(a,'beneficio')}<span class="cxm"><strong>${esc(a.nome)}</strong><small>${brl0(Math.max(C.porDia,0))}/dia · recarga ${fdate(C.prox).slice(0,5)}${C.valorProx?' · +'+brl0(C.valorProx):''}</small><span class="cxt"><i style="width:${Math.min(C.uPct,1)*100}%;background:#7C5CD6"></i></span></span><b class="n">${brl(C.saldo)}</b></button>`}).join(''):empty('Cadastre seu vale-refeição, alimentação ou flexível para saber quanto pode gastar por dia até a próxima recarga.'),'b');
-  {const IA=invContas(me),tI=sum(IA,a=>saldoConta(a)*fracOf(a.dono,me)),rM=IA.length?invMes(IA,today().slice(0,7)).rend:0;h+=`<button class="cxs2 ivgo" type="button" id="ivgo"><span class="cxi i">${I('<path d="M4 19h16M6 15l4-4 3 3 5-6"/><path d="M15 8h3v3"/>')}</span><span class="cxm"><strong>Investimentos e reservas</strong><small>${IA.length?`${IA.length} aplicaç${IA.length===1?'ão':'ões'}${rM?` · <span class="${rM>0?'pos':'neg'}">${rM>0?'+':'−'}${brl0(Math.abs(rM))} no mês</span>`:''}`:'cadastre cofrinho, CDB, reserva…'}</small></span><b class="n cxv">${brl0(tI)}</b><span class="go">›</span></button>`}
+  let h=(()=>{try{return carteiraGeral(me)}catch(e){console.error('carteiraGeral',e);return saldoContas(me)}})()+`<div class="card cxs pat">${patHead(Pt,me)}${patComp(Pt,me)}</div>`;
   h+=`<button class="cxs2" type="button" data-go="cartoes"><span class="cxi a">${ic('card')}</span><span class="cxm"><strong>Cartões</strong><small>${cards.length} cartões · ${brl0(cLim-cUse)} livres de ${brl0(cLim)}</small></span><span class="go">›</span></button>`;
   const DB=divBlock(me);
   h+=grp('dividas',I('<path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/>'),'Dívidas',-DB.D.tot,`${DB.D.at.length} ativa${DB.D.at.length===1?'':'s'}${DB.D.fim?' · livre em '+ymS(DB.D.fim):''}${DB.D.pv.length?' · '+DB.D.pv.length+' prevista'+(DB.D.pv.length>1?'s':''):''}`,'id="addDv"',DB.h,'c');
