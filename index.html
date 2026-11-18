@@ -2996,17 +2996,23 @@ function mesCalc(ym,pid){
   return {ym,rec:recR+recP,recR,recP,card,cont,fx,dv,desp:card+cont+fx+dv};
 }
 /* agenda unificada: tudo que entra e sai das contas de pid entre hoje e 'ate' */
-function agendaPessoal(pid,ate,de,o){
+/* memo da agenda: a mesma pergunta é feita várias vezes por tela (resumo, caixa livre, guardar…).
+   Vale enquanto os dados não mudam (EPO sobe a cada atualização do banco e a cada tela desenhada). */
+var EPO=0,AGM=new Map();
+function agendaPessoal(pid,ate,de,o){const k=[EPO,today(),pid,ate,de||'',o?JSON.stringify(o):''].join('|');if(AGM.has(k))return AGM.get(k).slice();if(AGM.size>200)AGM.clear();const r=agendaPessoal0(pid,ate,de,o);AGM.set(k,r);return r.slice()}
+function agendaPessoal0(pid,ate,de,o){
   const t=de||today(),out=[];
+  /* a partir de hoje: o que venceu neste mês e não foi pago (conta fixa, fatura, parcela) entra também, como em atraso */
+  const lo=(!de||de===today())?t.slice(0,7)+'-01':t;
   if(o&&o.cv&&(o.force||cfg().projCV)&&o.force!==false){const CV=custoVida(pid);if(CV.v>0){
     for(let d=t;d<=ate;d=addD(d,1))out.push({k:'cv',d,t:'Dia a dia',s:'estimado',v:-CV.v*(1-CV.pc)/lastDay(d.slice(0,7))});
     for(let m=t.slice(0,7);m<=ate.slice(0,7);m=ymAdd(m,1)){const nd=lastDay(m),fr=m===t.slice(0,7)?(nd-+t.slice(8)+1)/nd:1,d=dayIn(ymAdd(m,1),CV.dia);if(d<=ate&&CV.pc>0)out.push({k:'cv',card:1,d,t:'Dia a dia no cartão',s:'estimado',v:-CV.v*CV.pc*fr})}}}
-  const fats={};movs().filter(i=>i.src==='card'&&i.dono===pid&&i.due>=t&&i.due<=ate&&!fatPaga(i.c.id,i.ym)).forEach(i=>{const k=i.c.id+'|'+i.ym;fats[k]=fats[k]||{d:i.due,c:i.c,ym:i.ym,v:0};fats[k].v+=i.tipo==='receita'?-i.valor:i.valor});
+  const fats={};movs().filter(i=>i.src==='card'&&i.dono===pid&&i.due>=lo&&i.due<=ate&&!fatPaga(i.c.id,i.ym)).forEach(i=>{const k=i.c.id+'|'+i.ym;fats[k]=fats[k]||{d:i.due,c:i.c,ym:i.ym,v:0};fats[k].v+=i.tipo==='receita'?-i.valor:i.valor});
   Object.values(fats).forEach(f=>{if(f.v>.005)out.push({k:'fat',d:f.d,t:'Fatura '+f.c.nome,s:'cartão',v:-f.v,cor:f.c.cor,nav:`fat:${f.c.id}|${f.ym}`})});
   /* recorrência no cartão sai do caixa no vencimento da fatura em que cai */
   const pvC=x=>{const c=x.r.cartao&&card(x.r.cartao);if(!c)return x;const fy=baseDue({data:x.date},c);return fatPaga(c.id,fy)?null:Object.assign({},x,{date:dayIn(fy,c.vencimento),cc:c})};
-  recPrevistos(ymAdd(t.slice(0,7),-1),ate.slice(0,7)).map(pvC).filter(x=>x&&x.dono===pid&&x.date>=t&&x.date<=ate).forEach(x=>out.push({k:x.tipo==='receita'?'rec':'fix',d:x.date,t:x.nome,s:x.cc?'na fatura '+x.cc.nome:x.tipo==='receita'?'receita prevista':x.N?(x.n===x.N?'última parcela':'parcela '+x.n+' de '+x.N):'conta fixa',v:x.tipo==='receita'?x.valor:-x.valor,cor:x.tipo==='receita'?'var(--good)':'var(--bar)',nav:`rec:${x.r.id}|${x.ym}`}));
-  DVX().forEach(d=>{const s=sched(d),pt=((d.parte||{})[pid]??100)/100;s.rows.filter(r=>!r.pg&&r.date&&r.date>=t&&r.date<=ate).forEach(r=>out.push({k:'div',d:r.date,t:d.nome,s:'parcela '+r.n+' · sua parte',v:-r.enc*pt,cor:'var(--crit)',nav:'dv:'+d.id}))});
+  recPrevistos(ymAdd(t.slice(0,7),-1),ate.slice(0,7)).map(pvC).filter(x=>x&&x.dono===pid&&x.date>=lo&&x.date<=ate).forEach(x=>out.push({k:x.tipo==='receita'?'rec':'fix',d:x.date,t:x.nome,s:x.cc?'na fatura '+x.cc.nome:x.tipo==='receita'?'receita prevista':x.N?(x.n===x.N?'última parcela':'parcela '+x.n+' de '+x.N):'conta fixa',v:x.tipo==='receita'?x.valor:-x.valor,cor:x.tipo==='receita'?'var(--good)':'var(--bar)',nav:`rec:${x.r.id}|${x.ym}`}));
+  DVX().forEach(d=>{const s=sched(d),pt=((d.parte||{})[pid]??100)/100;s.rows.filter(r=>!r.pg&&r.date&&r.date>=lo&&r.date<=ate).forEach(r=>out.push({k:'div',d:r.date,t:d.nome,s:'parcela '+r.n+' · sua parte',v:-r.enc*pt,cor:'var(--crit)',nav:'dv:'+d.id}))});
   const pids=new Set(S.contas.filter(a=>!isBen(a)&&fracOf(a.dono,pid)>0).map(a=>a.id));
   S.lanc.filter(l=>l.pend&&(l.tipo||'despesa')==='despesa'&&pids.has(l.conta)&&(l.data||'')<=ate).forEach(l=>out.push({k:'pend',d:l.data,t:l.desc||'Pendente',s:l.data<t?'pendente · em atraso':'pendente',v:-(+l.valor||0)*fracOf((conta(l.conta)||{}).dono,pid),cor:'var(--warn)',nav:'l:'+l.id}));
   S.lanc.filter(l=>l.pend&&l.tipo==='receita'&&pids.has(l.conta)&&(l.data||'')<=ate).forEach(l=>out.push({k:'pendr',d:l.data,t:l.desc||'Receita pendente',s:l.data<t?'a receber · em atraso':'a receber',v:(+l.valor||0)*fracOf((conta(l.conta)||{}).dono,pid),cor:'var(--good)',nav:'l:'+l.id}));
@@ -7095,7 +7101,6 @@ function carteiraGeral(me){const t=today(),H=addD(t,30),S0=caixaSim(me,H),m0=min
   const it=(n,sub,v,attr,cls)=>`<button class="cxr" type="button" ${attr||''}><span class="cxm"><strong>${n}</strong>${sub?`<small class="${cls||''}">${sub}</small>`:''}</span><b class="n ${v<0?'neg':v>0?'pos':''}">${v>0?'+':''}${brl(v)}</b></button>`;
   const ag=x=>it(esc(x.t||'—'),x.late?`atrasado desde ${fdate(x.d).slice(0,5)}`:fdate(x.e).slice(0,5),x.v,x.nav&&String(x.nav).startsWith('l:')?`data-cgl="${esc(String(x.nav).slice(2))}"`:'',x.late?'wrn':'');
   const rowA=a=>{const v=saldoConta(a),E=rendEst(a);return `<button class="cxr" type="button" data-ct="${esc(a.id)}">${bankBadge(a,a.tipo)}<span class="cxm"><strong>${esc(a.nome)}${a.dono!==me?' '+whoChip(a.dono):''}</strong><small>${E?rendLabel(a):esc(a.instituicao||TCONTA[a.tipo]||'')}</small></span><b class="n">${brl(v)}</b></button>`};
-  const tier=(k,cor,t1,sub,v,body)=>`<details class="cgt" data-cgk="${k}" ${CGO(k)?'open':''}><summary><i style="background:${cor}"></i><span><b>${t1}</b><small>${sub}</small></span><b class="n ${v<0?'neg':''}">${v<0?'−':''}${brl0(Math.abs(v))}</b>${ic('down','chev')}</summary><div class="cgb">${body}</div></details>`;
   const cz=m0?causaMin(S0,m0):'',mD=m0?fdate(m0.d).slice(0,5):'';
   const topo=modo==='agora'
     ?`<small>Saldo em conta agora</small><b class="n ${bal<0?'neg':''}">${bal<0?'−':''}${brl(Math.abs(bal))}</b><em>o que dá para pagar neste momento${late.length?` · <span class="wrn">${late.length} conta${late.length===1?'':'s'} em atraso (${brl0(-sum(late,x=>x.v))})</span>`:''}${m0&&m0.v<bal-.5?` · nos próximos 30 dias chega a <b class="${m0.v<0?'neg':''}">${brl0(m0.v)}</b> em ${mD}`:''}</em>`
@@ -8369,7 +8374,7 @@ function openOrg(){const el=$(ORGV[S.view]);const sc=orgScope();
   openSheet(`<h2>Organizar ${S.view==='carteira'?'Carteira':'Relatórios'}</h2><p class="note">Escolha a ordem e o que aparece${S.view==='relatorios'?' nesta aba':''}. Fica salvo neste aparelho.</p><div id="psl" class="psl"></div><div class="btnrow"><button class="btn" type="button" id="orr">Restaurar padrão</button></div>`,sh=>{draw(sh);sh.querySelector('#orr').onclick=()=>{delete ORG[sc];orgSave();renderView();draw(sh)}});
 }
 
-function renderView(){document.querySelectorAll('body>.acsel').forEach(x=>x.remove());try{roCheck()}catch(e){}try{ntfSync()}catch(e){}try{tourAuto()}catch(e){}const v=S.view;if(v==='inicio')vInicio();else if(v==='lanc')vLanc();else if(v==='relatorios')vRel();else if(v==='cartoes')vCards();else if(v==='decidir')vDecidir();else vCart();try{orgApply()}catch(e){console.error('org',e)}}
+function renderView(){EPO++;document.querySelectorAll('body>.acsel').forEach(x=>x.remove());try{roCheck()}catch(e){}try{ntfSync()}catch(e){}try{tourAuto()}catch(e){}const v=S.view;if(v==='inicio')vInicio();else if(v==='lanc')vLanc();else if(v==='relatorios')vRel();else if(v==='cartoes')vCards();else if(v==='decidir')vDecidir();else vCart();try{orgApply()}catch(e){console.error('org',e)}}
 let raf=0;const re=()=>{CACHE=null;cancelAnimationFrame(raf);raf=requestAnimationFrame(()=>{if($('#overlay').hidden||S.view!=='lanc')renderView();else renderView()})};
 window.addEventListener('hashchange',route);
 $('#fab').onclick=openMenu;
@@ -8409,9 +8414,9 @@ const tm=setTimeout(()=>{if(!ready())live('Sem conexão')},10000);
   addEventListener('offline',()=>{syncUI();toast('Sem internet — pode lançar normalmente, sincroniza quando voltar')});
   addEventListener('online',()=>{syncUI();if(window.__fbPend)toast('Internet de volta — enviando o que foi lançado');bkAuto()});
   const mark=()=>{if(ready()){clearTimeout(tm);syncUI();bkAuto()}};
-  const col=(name,key,ok)=>db.collection(name).onSnapshot(s=>{S[key]=s.docs.map(d=>Object.assign({id:d.id},d.data()));S.ok[ok]=1;mark();re()},err);
-  db.doc('config/app').onSnapshot(s=>{S.cfg=s.exists?s.data():null;applyCats();S.ok.c=1;mark();re()},err);
-  db.doc('config/rv').onSnapshot(s=>{S.rv=s.exists?(s.data()||{}):{};re()},()=>{});
+  const col=(name,key,ok)=>db.collection(name).onSnapshot(s=>{EPO++;S[key]=s.docs.map(d=>Object.assign({id:d.id},d.data()));S.ok[ok]=1;mark();re()},err);
+  db.doc('config/app').onSnapshot(s=>{EPO++;S.cfg=s.exists?s.data():null;applyCats();S.ok.c=1;mark();re()},err);
+  db.doc('config/rv').onSnapshot(s=>{EPO++;S.rv=s.exists?(s.data()||{}):{};re()},()=>{});
   db.doc('meta/backups').onSnapshot(s=>{BKIDX=s.exists?s.data():{datas:{}};bkAuto()},e=>{if(e&&e.code==='permission-denied')BKOFF=true});
   col('cartoes','cards','k');col('contas','contas','n');col('lanc','lanc','l');col('dividas','dividas','d');col('recorrentes','recs','r');col('acertos','acertos','a');col('relatorios','reps','x');
   C.use('assets').then(a=>{S.assets=a});
