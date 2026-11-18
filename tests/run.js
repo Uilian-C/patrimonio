@@ -12,7 +12,7 @@ const EXPOR = ('S ME today ymAdd addD dayIn lastDay realBal saldoConta scopeCont
   'acerto acertoLedger credGab gabId candlesCaixa saidasDia margemCalc planoCalc mesCalc catWatch catMesMap contaMov isCaixa movs ' +
   'parseFrase rvCalc rvIR divSim divLista ORD metaCalc cenBase cenProj baseMes casaCalc pjMes filhoCalc progRet retroCalc semRev ' +
   'openRV openRVIR openCenarios openDividasPlano openCasa openPJ openPontos openFilhos openRetro openPrefs openFrase openSimCompra ' +
-  'openSemana openAjuda openRelMes openMeta openAssessor openInvestDash openSpread openBackups openLanc openTour openBemVindo openAPagar atrasos catList projecao relPeriodo mesCalc periodoConta aRealizar recPrevistos fatRecs sazLista sazProv mdiff ntfDecisao parseFrase carteiraGeral caixaSim addD openKpi kpiVal openMetasKpi KPM caixaLivre openInvestDash openGuardar guardSug guardFeito guardMeta guardNudge openAbater faturasAbertas caixaNoDia realBal fatComp movKind fatTot openCardDet baseDue card closeSheet').split(' ');
+  'openSemana openAjuda openRelMes openMeta openAssessor openInvestDash openSpread openBackups openLanc openTour openBemVindo openAPagar atrasos catList projecao relPeriodo mesCalc periodoConta aRealizar recPrevistos fatRecs recPendAnt openRecPend assinRevisar assinRevisao recsCartaoAtivos sazLista sazProv mdiff ntfDecisao parseFrase carteiraGeral caixaSim addD openKpi kpiVal openMetasKpi KPM caixaLivre openInvestDash openGuardar guardSug guardFeito guardMeta guardNudge openAbater faturasAbertas caixaNoDia realBal fatComp movKind fatTot openCardDet baseDue card closeSheet').split(' ');
 
 function montar(dados) {
   let h = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
@@ -182,6 +182,16 @@ window.__fbSair=()=>{};setTimeout(()=>window.__fbReady(api),0);})();</script>`;
         location.hash = 'inicio'; await w(200); location.hash = 'decidir'; await w(600); const card = (document.querySelector('.szc') || {}).innerText || '';
         return { L: L && { ym: L.ym, tot: L.tot, m: L.m, porMes: L.porMes }, prev, exp: [prox, T.ymAdd(cm, 3)], dg: Math.round((g1 - g0) * 100) / 100, card: card.slice(0, 120) } });
       ok(sz.L && sz.L.tot === 1200 && sz.L.ym === sz.exp[0] && sz.L.m === 2 && sz.L.porMes === 600 && JSON.stringify(sz.prev) === JSON.stringify(sz.exp) && Math.abs(sz.dg - 600) < .02 && /IPVA teste/.test(sz.card), 'despesas do ano: só nos meses escolhidos, separar por mês e meta de guardar', JSON.stringify(sz));
+      const rp = await p.evaluate(async () => { const T = window.__T, me = T.ME(), cm = T.today().slice(0, 7), w = ms => new Promise(r => setTimeout(r, ms)), m1 = T.ymAdd(cm, -1), m2 = T.ymAdd(cm, -2);
+        await T.S.db.collection('recorrentes').add({ tipo: 'despesa', nome: 'Academia', valor: 120, dia: 5, dono: me, conta: 'cc', categoria: 'Saúde', inicio: m2, ativo: true });
+        await T.S.db.collection('lanc').add({ tipo: 'despesa', conta: 'cc', data: T.dayIn(m1, 6), valor: 120, desc: 'Smart Fit', categoria: 'Saúde', tags: [], divisao: 'pessoal', criadoEm: new Date().toISOString() }); await w(300);
+        const a = T.recPendAnt(me).filter(x => x.r.nome === 'Academia').map(x => ({ ym: x.ym, c: x.cand ? x.cand.desc : '' }));
+        T.openRecPend(); await w(400); const bl = document.querySelector('.sheet [data-rpl]'); if (bl) bl.click(); await w(800);
+        const bn = document.querySelector('.sheet [data-rpn]'); if (bn) bn.click(); await w(800); T.closeSheet(); await w(300);
+        const b = T.recPendAnt(me).filter(x => x.r.nome === 'Academia').length, lig = T.S.lanc.some(l => l.desc === 'Smart Fit' && l.rec && l.recYm === m1);
+        const n1 = T.assinRevisar(me), n2 = T.assinRevisao(T.recsCartaoAtivos(me)).filter(x => x.f.length).length; return { a, b, lig, n1, n2, m1, m2 } });
+      ok(rp.a.length === 2 && rp.a.some(x => x.ym === rp.m1 && x.c === 'Smart Fit') && rp.lig && rp.b === 0, 'contas fixas de meses anteriores: aparecem, vinculam ao lançamento parecido e "não houve" resolve', JSON.stringify(rp));
+      ok(rp.n1 === rp.n2, 'assinaturas para revisar: uma regra só (Cartões = Para fazer agora)', JSON.stringify(rp));
       ok(/Próxima entrada/.test(hx.h) && /A receber teste/.test(hx.h) && /Receita agendada/.test(hx.h), 'início: próxima entrada aparece no resumo (a receber e agendada)', hx.h);
       const pf = await p.evaluate(async () => { const T = window.__T, w = ms => new Promise(r => setTimeout(r, ms)); T.openLanc(null); await w(400);
         const tab = document.querySelector('.sheet [data-tpf]'); if (!tab) return { tab: false }; tab.click(); await w(400);

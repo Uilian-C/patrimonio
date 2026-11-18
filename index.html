@@ -2447,6 +2447,8 @@ nav.tabs a{min-width:0;white-space:nowrap}nav.tabs .tl-s{display:none}
 .szc{display:grid;gap:2px}.szh{display:grid;gap:2px;padding-bottom:6px}.szh>span{display:grid;gap:2px}.szh small{font-size:12.5px;color:var(--muted)}.szh b{font-size:24px;font-weight:700}.szh em{font-style:normal;font-size:12px;color:var(--muted)}
 .szc .cxr{display:flex;align-items:center;gap:12px;width:100%}.szc .cxr>.cxm{flex:1;min-width:0}.szs{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:8px}.szs small{color:var(--muted);font-size:12px}
 .szold{display:grid;gap:6px;padding:12px;border-radius:14px;background:var(--accent-soft);margin-bottom:12px}.szold small{color:var(--muted);font-size:12.5px}.szold .btn{justify-self:start}
+.rpi{display:grid;gap:8px;padding:12px 0;border-bottom:1px solid var(--hair)}.rpih{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.rpih span{display:grid;gap:2px;min-width:0}.rpih small{font-size:12px;color:var(--muted)}
+.rpb{justify-self:stretch;text-align:left;white-space:normal}.rpbs{display:flex;gap:8px;flex-wrap:wrap}
 </style>
 <div id="fbgate" hidden><div class="bx"><svg class="lg" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="139 90 228 332"><g transform="translate(-5 0)"><rect x="186" y="100" width="12" height="312" rx="6" fill="currentColor" opacity=".55"/><rect x="164" y="150" width="56" height="210" rx="16" fill="currentColor"/><path d="M244 150h38a70 70 0 0 1 0 140h-38z" fill="#E2BA6E"/></g></svg><h1>Patrimônio</h1><p id="fbmsg">Entre com a sua conta Google para ver as finanças da casa.</p><button type="button" id="fblogin">Entrar com Google</button></div></div>
 <script type="module">
@@ -3330,11 +3332,36 @@ function heroComp(F,me,ym){
 }
 document.addEventListener('toggle',e=>{const d=e.target;if(d&&d.classList&&d.classList.contains('hcomp'))try{localStorage.setItem('pt-hx',d.open?'1':'0')}catch(_){}},true);
 /* ===================== Para fazer agora: a próxima ação, por prioridade ===================== */
-function assinRevisar(me){const t=today(),cm=t.slice(0,7);let n=0;try{const PV=recPrevistos(ymAdd(cm,-1),cm);S.recs.filter(r=>r.ativo!==false&&r.cartao&&card(r.cartao)&&r.tipo!=='receita'&&(r.dono||me)===me&&(!r.fim||r.fim>=cm)).forEach(r=>{
-  const ul=S.lanc.filter(l=>l.rec===r.id&&l.tipo!=='receita').sort((a,b)=>(b.data||'').localeCompare(a.data||''))[0];
-  if((ul&&Math.abs((+ul.valor||0)-(+r.valor||0))>.01)||PV.some(x=>x.r.id===r.id&&x.date<t))n++})}catch(e){}return n}
+/* assinaturas nos cartões e o que revisar nelas — a mesma regra na tela de Cartões e no "Para fazer agora" */
+function recsCartaoAtivos(me){const cm=today().slice(0,7);return S.recs.filter(r=>r.ativo!==false&&r.cartao&&card(r.cartao)&&card(r.cartao).ativo!==false&&r.tipo!=='receita'&&(!r.fim||r.fim>=cm)&&(!me||(r.dono||me)===me))}
+function assinRevisao(AR){const t=today(),cm=t.slice(0,7),PV=recPrevistos(cm,ymAdd(cm,2));return AR.map(r=>{const c=card(r.cartao),nx=PV.filter(x=>x.r.id===r.id).sort((a,b)=>a.date.localeCompare(b.date))[0],ul=S.lanc.filter(l=>l.rec===r.id&&l.tipo!=='receita').sort((a,b)=>(b.data||'').localeCompare(a.data||''))[0],f=[];
+  if(ul&&Math.abs((+ul.valor||0)-(+r.valor||0))>.01)f.push(['reaj',`último cobrado ${brl(+ul.valor||0)}`]);
+  const du=AR.filter(z=>z!==r&&norm(z.nome)===norm(r.nome));if(du.length)f.push(['dup',`também em ${du.map(z=>esc(card(z.cartao).nome)).join(', ')}`]);
+  if(nx&&nx.date<t)f.push(['nl',`esperada em ${fdate(nx.date).slice(0,5)}`]);return {r,c,nx,f}}).sort((a,b)=>b.f.length-a.f.length)}
+function assinRevisar(me){try{return assinRevisao(recsCartaoAtivos(me)).filter(x=>x.f.length).length}catch(e){return 0}}
+/* contas fixas de meses anteriores (até 3) que não foram confirmadas nem marcadas como "não houve" */
+function recPendAnt(me){const t=today(),cm=t.slice(0,7),hi=(histIni()||'').slice(0,7),out=[];
+  S.recs.filter(r=>r.ativo!==false&&(r.dono||me)===me).forEach(r=>{for(let k=3;k>=1;k--){const ym=ymAdd(cm,-k);
+    if(hi&&ym<hi)continue;if(r.inicio&&ym<r.inicio)continue;if(r.fim&&ym>r.fim)continue;if(r.meses&&r.meses.length&&!r.meses.includes(+ym.slice(5)))continue;
+    if(r.parcelas&&recN(r,ym)>+r.parcelas)continue;if((r.pula||[]).includes(ym))continue;if(S.lanc.some(l=>l.rec===r.id&&l.recYm===ym))continue;
+    const d=recDia(r,ym);if(d>=t)continue;
+    /* lançamento parecido no mesmo mês, sem vínculo: provável que seja este */
+    const cand=S.lanc.filter(l=>!l.rec&&(l.tipo||'despesa')===(r.tipo==='receita'?'receita':'despesa')&&(l.data||'').slice(0,7)===ym&&(r.cartao?l.cartao===r.cartao:true)&&(Math.abs((+l.valor||0)-(+r.valor||0))<=Math.max(+r.valor*.15,2)||(key3(l.desc||'')&&key3(l.desc||'')===key3(r.nome)))).sort((a,b)=>Math.abs(a.valor-r.valor)-Math.abs(b.valor-r.valor))[0];
+    out.push({r,ym,d,v:+r.valor||0,cand})}});return out.sort((a,b)=>a.d.localeCompare(b.d))}
+async function confirmRecX(r,ym){if(r.cartao){try{await S.db.collection('lanc').add({tipo:'despesa',cartao:r.cartao,data:recDia(r,ym),valor:r.valor,desc:recNome(r,ym),categoria:r.categoria||'',subcategoria:r.subcategoria||'',divisao:r.divisao||'pessoal',rec:r.id,recYm:ym,parcelas:1,parcela:1,tags:r.tags||[],criadoEm:new Date().toISOString()});toast(recNome(r,ym)+' confirmado')}catch(err){toast(writeErr(err))}}else await confirmRec(r,ym)}
+function openRecPend(){const draw=sh=>{const me=ME(),L=recPendAnt(me),ymL=y=>`${MESL[+y.slice(5)-1].toLowerCase()}/${y.slice(2,4)}`;
+  sh.querySelector('#rpx').innerHTML=L.length?L.map((x,i)=>`<div class="rpi"><div class="rpih"><span><b>${esc(x.r.nome)}</b><small>${ymL(x.ym)} · previsto ${fdate(x.d).slice(0,5)}${x.r.cartao&&card(x.r.cartao)?' · '+esc(card(x.r.cartao).nome):''}</small></span><b class="n ${x.r.tipo==='receita'?'pos':''}">${brl(x.v)}</b></div>
+    ${x.cand?`<button type="button" class="btn sm primary rpb" data-rpl="${i}">É este: ${esc(x.cand.desc||'lançamento')} · ${fdate(x.cand.data).slice(0,5)} · ${brl(+x.cand.valor||0)}</button>`:''}
+    <div class="rpbs"><button type="button" class="btn sm ${x.cand?'':'primary'}" data-rpc="${i}">${x.r.tipo==='receita'?'Recebi':'Paguei'}${x.cand?' (lançar outro)':''}</button><button type="button" class="btn sm" data-rpn="${i}">Não houve</button></div></div>`).join(''):'<p class="note">Tudo certo: nenhuma conta fixa de meses anteriores sem confirmação.</p>';
+  const go=async f=>{await f();setTimeout(()=>draw(sh),350)};
+  sh.querySelectorAll('[data-rpl]').forEach(b=>b.onclick=()=>go(async()=>{const x=L[+b.dataset.rpl],l=Object.assign({},x.cand);delete l.id;l.rec=x.r.id;l.recYm=x.ym;try{await S.db.doc('lanc/'+x.cand.id).set(l);toast('Vinculado a '+x.r.nome)}catch(e){toast(writeErr(e))}}));
+  sh.querySelectorAll('[data-rpc]').forEach(b=>b.onclick=()=>go(()=>confirmRecX(L[+b.dataset.rpc].r,L[+b.dataset.rpc].ym)));
+  sh.querySelectorAll('[data-rpn]').forEach(b=>b.onclick=()=>go(async()=>{const x=L[+b.dataset.rpn],n=Object.assign({},x.r);delete n.id;n.pula=[...new Set([...(x.r.pula||[]),x.ym])];try{await S.db.doc('recorrentes/'+x.r.id).set(n);toast('Marcado: não houve em '+ymL(x.ym))}catch(e){toast(writeErr(e))}}))};
+  openSheet(`<h2>Contas fixas sem confirmação</h2><p class="note">De meses anteriores. Diga o que aconteceu com cada uma: assim os atrasos e as projeções ficam certos.</p><div id="rpx"></div>`,draw)}
+document.addEventListener('click',e=>{if(e.target.closest&&e.target.closest('[data-rpend]'))openRecPend()});
 function iniAcoes(X){const {me,t}=X,L=X.L||caixaLivre(me),A=[];
   const late=L.out.filter(x=>x.late);if(late.length)A.push({p:1,cor:'crit',ic:'alert',t:`${late.length} conta${late.length===1?'':'s'} em atraso · ${brl0(-sum(late,x=>x.v))}`,s:'dar baixa no que já foi pago ou pagar agora',a:'data-apagar="1"'});
+  {let rp=[];try{rp=recPendAnt(me)}catch(e){}if(rp.length)A.push({p:1.5,cor:'warn',ic:'calcheck',t:`${rp.length} conta${rp.length===1?'':'s'} fixa${rp.length===1?'':'s'} de meses anteriores sem confirmação`,s:'pagou, não houve, ou já lançou sem vincular?',a:'data-rpend="1"'})}
   if(L.livre<0)A.push({p:2,cor:'crit',ic:'alert',t:`O caixa fica negativo em ${fdate(L.ate).slice(0,5)}`,s:`faltam ${brl0(-L.livre)} · veja o que dá para adiar`,a:'data-go="carteira"'});
   L.out.filter(x=>x.k==='fat'&&!x.late&&diffD(t,x.e)<=3).forEach(x=>A.push({p:3,cor:'warn',ic:'card',t:`${esc(x.t)} vence ${diffD(t,x.e)===0?'hoje':diffD(t,x.e)===1?'amanhã':'em '+diffD(t,x.e)+' dias'}`,s:brl(-x.v),a:`data-acfat="${esc(String(x.nav||'').slice(4))}"`}));
   let g=0;try{g=guardSug(me).v}catch(e){}if(g>=50&&L.livre>=0)A.push({p:4,cor:'good',ic:'spark',t:`Guardar ${brl0(g)}`,s:'cabe com segurança nos próximos 30 dias',a:`data-guardar="${g}"`});
@@ -6614,10 +6641,7 @@ function vCards(){
     <p class="note" style="margin-top:6px">Somas de ${MES[+cm.slice(5)-1]} a ${MES[+ms[7].slice(5)-1]}, pelo mês da fatura. À frente entram as parcelas e os fixos já conhecidos (≈ previstos); compras novas somam por cima.</p></div>`;
   {const AR=S.recs.filter(r=>r.ativo!==false&&r.cartao&&card(r.cartao)&&card(r.cartao).ativo!==false&&r.tipo!=='receita'&&(!r.fim||r.fim>=cm)).sort((a,b)=>(+b.valor||0)-(+a.valor||0)),am=r2(sum(AR,r=>+r.valor||0)),PV=recPrevistos(cm,ymAdd(cm,2));
     h+=`<div class="card" id="c-assin"><div class="ch"><h2>Assinaturas e fixos nos cartões</h2><span class="aside n">${AR.length?`${brl(am)}/mês · ${brl0(am*12)}/ano`:''}</span></div>
-    ${AR.length?(()=>{const FL=AR.map(r=>{const c=card(r.cartao),nx=PV.filter(x=>x.r.id===r.id).sort((a,b)=>a.date.localeCompare(b.date))[0],ul=S.lanc.filter(l=>l.rec===r.id&&l.tipo!=='receita').sort((a,b)=>(b.data||'').localeCompare(a.data||''))[0],f=[];
-        if(ul&&Math.abs((+ul.valor||0)-(+r.valor||0))>.01)f.push(['reaj',`último cobrado ${brl(+ul.valor||0)}`]);
-        const du=AR.filter(z=>z!==r&&norm(z.nome)===norm(r.nome));if(du.length)f.push(['dup',`também em ${du.map(z=>esc(card(z.cartao).nome)).join(', ')}`]);
-        if(nx&&nx.date<t)f.push(['nl',`esperada em ${fdate(nx.date).slice(0,5)}`]);return {r,c,nx,f}}).sort((a,b)=>b.f.length-a.f.length),nr=FL.filter(x=>x.f.length).length;
+    ${AR.length?(()=>{const FL=assinRevisao(AR),nr=FL.filter(x=>x.f.length).length;
       return (nr?`<p class="rvh">${ic('alert')}<span><b>${nr} para revisar</b> · valor diferente do cadastrado, assinatura repetida ou cobrança que não apareceu na fatura.</span></p>`:'')+FL.map(({r,c,nx,f})=>`<button class="cxr" type="button" data-rcx="${esc(r.id)}">${catBubble(r.categoria||'Assinaturas')}<span class="cxm"><strong>${esc(r.nome)}</strong><small><i class="cdot" style="background:${esc(c.cor||'var(--accent)')}"></i>${esc(c.nome)} · todo dia ${r.dia}${nx&&nx.date>=t?` · próxima ${fdate(nx.date).slice(0,5)}`:''}${r.fim?' · até '+ymS(r.fim):''}</small>${f.length?`<small class="rvf">${f.map(z=>`<span class="pill warn">${{reaj:'reajuste',dup:'repetida',nl:'não lançada'}[z[0]]}</span> ${z[1]}`).join(' · ')}</small>`:''}</span><b class="n">${brl(+r.valor||0)}</b></button>`).join('')})()+'<p class="note">Toque para mudar valor, pausar ou encerrar. Encerrou, sai das faturas e projeções seguintes.</p>':'<p class="note">Nenhuma assinatura cadastrada nos cartões. Cadastre as cobranças mensais para que entrem nas faturas futuras.</p>'}
     <div class="btnrow"><button class="btn sm" type="button" id="c-nr">${ic('plus')} Nova assinatura</button></div></div>`}
   const fut=mv.filter(i=>i.N>1&&i.ym>cm&&i.tipo==='despesa'),by={};fut.forEach(i=>{const k=i.l.id;by[k]=by[k]||{l:i.l,c:i.c,n:0,v:0,last:i.ym,N:i.N};by[k].n++;by[k].v+=i.valor;if(i.ym>by[k].last)by[k].last=i.ym});const all=Object.values(by),cards=[...new Set(all.map(x=>x.c))],arr=all.filter(x=>!CPF.c||x.c.id===CPF.c).sort((a,b)=>CPF.o==='fim'?a.last.localeCompare(b.last):CPF.o==='n'?b.n-a.n:b.v-a.v);
