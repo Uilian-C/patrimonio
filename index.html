@@ -2442,6 +2442,7 @@ nav.tabs a{min-width:0;white-space:nowrap}nav.tabs .tl-s{display:none}
 .acxi{width:34px;height:34px;border-radius:11px;display:grid;place-items:center}.acxi svg{width:17px;height:17px}.acxr.crit .acxi{background:color-mix(in srgb,var(--crit) 14%,transparent);color:var(--crit)}.acxr.warn .acxi{background:color-mix(in srgb,var(--warn) 16%,transparent);color:var(--warn)}.acxr.good .acxi{background:color-mix(in srgb,var(--good) 15%,transparent);color:var(--good)}
 .acxm{display:grid;gap:1px;min-width:0}.acxm b{font-size:14px;font-weight:600}.acxm small{font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .hsplit .hgdw{grid-column:1/-1;display:flex;justify-content:flex-start;padding:0!important;border:0!important;margin-top:-4px}.hsplit .hgdw:empty{display:none}
+.frpaste{display:inline-flex;align-items:center;gap:6px;margin:4px 0 2px}.frpaste svg{width:15px;height:15px}
 </style>
 <div id="fbgate" hidden><div class="bx"><svg class="lg" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="139 90 228 332"><g transform="translate(-5 0)"><rect x="186" y="100" width="12" height="312" rx="6" fill="currentColor" opacity=".55"/><rect x="164" y="150" width="56" height="210" rx="16" fill="currentColor"/><path d="M244 150h38a70 70 0 0 1 0 140h-38z" fill="#E2BA6E"/></g></svg><h1>Patrimônio</h1><p id="fbmsg">Entre com a sua conta Google para ver as finanças da casa.</p><button type="button" id="fblogin">Entrar com Google</button></div></div>
 <script type="module">
@@ -4130,7 +4131,20 @@ function frDate(s){const t=today();if(/\banteontem\b/.test(s))return addD(t,-2);
   m=s.match(/\bdia (\d{1,2})\b/);if(m){const d=dayIn(t.slice(0,7),+m[1]);return d>t?dayIn(ymAdd(t.slice(0,7),-1),+m[1]):d}
   for(let i=0;i<7;i++){if(new RegExp('\\b'+FR_DS[i]+'\\b').test(s)){let d=t;for(let k=0;k<7;k++){if(new Date(d+'T12:00:00').getDay()===i)return d;d=addD(d,-1)}}}
   return t}
-function parseFrase(txt){const s0=' '+String(txt||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'')+' ',out={tipo:'despesa',data:today(),parcelas:1,divisao:'pessoal'};let s=s0;
+/* avisos de banco ("Compra aprovada no cartão final 1234 de R$ 45,90 em MERCADO X em 17/11 às 12:30") viram frase limpa */
+function avisoLimpo(txt){let s=String(txt||'').replace(/\s+/g,' ');const n=' '+s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')+' ';
+  const fin=n.match(/final\s*(?:do cartao\s*)?(\d{4})/),c=fin&&S.cards.find(x=>String(x.final||'')===fin[1]&&x.ativo!==false);
+  const rv=s.match(/R\$\s*(\d{1,3}(?:\.\d{3})*,\d{2}|\d+,\d{2}|\d+(?:\.\d{2})?)/i);
+  const ehAviso=!!(rv&&/(compra|aprovad|autorizad|transa|pix|transfer|debito|credito|recebeu|recebid|pagamento)/.test(n));if(!ehAviso)return {txt:s,card:null};
+  const rec=/(pix recebido|voce recebeu|recebeu (um )?pix|transferencia recebida|credito em conta|deposito recebido|recebid)/.test(n);
+  let loja='';const NOJ=/^(R\$|\d|APROVAD|AUTORIZAD|COMPRA|PIX|CART|VALOR|CREDITO|DEBITO)/i;
+  for(const lm of s.matchAll(/\b(?:em|no|na|para|de)\s+([A-Z0-9][A-Z0-9 .&*'\-]{2,40}?)(?=\s+(?:em|no|na|as|às|dia|valor|para|com|em\s+\d)|[.,;]|\s+\d{1,2}\/|$)/g)){if(!NOJ.test(lm[1])){loja=lm[1];break}}
+  if(!loja){const up=s.match(/\b([A-Z][A-Z0-9&*'.\-]+(?:\s+[A-Z0-9][A-Z0-9&*'.\-]+){0,4})\b/g);if(up)loja=(up.filter(w=>!/^(R|PIX|TED|DOC|CPF|CNPJ|BRL|SA|LTDA)$/.test(w)&&w.length>2)[0]||'')}
+  loja=loja.replace(/\b(LTDA|EIRELI|S\.?A\.?|ME|EPP|COMERCIO|COM)\b\.?/gi,' ').replace(/[*]+/g,' ').replace(/\s+/g,' ').trim().toLowerCase();
+  const dt=s.match(/\b(\d{1,2}\/\d{1,2}(?:\/\d{2,4})?)\b/),pc=n.match(/\b(\d{1,2})\s*x\b|em\s*(\d{1,2})\s*(?:parcelas|vezes)/);
+  const v=rv[1].includes(',')?rv[1]:rv[1].replace('.',',');
+  return {txt:[rec?'recebi':'',loja||(rec?'pix':''),v,pc?((pc[1]||pc[2])+'x'):'',dt?dt[1]:''].filter(Boolean).join(' '),card:c||null,rec}}
+function parseFrase(txt){const AV=avisoLimpo(txt);txt=AV.txt;const s0=' '+String(txt||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'')+' ',out={tipo:'despesa',data:today(),parcelas:1,divisao:'pessoal'};let s=s0;
   const pm=s.match(/\b(\d{1,2})\s*(x|vezes|parcelas)\b/);if(pm&&+pm[1]>1){out.parcelas=Math.min(+pm[1],48);s=s.replace(pm[0],' ')}
   s=s.replace(/\bdia \d{1,2}\b/,' ').replace(/\b\d{1,2}\/\d{1,2}(\/\d{2,4})?\b/,' ');
   const vm=s.match(/(?:r\$\s*)?(\d{1,3}(?:\.\d{3})+(?:,\d{1,2})?|\d+(?:[.,]\d{1,2})?)(\s*(?:mil|k)\b)?/);
@@ -4154,17 +4168,20 @@ function parseFrase(txt){const s0=' '+String(txt||'').toLowerCase().normalize('N
   if(!out.categoria&&out.tipo==='despesa'){const K=[[/\b(mercado|supermercado|feira|hortifruti|acougue|padaria)\b/,'Mercado'],[/\b(almoco|jantar|restaurante|lanche|cafe|bar|pizza|hamburguer)\b/,'Restaurante'],[/\b(ifood|delivery|rappi)\b/,'Delivery'],[/\b(gasolina|combustivel|posto|etanol|alcool|diesel)\b/,'Combustível'],[/\b(uber|99|taxi|onibus|metro|estacionamento|pedagio)\b/,'Transporte'],[/\b(farmacia|remedio|drogaria)\b/,'Farmácia'],[/\b(cinema|show|ingresso|passeio)\b/,'Lazer'],[/\b(roupa|camisa|calca|tenis|sapato)\b/,'Vestuário'],[/\b(pet|racao|veterinario)\b/,'Pets'],[/\b(netflix|spotify|assinatura|streaming)\b/,'Assinaturas']];
     const k=K.find(([r,c])=>r.test(s0)&&CATS.includes(c));if(k)out.categoria=k[1]}
   if(out.tipo==='receita'&&!out.categoria){const ws=norm(out.desc||'').split(' ').filter(w=>w.length>=4);out.categoria=CATR.find(c=>ws.some(w=>norm(c).includes(w.slice(0,5))))||(/salario/.test(s0)?CATR.find(c=>/salario/.test(norm(c))):null)||CATR.find(c=>norm(c)==='outros')||CATR.find(c=>/outr|extra/.test(norm(c)))||CATR[0]}
+  if(AV.card&&out.tipo==='despesa'){out.cartao=AV.card.id;delete out.conta}
   return out}
 function openFrase(ini){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;let txt=ini||'',rec=null;
   openSheet(`<h2>Lançar por frase</h2><form class="form" id="ffr" novalidate>
     <div class="frw"><textarea id="fr-t" rows="2" placeholder="mercado 182,40 no nubank ontem">${esc(txt)}</textarea>${SR?`<button type="button" class="frm" id="fr-m" aria-label="Falar">${I5mic}</button>`:''}</div>
     <div id="fr-p" class="frp"></div>
+    ${navigator.clipboard&&navigator.clipboard.readText?`<button type="button" class="btn sm frpaste" id="fr-cp">${ic('copy')} Colar aviso do banco</button>`:''}
     <p class="note">Exemplos: <span class="frx">uber 23,50</span> <span class="frx">tv 3.000 em 10x no itaú</span> <span class="frx">almoço 86 dividido pix</span> <span class="frx">recebi 1.200 freela</span> <span class="frx">farmácia 54 dia 12</span></p>
     <div class="btnrow"><button class="btn primary" type="submit">Revisar e salvar</button></div></form>`,sh=>{
     const $q=s=>sh.querySelector(s),ta=$q('#fr-t');
     const show=()=>{const L=parseFrase(ta.value),c=L.cartao&&card(L.cartao),a=L.conta&&conta(L.conta);const it=(k,v,ok)=>`<span class="frc ${ok?'':'mis'}"><small>${k}</small><b>${v}</b></span>`;
       $q('#fr-p').innerHTML=ta.value.trim()?[it('Valor',L.valor?brl(L.valor):'falta',!!L.valor),it('Tipo',L.tipo==='receita'?'Receita':'Despesa',1),it(L.tipo==='receita'?'Entrou em':'Pago com',c?esc(cardName(c)):a?esc(a.nome):'padrão',!!(c||a)),it('Quando',L.data===today()?'hoje':fdate(L.data),1),L.parcelas>1?it('Parcelas',L.parcelas+'x',1):'',it('Categoria',esc(L.categoria||'a escolher'),!!L.categoria),L.tipo==='despesa'?it('Divisão',L.divisao==='comum'?'comum (meio a meio)':'pessoal',1):'',it('Descrição',esc(L.desc||'—'),!!L.desc)].join(''):'';return L};
     ta.oninput=show;show();setTimeout(()=>ta.focus(),200);
+    {const cp=$q('#fr-cp');if(cp)cp.onclick=async()=>{try{const v=await navigator.clipboard.readText();if(!v||!v.trim()){toast('Nada copiado');return}ta.value=v.trim();show()}catch(e){toast('O celular não deixou ler a área de transferência — cole com o dedo no campo')}}}
     sh.querySelectorAll('.frx').forEach(x=>x.onclick=()=>{ta.value=x.textContent;show()});
     const m=$q('#fr-m');if(m)m.onclick=()=>{if(rec){rec.stop();return}try{rec=new SR();rec.lang='pt-BR';rec.interimResults=true;rec.maxAlternatives=1;m.classList.add('on');
       rec.onresult=e=>{ta.value=[...e.results].map(r=>r[0].transcript).join(' ');show()};rec.onend=()=>{m.classList.remove('on');rec=null};rec.onerror=()=>{toast('Não consegui ouvir — tente de novo ou digite');};rec.start()}catch(e){toast('Microfone indisponível neste navegador')}};
@@ -4181,10 +4198,19 @@ zoomAp();
 const NTF=()=>{try{return JSON.parse(localStorage.getItem('pt-ntf')||'null')||{on:false,c:1,s:1,m:1}}catch(e){return {on:false,c:1,s:1,m:1}}};
 const ntfOk=()=>'Notification' in window&&'serviceWorker' in navigator;
 let NTFAT=0;
+/* avisos para decidir: só o que pede ação (a mesma regra das telas) */
+function ntfDecisao(me){const t=today(),out=[],dd=d=>fdate(d).slice(0,5);let L=null;try{L=caixaLivre(me)}catch(e){return out}
+  if(L.livre<0)out.push({id:'cx|'+L.ate,d:t,v:0,t:`O caixa fica negativo em ${dd(L.ate)}`,info:`Faltam ${brl0(-L.livre)} se nada mudar. Toque para ver o que dá para adiar.`,url:'./#carteira'});
+  L.out.filter(x=>x.k==='fat'&&!x.late&&diffD(t,x.e)<=1).forEach(x=>{let c=null;try{c=caixaNoDia(x.e,[me])[0]}catch(e){}if(c&&c.v<-.5)out.push({id:'fcx|'+x.nav,d:t,v:0,t:`${x.t} vence ${x.e===t?'hoje':'amanhã'}: o caixa não cobre`,info:`Fatura ${brl(-x.v)} · faltam ${brl0(-c.v)} no dia.`,url:'./#cartoes'})});
+  S.recs.filter(r=>r.ativo!==false&&r.cartao&&r.tipo!=='receita').forEach(r=>{const l=S.lanc.filter(z=>z.rec===r.id&&(z.data||'')>=addD(t,-3)&&(z.data||'')<=t).sort((a,b)=>(b.data||'').localeCompare(a.data||''))[0];
+    if(l&&Math.abs((+l.valor||0)-(+r.valor||0))>.01)out.push({id:'asr|'+l.id,d:t,v:0,t:`${r.nome} cobrou ${brl(+l.valor||0)}`,info:`Antes eram ${brl(+r.valor||0)}. Revise em Cartões › Assinaturas.`,url:'./#cartoes'})});
+  L.ins.filter(x=>x.late&&(x.k==='rec'||x.k==='pendr')).forEach(x=>out.push({id:'rnx|'+x.nav+'|'+x.d,d:t,v:0,t:`${x.t} ainda não entrou`,info:`Previsto para ${dd(x.d)} · ${brl(x.v)}. Confirme quando cair.`,url:'./#inicio'}));
+  return out}
 async function ntfSync(force){const N=NTF();if(!N.on||!ntfOk()||Notification.permission!=='granted'||!ready())return;if(!force&&Date.now()-NTFAT<30*60e3)return;NTFAT=Date.now();
   try{const me=ME(),t=today(),ate=addD(t,3),its=[];
     if(N.c)agendaPessoal(me,ate,t).filter(x=>['fat','fix','div','pend','darf','pendr'].includes(x.k)&&x.d>=t).forEach(x=>its.push({id:x.k+'|'+(x.nav||x.t)+'|'+x.d,d:x.d,t:x.t,v:r2(Math.abs(x.v)),r:x.v>0}));
     const sr=semRev(),R=ROT();if(N.s&&!(R[sr.k]||{}).em)its.push({id:'sem|'+sr.k,d:new Date(t+'T12:00:00').getDay()===0?t:addD(sr.fim,7),t:'Revisão da semana',v:0,info:'4 minutos para conferir a semana'});
+    if(N.d!==0)ntfDecisao(me).forEach(x=>its.push(x));
     const ym=t.slice(0,7),ld=dayIn(ym,31);if(N.m)its.push({id:'mes|'+ym,d:ld,t:'Fechamento do mês',v:0,info:'feche o mês e veja o resultado'});
     const data={gerado:new Date().toISOString(),hoje:t,itens:its};const c=await caches.open('pt-dados');await c.put('./__lembretes.json',new Response(JSON.stringify(data),{headers:{'content-type':'application/json'}}));
     const reg=await navigator.serviceWorker.ready;if(reg.periodicSync){try{const st=await navigator.permissions.query({name:'periodic-background-sync'});if(st.state==='granted')await reg.periodicSync.register('pt-lembretes',{minInterval:6*36e5})}catch(e){}}
@@ -4195,7 +4221,7 @@ function openPrefs(){const draw=sh=>{const z=+LS('pt-zoom','1')||1,N=NTF(),box=s
       <section class="ivs"><div class="ivsh"><h3>Modo simples</h3><small>neste aparelho</small></div><label class="chk"><input type="checkbox" id="pf-s" ${SIMPLES?'checked':''}> Mostrar só o essencial</label><p class="note">No Início ficam o caixa, as ações rápidas, “Para resolver”, quanto pode gastar e os últimos lançamentos. No Decidir, só gastar e comprar. Nada é apagado — desligue para ver tudo de novo.</p></section>
       <section class="ivs"><div class="ivsh"><h3>Lembretes no celular</h3><small>${perm==='granted'?'permitido':perm==='denied'?'bloqueado no navegador':perm==='indisponível'?'indisponível aqui':'ainda não permitido'}</small></div>
         <label class="chk"><input type="checkbox" id="pf-n" ${N.on&&perm==='granted'?'checked':''} ${perm==='indisponível'?'disabled':''}> Avisar no celular</label>
-        <div class="pfn" ${N.on?'':'hidden'}><label class="chk"><input type="checkbox" data-nt="c" ${N.c?'checked':''}> Contas, faturas e parcelas vencendo (hoje e amanhã)</label><label class="chk"><input type="checkbox" data-nt="s" ${N.s?'checked':''}> Revisão da semana (domingo)</label><label class="chk"><input type="checkbox" data-nt="m" ${N.m?'checked':''}> Fechamento do mês (último dia)</label>
+        <div class="pfn" ${N.on?'':'hidden'}><label class="chk"><input type="checkbox" data-nt="c" ${N.c?'checked':''}> Contas, faturas e parcelas vencendo (hoje e amanhã)</label><label class="chk"><input type="checkbox" data-nt="s" ${N.s?'checked':''}> Revisão da semana (domingo)</label><label class="chk"><input type="checkbox" data-nt="m" ${N.m?'checked':''}> Fechamento do mês (último dia)</label><label class="chk"><input type="checkbox" data-nt="d" ${N.d!==0?'checked':''}> Alertas para decidir: caixa vai faltar, fatura sem cobertura, assinatura mudou de valor, entrada que não caiu</label>
           <div class="btnrow"><button class="btn sm" type="button" id="pf-tst">Enviar aviso de teste</button></div></div>
         <p class="note">Funciona com o app instalado pelo Chrome no Android: o próprio celular confere os vencimentos algumas vezes por dia, mesmo com o app fechado — a frequência é o Chrome que decide (mais vezes quanto mais você usa o app). Os avisos saem do que estava no app na última vez que ele abriu. No iPhone, só com o app aberto.</p></section>`;
     sh.querySelectorAll('[data-z]').forEach(b=>b.onclick=()=>{LSset('pt-zoom',b.dataset.z);zoomAp();draw(sh)});
@@ -8402,7 +8428,10 @@ function openOrg(){const el=$(ORGV[S.view]);const sc=orgScope();
   openSheet(`<h2>Organizar ${S.view==='carteira'?'Carteira':'Relatórios'}</h2><p class="note">Escolha a ordem e o que aparece${S.view==='relatorios'?' nesta aba':''}. Fica salvo neste aparelho.</p><div id="psl" class="psl"></div><div class="btnrow"><button class="btn" type="button" id="orr">Restaurar padrão</button></div>`,sh=>{draw(sh);sh.querySelector('#orr').onclick=()=>{delete ORG[sc];orgSave();renderView();draw(sh)}});
 }
 
-function renderView(){EPO++;document.querySelectorAll('body>.acsel').forEach(x=>x.remove());try{roCheck()}catch(e){}try{ntfSync()}catch(e){}try{tourAuto()}catch(e){}const v=S.view;if(v==='inicio')vInicio();else if(v==='lanc')vLanc();else if(v==='relatorios')vRel();else if(v==='cartoes')vCards();else if(v==='decidir')vDecidir();else vCart();try{orgApply()}catch(e){console.error('org',e)}}
+let SHAREOK=false;
+function shareIn(){if(SHAREOK||!ready())return;SHAREOK=true;try{const q=new URLSearchParams(location.search),txt=[q.get('st'),q.get('sx'),q.get('su')].filter(Boolean).join(' ').trim();if(!txt)return;
+  history.replaceState(null,'',location.pathname+location.hash);setTimeout(()=>openFrase(txt),300)}catch(e){}}
+function renderView(){EPO++;try{shareIn()}catch(e){}document.querySelectorAll('body>.acsel').forEach(x=>x.remove());try{roCheck()}catch(e){}try{ntfSync()}catch(e){}try{tourAuto()}catch(e){}const v=S.view;if(v==='inicio')vInicio();else if(v==='lanc')vLanc();else if(v==='relatorios')vRel();else if(v==='cartoes')vCards();else if(v==='decidir')vDecidir();else vCart();try{orgApply()}catch(e){console.error('org',e)}}
 let raf=0;const re=()=>{CACHE=null;cancelAnimationFrame(raf);raf=requestAnimationFrame(()=>{if($('#overlay').hidden||S.view!=='lanc')renderView();else renderView()})};
 window.addEventListener('hashchange',route);
 $('#fab').onclick=openMenu;

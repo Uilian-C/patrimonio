@@ -1,6 +1,6 @@
 /* Patrimônio — service worker: abre o app sem internet.
    Os dados ficam no cache do Firestore (IndexedDB); aqui só guardamos o "casco" do app e as bibliotecas. */
-const V = 'pt-shell-v3';
+const V = 'pt-shell-v4';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './icon.svg', './apple-touch-icon.png'];
 const LIBS = /^https:\/\/(www\.gstatic\.com\/firebasejs\/|cdnjs\.cloudflare\.com\/|fonts\.googleapis\.com\/|fonts\.gstatic\.com\/)/;
 
@@ -52,7 +52,7 @@ async function lembrar() {
     await self.registration.showNotification(contas.length === 1 ? (contas[0].r ? 'A receber ' : 'Vence ') + (contas[0].d === t ? 'hoje' : 'amanhã') : `${contas.length} vencimentos ${hj.length ? 'hoje e amanhã' : 'amanhã'}`,
       { body: contas.slice(0, 4).map(x => `${x.t} · ${brl(x.v)}${x.d === t ? ' (hoje)' : ''}`).join('\n') + (contas.length > 4 ? `\n+${contas.length - 4}` : '') + (tot && contas.length > 1 ? `\nTotal ${brl(tot)}` : ''), icon: 'icon-192.png', badge: 'icon-192.png', tag: 'pt-venc', data: { url: './#inicio' } });
   }
-  for (const x of outros) await self.registration.showNotification(x.t, { body: x.info || '', icon: 'icon-192.png', badge: 'icon-192.png', tag: 'pt-' + x.id, data: { url: './#inicio' } });
+  for (const x of outros) await self.registration.showNotification(x.t, { body: x.info || '', icon: 'icon-192.png', badge: 'icon-192.png', tag: 'pt-' + x.id, data: { url: x.url || './#inicio' } });
   novos.forEach(x => ja[x.id] = t);
   Object.keys(ja).forEach(k => { if (ja[k] < t.slice(0, 8) + '01' && ja[k] < t) { const d = new Date(ja[k]); if (Date.now() - d > 40 * 864e5) delete ja[k] } });
   await c.put('./__avisados.json', new Response(JSON.stringify(ja), { headers: { 'content-type': 'application/json' } }));

@@ -12,7 +12,7 @@ const EXPOR = ('S ME today ymAdd addD dayIn lastDay realBal saldoConta scopeCont
   'acerto acertoLedger credGab gabId candlesCaixa saidasDia margemCalc planoCalc mesCalc catWatch catMesMap contaMov isCaixa movs ' +
   'parseFrase rvCalc rvIR divSim divLista ORD metaCalc cenBase cenProj baseMes casaCalc pjMes filhoCalc progRet retroCalc semRev ' +
   'openRV openRVIR openCenarios openDividasPlano openCasa openPJ openPontos openFilhos openRetro openPrefs openFrase openSimCompra ' +
-  'openSemana openAjuda openRelMes openMeta openAssessor openInvestDash openSpread openBackups openLanc openTour openBemVindo openAPagar atrasos catList projecao relPeriodo mesCalc periodoConta aRealizar recPrevistos fatRecs carteiraGeral caixaSim addD openKpi kpiVal openMetasKpi KPM caixaLivre openInvestDash openGuardar guardSug guardFeito guardMeta guardNudge openAbater faturasAbertas caixaNoDia realBal fatComp movKind fatTot openCardDet baseDue card closeSheet').split(' ');
+  'openSemana openAjuda openRelMes openMeta openAssessor openInvestDash openSpread openBackups openLanc openTour openBemVindo openAPagar atrasos catList projecao relPeriodo mesCalc periodoConta aRealizar recPrevistos fatRecs ntfDecisao parseFrase carteiraGeral caixaSim addD openKpi kpiVal openMetasKpi KPM caixaLivre openInvestDash openGuardar guardSug guardFeito guardMeta guardNudge openAbater faturasAbertas caixaNoDia realBal fatComp movKind fatTot openCardDet baseDue card closeSheet').split(' ');
 
 function montar(dados) {
   let h = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
@@ -165,6 +165,16 @@ window.__fbSair=()=>{};setTimeout(()=>window.__fbReady(api),0);})();</script>`;
         await p.setViewportSize(vp); ok(Object.keys(ov).length === 0, 'telas a 320 px com fonte 120%: nada vaza para fora da tela', JSON.stringify(ov)) }
       const ac = await p.evaluate(async () => { const w = ms => new Promise(r => setTimeout(r, ms)); location.hash = 'lanc'; await w(200); location.hash = 'inicio'; await w(600); const c = document.querySelector('#v-inicio .acx'); return c ? [...c.querySelectorAll('.acxr')].map(r => r.innerText.split('\n')[0]) : [] });
       ok(ac.length >= 1 && ac.length <= 3 && /atraso/.test(ac[0]), 'início: para fazer agora, com atrasos primeiro e no máximo 3', JSON.stringify(ac));
+      const pf2 = await p.evaluate(() => { const T = window.__T; return [
+          T.parseFrase('Compra aprovada no cartão final 1111 de R$ 45,90 em MERCADO BOM PRECO LTDA em 17/11 às 12:30'),
+          T.parseFrase('Nubank: Compra de R$ 1.234,56 APROVADA em MAGAZINE LUIZA para o cartão com final 1111. Parcelado em 3x'),
+          T.parseFrase('Você recebeu um Pix de R$ 300,00 de JOAO SILVA'),
+          T.parseFrase('45,90 mercado roxo')].map(x => ({ v: x.valor, tp: x.tipo, c: x.cartao || '', d: x.desc || '', n: x.parcelas, dt: x.data })) });
+      ok(pf2[0].v === 45.9 && pf2[0].c === 'roxo' && /mercado/i.test(pf2[0].d) && pf2[0].dt.slice(5) === '11-17' && pf2[1].v === 1234.56 && pf2[1].n === 3 && pf2[1].c === 'roxo' && /magazine/i.test(pf2[1].d) && pf2[2].tp === 'receita' && pf2[2].v === 300 && pf2[3].v === 45.9 && pf2[3].c === 'roxo', 'lançar: entende aviso de banco (valor, cartão pelo final, loja, data, parcelas, Pix recebido)', JSON.stringify(pf2));
+      const nd2 = await p.evaluate(async () => { const T = window.__T, me = T.ME(); const a = T.ntfDecisao(me).map(x => x.id.split('|')[0]);
+        const ref = await T.S.db.collection('lanc').add({ tipo: 'despesa', cartao: 'roxo', data: T.today(), valor: 49.9, desc: 'Streaming', categoria: 'Assinaturas', rec: 'stream', recYm: T.today().slice(0, 7), parcelas: 1, parcela: 1, tags: [], divisao: 'pessoal', criadoEm: new Date().toISOString() }); await new Promise(r => setTimeout(r, 300));
+        const b = T.ntfDecisao(me); const id = ref && ref.id || (T.S.lanc.find(l => l.rec === 'stream' && l.valor === 49.9) || {}).id; if (id) await T.S.db.doc('lanc/' + id).delete(); await new Promise(r => setTimeout(r, 300)); return { a, b: b.map(x => x.id.split('|')[0] + ':' + x.t), del: !T.S.lanc.some(l => l.id === id) } });
+      ok(nd2.b.some(x => /^asr:Streaming cobrou/.test(x)) && nd2.b.every(x => !/undefined|NaN/.test(x)), 'avisos: assinatura que mudou de valor gera alerta', JSON.stringify(nd2));
       ok(/Próxima entrada/.test(hx.h) && /A receber teste/.test(hx.h) && /Receita agendada/.test(hx.h), 'início: próxima entrada aparece no resumo (a receber e agendada)', hx.h);
       const pf = await p.evaluate(async () => { const T = window.__T, w = ms => new Promise(r => setTimeout(r, ms)); T.openLanc(null); await w(400);
         const tab = document.querySelector('.sheet [data-tpf]'); if (!tab) return { tab: false }; tab.click(); await w(400);
