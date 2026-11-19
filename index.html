@@ -7297,7 +7297,7 @@ function carteiraGeral(me){const t=today(),H=addD(t,30),S0=caixaSim(me,H),m0=min
     <button class="lk cggo" type="button" data-cgpat="1">Ver ativo e passivo em detalhe ›</button></div>`}
 document.addEventListener('toggle',e=>{const d=e.target;if(d&&d.dataset&&d.dataset.cgk)LSset('pt-cg-'+d.dataset.cgk,d.open?'1':'0')},true);
 document.addEventListener('click',e=>{const l=e.target.closest&&e.target.closest('[data-cgl]');if(l){const x=S.lanc.find(z=>z.id===l.dataset.cgl);if(x)openLanc(x);return}
-  const p=e.target.closest&&e.target.closest('[data-cgpat]');if(p){const c=document.querySelector('#v-carteira .cxs.pat');if(c)c.scrollIntoView({behavior:'smooth',block:'start'});return}
+  const p=e.target.closest&&e.target.closest('[data-cgpat]');if(p){const c=document.querySelector('#v-carteira .cxs.pat');if(c){revela(c);setTimeout(()=>{const x=c.closest('.cx')||c;x.scrollIntoView({behavior:'smooth',block:'start'})},320)}return}
   const k=e.target.closest&&e.target.closest('[data-okpi]');if(k){openKpi(k.dataset.okpi);return}
   const tl=e.target.closest&&e.target.closest('[data-cgtile]');if(tl){const k=tl.dataset.cgtile;LSset('pt-cgtile',LS('pt-cgtile','')===k?'':k);if(S.view==='carteira'){vCart();const p=document.querySelector('#v-carteira .cgpn');if(p)p.scrollIntoView({behavior:'smooth',block:'nearest'})}return}
   const m=e.target.closest&&e.target.closest('[data-cgm]');if(m){LSset('pt-cgm',m.dataset.cgm);if(S.view==='carteira')vCart();return}
@@ -7396,6 +7396,10 @@ function flipH(el,fn,outer){const tg=outer&&outer!==el?[el,outer]:[el],h0=tg.map
 /* dobra: cabeçalho-resumo (camada 1) que abre o detalhe no lugar (camada 2) */
 function foldH(k,head,body,def,cls){const o=k&&FOS[k]!==undefined?!!FOS[k]:!!def;
   return `<div class="fo ${cls||''} ${o?'on':''}" ${k?`data-fo="${k}"`:''}><button type="button" class="foh" aria-expanded="${o}">${head}<svg class="ic foc" aria-hidden="true"><use href="#i-down"/></svg></button><div class="fob" ${o?'':'hidden'}>${body}</div></div>`}
+/* abre todas as camadas recolhidas que escondem um elemento (seção da Carteira, cartão recolhido, dobra), para um atalho levar até ele */
+function revela(el){if(!el)return;let x=el.parentElement;while(x&&x!==document.body){if(x.matches('.cx')&&!x.classList.contains('open')){const h=x.querySelector(':scope>.cxh');h&&h.click()}
+  else if(x.matches('.fo')&&!x.classList.contains('on')){const h=x.querySelector(':scope>.foh');h&&h.click()}
+  else if(x.classList.contains('colp')){const h=x.querySelector(':scope>.ch>h2');h&&h.click()}x=x.parentElement}}
 /* lista longa: mostra os primeiros n e abre o resto no lugar */
 function moreH(items,n,k){if(items.length<=n)return items.join('');const r=items.length-n;
   return items.slice(0,n).join('')+foldH(k,`<span class="mrl" data-fol="Mostrar mais ${r}|Mostrar menos">${(k&&FOS[k])?'Mostrar menos':'Mostrar mais '+r}</span>`,items.slice(n).join(''),false,'fmore')}

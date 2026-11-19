@@ -375,6 +375,9 @@ window.__fbSair=()=>{};setTimeout(()=>window.__fbReady(api),0);})();</script>`;
     ok(!falta.length, 'carteira: ao abrir, todo o detalhe de antes está lá', falta.join(', '));
     ok(await p.evaluate(() => document.documentElement.scrollWidth) <= 377, 'carteira aberta cabe na tela');
     for (const k of ['invest', 'guardar', 'patrim']) await p.evaluate(k => document.querySelector(`.cx[data-cx="${k}"] .cxh`).click(), k);
+    await p.evaluate(() => { const b = document.querySelector('[data-cgpat]'); b && b.click() }); await p.waitForTimeout(700);
+    ok(await p.evaluate(() => { const s = document.querySelector('.cx[data-cx="patrim"]'), c = document.querySelector('#v-carteira .cxs.pat'); const r = c && c.getBoundingClientRect(); return !!s && s.classList.contains('open') && !s.querySelector('.cxb').hidden && r && r.height > 50 && r.top < innerHeight }), 'carteira: "ver ativo e passivo" abre a seção e leva até ela');
+    await p.evaluate(() => document.querySelector('.cx[data-cx="patrim"] .cxh').click());
     /* Cartões e Decidir: detalhe recolhido, mas presente */
     await p.evaluate(() => location.hash = 'cartoes'); await p.waitForTimeout(600);
     const cr = await p.evaluate(() => { const v = document.querySelector('#v-cartoes'); const c = [...v.querySelectorAll('.card')].filter(x => /Faturas: passado|Parcelas em andamento/.test((x.querySelector('.ch>h2') || {}).textContent || '')); return [c.length, c.every(x => x.classList.contains('colp')), /Por tipo/.test(v.textContent), (c[0] && c[0].querySelector('.colsum') || {}).innerText || ''] });
