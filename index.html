@@ -3398,7 +3398,8 @@ function heroChart(F,ym){
     ${P1.length>1?`<path d="M${xs(0)},${B} L${P1.map(pt).join(' L')} L${xs(P1[P1.length-1])},${B} Z" fill="url(#hcg)"/><polyline points="${P1.map(pt).join(' ')}" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>`:''}
     ${mi>=0?`<circle cx="${xs(mi)}" cy="${ys(sr[mi].v)}" r="4" style="fill:var(--hero-warn);stroke:var(--hero-bg)" stroke-width="1.5"/><text x="${xs(mi)}" y="${Math.min(ys(sr[mi].v)+15,B+1)}" text-anchor="middle" class="hm">menor ${kf(sr[mi].v).replace(/R\$\s*/,'')}</text>`:''}
     ${(()=>{if(ri<0)return '';const o=[],tx=xs(ri),ty=ys(sr[ri].v),nearE=x=>ent.some(e=>Math.abs(xs(e.i)-x)<46),up=ty>T+16&&!(nearE(tx)&&ty<T+30);
-      o.push(cvT(Math.min(Math.max(tx,22),R-22),up?ty-10:Math.min(ty+18,B-3),kn(sr[ri].v),'middle','hv'));
+      const mx=mi>=0?xs(mi):-999,side=!up&&Math.abs(mx-tx)<56;
+      o.push(side?cvT(tx-9,ty+4,kn(sr[ri].v),'end','hv'):cvT(Math.min(Math.max(tx,22),R-22),up?ty-10:Math.min(ty+18,B-3),kn(sr[ri].v),'middle','hv'));
       if(ri<n-1&&xs(n-1)-tx>70){const ey=ys(sr[n-1].v),eu=ey>T+16&&!ent.some(e=>e.i>=n-4);o.push(cvT(R,eu?ey-10:Math.min(ey+18,B-3),'≈ '+kn(sr[n-1].v),'end','hv'))}
       return o.join('')})()}
     ${ri>=0?`<circle cx="${xs(ri)}" cy="${ys(sr[ri].v)}" r="6" fill="currentColor" fill-opacity=".25"/><circle cx="${xs(ri)}" cy="${ys(sr[ri].v)}" r="3.6" fill="currentColor"/>`:''}
@@ -3474,7 +3475,9 @@ function iniHero(X){
   const fimH=E?addD(E.d,-1):dayIn(ym,31),ag=agendaPessoal(me,fimH>=t?fimH:t).filter(x=>x.d<=fimH||x.d<t);
   const out=ag.filter(x=>x.v<0);{const sp=new Set(out.map(x=>x.nav+x.d));(X.F&&X.F.venc||[]).forEach(x=>{if(x.d<t&&x.v<0&&!sp.has(x.nav+x.d)){sp.add(x.nav+x.d);out.push(x)}})}
   const atr=out.filter(x=>x.d<t),comp=sum(out,x=>-x.v),cAtr=sum(atr,x=>-x.v),entra=sum(ag.filter(x=>x.v>0),x=>x.v);
-  const EN=E?ents.filter(x=>x.d===E.d):[],enV=sum(EN,x=>x.v);
+  /* próxima entrada: inclui a de hoje e as atrasadas que ainda não caíram (contam a partir de hoje) */
+  const entsH=agendaPessoal(me,dayIn(ymAdd(ym,2),31)).filter(x=>x.k==='rec'||x.k==='pendr'||(x.k==='agd'&&x.v>0)).map(x=>Object.assign({},x,{e:x.d<t?t:x.d})).sort((a,b)=>a.e.localeCompare(b.e)||a.d.localeCompare(b.d)),EH=entsH[0];
+  const EN=EH?entsH.filter(x=>x.e===EH.e):[],enV=sum(EN,x=>x.v),enAtr=EN.filter(x=>x.d<t);
   if(!X.L)X.L=caixaLivre(me);
   return `<section class="hero">
     <div class="hr1"><span>${saud()}, ${esc(P(me).nome)}</span><button type="button" class="eye" id="eye" aria-label="${HV?'Mostrar':'Ocultar'} valores">${HV?ICN.eyeoff:ICN.eye}</button></div>
@@ -3484,7 +3487,7 @@ function iniHero(X){
     <div class="hsplit">
       <button type="button" data-apagar="1"><small>A pagar ${E?'antes de '+fdate(E.d).slice(0,5):'até o fim do mês'}</small><b class="n">${brl0(comp)}</b><em>${out.length} ite${out.length===1?'m':'ns'}${cAtr>.5?` · <span class="atr">${brl0(cAtr)} em atraso</span>`:''}</em></button>
       ${(()=>{const L=X.L;return `<button type="button" data-go="carteira"><small>${L.livre<0?'Vai faltar dinheiro':'Pode gastar sem faltar'}</small><b class="n ${L.livre<0?'neg':''}">${L.livre<0?'−':''}${brl0(Math.abs(L.livre))}</b><em>${L.livre<0?`o caixa fica negativo em ${fdate(L.ate).slice(0,5)}`:L.ate===t&&L.comp>.5?'próximos 30 dias · as entradas chegam antes das contas':`próximos 30 dias · mínimo em ${fdate(L.ate).slice(0,5)}`}</em></button>`})()}
-      ${E?`<button type="button" class="hnx" data-hnx="${esc(EN.length===1?EN[0].nav||'':'')}"><span><small>Próxima entrada · ${fdate(E.d).slice(0,5)}${diffD(t,E.d)===1?' · amanhã':` · em ${diffD(t,E.d)} dias`}</small><em>${EN.map(x=>esc(x.t)).join(' · ')}${EN.some(x=>x.k==='pendr')?' · a receber':EN.some(x=>x.k==='rec')?' · prevista':''}</em></span><b class="n">+${brl0(enV)}</b></button>`:''}
+      ${EH?`<button type="button" class="hnx" data-hnx="${esc(EN.length===1?EN[0].nav||'':'')}"><span><small>Próxima entrada · ${EH.e===t?(enAtr.length===EN.length?'atrasada desde '+fdate(enAtr.map(x=>x.d).sort()[0]).slice(0,5):'hoje'):fdate(EH.e).slice(0,5)+(diffD(t,EH.e)===1?' · amanhã':` · em ${diffD(t,EH.e)} dias`)}</small><em>${EN.map(x=>esc(x.t)).join(' · ')}${EN.some(x=>x.k==='pendr')?' · a receber':EN.some(x=>x.k==='rec')?' · prevista':''}</em></span><b class="n">+${brl0(enV)}</b></button>`:''}
     </div>
     ${(()=>{const F=X.F,nm=MES[+ymAdd(ym,1).slice(5)-1],dv=F.final-F.inicial;return foldH('hmes',`<span class="hmk"><small>O mês · vira para ${nm}</small><b class="n">${brl0(F.final)} <span class="${dv>=0?'up':'dn'}">${dv>=0?'↑':'↓'} ${brl0(Math.abs(dv))}</span></b></span>`,(()=>{const F=X.F,pm=MES[+ymAdd(ym,-1).slice(5)-1],nm=MES[+ymAdd(ym,1).slice(5)-1],dv=F.final-F.inicial;return `<div class="hflow">
       <span class="hfc"><small>Veio de ${pm}</small><b class="n ${F.inicial<0?'neg':''}">${brl0(F.inicial)}</b></span><span class="hfa">›</span>
