@@ -2532,6 +2532,24 @@ svg.dch{text-transform:none;letter-spacing:0}
 .lbpd{padding:8px 0;border-bottom:1px solid var(--hair)}.lbpd:last-child{border-bottom:0}.lbpdd{display:block;font-size:13px;font-weight:650;color:var(--ink);margin-bottom:4px}.lbpdd small{font-weight:500;color:var(--muted);margin-left:4px}
 .lbpi{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:4px 0}.lbpi>span{display:grid;min-width:0;font-size:14px}.lbpi small{font-size:12px;color:var(--muted)}.lbpi b{font-size:14px;white-space:nowrap}
 .lbnone{margin:6px 0}.lbft{margin-top:18px}
+
+/* ===== confirmação de pagamento ===== */
+.lfab.pay{background:var(--good)!important;color:var(--payink)!important;border-color:var(--good)!important}.lfab.pay .ic{stroke:var(--payink)}
+:root{--payink:#fff}@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--payink:#0B1F14}}:root[data-theme="dark"]{--payink:#0B1F14}
+#toast.tok{width:min(360px,calc(100% - 32px));background:var(--surface);color:var(--ink);border:1px solid color-mix(in srgb,var(--good) 45%,var(--line));box-shadow:0 10px 30px rgba(0,0,0,.25);padding:10px 12px 10px 10px;gap:10px;align-items:center;animation:tkin .32s cubic-bezier(.2,.9,.3,1.2)}
+.tkic{flex:none;width:30px;height:30px;border-radius:50%;background:var(--good);display:grid;place-items:center}
+.tkic svg{width:22px;height:22px;fill:none;stroke:var(--payink);stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}.tkic circle{stroke:none}
+.tkic path{stroke-dasharray:16;stroke-dashoffset:16;animation:tkck .38s .12s ease-out forwards}
+.tktx{display:grid;min-width:0;flex:1}.tktx b{font-size:14.5px;font-weight:650;color:var(--good);white-space:nowrap}.tktx small{font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#toast.tok .tact{color:var(--ink);font-weight:650}
+@keyframes tkin{from{opacity:0;transform:translate(-50%,12px) scale(.96)}to{opacity:1;transform:translate(-50%,0) scale(1)}}
+@keyframes tkck{to{stroke-dashoffset:0}}
+.shok{position:fixed;inset:0;z-index:40;display:grid;place-content:center;justify-items:center;gap:10px;text-align:center;background:color-mix(in srgb,var(--surface) 94%,transparent);backdrop-filter:blur(2px);animation:shokin .2s ease-out;border-radius:inherit}
+.shok b{font-size:20px;font-weight:700;color:var(--ink)}.shok small{font-size:14px;color:var(--muted);max-width:280px}
+.shokc{width:76px;height:76px;border-radius:50%;background:color-mix(in srgb,var(--good) 16%,transparent);display:grid;place-items:center;animation:shokp .45s cubic-bezier(.2,.9,.3,1.3)}
+.shokc svg{width:60px;height:60px;fill:none;stroke-linecap:round;stroke-linejoin:round}.shokc circle{fill:var(--good);stroke:none}.shokc path{stroke:var(--payink);stroke-width:4.5;stroke-dasharray:36;stroke-dashoffset:36;animation:tkck .42s .18s ease-out forwards}
+@keyframes shokin{from{opacity:0}to{opacity:1}}@keyframes shokp{from{transform:scale(.6);opacity:0}to{transform:scale(1);opacity:1}}
+@media (prefers-reduced-motion:reduce){#toast.tok,.shok,.shokc,.tkic path,.shokc path{animation:none!important;stroke-dashoffset:0!important}}
 </style>
 <div id="fbgate" hidden><div class="bx"><svg class="lg" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="139 90 228 332"><g transform="translate(-5 0)"><rect x="186" y="100" width="12" height="312" rx="6" fill="currentColor" opacity=".55"/><rect x="164" y="150" width="56" height="210" rx="16" fill="currentColor"/><path d="M244 150h38a70 70 0 0 1 0 140h-38z" fill="#E2BA6E"/></g></svg><h1>Patrimônio</h1><p id="fbmsg">Entre com a sua conta Google para ver as finanças da casa.</p><button type="button" id="fblogin">Entrar com Google</button></div></div>
 <script type="module">
@@ -2680,7 +2698,7 @@ const ymL=ym=>MES[+ym.slice(5)-1]+'/'+ym.slice(2,4);
 const norm=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
 const LS=(k,d)=>{try{return localStorage.getItem(k)||d}catch(e){return d}};
 const LSset=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};
-function toast(m){const t=$('#toast');t.textContent=m;t.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>t.hidden=true,2600)}
+function toast(m){const t=$('#toast');t.classList.remove('tok');t.textContent=m;t.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>t.hidden=true,2600)}
 function writeErr(e){const c=e&&e.code;if(c==='not_granted'||c==='revoked')return 'Sua conta só pode ver este app.';if(c==='conflict')return 'Outra pessoa alterou ao mesmo tempo. Tente de novo.';if(c==='ro')return 'Modo leitura: este acesso só visualiza, não altera.';return 'Não consegui salvar. Verifique a conexão e tente de novo.'}
 
 const CATS=['Mercado','Casa','Contas da casa','Restaurante','Delivery','Transporte','Combustível','Saúde','Farmácia','Educação','Lazer','Viagem','Assinaturas','Compras','Vestuário','Pets','Presentes','Eventos','Obra','Serviços','Pix a pessoas','Impostos e taxas','Dívidas','Outros'];
@@ -3370,10 +3388,10 @@ const podeBaixar=x=>/^l:/.test(x.nav||'')&&(S.lanc.find(l=>'l:'+l.id===x.nav)||{
 async function baixaRapida(x){const t=today(),nav=x.nav||'';
   try{if(nav.startsWith('l:')){const l=S.lanc.find(z=>'l:'+z.id===nav);if(!l||!l.pend)return rvGo(nav);const old=Object.assign({},l);delete old.id;
       const n=Object.assign({},l,{data:t,venc:l.venc||l.data,pagoEm:t,atualizadoEm:new Date().toISOString()});delete n.id;delete n.pend;await save('lanc',l.id,n);
-      toastAct(`${l.tipo==='receita'?'Recebido':'Pago'}: ${descSemParc(l.desc||'')} · ${brl(+l.valor||0)}`,'Desfazer',async()=>{try{await save('lanc',l.id,old);toast('Voltou para em aberto')}catch(e){toast(writeErr(e))}})}
+      toastOk(l.tipo==='receita'?'Recebimento confirmado':'Pagamento realizado',`${descSemParc(l.desc||'')} · ${brl(+l.valor||0)}`,'Desfazer',async()=>{try{await save('lanc',l.id,old);toast('Voltou para em aberto')}catch(e){toast(writeErr(e))}})}
     else if(nav.startsWith('rec:')){const [id,ym]=nav.slice(4).split('|'),r=S.recs.find(z=>z.id===id);if(!r)return;const rc=r.tipo==='receita',cta=r.conta||contaPadrao();if(r.cartao){return rvGo(nav)}
       const n={tipo:rc?'receita':'despesa',conta:cta,data:t,venc:recDia(r,ym),pagoEm:t,valor:recV(r),desc:recNome(r,ym),categoria:r.categoria||'',subcategoria:r.subcategoria||'',divisao:r.divisao||'pessoal',tags:r.tags||[],para:r.para||'',rec:r.id,recYm:ym,origem:'repasse',criadoEm:new Date().toISOString()};
-      const ref=await S.db.collection('lanc').add(n);toastAct(`${rc?'Recebido':'Pago'}: ${recNome(r,ym)} · ${brl(+r.valor||0)}`,'Desfazer',async()=>{try{if(ref&&ref.id)await S.db.doc('lanc/'+ref.id).delete();toast('Desfeito')}catch(e){toast(writeErr(e))}})}
+      const ref=await S.db.collection('lanc').add(n);toastOk(rc?'Recebimento confirmado':'Pagamento realizado',`${recNome(r,ym)} · ${brl(+n.valor||+r.valor||0)}`,'Desfazer',async()=>{try{if(ref&&ref.id)await S.db.doc('lanc/'+ref.id).delete();toast('Desfeito')}catch(e){toast(writeErr(e))}})}
     else rvGo(nav)}catch(e){toast(writeErr(e))}}
 function atrRow(x){const t=today(),n=diffD(x.d,t),pos=x.v>0,q=podeBaixar(x);
   return `<div class="atrw"><button type="button" class="atrm" data-atn="${esc(x.nav||'')}"><span class="rvd"><b>${String(+x.d.slice(8)).padStart(2,'0')}</b><small>${MES[+x.d.slice(5,7)-1]}</small></span><span class="lxm"><b>${esc(descSemParc(x.t))}</b><small><span class="neg">${n} dia${n===1?'':'s'} de atraso</span>${x.s?' · '+esc(String(x.s).replace(/ · em atraso$/,'').replace(/^(pendente|a receber) · em atraso$/,'$1')):''}</small></span><b class="n ${pos?'pos':'neg'}">${pos?'+':''}${brl(Math.abs(x.v))}</b></button>
@@ -8099,7 +8117,16 @@ function catPorHorario(){const t=today(),ini=addD(t,-90),h=new Date().getHours()
   S.lanc.filter(l=>l.tipo==='despesa'&&l.criadoEm&&!l.rec&&!l.divida&&(l.data||'')>=ini&&l.categoria&&l.categoria!=='Outros').forEach(l=>{const d=new Date(l.criadoEm),lh=d.getHours(),lf=[0,6].includes(d.getDay());if(Math.abs(lh-h)<=2&&lf===fds)c[l.categoria]=(c[l.categoria]||0)+1});
   const top=Object.entries(c).sort((a,b)=>b[1]-a[1])[0];return top&&top[1]>=3?top[0]:''}
 /* aviso com ação (desfazer) */
-function toastAct(m,lab,fn){const t=$('#toast');t.innerHTML=`<span>${esc(m)}</span><button type="button" class="tact">${esc(lab)}</button>`;t.hidden=false;clearTimeout(toast.t);
+/* confirmação de dinheiro que saiu ou entrou: verde, com ícone, detalhe e desfazer */
+function toastOk(tit,sub,lab,fn){const t=$('#toast');t.classList.add('tok');
+  t.innerHTML=`<span class="tkic"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11"/><path d="M7 12.5l3.2 3.2L17 9"/></svg></span><span class="tktx"><b>${esc(tit)}</b>${sub?`<small>${esc(sub)}</small>`:''}</span>${lab?`<button type="button" class="tact">${esc(lab)}</button>`:''}`;
+  t.setAttribute('role','status');t.hidden=false;clearTimeout(toast.t);try{navigator.vibrate&&navigator.vibrate(18)}catch(e){}
+  const b=t.querySelector('.tact');if(b)b.onclick=async()=>{t.hidden=true;try{await fn()}catch(e){toast(writeErr(e))}};toast.t=setTimeout(()=>{t.hidden=true;t.classList.remove('tok')},lab?5200:3200)}
+/* momento de confirmação dentro do formulário antes de fechar */
+function sheetOk(sh,tit,sub){return new Promise(res=>{const o=document.createElement('div');o.className='shok';o.setAttribute('role','status');
+  o.innerHTML=`<div class="shokc"><svg viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="24"/><path d="M15 27l7.5 7.5L37.5 19"/></svg></div><b>${esc(tit)}</b>${sub?`<small>${esc(sub)}</small>`:''}`;
+  (sh.closest&&sh.closest('.sheet')||sh).appendChild(o);try{navigator.vibrate&&navigator.vibrate(18)}catch(e){}setTimeout(res,RMO?200:820)})}
+function toastAct(m,lab,fn){const t=$('#toast');t.classList.remove('tok');t.innerHTML=`<span>${esc(m)}</span><button type="button" class="tact">${esc(lab)}</button>`;t.hidden=false;clearTimeout(toast.t);
   t.querySelector('.tact').onclick=async()=>{t.hidden=true;try{await fn()}catch(e){toast(writeErr(e))}};toast.t=setTimeout(()=>t.hidden=true,6000)}
 async function delLancUndo(l){const keep=Object.assign({},l);delete keep.id;try{await S.db.doc('lanc/'+l.id).delete();closeSheet();toastAct('Lançamento excluído','Desfazer',async()=>{await S.db.doc('lanc/'+l.id).set(keep);toast('Restaurado')})}catch(err){toast(writeErr(err))}}
 const LBROWF=(st,sub)=>`<div class="llb"><label for="l-lb">${ic('bell')}<span>Lembrete no celular<small>${sub}</small></span></label><select id="l-lb" class="lsel">${lembOpts(st.lemb,st.tipo==='receita'?'r':'c')}</select></div>`;
@@ -8182,7 +8209,7 @@ function openLanc(l,opts){
     h+=`</div>`;
     sh.querySelector('#lb').innerHTML=h;
     const sv=sh.querySelector('#lsv');sv.className='lfab lfab-'+col;
-    const updSave=()=>{sv.setAttribute('aria-label',`Salvar ${TIPOS[st.tipo][0].toLowerCase()}${st.valor?' de '+brl(total()):''}`);{const lt=sh.querySelector('#lsvt');if(lt)lt.textContent=st.valor?`Salvar · ${brl(total())}`:'Salvar'}const hn=sh.querySelector('#l-hint');if(hn)hn.textContent=st.adj&&st.valor?`total ${brl(total())}`:(cardSel&&t==='despesa'&&st.n>1&&isNew&&st.valor?(st.pm==='mul'?`${st.n}x de ${brl(total())} · total ${brl(total()*st.n)}`:`${st.n}x de ${brl(total()/st.n)}`):'')};
+    const updSave=()=>{sv.setAttribute('aria-label',`Salvar ${TIPOS[st.tipo][0].toLowerCase()}${st.valor?' de '+brl(total()):''}`);{const pg=st.tipo==='pagfat'||!!l.divida,lt=sh.querySelector('#lsvt');sv.classList.toggle('pay',pg);if(lt)lt.textContent=pg?(st.valor?`Confirmar pagamento · ${brl(total())}`:'Confirmar pagamento'):st.valor?`Salvar · ${brl(total())}`:'Salvar'}const hn=sh.querySelector('#l-hint');if(hn)hn.textContent=st.adj&&st.valor?`total ${brl(total())}`:(cardSel&&t==='despesa'&&st.n>1&&isNew&&st.valor?(st.pm==='mul'?`${st.n}x de ${brl(total())} · total ${brl(total()*st.n)}`:`${st.n}x de ${brl(total()/st.n)}`):'')};
     updSave();
     const lv=sh.querySelector('#l-v'),fitV=()=>{const cs=getComputedStyle(lv),cx=(window.__mc=window.__mc||document.createElement('canvas').getContext('2d'));cx.font=`${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;lv.style.width=Math.ceil(cx.measureText(lv.value||lv.placeholder||'0,00').width+6)+'px'};fitV();lv.addEventListener('input',fitV);
     const setV=x=>{st.valor=x;lv.value=x?fmtMoney(x):'';updSave();fitV();sh.querySelectorAll('.lseg small')[0]&&st.tipo==='despesa'&&(sh.querySelectorAll('.lseg small')[0].textContent=x?brl(total()/2)+' cada':'metade cada');const ps=sh.querySelector('.lstep');if(ps)draw(sh)};
@@ -8256,6 +8283,9 @@ function openLanc(l,opts){
         delete d._ovj;if(l._ovj){delete d.ovr}
         const ref=await save('lanc',isNew?null:l.id,d);
         if(isNew&&st.cont){toast('Salvo · próximo lançamento');closeSheet();openLanc({tipo:st.tipo,cartao:d.cartao||'',conta:d.conta||'',data:st.data,divisao:st.div,categoria:st.cat,tags:[]},{cont:true})}
+        else if(isNew&&(tipo==='pagfat'||l.divida)){const cn=(conta(d.conta)||{}).nome||'',cd=tipo==='pagfat'?((card(d.cartao)||{}).nome||'cartão'):'',v=brl(+d.valor||total());
+          await sheetOk(sh,'Pagamento realizado',`${tipo==='pagfat'?'Fatura '+cd:descSemParc(d.desc||'Dívida')} · ${v}`);closeSheet();
+          toastOk('Pagamento realizado',`${tipo==='pagfat'?'Fatura '+cd:descSemParc(d.desc||'Dívida')} · ${v}${cn?' · saiu de '+cn:''}`,ref&&ref.id?'Desfazer':'',async()=>{await S.db.doc('lanc/'+ref.id).delete();toast('Pagamento desfeito')})}
         else{closeSheet();const msg=recDoc?(recDoc.parcelas?`Salvo em ${recDoc.parcelas}x · próximas previstas`:'Salvo · repete todo mês'):isNew?`Salvo · ${brl(total())}`:'Salvo';
           if(isNew&&ref&&ref.id)toastAct(msg,'Desfazer',async()=>{await S.db.doc('lanc/'+ref.id).delete();if(d.rec&&recDoc)await S.db.doc('recorrentes/'+d.rec).delete();toast('Lançamento desfeito')});else toast(msg)}}catch(err){toast(writeErr(err))}};
     const del=sh.querySelector('#ldel');if(del)del.onclick=()=>delLancUndo(l);
