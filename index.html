@@ -2503,6 +2503,7 @@ nav.tabs a{min-width:0;white-space:nowrap}nav.tabs .tl-s{display:none}
 .vbars{height:60px!important}
 svg.dch{text-transform:none;letter-spacing:0}
 .lrvar{margin:10px 0 2px}
+.pfant{margin:4px 0 10px 0}.pfant .seg{margin-top:6px}
 </style>
 <div id="fbgate" hidden><div class="bx"><svg class="lg" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="139 90 228 332"><g transform="translate(-5 0)"><rect x="186" y="100" width="12" height="312" rx="6" fill="currentColor" opacity=".55"/><rect x="164" y="150" width="56" height="210" rx="16" fill="currentColor"/><path d="M244 150h38a70 70 0 0 1 0 140h-38z" fill="#E2BA6E"/></g></svg><h1>Patrimônio</h1><p id="fbmsg">Entre com a sua conta Google para ver as finanças da casa.</p><button type="button" id="fblogin">Entrar com Google</button></div></div>
 <script type="module">
@@ -4309,12 +4310,12 @@ function ntfDecisao(me){const t=today(),out=[],dd=d=>fdate(d).slice(0,5);let L=n
   L.ins.filter(x=>x.late&&(x.k==='rec'||x.k==='pendr')).forEach(x=>out.push({id:'rnx|'+x.nav+'|'+x.d,d:t,v:0,t:`${x.t} ainda não entrou`,info:`Previsto para ${dd(x.d)} · ${brl(x.v)}. Confirme quando cair.`,url:'./#inicio'}));
   return out}
 async function ntfSync(force){const N=NTF();if(!N.on||!ntfOk()||Notification.permission!=='granted'||!ready())return;if(!force&&Date.now()-NTFAT<30*60e3)return;NTFAT=Date.now();
-  try{const me=ME(),t=today(),ate=addD(t,3),its=[];
+  try{const me=ME(),t=today(),ant=N.a===undefined?1:+N.a,ate=addD(t,Math.max(3,ant)),its=[];
     if(N.c)agendaPessoal(me,ate,t).filter(x=>['fat','fix','div','pend','darf','pendr'].includes(x.k)&&x.d>=t).forEach(x=>its.push({id:x.k+'|'+(x.nav||x.t)+'|'+x.d,d:x.d,t:x.t,v:r2(Math.abs(x.v)),r:x.v>0}));
     const sr=semRev(),R=ROT();if(N.s&&!(R[sr.k]||{}).em)its.push({id:'sem|'+sr.k,d:new Date(t+'T12:00:00').getDay()===0?t:addD(sr.fim,7),t:'Revisão da semana',v:0,info:'4 minutos para conferir a semana'});
     if(N.d!==0)ntfDecisao(me).forEach(x=>its.push(x));
     const ym=t.slice(0,7),ld=dayIn(ym,31);if(N.m)its.push({id:'mes|'+ym,d:ld,t:'Fechamento do mês',v:0,info:'feche o mês e veja o resultado'});
-    const data={gerado:new Date().toISOString(),hoje:t,itens:its};const c=await caches.open('pt-dados');await c.put('./__lembretes.json',new Response(JSON.stringify(data),{headers:{'content-type':'application/json'}}));
+    const data={gerado:new Date().toISOString(),hoje:t,ant,itens:its};const c=await caches.open('pt-dados');await c.put('./__lembretes.json',new Response(JSON.stringify(data),{headers:{'content-type':'application/json'}}));
     const reg=await navigator.serviceWorker.ready;if(reg.periodicSync){try{const st=await navigator.permissions.query({name:'periodic-background-sync'});if(st.state==='granted')await reg.periodicSync.register('pt-lembretes',{minInterval:6*36e5})}catch(e){}}
     reg.active&&reg.active.postMessage({tipo:'lembretes'});
   }catch(e){}}
@@ -4323,13 +4324,14 @@ function openPrefs(){const draw=sh=>{const z=+LS('pt-zoom','1')||1,N=NTF(),box=s
       <section class="ivs"><div class="ivsh"><h3>Modo simples</h3><small>neste aparelho</small></div><label class="chk"><input type="checkbox" id="pf-s" ${SIMPLES?'checked':''}> Mostrar só o essencial</label><p class="note">No Início ficam o caixa, as ações rápidas, “Para resolver”, quanto pode gastar e os últimos lançamentos. No Decidir, só gastar e comprar. Nada é apagado — desligue para ver tudo de novo.</p></section>
       <section class="ivs"><div class="ivsh"><h3>Lembretes no celular</h3><small>${perm==='granted'?'permitido':perm==='denied'?'bloqueado no navegador':perm==='indisponível'?'indisponível aqui':'ainda não permitido'}</small></div>
         <label class="chk"><input type="checkbox" id="pf-n" ${N.on&&perm==='granted'?'checked':''} ${perm==='indisponível'?'disabled':''}> Avisar no celular</label>
-        <div class="pfn" ${N.on?'':'hidden'}><label class="chk"><input type="checkbox" data-nt="c" ${N.c?'checked':''}> Contas, faturas e parcelas vencendo (hoje e amanhã)</label><label class="chk"><input type="checkbox" data-nt="s" ${N.s?'checked':''}> Revisão da semana (domingo)</label><label class="chk"><input type="checkbox" data-nt="m" ${N.m?'checked':''}> Fechamento do mês (último dia)</label><label class="chk"><input type="checkbox" data-nt="d" ${N.d!==0?'checked':''}> Alertas para decidir: caixa vai faltar, fatura sem cobertura, assinatura mudou de valor, entrada que não caiu</label>
+        <div class="pfn" ${N.on?'':'hidden'}><label class="chk"><input type="checkbox" data-nt="c" ${N.c?'checked':''}> Contas, faturas, parcelas e receitas previstas</label><div class="pfant" ${N.c?'':'hidden'}><span class="flab">Avisar</span><div class="seg" id="pf-ant">${[[0,'No dia'],[1,'1 dia antes'],[3,'3 dias antes']].map(([v,n])=>`<button type="button" data-ant="${v}" aria-pressed="${(N.a===undefined?1:+N.a)===v}">${n}</button>`).join('')}</div><p class="note">${(N.a===undefined?1:+N.a)?'Um aviso antes e outro no dia do vencimento.':'Um aviso no dia do vencimento.'} Vale para tudo que tem vencimento: contas fixas, pendentes, faturas e parcelas.</p></div><label class="chk"><input type="checkbox" data-nt="s" ${N.s?'checked':''}> Revisão da semana (domingo)</label><label class="chk"><input type="checkbox" data-nt="m" ${N.m?'checked':''}> Fechamento do mês (último dia)</label><label class="chk"><input type="checkbox" data-nt="d" ${N.d!==0?'checked':''}> Alertas para decidir: caixa vai faltar, fatura sem cobertura, assinatura mudou de valor, entrada que não caiu</label>
           <div class="btnrow"><button class="btn sm" type="button" id="pf-tst">Enviar aviso de teste</button></div></div>
         <p class="note">Funciona com o app instalado pelo Chrome no Android: o próprio celular confere os vencimentos algumas vezes por dia, mesmo com o app fechado — a frequência é o Chrome que decide (mais vezes quanto mais você usa o app). Os avisos saem do que estava no app na última vez que ele abriu. No iPhone, só com o app aberto.</p></section>`;
     sh.querySelectorAll('[data-z]').forEach(b=>b.onclick=()=>{LSset('pt-zoom',b.dataset.z);zoomAp();draw(sh)});
     sh.querySelector('#pf-s').onchange=e=>{SIMPLES=e.target.checked;LSset('pt-simples',SIMPLES?'1':'0');re();toast(SIMPLES?'Modo simples ligado':'Mostrando tudo')};
     const nb=sh.querySelector('#pf-n');nb.onchange=async()=>{const n=NTF();if(nb.checked){let p=Notification.permission;if(p!=='granted')p=await Notification.requestPermission();if(p!=='granted'){nb.checked=false;toast('O navegador não permitiu notificações');return}n.on=true}else n.on=false;LSset('pt-ntf',JSON.stringify(n));if(n.on)ntfSync(true);draw(sh)};
-    sh.querySelectorAll('[data-nt]').forEach(i=>i.onchange=()=>{const n=NTF();n[i.dataset.nt]=i.checked?1:0;LSset('pt-ntf',JSON.stringify(n));ntfSync(true)});
+    sh.querySelectorAll('[data-nt]').forEach(i=>i.onchange=()=>{const n=NTF();n[i.dataset.nt]=i.checked?1:0;LSset('pt-ntf',JSON.stringify(n));ntfSync(true);if(i.dataset.nt==='c')draw(sh)});
+    sh.querySelectorAll('[data-ant]').forEach(b=>b.onclick=()=>{const n=NTF();n.a=+b.dataset.ant;LSset('pt-ntf',JSON.stringify(n));ntfSync(true);draw(sh)});
     const ts=sh.querySelector('#pf-tst');if(ts)ts.onclick=async()=>{try{const reg=await navigator.serviceWorker.ready;await reg.showNotification('Patrimônio',{body:'Os lembretes estão funcionando neste aparelho.',icon:'icon-192.png',badge:'icon-192.png',tag:'pt-teste'})}catch(e){try{new Notification('Patrimônio',{body:'Os lembretes estão funcionando neste aparelho.'})}catch(_){toast('Não consegui mostrar o aviso aqui')}}}};
   openSheet(`<h2>Aparência e lembretes</h2><div id="pfx" class="ivx"></div>`,draw)}
 /* ---------- retrospectiva da semana ---------- */

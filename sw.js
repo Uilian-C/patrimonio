@@ -1,6 +1,6 @@
 /* Patrimônio — service worker: abre o app sem internet.
    Os dados ficam no cache do Firestore (IndexedDB); aqui só guardamos o "casco" do app e as bibliotecas. */
-const V = 'pt-shell-v9';
+const V = 'pt-shell-v10';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './icon.svg', './apple-touch-icon.png'];
 const LIBS = /^https:\/\/(www\.gstatic\.com\/firebasejs\/|cdnjs\.cloudflare\.com\/|fonts\.googleapis\.com\/|fonts\.gstatic\.com\/)/;
 
@@ -44,16 +44,19 @@ async function lembrar() {
   if (!self.registration || Notification.permission !== 'granted') return;
   const c = await caches.open('pt-dados'), r = await c.match('./__lembretes.json'); if (!r) return;
   const L = await r.json(), vr = await c.match('./__avisados.json'), ja = vr ? await vr.json() : {};
-  const t = hoje(), am = amanha(), novos = [];
-  (L.itens || []).forEach(x => { if (!x || ja[x.id]) return; if (x.v ? (x.d === t || x.d === am) : x.d === t) novos.push(x) });
+  const t = hoje(), am = amanha(), novos = [], ant = L.ant === undefined ? 1 : +L.ant;
+  const dias = d => Math.round((new Date(d + 'T12:00:00') - new Date(t + 'T12:00:00')) / 864e5);
+  /* contas: um aviso antes (conforme a antecedência escolhida) e outro no dia; demais avisos só no dia */
+  (L.itens || []).forEach(x => { if (!x) return; if (x.v) { const n = dias(x.d); if (n === 0 && !ja[x.id + '|0'] && !ja[x.id]) novos.push(Object.assign({}, x, { k: x.id + '|0', n })); else if (n > 0 && n <= ant && !ja[x.id + '|a'] && !ja[x.id]) novos.push(Object.assign({}, x, { k: x.id + '|a', n })) } else if (!ja[x.id] && x.d === t) novos.push(Object.assign({}, x, { k: x.id })) });
   const contas = novos.filter(x => x.v), outros = novos.filter(x => !x.v);
+  const quando = n => n === 0 ? 'hoje' : n === 1 ? 'amanhã' : `em ${n} dias`;
   if (contas.length) {
-    const hj = contas.filter(x => x.d === t), tot = contas.reduce((a, x) => a + (x.r ? 0 : x.v), 0);
-    await self.registration.showNotification(contas.length === 1 ? (contas[0].r ? 'A receber ' : 'Vence ') + (contas[0].d === t ? 'hoje' : 'amanhã') : `${contas.length} vencimentos ${hj.length ? 'hoje e amanhã' : 'amanhã'}`,
-      { body: contas.slice(0, 4).map(x => `${x.t} · ${brl(x.v)}${x.d === t ? ' (hoje)' : ''}`).join('\n') + (contas.length > 4 ? `\n+${contas.length - 4}` : '') + (tot && contas.length > 1 ? `\nTotal ${brl(tot)}` : ''), icon: 'icon-192.png', badge: 'icon-192.png', tag: 'pt-venc', data: { url: './#inicio' } });
+    const hj = contas.filter(x => x.n === 0), tot = contas.reduce((a, x) => a + (x.r ? 0 : x.v), 0), mx = Math.max(...contas.map(x => x.n));
+    await self.registration.showNotification(contas.length === 1 ? (contas[0].r ? 'A receber ' : 'Vence ') + quando(contas[0].n) : `${contas.length} vencimentos ${hj.length === contas.length ? 'hoje' : hj.length ? 'hoje e nos próximos dias' : mx === 1 ? 'amanhã' : 'nos próximos dias'}`,
+      { body: contas.slice(0, 4).map(x => `${x.t} · ${brl(x.v)}${contas.length > 1 ? ' (' + quando(x.n) + ')' : ''}`).join('\n') + (contas.length > 4 ? `\n+${contas.length - 4}` : '') + (tot && contas.length > 1 ? `\nTotal ${brl(tot)}` : ''), icon: 'icon-192.png', badge: 'icon-192.png', tag: 'pt-venc', data: { url: './#inicio' } });
   }
   for (const x of outros) await self.registration.showNotification(x.t, { body: x.info || '', icon: 'icon-192.png', badge: 'icon-192.png', tag: 'pt-' + x.id, data: { url: x.url || './#inicio' } });
-  novos.forEach(x => ja[x.id] = t);
+  novos.forEach(x => ja[x.k] = t);
   Object.keys(ja).forEach(k => { if (ja[k] < t.slice(0, 8) + '01' && ja[k] < t) { const d = new Date(ja[k]); if (Date.now() - d > 40 * 864e5) delete ja[k] } });
   await c.put('./__avisados.json', new Response(JSON.stringify(ja), { headers: { 'content-type': 'application/json' } }));
 }
