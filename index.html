@@ -2502,6 +2502,7 @@ nav.tabs a{min-width:0;white-space:nowrap}nav.tabs .tl-s{display:none}
 .vbars .cvl{stroke:none;fill:var(--crit);font-size:10.5px}.hero .vbars .cvl{fill:var(--hero-neg,#FFB3AA)}
 .vbars{height:60px!important}
 svg.dch{text-transform:none;letter-spacing:0}
+.lrvar{margin:10px 0 2px}
 </style>
 <div id="fbgate" hidden><div class="bx"><svg class="lg" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="139 90 228 332"><g transform="translate(-5 0)"><rect x="186" y="100" width="12" height="312" rx="6" fill="currentColor" opacity=".55"/><rect x="164" y="150" width="56" height="210" rx="16" fill="currentColor"/><path d="M244 150h38a70 70 0 0 1 0 140h-38z" fill="#E2BA6E"/></g></svg><h1>Patrimônio</h1><p id="fbmsg">Entre com a sua conta Google para ver as finanças da casa.</p><button type="button" id="fblogin">Entrar com Google</button></div></div>
 <script type="module">
@@ -8045,7 +8046,7 @@ function openLanc(l,opts){
         ${(st.rep==='parc'||(cardSel&&st.n>1))?(()=>{const N=cardSel?st.n:st.rn,pv=st.pm==='mul'?total():total()/N,tv=st.pm==='mul'?total()*N:total();return `<div class="lr lstep">${I('split')}<span class="lrt">${cardSel?(isNew?'Parcelas no cartão':'Parcelas'):'Parcelas mensais'}<small>${st.valor?(isNew?`${N}x de ${brl(pv)} · total ${brl(tv)}`:`parcela ${st.k} de ${st.n} · ${brl(st.valor)}`):(st.pm==='mul'?'informe o valor da parcela':'informe o valor total')}</small></span><span class="stp2"><button type="button" data-n="-1" aria-label="Menos">−</button><input class="n lnum" id="l-pn" type="number" inputmode="numeric" min="${cardSel?1:2}" max="${cardSel?48:72}" value="${N}" aria-label="Número de parcelas"><button type="button" data-n="1" aria-label="Mais">+</button></span></div>
         ${isNew?`<div class="lseg lpm"><button type="button" data-pm="div" aria-pressed="${st.pm==='div'}"><span>Dividir<small>o valor é o total da compra</small></span></button><button type="button" data-pm="mul" aria-pressed="${st.pm==='mul'}"><span>Multiplicar<small>o valor é o de cada parcela</small></span></button></div>`:''}
         ${cardSel?`<div class="lr">${I('split')}<span class="lrt">Parcela atual<small>se a compra já começou, informe em qual parcela está</small></span><span class="stp2"><input class="n lnum" id="l-pk" type="number" inputmode="numeric" min="1" max="${st.n}" value="${st.k}" aria-label="Parcela atual"><span class="lof">de ${st.n}</span></span></div>`:''}`})():''}
-        ${st.rep==='fixo'?`<div class="lr">${I('repeat')}<span class="lrt">${cardSel?'Cobra no cartão todo dia ':'Todo dia '}${+st.data.slice(8)}<small>${st.rfim?'até '+ymL(st.rfim):'sem data para terminar'}</small></span><input type="month" id="l-rf" class="lmon" value="${esc(st.rfim)}" aria-label="Termina em"></div>`:''}`);
+        ${st.rep==='fixo'?`<div class="lr">${I('repeat')}<span class="lrt">${cardSel?'Cobra no cartão todo dia ':'Todo dia '}${+st.data.slice(8)}<small>${st.rfim?'até '+ymL(st.rfim):'sem data para terminar'}</small></span><input type="month" id="l-rf" class="lmon" value="${esc(st.rfim)}" aria-label="Termina em"></div>${isNew&&st.tipo==='despesa'?`<label class="chk lrvar"><input type="checkbox" id="l-rv" ${st.rvar?'checked':''}> Valor varia (energia, água, gás)</label>${st.rvar?'<p class="note">Este valor é o primeiro da média. Nos próximos meses a previsão será a média dos últimos 3 pagamentos (≈); ao pagar, confirme o valor real.</p>':''}`:''}`:''}`);
     }
     if(t==='despesa')h+=sec('Divisão',`<div class="lseg"><button type="button" data-div="comum" aria-pressed="${st.div==='comum'}">${I('couple')}<span>Comum<small>${st.valor?brl(total()/2)+' cada':'metade cada'}</small></span></button><button type="button" data-div="pessoal" aria-pressed="${st.div==='pessoal'}">${I('user')}<span>Pessoal<small>só ${S1&&S1.c?esc(P(S1.c.dono).nome):S1&&S1.a?esc(P(S1.a.dono).nome):'seu'}</small></span></button></div>`);
     if(t==='despesa'||t==='receita'){
@@ -8087,6 +8088,7 @@ function openLanc(l,opts){
      const pk=sh.querySelector('#l-pk');if(pk)pk.onchange=()=>{st.k=Math.min(Math.max(parseInt(pk.value)||1,1),st.n);draw(sh)}}
     sh.querySelectorAll('[data-n]').forEach(b=>b.onclick=()=>{if(isCard()){st.n=Math.min(Math.max(st.n+(+b.dataset.n),1),48);st.k=Math.min(st.k,st.n);if(st.n===1)st.rep='unica'}else st.rn=Math.min(Math.max(st.rn+(+b.dataset.n),2),72);draw(sh)});
     const rf=sh.querySelector('#l-rf');if(rf)rf.onchange=()=>{st.rfim=rf.value;draw(sh)};
+    {const rv=sh.querySelector('#l-rv');if(rv)rv.onchange=()=>{st.rvar=rv.checked;draw(sh)}}
     const cp=sh.querySelector('[data-catp]');if(cp)cp.onclick=()=>openCatPicker(sh,st.tipo==='receita'?'receita':'despesa',{cat:st.cat,sub:st.sub},(c,x)=>{st.cat=c;st.sub=x;draw(sh)});
     sh.querySelectorAll('[data-div]').forEach(b=>b.onclick=()=>{st.div=b.dataset.div;draw(sh)});
     sh.querySelectorAll('[data-tag]').forEach(b=>b.onclick=()=>{const n=b.dataset.tag;st.tags=st.tags.includes(n)?st.tags.filter(x=>x!==n):st.tags.concat(n);draw(sh)});
@@ -8128,7 +8130,7 @@ function openLanc(l,opts){
         if(st.ign.stats||st.ign.orc)d.ign={stats:!!st.ign.stats,orc:!!st.ign.orc};else delete d.ign;
         if(st.anexos.length)d.anexos=st.anexos;else delete d.anexos;
         if(isNew&&(st.rep==='fixo'&&(!ic2||tipo==='despesa')||(!ic2&&st.rep==='parc'&&tipo==='despesa'))){const ym=st.data.slice(0,7),N=st.rep==='parc'?st.rn:0,val=N?(st.pm==='mul'?r2(tot):r2(tot/N)):tot;
-          recDoc={tipo,nome:d.desc,valor:val,dia:+st.data.slice(8),dono:(ic2?(card(d.cartao)||{}).dono:(conta(d.conta)||{}).dono)||ME(),conta:ic2?'':d.conta,cartao:ic2?d.cartao:'',divisao:d.divisao||'pessoal',categoria:d.categoria,subcategoria:d.subcategoria,tags:d.tags,inicio:ym,fim:N?ymAdd(ym,N-1):(st.rfim||''),parcelas:N,parcelaIni:N?1:0,ativo:true,para:d.para||''};
+          recDoc={tipo,nome:d.desc,valor:val,dia:+st.data.slice(8),dono:(ic2?(card(d.cartao)||{}).dono:(conta(d.conta)||{}).dono)||ME(),conta:ic2?'':d.conta,cartao:ic2?d.cartao:'',divisao:d.divisao||'pessoal',categoria:d.categoria,subcategoria:d.subcategoria,tags:d.tags,inicio:ym,fim:N?ymAdd(ym,N-1):(st.rfim||''),parcelas:N,parcelaIni:N?1:0,ativo:true,para:d.para||''};if(!N&&st.rvar&&tipo==='despesa')recDoc.varia=true;
           d.valor=val;d.recYm=ym;if(N)d.desc=d.desc+' 1/'+N}
         await ensureTags(d.tags)}
       if(isNew){d.origem=d.origem||'manual';d.criadoEm=d.atualizadoEm}
