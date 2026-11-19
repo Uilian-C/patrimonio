@@ -4748,7 +4748,7 @@ function simDetalhe(me,R,v){const pg=R.ev.filter(e=>!e.res),cz=colchao(),lim=add
     ${R.res>0?`<div class="sdr res"><span class="sdd">${fdate(R.primeira).slice(0,5)}</span><span class="sdp">resgate das aplicações <b class="n pos">+${brl(R.res)}</b></span><span class="sds">deixa de render ≈ ${brl0(R.res*cdiMes())}/mês</span></div>`:''}</div>`}
 const SIMT={ok:['Pode comprar','good'],aperta:['Cabe, mas aperta','warn'],neg:['Não cabe agora','crit'],lim:['Sem limite no cartão','crit']};
 function openSimCompra(pre){pre=pre||{};const me=ME();
-  const st={v:+pre.v||0,desc:pre.desc||'',cat:pre.cat||'',dt:today(),f:pre.f||(PADR().cartao&&card(PADR().cartao)?{k:'card',c:PADR().cartao,n:1}:{k:'conta',a:contaPadrao()}),n:+(pre.f&&pre.f.n)||1,ordem:pre.ordem||null};
+  const st={v:+pre.v||0,desc:pre.desc||'',cat:pre.cat||'',dt:today(),f:pre.f||(PADR().desp!=='conta'&&PADR().cartao&&card(PADR().cartao)?{k:'card',c:PADR().cartao,n:1}:{k:'conta',a:contaPadrao()}),n:+(pre.f&&pre.f.n)||1,ordem:pre.ordem||null};
   const cards=S.cards.filter(c=>c.ativo!==false&&(c.dono||ME())===me);
   const draw=sh=>{const box=sh.querySelector('#sim-r');if(!(st.v>0)){box.innerHTML=`<p class="note">Digite o valor: o app compara todas as formas de pagar e indica a melhor.</p>`;sh.querySelector('#sim-l').disabled=sh.querySelector('#sim-o').disabled=true;return}
     const T=simTabela(me,st.v,st.dt,st.n),key=f=>f.k+'|'+(f.c||'')+'|'+(+f.n||1);
@@ -7467,6 +7467,7 @@ function openConta(a){
     <div class="f2"><div class="field"><label for="a-cdi">CDI de reserva (% a.a.)</label><input id="a-cdi" type="text" inputmode="decimal" value="${String(cdiAA()).replace('.',',')}"></div><p class="note" style="align-self:end">Usado só se o app não conseguir buscar o CDI no Banco Central.</p></div></div>
     ${corPick(a.cor)}
     <label class="chk"><input type="checkbox" id="a-pd" ${!isNew&&PADR().conta===a.id?'checked':''}> Conta padrão (receitas, transferências e pagamentos)</label>
+    <label class="chk"><input type="checkbox" id="a-pdd" ${!isNew&&PADR().conta===a.id&&PADR().desp==='conta'?'checked':''}> Padrão também para despesas</label><p class="note">Ligado, o lançamento de despesa já abre nesta conta${card(PADR().cartao)?` em vez do cartão ${esc(card(PADR().cartao).nome)}`:''}.</p>
     <label class="chk"><input type="checkbox" id="a-a" ${a.ativo!==false?'checked':''}> Ativa</label>
     <div class="btnrow"><button class="btn primary" type="submit">Salvar</button>${isNew?'':'<button class="btn danger" type="button" id="adel">Excluir</button>'}</div></form>`,sh=>{
     wireCor(sh,o);
@@ -7477,7 +7478,7 @@ function openConta(a){
       if(d.tipo==='investimento'||d.tipo==='reserva'){const rt=sh.querySelector('#a-rt').value,rx=brNum(sh.querySelector('#a-rx').value);d.rend=rt&&rx>0?{tipo:rt,taxa:rx}:null;
         const cv=brNum(sh.querySelector('#a-cdi').value);if(cv>0&&Math.abs(cv-cdiAA())>.001){try{await S.db.doc('config/app').set(Object.assign({},S.cfg||{},{cdiAA:cv}))}catch(e){}}}
       if(!isNew){const cur=S.contas.find(x=>x.id===a.id);if(cur){const keep=Object.assign({},cur);delete keep.id;d=Object.assign(keep,d)}}
-      try{const r=await save('contas',isNew?null:a.id,d);const id=isNew?(r&&r.id):a.id,pd=sh.querySelector('#a-pd').checked,P0=PADR();if(id&&(pd!==(P0.conta===id))){await S.db.doc('config/app').set(Object.assign({},S.cfg||{},{padrao:Object.assign({},P0,{conta:pd?id:''})}))}closeSheet();toast('Salvo')}catch(err){toast(writeErr(err))}};
+      try{const r=await save('contas',isNew?null:a.id,d);const id=isNew?(r&&r.id):a.id,pdd=sh.querySelector('#a-pdd').checked,pd=sh.querySelector('#a-pd').checked||pdd,P0=PADR(),P1=Object.assign({},P0);if(id){if(pd)P1.conta=id;else if(P0.conta===id)P1.conta='';if(pdd)P1.desp='conta';else if(P0.desp==='conta'&&P0.conta===id)P1.desp='';if(JSON.stringify(P1)!==JSON.stringify(P0))await S.db.doc('config/app').set(Object.assign({},S.cfg||{},{padrao:P1}))}closeSheet();toast('Salvo')}catch(err){toast(writeErr(err))}};
     const aj=sh.querySelector('#aj');if(aj)aj.onclick=()=>openAjuste(a);const tr=sh.querySelector('#tr');if(tr)tr.onclick=()=>openLanc({tipo:'transf',conta:a.id,data:today()});
     const del=sh.querySelector('#adel');if(del)confirmBtn(del,S.lanc.some(l=>l.conta===a.id||l.destino===a.id)?'Tem lançamentos. Toque de novo para excluir':'Toque de novo para excluir',()=>delDoc('contas',a.id));
   });
@@ -7510,7 +7511,7 @@ function openCard(c){
     sh.querySelector('#fc').onsubmit=async e=>{e.preventDefault();const nome=sh.querySelector('#c-n').value.trim();if(!nome){toast('Dê um nome ao cartão');return}
       const d={nome,final:sh.querySelector('#c-f').value.replace(/\D/g,'').slice(-4),banco:sh.querySelector('#c-b').value.trim(),dono:sh.querySelector('#c-d').value,fechamento:Math.min(Math.max(+sh.querySelector('#c-fe').value||1,1),31),vencimento:Math.min(Math.max(+sh.querySelector('#c-ve').value||1,1),31),limite:r2(parseFloat(sh.querySelector('#c-l').value)||0),quinzena:sh.querySelector('#c-q').value,bandeira:sh.querySelector('#c-bd').value,conta:sh.querySelector('#c-ct').value,cor:o.cor,ativo:sh.querySelector('#c-a').checked,fechaInc:sh.querySelector('#c-fi').checked,ordem:c.ordem??S.cards.length};
       if(!isNew){const cur=S.cards.find(x=>x.id===c.id);if(cur){const keep=Object.assign({},cur);delete keep.id;Object.keys(d).forEach(k=>keep[k]=d[k]);Object.assign(d,keep)}}
-      try{const r=await save('cartoes',isNew?null:c.id,d);const id=isNew?(r&&r.id):c.id,pd=sh.querySelector('#c-pd').checked,P0=PADR();if(id&&(pd!==(P0.cartao===id))){await S.db.doc('config/app').set(Object.assign({},S.cfg||{},{padrao:Object.assign({},P0,{cartao:pd?id:''})}))}closeSheet();toast('Cartão salvo')}catch(err){toast(writeErr(err))}};
+      try{const r=await save('cartoes',isNew?null:c.id,d);const id=isNew?(r&&r.id):c.id,pd=sh.querySelector('#c-pd').checked,P0=PADR();if(id&&(pd!==(P0.cartao===id)||(pd&&P0.desp==='conta'))){await S.db.doc('config/app').set(Object.assign({},S.cfg||{},{padrao:Object.assign({},P0,{cartao:pd?id:'',desp:pd?'card':P0.desp||''})}))}closeSheet();toast('Cartão salvo')}catch(err){toast(writeErr(err))}};
     const del=sh.querySelector('#cdel');if(del)confirmBtn(del,S.lanc.some(l=>l.cartao===c.id)?'Tem lançamentos. Toque de novo para excluir':'Toque de novo para excluir',()=>delDoc('cartoes',c.id,'Cartão excluído'));
   });
 }
@@ -7995,7 +7996,7 @@ function openLanc(l,opts){
   if(!S.cards.length&&!S.contas.length){openConta(null);toast('Cadastre uma conta ou cartão primeiro');return}
   const isNew=!l||!l.id,catDada=!!(l&&l.categoria),catH=isNew&&!catDada&&(!l||!l.tipo||l.tipo==='despesa')?catPorHorario():'';l=Object.assign({tipo:'despesa',data:today(),parcelas:1,parcela:1,divisao:'pessoal',categoria:catH||'Mercado',tags:[]},l||{});
   if(isNew&&l.divida&&!l.conta)l.conta=(S.contas.find(x=>x.tipo==='corrente'&&x.dono===ME())||S.contas[0]||{}).id;
-  if(isNew&&!l.cartao&&!l.conta&&l.tipo==='despesa'&&card(PADR().cartao)&&card(PADR().cartao).ativo!==false)l.cartao=PADR().cartao;
+  if(isNew&&!l.cartao&&!l.conta&&l.tipo==='despesa'&&PADR().desp!=='conta'&&card(PADR().cartao)&&card(PADR().cartao).ativo!==false)l.cartao=PADR().cartao;
   if(isNew&&!l.cartao&&!l.conta&&l.tipo==='despesa'&&conta(PADR().conta)&&conta(PADR().conta).ativo!==false)l.conta=PADR().conta;
   if(isNew&&!l.cartao&&!l.conta&&(l.tipo==='receita'||l.tipo==='transf'||l.tipo==='pagfat')&&contaPadrao())l.conta=contaPadrao();
   if(isNew&&!l.cartao&&!l.conta&&l.tipo==='despesa'){const bc=bestCards(S.cards.filter(c=>c.ativo!==false&&c.dono===ME()).map(cardStats))[0],c=bc?bc.c:S.cards.find(c=>c.dono===ME()&&c.ativo!==false);if(c)l.cartao=c.id;else l.conta=(S.contas[0]||{}).id}
@@ -8077,7 +8078,7 @@ function openLanc(l,opts){
     const sg=sh.querySelector('#l-sg');if(sg)sg.onclick=()=>{st.neg=!st.neg;draw(sh)};
     const ds=sh.querySelector('#l-ds');if(ds)ds.oninput=()=>{st.desc=ds.value;if(isNew&&st.tipo==='despesa'){const g=guessFromHist(ds.value,st.src.slice(5));if(g&&g.categoria&&(g.categoria!==st.cat||(g.subcategoria||'')!==st.sub)&&ds.value.length>=4){st.cat=g.categoria;st.sub=g.subcategoria||'';if(g.divisao)st.div=g.divisao==='pessoal'?'pessoal':'comum';const pos=ds.selectionStart;draw(sh);const n=sh.querySelector('#l-ds');n.focus();n.setSelectionRange(pos,pos)}}};
     {const tf=sh.querySelector('[data-tpf]');if(tf)tf.onclick=openFatPick}
-    sh.querySelectorAll('[data-tp]').forEach(b=>b.onclick=()=>{st.tipo=b.dataset.tp;st.open='';st.sub='';st.rep='unica';if(st.tipo==='receita'){st.cat='Salário';if(st.src.startsWith('card:'))st.src=S.contas[0]?'acct:'+S.contas[0].id:''}else if(st.tipo==='transf'){if(!st.src.startsWith('acct:'))st.src=S.contas[0]?'acct:'+S.contas[0].id:''}else{st.cat=CATS.includes(st.cat)?st.cat:'Mercado'}draw(sh)});
+    sh.querySelectorAll('[data-tp]').forEach(b=>b.onclick=()=>{st.tipo=b.dataset.tp;st.open='';st.sub='';st.rep='unica';if(st.tipo==='receita'){st.cat='Salário';if(st.src.startsWith('card:'))st.src=contaPadrao()?'acct:'+contaPadrao():''}else if(st.tipo==='transf'){if(!st.src.startsWith('acct:'))st.src=contaPadrao()?'acct:'+contaPadrao():''}else{st.cat=CATS.includes(st.cat)?st.cat:'Mercado'}draw(sh)});
     sh.querySelectorAll('[data-tog]').forEach(b=>b.onclick=()=>{st.open=st.open===b.dataset.tog?'':b.dataset.tog;draw(sh)});
     sh.querySelectorAll('[data-pick]').forEach(b=>b.onclick=()=>{if(b.dataset.pick==='dest')st.dest=b.dataset.v.slice(5);else{st.src=b.dataset.v;if(!isCard()){st.n=1;if(st.rep==='parc'&&st.tipo!=='despesa')st.rep='unica'}else if(st.rep==='fixo')st.n=1}st.open='';draw(sh)});
     sh.querySelectorAll('[data-dd2]').forEach(b=>b.onclick=()=>{st.data=addD(st.data,+b.dataset.dd2);draw(sh)});
