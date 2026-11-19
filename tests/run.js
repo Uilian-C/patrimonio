@@ -196,10 +196,10 @@ window.__fbSair=()=>{};setTimeout(()=>window.__fbReady(api),0);})();</script>`;
         const r = T.S.recs.find(x => x.nome === 'Luz teste'), a = T.lembDe({ nav: `rec:${r.id}|${cm}` }), b = T.lembDe({ nav: 'rec:nao-existe|' + cm });
         await T.S.db.doc('recorrentes/' + r.id).delete();
         localStorage.setItem('pt-ntf', JSON.stringify({ on: true, c: 1, s: 1, m: 1, d: 1 })); T.openPrefs(); await w(500);
-        const mk = document.querySelector('[data-ant="1"]'); document.querySelector('[data-ant="3"]').click(); await w(200);
-        const same = document.querySelector('[data-ant="1"]') === mk, pr = [...document.querySelectorAll('[data-ant]')].map(x => x.getAttribute('aria-pressed')).join(','), sv = JSON.parse(localStorage.getItem('pt-ntf')).a;
+        const mk = document.querySelector('[data-ntm="f|1"]'); document.querySelector('[data-ntm="c|0"]').click(); await w(150); document.querySelector('[data-ntm="c|3"]').click(); await w(150); document.querySelector('[data-nth="9"]').click(); await w(150);
+        const same = document.querySelector('[data-ntm="f|1"]') === mk, pr = ['c', 'f'].map(k => [3, 1, 0].map(d => document.querySelector(`[data-ntm="${k}|${d}"]`).getAttribute('aria-pressed') === 'true' ? 1 : 0).join('')).join(' '), N = JSON.parse(localStorage.getItem('pt-ntf')), sv = JSON.stringify([N.mo.c, N.mo.f, N.mo.r, N.h]);
         T.closeSheet(); localStorage.removeItem('pt-ntf'); await w(200); return { a, b, same, pr, sv } });
-      ok(lbx.a === 3 && lbx.b === '' && lbx.same && lbx.pr === 'false,false,true' && lbx.sv === 3, 'lembretes: antecedência por conta e troca sem redesenhar a tela', JSON.stringify(lbx));
+      ok(JSON.stringify(lbx.a) === '[3,0]' && lbx.b === null && lbx.same && lbx.pr === '110 011' && lbx.sv === '[[3,1],[1,0],[0],9]', 'lembretes: momentos independentes por tipo, por conta e horário, sem redesenhar a tela', JSON.stringify(lbx));
       const vr = await p.evaluate(async () => { const T = window.__T, me = T.ME(), cm = T.today().slice(0, 7), w = ms => new Promise(r => setTimeout(r, ms));
         const ref = await T.S.db.collection('recorrentes').add({ tipo: 'despesa', nome: 'Energia teste', valor: 250, dia: 28, dono: me, conta: 'cc', categoria: 'Casa', varia: true, ativo: true }); await w(300);
         const r = T.S.recs.find(x => x.nome === 'Energia teste'), v0 = T.recV(r), prox = T.ymAdd(cm, 1);
@@ -419,6 +419,20 @@ window.__fbSair=()=>{};setTimeout(()=>window.__fbReady(api),0);})();</script>`;
     await p.evaluate(() => { try { localStorage.removeItem('pt-fo'); localStorage.removeItem('pt-col'); localStorage.removeItem('pt-colo'); localStorage.removeItem('pt-cx') } catch (e) { } });
     ok(!erros.length, 'camadas: sem erros de script', erros.slice(0, 3).join(' | '));
     await p.close() }
+  /* lembretes no service worker: momentos escolhidos e nunca fora do horário */
+  { const src = fs.readFileSync(path.join(__dirname, '..', 'sw.js'), 'utf8');
+    const run = async (L, ja, off, hour) => { const st = { './__lembretes.json': JSON.stringify(L), './__avisados.json': JSON.stringify(ja) }, shown = [];
+      const self = { registration: { showNotification: async (t, o) => shown.push(t + ' | ' + o.body) }, addEventListener: () => { } };
+      const caches = { open: async () => ({ match: async k => st[k] ? { json: async () => JSON.parse(st[k]) } : null, put: async (k, r) => { st[k] = await r.text() } }) };
+      class Resp { constructor(b) { this.b = b } async text() { return this.b } }
+      const R = Date, base = new R(); base.setHours(hour, 30, 0, 0); const now0 = base.getTime() + off * 864e5;
+      class D extends R { constructor(...a) { a.length ? super(...a) : super(now0) } static now() { return now0 } }
+      await new Function('self', 'caches', 'Notification', 'Response', 'Date', 'clients', src + ';return lembrar')(self, caches, { permission: 'granted' }, Resp, D, {})(); return { shown, ja: JSON.parse(st['./__avisados.json'] || '{}') } };
+    const dd = n => { const x = new Date(Date.now() + n * 864e5); x.setMinutes(x.getMinutes() - x.getTimezoneOffset()); return x.toISOString().slice(0, 10) };
+    const L = { h0: 8, h1: 22, itens: [{ id: 'luz', d: dd(3), t: 'Energia', v: 280, ds: [1] }, { id: 'agua', d: dd(3), t: 'Água', v: 90, ds: [3, 0] }] };
+    let ja = {}; const seq = [];
+    for (const [o, h] of [[0, 0], [0, 9], [0, 15], [2, 0], [2, 10], [3, 6], [3, 12], [3, 23]]) { const r = await run(L, ja, o, h); ja = r.ja; seq.push(r.shown.length ? r.shown.map(x => x.split(' | ')[0] + ':' + x.split(' | ')[1].split(' · ')[0]).join('+') : '-') }
+    ok(seq.join(',') === '-,Vence em 3 dias:Água,-,-,Vence amanhã:Energia,-,Vence hoje:Água,-', 'lembretes: cada conta só nos momentos escolhidos e nunca de madrugada', seq.join(',')) }
   await b.close();
   console.log(`${oks.length} ok · ${falhas.length} falha${falhas.length === 1 ? '' : 's'}`);
   falhas.forEach(f => console.log('FALHA  ' + f));

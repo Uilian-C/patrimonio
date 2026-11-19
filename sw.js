@@ -1,6 +1,6 @@
 /* Patrimônio — service worker: abre o app sem internet.
    Os dados ficam no cache do Firestore (IndexedDB); aqui só guardamos o "casco" do app e as bibliotecas. */
-const V = 'pt-shell-v12';
+const V = 'pt-shell-v13';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './icon.svg', './apple-touch-icon.png'];
 const LIBS = /^https:\/\/(www\.gstatic\.com\/firebasejs\/|cdnjs\.cloudflare\.com\/|fonts\.googleapis\.com\/|fonts\.gstatic\.com\/)/;
 
@@ -38,16 +38,27 @@ self.addEventListener('fetch', e => {
 
 /* ---------- lembretes: o app deixa a lista de vencimentos em cache; aqui o celular confere e avisa ---------- */
 const hoje = () => { const d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0, 10) };
-const amanha = () => { const d = new Date(Date.now() + 864e5); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0, 10) };
 const brl = v => (+v || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 async function lembrar() {
   if (!self.registration || Notification.permission !== 'granted') return;
   const c = await caches.open('pt-dados'), r = await c.match('./__lembretes.json'); if (!r) return;
   const L = await r.json(), vr = await c.match('./__avisados.json'), ja = vr ? await vr.json() : {};
-  const t = hoje(), am = amanha(), novos = [], ant = L.ant === undefined ? 1 : +L.ant;
+  const t = hoje(), novos = [];
+  /* janela de horário: fora dela não avisa nada — fica para a primeira conferência dentro do horário */
+  const h = new Date().getHours(), h0 = L.h0 === undefined ? 8 : +L.h0, h1 = L.h1 === undefined ? 22 : +L.h1;
+  if (h < h0 || h >= h1) return;
   const dias = d => Math.round((new Date(d + 'T12:00:00') - new Date(t + 'T12:00:00')) / 864e5);
-  /* contas: um aviso antes (conforme a antecedência escolhida) e outro no dia; demais avisos só no dia */
-  (L.itens || []).forEach(x => { if (!x) return; if (x.v) { const n = dias(x.d); if (n === 0 && !ja[x.id + '|0'] && !ja[x.id]) novos.push(Object.assign({}, x, { k: x.id + '|0', n })); else if (n > 0 && n <= (x.a !== undefined ? +x.a : ant) && !ja[x.id + '|a'] && !ja[x.id]) novos.push(Object.assign({}, x, { k: x.id + '|a', n })) } else if (!ja[x.id] && x.d === t) novos.push(Object.assign({}, x, { k: x.id })) });
+  /* vencimentos: avisa em cada momento escolhido (3 dias antes, 1 dia antes, no dia). Se o celular não conferiu
+     no dia certo, o aviso de "3 dias antes" ainda sai no dia seguinte; os de véspera e do dia não atrasam. */
+  (L.itens || []).forEach(x => {
+    if (!x) return;
+    if (x.v) {
+      const n = dias(x.d), ds = Array.isArray(x.ds) ? x.ds.map(Number) : [1, 0]; if (n < 0) return;
+      const st = ds.filter(d => d === n || (d >= 2 && n === d - 1 && !ds.includes(n))).sort((a, b) => a - b)[0];
+      if (st === undefined || ja[x.id + '|' + st]) return;
+      novos.push(Object.assign({}, x, { k: x.id + '|' + st, n }));
+    } else if (!ja[x.id] && x.d === t) novos.push(Object.assign({}, x, { k: x.id }));
+  });
   const contas = novos.filter(x => x.v), outros = novos.filter(x => !x.v);
   const quando = n => n === 0 ? 'hoje' : n === 1 ? 'amanhã' : `em ${n} dias`;
   if (contas.length) {

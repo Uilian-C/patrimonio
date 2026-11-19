@@ -2505,6 +2505,9 @@ svg.dch{text-transform:none;letter-spacing:0}
 .lrvar{margin:10px 0 2px}
 .pfant{margin:4px 0 10px 0}.pfant .seg{margin-top:6px}
 .llb{display:grid;gap:8px;padding:10px 0 4px}.llb>label{display:flex;gap:12px;align-items:center;color:var(--ink)}.llb>label>span{display:grid;font-size:15px}.llb small{font-size:12.5px;color:var(--muted)}.llb .lsel{width:100%;min-height:44px;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink);font:inherit;font-size:15px;padding:0 12px}
+.ntt{display:grid;gap:6px;padding:8px 0}.nttl{display:grid;font-size:15px;color:var(--ink)}.nttl small{font-size:12px;color:var(--muted)}
+.ntch{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.ntch button{min-height:40px;border-radius:10px;border:1px solid var(--line);background:none;color:var(--muted);font:inherit;font-size:13.5px;font-weight:600;padding:0 4px}
+.ntch button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink,#1b1b1b)}.nth{margin-top:12px}.nth .seg{margin-top:6px}
 </style>
 <div id="fbgate" hidden><div class="bx"><svg class="lg" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="139 90 228 332"><g transform="translate(-5 0)"><rect x="186" y="100" width="12" height="312" rx="6" fill="currentColor" opacity=".55"/><rect x="164" y="150" width="56" height="210" rx="16" fill="currentColor"/><path d="M244 150h38a70 70 0 0 1 0 140h-38z" fill="#E2BA6E"/></g></svg><h1>Patrimônio</h1><p id="fbmsg">Entre com a sua conta Google para ver as finanças da casa.</p><button type="button" id="fblogin">Entrar com Google</button></div></div>
 <script type="module">
@@ -4300,13 +4303,22 @@ function zoomAp(){const z=+LS('pt-zoom','1')||1;document.documentElement.style.z
 zoomAp();
 /* ---------- lembretes no celular (notificações locais, sem servidor) ---------- */
 /* lembrete por item: '' = padrão do app, 0/1/3 = dias de antecedência (sempre com aviso no dia), 'x' = não avisar */
-const LEMBO=[['','Padrão do app'],['0','No dia'],['1','1 dia antes e no dia'],['3','3 dias antes e no dia'],['x','Não avisar']];
-const lembPad=()=>{const a=NTF().a;return a===0?'no dia':a===3?'3 dias antes':'1 dia antes'};
-const lembOpts=v=>LEMBO.map(([k,n])=>`<option value="${k}" ${String(v===undefined||v===null?'':v)===k?'selected':''}>${n}${k===''?' · '+lembPad():''}</option>`).join('');
-const lembSel=(id,v)=>`<div class="field"><label for="${id}">Lembrete no celular</label><select id="${id}">${lembOpts(v)}</select></div>`;
-const lembVal=v=>v===''||v===undefined?'':v==='x'?'x':+v;
+/* lembretes: cada tipo de vencimento tem seus momentos (3 dias antes, 1 dia antes, no dia — qualquer combinação);
+   cada conta, cartão ou pendente pode ter os seus próprios. '' = segue o tipo, 'x' = não avisar, '3,0' = 3 dias antes e no dia */
+const NTTIPOS=[['c','Contas a pagar','contas fixas, pendentes e impostos'],['f','Faturas de cartão',''],['p','Parcelas e dívidas',''],['r','Receitas previstas','salário, repasses']];
+const NTMOM=[[3,'3 dias antes'],[1,'1 dia antes'],[0,'No dia']];
+const NTHORAS=[7,8,9,10,12,18];
+const momTxt=a=>!a||!a.length?'não avisar':a.slice().sort((x,y)=>y-x).map(d=>d===0?'no dia':d===1?'1 dia antes':d+' dias antes').join(' e ');
+/* lê preferência antiga (um número só) e converte: 0 = no dia; 1/3 = antes e no dia */
+const momDe=v=>{if(v===undefined||v===null||v==='')return null;if(v==='x')return [];if(Array.isArray(v))return v.map(Number);if(typeof v==='number')return v?[v,0]:[0];return String(v).split(',').filter(z=>z!=='').map(Number)};
+const NTMO=N=>{const base=N.a===undefined?[1,0]:momDe(+N.a),m=N.mo||{};const o={};NTTIPOS.forEach(([k])=>{o[k]=Array.isArray(m[k])?m[k].map(Number):k==='r'?[0]:base.slice()});return o};
+const LEMBO=[['','Padrão do tipo'],['0','No dia'],['1','1 dia antes'],['1,0','1 dia antes e no dia'],['3','3 dias antes'],['3,0','3 dias antes e no dia'],['3,1,0','3 dias, 1 dia antes e no dia'],['x','Não avisar']];
+const lembNorm=v=>{const m=momDe(v);return m===null?'':m.length?m.slice().sort((x,y)=>y-x).join(','):'x'};
+const lembOpts=(v,tp)=>{const cur=lembNorm(v),pad=NTMO(NTF())[tp||'c'];return LEMBO.map(([k,n])=>`<option value="${k}" ${cur===k?'selected':''}>${n}${k===''?' · '+momTxt(pad):''}</option>`).join('')};
+const lembSel=(id,v,tp)=>`<div class="field"><label for="${id}">Lembrete no celular</label><select id="${id}">${lembOpts(v,tp)}</select></div>`;
+const lembVal=v=>v===''||v===undefined?'':v;
 /* de onde vem a preferência de um item da agenda */
-function lembDe(x){const nv=x.nav||'',k=nv.split(':')[0],id=nv.slice(k.length+1).split('|')[0];const o=k==='rec'?S.recs.find(r=>r.id===id):k==='fat'?card(id):k==='dv'?(S.dividas||[]).find(d=>d.id===id):k==='l'?S.lanc.find(l=>l.id===id):null;let v=o?o.lemb:'';if((v===undefined||v===''||v===null)&&k==='l'&&o&&o.rec){const r=S.recs.find(z=>z.id===o.rec);v=r?r.lemb:''}return v===undefined||v===null?'':v}
+function lembDe(x){const nv=x.nav||'',k=nv.split(':')[0],id=nv.slice(k.length+1).split('|')[0];const o=k==='rec'?S.recs.find(r=>r.id===id):k==='fat'?card(id):k==='dv'?(S.dividas||[]).find(d=>d.id===id):k==='l'?S.lanc.find(l=>l.id===id):null;let v=o?o.lemb:'';if((v===undefined||v===''||v===null)&&k==='l'&&o&&o.rec){const r=S.recs.find(z=>z.id===o.rec);v=r?r.lemb:''}return momDe(v)}
 const NTF=()=>{try{return JSON.parse(localStorage.getItem('pt-ntf')||'null')||{on:false,c:1,s:1,m:1}}catch(e){return {on:false,c:1,s:1,m:1}}};
 const ntfOk=()=>'Notification' in window&&'serviceWorker' in navigator;
 let NTFAT=0;
@@ -4319,12 +4331,12 @@ function ntfDecisao(me){const t=today(),out=[],dd=d=>fdate(d).slice(0,5);let L=n
   L.ins.filter(x=>x.late&&(x.k==='rec'||x.k==='pendr')).forEach(x=>out.push({id:'rnx|'+x.nav+'|'+x.d,d:t,v:0,t:`${x.t} ainda não entrou`,info:`Previsto para ${dd(x.d)} · ${brl(x.v)}. Confirme quando cair.`,url:'./#inicio'}));
   return out}
 async function ntfSync(force){const N=NTF();if(!N.on||!ntfOk()||Notification.permission!=='granted'||!ready())return;if(!force&&Date.now()-NTFAT<30*60e3)return;NTFAT=Date.now();
-  try{const me=ME(),t=today(),ant=N.a===undefined?1:+N.a,ate=addD(t,3),its=[];
-    if(N.c)agendaPessoal(me,ate,t).filter(x=>['fat','fix','div','pend','darf','pendr'].includes(x.k)&&x.d>=t).forEach(x=>{const lb=lembDe(x);if(lb==='x')return;its.push(Object.assign({id:x.k+'|'+(x.nav||x.t)+'|'+x.d,d:x.d,t:x.t,v:r2(Math.abs(x.v)),r:x.v>0},lb===''?{}:{a:+lb}))});
+  try{const me=ME(),t=today(),ate=addD(t,3),its=[],MO=NTMO(N);
+    if(N.c)agendaPessoal(me,ate,t).filter(x=>['fat','fix','div','pend','darf','pendr'].includes(x.k)&&x.d>=t).forEach(x=>{const tp=x.k==='fat'?'f':x.k==='div'?'p':x.v>0?'r':'c',ds=lembDe(x)||MO[tp];if(!ds.length)return;its.push({id:x.k+'|'+(x.nav||x.t)+'|'+x.d,d:x.d,t:x.t,v:r2(Math.abs(x.v)),r:x.v>0,ds})});
     const sr=semRev(),R=ROT();if(N.s&&!(R[sr.k]||{}).em)its.push({id:'sem|'+sr.k,d:new Date(t+'T12:00:00').getDay()===0?t:addD(sr.fim,7),t:'Revisão da semana',v:0,info:'4 minutos para conferir a semana'});
     if(N.d!==0)ntfDecisao(me).forEach(x=>its.push(x));
     const ym=t.slice(0,7),ld=dayIn(ym,31);if(N.m)its.push({id:'mes|'+ym,d:ld,t:'Fechamento do mês',v:0,info:'feche o mês e veja o resultado'});
-    const data={gerado:new Date().toISOString(),hoje:t,ant,itens:its};const c=await caches.open('pt-dados');await c.put('./__lembretes.json',new Response(JSON.stringify(data),{headers:{'content-type':'application/json'}}));
+    const data={gerado:new Date().toISOString(),hoje:t,h0:N.h===undefined?8:+N.h,h1:22,itens:its};const c=await caches.open('pt-dados');await c.put('./__lembretes.json',new Response(JSON.stringify(data),{headers:{'content-type':'application/json'}}));
     const reg=await navigator.serviceWorker.ready;if(reg.periodicSync){try{const st=await navigator.permissions.query({name:'periodic-background-sync'});if(st.state==='granted')await reg.periodicSync.register('pt-lembretes',{minInterval:6*36e5})}catch(e){}}
     reg.active&&reg.active.postMessage({tipo:'lembretes'});
   }catch(e){}}
@@ -4333,14 +4345,16 @@ function openPrefs(){const draw=sh=>{const z=+LS('pt-zoom','1')||1,N=NTF(),box=s
       <section class="ivs"><div class="ivsh"><h3>Modo simples</h3><small>neste aparelho</small></div><label class="chk"><input type="checkbox" id="pf-s" ${SIMPLES?'checked':''}> Mostrar só o essencial</label><p class="note">No Início ficam o caixa, as ações rápidas, “Para resolver”, quanto pode gastar e os últimos lançamentos. No Decidir, só gastar e comprar. Nada é apagado — desligue para ver tudo de novo.</p></section>
       <section class="ivs"><div class="ivsh"><h3>Lembretes no celular</h3><small>${perm==='granted'?'permitido':perm==='denied'?'bloqueado no navegador':perm==='indisponível'?'indisponível aqui':'ainda não permitido'}</small></div>
         <label class="chk"><input type="checkbox" id="pf-n" ${N.on&&perm==='granted'?'checked':''} ${perm==='indisponível'?'disabled':''}> Avisar no celular</label>
-        <div class="pfn" ${N.on?'':'hidden'}><label class="chk"><input type="checkbox" data-nt="c" ${N.c?'checked':''}> Contas, faturas, parcelas e receitas previstas</label><div class="pfant" ${N.c?'':'hidden'}><span class="flab">Avisar</span><div class="seg" id="pf-ant">${[[0,'No dia'],[1,'1 dia antes'],[3,'3 dias antes']].map(([v,n])=>`<button type="button" data-ant="${v}" aria-pressed="${(N.a===undefined?1:+N.a)===v}">${n}</button>`).join('')}</div><p class="note"><span id="pf-antn">${(N.a===undefined?1:+N.a)?'Um aviso antes e outro no dia do vencimento.':'Um aviso no dia do vencimento.'}</span> Vale para tudo que tem vencimento. Para uma conta específica ser diferente (por exemplo, a energia 3 dias antes), escolha em <b>Lembrete no celular</b> ao editar a conta fixa, o cartão ou o lançamento pendente.</p></div><label class="chk"><input type="checkbox" data-nt="s" ${N.s?'checked':''}> Revisão da semana (domingo)</label><label class="chk"><input type="checkbox" data-nt="m" ${N.m?'checked':''}> Fechamento do mês (último dia)</label><label class="chk"><input type="checkbox" data-nt="d" ${N.d!==0?'checked':''}> Alertas para decidir: caixa vai faltar, fatura sem cobertura, assinatura mudou de valor, entrada que não caiu</label>
+        <div class="pfn" ${N.on?'':'hidden'}><label class="chk"><input type="checkbox" data-nt="c" ${N.c?'checked':''}> Contas, faturas, parcelas e receitas previstas</label><div class="pfant" ${N.c?'':'hidden'}>${(()=>{const MO=NTMO(N);return NTTIPOS.map(([k,n,sub])=>`<div class="ntt" data-ntt="${k}"><span class="nttl">${n}${sub?`<small>${sub}</small>`:''}</span><div class="ntch">${NTMOM.map(([d,l])=>`<button type="button" data-ntm="${k}|${d}" aria-pressed="${MO[k].includes(d)}">${l}</button>`).join('')}</div></div>`).join('')})()}<p class="note">Toque para ligar ou desligar cada momento; pode escolher mais de um, ou nenhum. Uma conta específica pode ser diferente: escolha em <b>Lembrete no celular</b> ao editar a conta fixa, o cartão ou o lançamento pendente.</p>
+          <div class="nth"><span class="flab">Horário dos avisos</span><div class="seg" id="pf-h">${NTHORAS.map(h=>`<button type="button" data-nth="${h}" aria-pressed="${(N.h===undefined?8:+N.h)===h}">${h}h</button>`).join('')}</div><p class="note">Os avisos só aparecem entre <b id="pf-hn">${N.h===undefined?8:+N.h}h</b> e 22h. Se o celular conferir de madrugada, o aviso fica guardado para a primeira conferência depois desse horário.</p></div></div><label class="chk"><input type="checkbox" data-nt="s" ${N.s?'checked':''}> Revisão da semana (domingo)</label><label class="chk"><input type="checkbox" data-nt="m" ${N.m?'checked':''}> Fechamento do mês (último dia)</label><label class="chk"><input type="checkbox" data-nt="d" ${N.d!==0?'checked':''}> Alertas para decidir: caixa vai faltar, fatura sem cobertura, assinatura mudou de valor, entrada que não caiu</label>
           <div class="btnrow"><button class="btn sm" type="button" id="pf-tst">Enviar aviso de teste</button></div></div>
-        <p class="note">Funciona com o app instalado pelo Chrome no Android: o próprio celular confere os vencimentos algumas vezes por dia, mesmo com o app fechado — a frequência é o Chrome que decide (mais vezes quanto mais você usa o app). Os avisos saem do que estava no app na última vez que ele abriu. No iPhone, só com o app aberto.</p></section>`;
+        <p class="note">Funciona com o app instalado pelo Chrome no Android: o próprio celular confere os vencimentos algumas vezes por dia, mesmo com o app fechado. O momento exato da conferência é o Chrome que decide (mais vezes quanto mais você usa o app), por isso o aviso chega dentro do horário escolhido, mas não num minuto exato. Os avisos saem do que estava no app na última vez que ele abriu. No iPhone, só com o app aberto.</p></section>`;
     sh.querySelectorAll('[data-z]').forEach(b=>b.onclick=()=>{LSset('pt-zoom',b.dataset.z);zoomAp();draw(sh)});
     sh.querySelector('#pf-s').onchange=e=>{SIMPLES=e.target.checked;LSset('pt-simples',SIMPLES?'1':'0');re();toast(SIMPLES?'Modo simples ligado':'Mostrando tudo')};
     const nb=sh.querySelector('#pf-n');nb.onchange=async()=>{const n=NTF();if(nb.checked){let p=Notification.permission;if(p!=='granted')p=await Notification.requestPermission();if(p!=='granted'){nb.checked=false;toast('O navegador não permitiu notificações');return}n.on=true}else n.on=false;LSset('pt-ntf',JSON.stringify(n));if(n.on)ntfSync(true);draw(sh)};
     sh.querySelectorAll('[data-nt]').forEach(i=>i.onchange=()=>{const n=NTF();n[i.dataset.nt]=i.checked?1:0;LSset('pt-ntf',JSON.stringify(n));ntfSync(true);if(i.dataset.nt==='c'){const pa=sh.querySelector('.pfant');if(pa)pa.hidden=!i.checked}});
-    sh.querySelectorAll('[data-ant]').forEach(b=>b.onclick=()=>{const n=NTF();n.a=+b.dataset.ant;LSset('pt-ntf',JSON.stringify(n));ntfSync(true);sh.querySelectorAll('[data-ant]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));const nt=sh.querySelector('#pf-antn');if(nt)nt.textContent=n.a?'Um aviso antes e outro no dia do vencimento.':'Um aviso no dia do vencimento.'});
+    sh.querySelectorAll('[data-ntm]').forEach(b=>b.onclick=()=>{const n=NTF(),[k,d]=b.dataset.ntm.split('|'),MO=NTMO(n),on=b.getAttribute('aria-pressed')!=='true';MO[k]=on?[...new Set(MO[k].concat(+d))].sort((x,y)=>y-x):MO[k].filter(z=>z!==+d);n.mo=MO;delete n.a;LSset('pt-ntf',JSON.stringify(n));b.setAttribute('aria-pressed',String(on));ntfSync(true)});
+    sh.querySelectorAll('[data-nth]').forEach(b=>b.onclick=()=>{const n=NTF();n.h=+b.dataset.nth;LSset('pt-ntf',JSON.stringify(n));sh.querySelectorAll('[data-nth]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));const t=sh.querySelector('#pf-hn');if(t)t.textContent=n.h+'h';ntfSync(true)});
     const ts=sh.querySelector('#pf-tst');if(ts)ts.onclick=async()=>{try{const reg=await navigator.serviceWorker.ready;await reg.showNotification('Patrimônio',{body:'Os lembretes estão funcionando neste aparelho.',icon:'icon-192.png',badge:'icon-192.png',tag:'pt-teste'})}catch(e){try{new Notification('Patrimônio',{body:'Os lembretes estão funcionando neste aparelho.'})}catch(_){toast('Não consegui mostrar o aviso aqui')}}}};
   openSheet(`<h2>Aparência e lembretes</h2><div id="pfx" class="ivx"></div>`,draw)}
 /* ---------- retrospectiva da semana ---------- */
@@ -7519,7 +7533,7 @@ function openCard(c){
     ${corPick(c.cor)}
     <label class="chk"><input type="checkbox" id="c-fi" ${c.fechaInc?'checked':''}> Compras feitas no dia do fechamento entram na fatura que fecha</label>
     <p class="note" style="margin-top:-4px">Depende do banco. Desmarcado, a compra do dia do fechamento vai para a fatura seguinte (o “melhor dia de compra”). Vale também para lançamentos já feitos nesse dia.</p>
-    ${lembSel('c-lb',c.lemb)}
+    ${lembSel('c-lb',c.lemb,'f')}
     <label class="chk"><input type="checkbox" id="c-pd" ${!isNew&&PADR().cartao===c.id?'checked':''}> Cartão padrão para despesas</label>
     <label class="chk"><input type="checkbox" id="c-a" ${c.ativo!==false?'checked':''}> Cartão ativo</label>
     <div class="btnrow"><button class="btn primary" type="submit">Salvar</button>${isNew?'':'<button class="btn danger" type="button" id="cdel">Excluir</button>'}</div></form>`,sh=>{
@@ -7547,7 +7561,7 @@ function openRec(r){
     <div class="field"><label for="r-tx">Juros ao mês (%)</label><input id="r-tx" type="number" inputmode="decimal" step="0.01" min="0" value="${r.taxaAm||''}" placeholder="só para empréstimos · vazio = sem juros"></div>
     <label class="chk"><input type="checkbox" id="r-vr" ${r.varia?'checked':''}> Valor varia (energia, água, gás)</label>
     <p class="note" id="r-vrn" ${r.varia?'':'hidden'}>A previsão de cada mês passa a ser a média dos últimos 3 pagamentos confirmados (com ≈). O valor acima vale só até haver histórico. Ao pagar, confirme o valor real da conta.${r.id&&recVI(r).n?` Hoje: ≈ ${brl(recV(r))}.`:''}</p>
-    ${lembSel('r-lb',r.lemb)}
+    ${lembSel('r-lb',r.lemb,r.tipo==='receita'?'r':'c')}
     <label class="chk"><input type="checkbox" id="r-a" ${r.ativo!==false?'checked':''}> Ativa</label>
     <p class="note">Entra como prevista no fluxo da quinzena. Em Relatórios › Fluxo, “Confirmar” vira um lançamento real na conta.</p>
     <div class="btnrow"><button class="btn primary" type="submit">Salvar</button>${isNew?'':'<button class="btn danger" type="button" id="rdel">Excluir</button>'}</div></form>`,sh=>{
@@ -8008,7 +8022,7 @@ function catPorHorario(){const t=today(),ini=addD(t,-90),h=new Date().getHours()
 function toastAct(m,lab,fn){const t=$('#toast');t.innerHTML=`<span>${esc(m)}</span><button type="button" class="tact">${esc(lab)}</button>`;t.hidden=false;clearTimeout(toast.t);
   t.querySelector('.tact').onclick=async()=>{t.hidden=true;try{await fn()}catch(e){toast(writeErr(e))}};toast.t=setTimeout(()=>t.hidden=true,6000)}
 async function delLancUndo(l){const keep=Object.assign({},l);delete keep.id;try{await S.db.doc('lanc/'+l.id).delete();closeSheet();toastAct('Lançamento excluído','Desfazer',async()=>{await S.db.doc('lanc/'+l.id).set(keep);toast('Restaurado')})}catch(err){toast(writeErr(err))}}
-const LBROWF=(st,sub)=>`<div class="llb"><label for="l-lb">${ic('bell')}<span>Lembrete no celular<small>${sub}</small></span></label><select id="l-lb" class="lsel">${lembOpts(st.lemb)}</select></div>`;
+const LBROWF=(st,sub)=>`<div class="llb"><label for="l-lb">${ic('bell')}<span>Lembrete no celular<small>${sub}</small></span></label><select id="l-lb" class="lsel">${lembOpts(st.lemb,st.tipo==='receita'?'r':'c')}</select></div>`;
 function openLanc(l,opts){
   if(l&&l.id&&!(opts&&(opts.edit||opts.cont))&&S.lanc.some(x=>x.id===l.id))return openLancView(l);
   if(!S.cards.length&&!S.contas.length){openConta(null);toast('Cadastre uma conta ou cartão primeiro');return}
@@ -8018,7 +8032,7 @@ function openLanc(l,opts){
   if(isNew&&!l.cartao&&!l.conta&&l.tipo==='despesa'&&conta(PADR().conta)&&conta(PADR().conta).ativo!==false)l.conta=PADR().conta;
   if(isNew&&!l.cartao&&!l.conta&&(l.tipo==='receita'||l.tipo==='transf'||l.tipo==='pagfat')&&contaPadrao())l.conta=contaPadrao();
   if(isNew&&!l.cartao&&!l.conta&&l.tipo==='despesa'){const bc=bestCards(S.cards.filter(c=>c.ativo!==false&&c.dono===ME()).map(cardStats))[0],c=bc?bc.c:S.cards.find(c=>c.dono===ME()&&c.ativo!==false);if(c)l.cartao=c.id;else l.conta=(S.contas[0]||{}).id}
-  const st={lemb:l.lemb===undefined?'':l.lemb,pend:!!l.pend,venc:l.venc||'',tipo:l.tipo,valor:Math.abs(+l.valor||0),neg:(+l.valor||0)<0,desc:l.desc||'',src:l.cartao?'card:'+l.cartao:l.conta?'acct:'+l.conta:'',dest:l.destino||'',data:l.data||today(),
+  const st={lemb:lembNorm(l.lemb),pend:!!l.pend,venc:l.venc||'',tipo:l.tipo,valor:Math.abs(+l.valor||0),neg:(+l.valor||0)<0,desc:l.desc||'',src:l.cartao?'card:'+l.cartao:l.conta?'acct:'+l.conta:'',dest:l.destino||'',data:l.data||today(),
     n:+l.parcelas||1,k:+l.parcela||1,div:l.divisao==='pessoal'?'pessoal':'comum',cat:l.categoria||'Outros',sub:l.subcategoria||'',tags:(l.tags||[]).slice(),fatura:l.fatura||'',obs:l.obs||'',open:'',
     rep:'unica',rn:2,rfim:'',pm:'div',gab:!!l.para,enc:+l.encargos||0,desc2:+l.desconto||0,adj:(+l.encargos?'enc':+l.desconto?'desc':''),ign:Object.assign({},l.ign||{}),anexos:(l.anexos||[]).slice(),cont:!!(opts&&opts.cont),
     more:!!(l.obs||l.fatura||(+l.parcela||1)>1||l.para||+l.encargos||+l.desconto||(l.anexos||[]).length||l.ign)};
