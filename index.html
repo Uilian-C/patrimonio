@@ -2550,6 +2550,20 @@ svg.dch{text-transform:none;letter-spacing:0}
 .shokc svg{width:60px;height:60px;fill:none;stroke-linecap:round;stroke-linejoin:round}.shokc circle{fill:var(--good);stroke:none}.shokc path{stroke:var(--payink);stroke-width:4.5;stroke-dasharray:36;stroke-dashoffset:36;animation:tkck .42s .18s ease-out forwards}
 @keyframes shokin{from{opacity:0}to{opacity:1}}@keyframes shokp{from{transform:scale(.6);opacity:0}to{transform:scale(1);opacity:1}}
 @media (prefers-reduced-motion:reduce){#toast.tok,.shok,.shokc,.tkic path,.shokc path{animation:none!important;stroke-dashoffset:0!important}}
+
+/* ===== previstos para confirmar ===== */
+.pvs{display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:8px;margin:2px 0 6px}.pvs>div{display:grid;gap:1px;padding:10px 12px;border-radius:14px;background:var(--sunk)}
+.pvs small{font-size:12px;color:var(--muted)}.pvs b{font-size:17px;font-weight:650}.pvs em{font-style:normal;font-size:11.5px;color:var(--faint)}.pvs .late{background:color-mix(in srgb,var(--crit) 10%,var(--sunk))}
+.pvg{margin-top:10px}.pvgh{display:flex;justify-content:space-between;gap:8px;font-size:11.5px;font-weight:650;letter-spacing:.06em;text-transform:uppercase;color:var(--faint);padding:6px 0;border-bottom:1px solid var(--hair)}.pvgh .n{letter-spacing:0;text-transform:none;font-size:12.5px;color:var(--muted)}
+.pvg.atr .pvgh>span:first-child{color:var(--crit)}
+.pvr{display:grid;grid-template-columns:34px 30px minmax(0,1fr) auto;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--hair)}
+.pvd{display:grid;justify-items:center;line-height:1.05;padding:4px 0;border-radius:10px;background:var(--sunk)}.pvd b{font-size:15px;font-weight:700;font-family:var(--f-num)}.pvd small{font-size:10px;text-transform:uppercase;color:var(--muted);letter-spacing:.04em}
+.pvr.late .pvd{background:color-mix(in srgb,var(--crit) 14%,var(--sunk))}.pvr.late .pvd b{color:var(--crit)}
+.pvm{display:grid;min-width:0}.pvm strong{font-size:14.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pvm small{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pvk{font-style:normal;font-weight:600;color:var(--ink)}.pvk.rc{color:var(--good)}
+.pvv{display:grid;justify-items:end;gap:5px}.pvv b{font-size:14.5px;white-space:nowrap}
+.pvb{display:inline-flex;align-items:center;gap:4px;min-height:30px;padding:0 10px;border-radius:999px;border:1px solid var(--line);background:none;color:var(--ink);font:inherit;font-size:12.5px;font-weight:600}.pvb .ic{width:14px;height:14px}
+.pvb:active{background:color-mix(in srgb,var(--good) 18%,transparent);border-color:var(--good)}
 </style>
 <div id="fbgate" hidden><div class="bx"><svg class="lg" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="139 90 228 332"><g transform="translate(-5 0)"><rect x="186" y="100" width="12" height="312" rx="6" fill="currentColor" opacity=".55"/><rect x="164" y="150" width="56" height="210" rx="16" fill="currentColor"/><path d="M244 150h38a70 70 0 0 1 0 140h-38z" fill="#E2BA6E"/></g></svg><h1>Patrimônio</h1><p id="fbmsg">Entre com a sua conta Google para ver as finanças da casa.</p><button type="button" id="fblogin">Entrar com Google</button></div></div>
 <script type="module">
@@ -6180,6 +6194,28 @@ function wirePeriodo(el){
   el.querySelectorAll('.prcard [data-ul]').forEach(b=>b.onclick=()=>{const l=S.lanc.find(z=>z.id===b.dataset.ul);if(l)openLancView(l)});
   el.querySelectorAll('[data-primg]').forEach(b=>b.onclick=()=>snapExport(b.closest('.prcard'),'Resumo · '+(el.querySelector('.mnav b')||{}).textContent,'periodo-'+today(),b));
 }
+/* previstos para confirmar: agrupados por quando vencem, com tipo, categoria, origem e quanto falta */
+function pvConfirmar(me){const t=today(),cm=t.slice(0,7),nm=ymAdd(cm,1),fim=dayIn(nm,31),sem=addD(t,6);
+  const orig=x=>x.cartao?((card(x.cartao)||{}).nome||'Cartão'):x.conta?((conta(x.conta)||{}).nome||'Conta'):'';
+  const pv=recPrevistos(cm,nm).filter(x=>x.dono===me).map(x=>{const r=x.r||{},ass=!x.N&&r.cartao&&x.tipo!=='receita';
+      return {nome:x.N?descSemParc(x.nome):x.nome,tipo:x.tipo,date:x.date,valor:x.valor,cat:r.categoria||(x.tipo==='receita'?'Salário':'Outros'),
+        kind:x.N?`parcela ${x.n}/${x.N}`:x.tipo==='receita'?'receita fixa':ass?'assinatura':'conta fixa',varia:x.varia,org:orig(r),cf:`${r.id}|${x.ym}`}})
+    .concat(S.lanc.filter(l=>l.pend&&(l.tipo==='receita'||(l.tipo||'despesa')==='despesa')&&l.conta&&fracOf((conta(l.conta)||{}).dono,me)>0&&(l.data||'')<=fim)
+      .map(l=>({nome:l.desc||'Pendente',tipo:l.tipo||'despesa',date:l.data,valor:+l.valor||0,cat:l.categoria||'Outros',kind:l.tipo==='receita'?'a receber':'pendente',org:orig(l),lid:l.id})))
+    .sort((a,b)=>a.date.localeCompare(b.date)||b.valor-a.valor);
+  if(!pv.length)return `<div class="card"><div class="ch"><h2>Previstos para confirmar</h2></div><p class="note">Nada previsto para este mês e o próximo.</p></div>`;
+  const G=[['atr','Atrasados',x=>x.date<t],['sem','Próximos 7 dias',x=>x.date>=t&&x.date<=sem],['mes','Resto de '+MES[+cm.slice(5)-1],x=>x.date>sem&&x.date.slice(0,7)===cm],['prx',MES[+nm.slice(5)-1].replace(/^./,c=>c.toUpperCase()),x=>x.date>sem&&x.date.slice(0,7)===nm]];
+  const sai=pv.filter(x=>x.tipo!=='receita'),ent=pv.filter(x=>x.tipo==='receita'),atr=pv.filter(x=>x.date<t);
+  const rel=d=>{const n=diffD(t,d);return n<0?`atrasado ${-n} dia${n===-1?'':'s'}`:n===0?'hoje':n===1?'amanhã':`em ${n} dias`};
+  const row=x=>{const late=x.date<t,rc=x.tipo==='receita';return `<div class="pvr ${late?'late':''}">
+      <span class="pvd"><b>${x.date.slice(8)}</b><small>${MES[+x.date.slice(5,7)-1].slice(0,3)}</small></span>
+      ${catBubble(x.cat,'sm')}
+      <span class="pvm"><strong>${esc(x.nome)}</strong><small><em class="pvk ${rc?'rc':''}">${x.kind}</em> · <span class="${late?'neg':''}">${rel(x.date)}</span>${x.org?' · '+esc(x.org):''}</small></span>
+      <span class="pvv"><b class="n ${rc?'pos':''}">${x.varia?'≈ ':''}${rc?'+':'−'}${brl(x.valor)}</b>${x.lid?`<button class="pvb" type="button" data-cfl="${esc(x.lid)}" aria-label="Confirmar ${esc(x.nome)}">${ic('check')}<span>${rc?'Recebi':'Paguei'}</span></button>`:`<button class="pvb" type="button" data-cf="${esc(x.cf)}" aria-label="Confirmar ${esc(x.nome)}">${ic('check')}<span>${rc?'Recebi':'Paguei'}</span></button>`}</span></div>`};
+  return `<div class="card pvc"><div class="ch"><h2>Previstos para confirmar</h2><span class="aside">${pv.length} ite${pv.length===1?'m':'ns'}</span></div>
+    <div class="pvs"><div><small>A pagar</small><b class="n">${brl0(sum(sai,x=>x.valor))}</b><em>${sai.length} ite${sai.length===1?'m':'ns'}</em></div><div><small>A receber</small><b class="n pos">${brl0(sum(ent,x=>x.valor))}</b><em>${ent.length} ite${ent.length===1?'m':'ns'}</em></div>${atr.length?`<div class="late"><small>Atrasados</small><b class="n neg">${brl0(sum(atr,x=>x.tipo==='receita'?0:x.valor))}</b><em>${atr.length} ite${atr.length===1?'m':'ns'}</em></div>`:''}</div>
+    ${G.map(([k,n,f])=>{const L=pv.filter(f);if(!L.length)return '';const s1=sum(L.filter(x=>x.tipo!=='receita'),x=>x.valor),e1=sum(L.filter(x=>x.tipo==='receita'),x=>x.valor);
+      return `<div class="pvg ${k}"><div class="pvgh"><span>${n}</span><span class="n">${s1?'−'+brl0(s1):''}${s1&&e1?' · ':''}${e1?'<span class="pos">+'+brl0(e1)+'</span>':''}</span></div>${moreH(L.map(row),k==='atr'||k==='sem'?6:4,'pv'+k)}</div>`}).join('')}</div>`}
 function vRel(){document.querySelectorAll('body>.acsel').forEach(x=>x.remove());
   if(RP==='acertos'){RP='rel';RSEL=(S.reps.find(r=>(r.def&&r.def.orig||[]).includes('acitens'))||{}).id||RSEL}
   if(RP==='cartoes'){RP='resumo';return go('cartoes')}
@@ -6256,8 +6292,7 @@ function vRel(){document.querySelectorAll('body>.acsel').forEach(x=>x.remove());
       ${rs.map(r=>`<div class="fxr"><span><strong>${ymL(r.ym)}</strong><small><span class="pos">+${brl0(ent(r))}</span> · <span class="neg">−${brl0(sai(r))}</span></small></span><b class="n ${r.cash<0?'neg':''}">${brl0(r.cash)}</b></div>`).join('')}</div>
       <details class="fxn"><summary>Como é calculado</summary><p class="note">Caixa no fim = caixa anterior + entradas − saídas. Saídas já líquidas do acerto do casal (compensação, não receita). Mesma conta do Início e do Resultado mês a mês do Patrimônio. Só entra o que está no app: receitas fixas, contas fixas, parcelas, faturas já compradas e pendentes. Cada item sai na data de vencimento; se você paga antes, vale a data do pagamento.</p></details></div>`;
     h+=mesCard(me);
-    const pv=recPrevistos(today().slice(0,7),ymAdd(today().slice(0,7),1)).filter(x=>x.dono===me).concat(S.lanc.filter(l=>l.pend&&(l.tipo==='receita'||(l.tipo||'despesa')==='despesa')&&l.conta&&fracOf((conta(l.conta)||{}).dono,me)>0&&(l.data||'')<=dayIn(ymAdd(today().slice(0,7),1),31)).map(l=>({nome:l.desc||'Pendente',tipo:l.tipo||'despesa',date:l.data,valor:+l.valor||0,lid:l.id}))).sort((a,b)=>a.date.localeCompare(b.date));
-    h+=`<div class="card"><div class="ch"><h2>Previstos para confirmar</h2></div>${pv.length?`<div>${pv.map(x=>`<div class="lgr" style="grid-template-columns:minmax(0,1fr) auto auto"><span>${esc(x.nome)}<small>${x.tipo==='receita'?'receita':'despesa'} · ${fdate(x.date).slice(0,5)}</small></span><b class="n ${x.tipo==='receita'?'pos':''}">${x.tipo==='receita'?'+':'−'}${brl(x.valor)}</b>${x.lid?`<button class="btn sm" type="button" data-cfl="${esc(x.lid)}">Confirmar</button>`:`<button class="btn sm" type="button" data-cf="${esc(x.r.id)}|${x.ym}">Confirmar</button>`}</div>`).join('')}</div>`:'<p class="note">Nada previsto para este mês e o próximo.</p>'}</div>`;
+    h+=pvConfirmar(me);
   }else if(RP==='acertos'){h+=acertosHTML()}
   else if(RP==='salvos'){h+=repListHTML()}
   else if(RP==='rel'){const r=S.reps.find(x=>x.id===RSEL);h+=r?repDashHTML(r):repListHTML()}
