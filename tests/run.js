@@ -163,8 +163,8 @@ window.__fbSair=()=>{};setTimeout(()=>window.__fbReady(api),0);})();</script>`;
               while (a && a !== document.body) { const o = getComputedStyle(a).overflowX; if ((o === 'hidden' || o === 'auto' || o === 'scroll') && a.getBoundingClientRect().right <= W + 1) { clip = true; break } a = a.parentElement } if (!clip) bad.add(String(e.className.baseVal ?? e.className) || e.tagName) });
             if (bad.size) res[v] = [...bad].slice(0, 6) } document.documentElement.classList.remove('tq-big'); return res });
         await p.setViewportSize(vp); ok(Object.keys(ov).length === 0, 'telas a 320 px com fonte 120%: nada vaza para fora da tela', JSON.stringify(ov)) }
-      const ac = await p.evaluate(async () => { const w = ms => new Promise(r => setTimeout(r, ms)); location.hash = 'lanc'; await w(200); location.hash = 'inicio'; await w(600); const c = document.querySelector('#v-inicio .acx'); return c ? [...c.querySelectorAll('.acxr')].map(r => r.innerText.split('\n')[0]) : [] });
-      ok(ac.length >= 1 && ac.length <= 3 && /atraso/.test(ac[0]), 'início: para fazer agora, com atrasos primeiro e no máximo 3', JSON.stringify(ac));
+      const ac = await p.evaluate(async () => { const w = ms => new Promise(r => setTimeout(r, ms)); location.hash = 'lanc'; await w(200); location.hash = 'inicio'; await w(600); const r = document.querySelector('#v-inicio .rsv2'); return { acx: document.querySelectorAll('#v-inicio .card.acx').length, need: r ? [...r.querySelectorAll('.rvneed .acxr')].map(x => x.innerText.split('\n')[0]) : null, sug: r ? r.querySelectorAll('.rvsg .acxr').length : 0, tab: !!(r && r.querySelector('.rvtab')), dupAtr: r ? [...r.querySelectorAll('.rvneed .acxr')].some(x => /em atraso/.test(x.innerText)) : true } });
+      ok(ac.acx === 0 && ac.need && ac.tab && !ac.dupAtr, 'início: um lugar só para resolver (precisa de você + a pagar/receber), sem repetir atrasos', JSON.stringify(ac));
       const pf2 = await p.evaluate(() => { const T = window.__T; return [
           T.parseFrase('Compra aprovada no cartão final 1111 de R$ 45,90 em MERCADO BOM PRECO LTDA em 17/11 às 12:30'),
           T.parseFrase('Nubank: Compra de R$ 1.234,56 APROVADA em MAGAZINE LUIZA para o cartão com final 1111. Parcelado em 3x'),
@@ -241,7 +241,7 @@ window.__fbSair=()=>{};setTimeout(()=>window.__fbReady(api),0);})();</script>`;
         const b = T.recPendAnt(me).filter(x => x.r.nome === 'Academia').length, lig = T.S.lanc.some(l => l.desc === 'Smart Fit' && l.rec && l.recYm === m1);
         const n1 = T.assinRevisar(me), n2 = T.assinRevisao(T.recsCartaoAtivos(me)).filter(x => x.f.length).length; return { a, b, lig, n1, n2, m1, m2 } });
       ok(rp.a.length === 2 && rp.a.some(x => x.ym === rp.m1 && x.c === 'Smart Fit') && rp.lig && rp.b === 0, 'contas fixas de meses anteriores: aparecem, vinculam ao lançamento parecido e "não houve" resolve', JSON.stringify(rp));
-      ok(rp.n1 === rp.n2, 'assinaturas para revisar: uma regra só (Cartões = Para fazer agora)', JSON.stringify(rp));
+      ok(rp.n1 === rp.n2, 'assinaturas para revisar: uma regra só (Cartões = Para resolver)', JSON.stringify(rp));
       const nav = await p.evaluate(() => ({ tabs: [...document.querySelectorAll('nav.tabs a')].map(a => a.dataset.v), top: [...document.querySelectorAll('.topw[data-v]')].map(a => a.dataset.v) }));
       ok(JSON.stringify(nav.tabs) === JSON.stringify(['inicio', 'lanc', 'cartoes', 'carteira', 'relatorios']) && nav.top.includes('decidir'), 'navegação: Carteira na barra, Decidir no topo', JSON.stringify(nav));
       ok(/Próxima entrada · hoje/.test(hx.h) && /A receber hoje/.test(hx.h), 'início: próxima entrada começa pela que cai hoje e ainda não entrou', hx.h);
@@ -375,7 +375,7 @@ window.__fbSair=()=>{};setTimeout(()=>window.__fbReady(api),0);})();</script>`;
     await p.goto('file://' + arq); await p.waitForTimeout(1500);
     const vis = sel => p.evaluate(s => { const e = document.querySelector(s); return !!e && !!e.offsetParent && e.getBoundingClientRect().height > 0 }, sel);
     await p.evaluate(() => location.hash = 'inicio'); await p.waitForTimeout(500);
-    ok(await p.evaluate(() => [...document.querySelectorAll('#v-inicio .card.acx')].length) <= 1, 'início: "Para fazer agora" aparece uma vez só');
+    ok(await p.evaluate(() => document.querySelectorAll('#v-inicio .card.acx').length) === 0, 'início: sem card separado de "Para fazer agora"');
     /* herói: camada 1 com caixa, a pagar, pode gastar e próxima entrada; o mês abre no lugar */
     const h1 = await p.evaluate(() => { const h = document.querySelector('.hero'); return [h.innerText, !!h.querySelector('.hmes'), h.querySelector('.hmes .fob').hidden] });
     ok(/Em caixa hoje/.test(h1[0]) && /Pode gastar sem faltar|Vai faltar/.test(h1[0]) && /A pagar/.test(h1[0]) && h1[1] && !h1[2], 'início: herói com o gráfico do mês já aberto', JSON.stringify(h1.slice(1)));

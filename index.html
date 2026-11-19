@@ -2564,6 +2564,11 @@ svg.dch{text-transform:none;letter-spacing:0}
 .pvv{display:grid;justify-items:end;gap:5px}.pvv b{font-size:14.5px;white-space:nowrap}
 .pvb{display:inline-flex;align-items:center;gap:4px;min-height:30px;padding:0 10px;border-radius:999px;border:1px solid var(--line);background:none;color:var(--ink);font:inherit;font-size:12.5px;font-weight:600}.pvb .ic{width:14px;height:14px}
 .pvb:active{background:color-mix(in srgb,var(--good) 18%,transparent);border-color:var(--good)}
+
+/* ===== Para resolver: um lugar só ===== */
+.rvneed{display:grid;gap:0;margin:4px 0 14px}.rvsg{display:grid;gap:0;margin-top:16px;padding-top:12px;border-top:1px solid var(--hair)}
+.rvinh{font-size:11.5px;font-weight:650;letter-spacing:.06em;text-transform:uppercase;color:var(--faint)}.rvneed .rvinh{color:var(--warn);margin-bottom:2px}
+.rvsg .acxr{opacity:.92}
 </style>
 <div id="fbgate" hidden><div class="bx"><svg class="lg" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="139 90 228 332"><g transform="translate(-5 0)"><rect x="186" y="100" width="12" height="312" rx="6" fill="currentColor" opacity=".55"/><rect x="164" y="150" width="56" height="210" rx="16" fill="currentColor"/><path d="M244 150h38a70 70 0 0 1 0 140h-38z" fill="#E2BA6E"/></g></svg><h1>Patrimônio</h1><p id="fbmsg">Entre com a sua conta Google para ver as finanças da casa.</p><button type="button" id="fblogin">Entrar com Google</button></div></div>
 <script type="module">
@@ -3317,7 +3322,7 @@ function openRecarga(a){
 }
 
 /* ---------- INÍCIO: painel montável ---------- */
-const SECS=[['ticker','Cotações (faixa que corre)'],['hero','Em caixa hoje'],['acoes','Ações rápidas'],['rotina','Rotina (semana e fechamento do mês)'],['alertas','Para resolver'],['margem','Quanto posso gastar (3 visões)'],['mesx','Mês (candles e resultado)'],['cats','Categorias (plano, stop e mapa)'],['saude','Saúde financeira'],['beneficios','Benefícios'],['ultimos','Últimos lançamentos'],['fecha','Fechamento do mês (avulso)'],['spread','Dívida × aplicação (avulso)'],['kpis','Indicadores do mês'],['plano','Plano do mês'],['contas','Contas'],['dre','Resultado do mês'],['agenda','Próximos 15 dias'],['credito','Crédito'],['gastos','Gastos por categoria'],['planejado','Pagamentos planejados'],['fluxo6','Evolução'],['quinzenas','Quinzenas e acerto'],['patrimonio','Patrimônio']];
+const SECS=[['ticker','Cotações (faixa que corre)'],['hero','Em caixa hoje'],['rotina','Rotina (semana e fechamento do mês)'],['alertas','Para resolver'],['margem','Quanto posso gastar (3 visões)'],['mesx','Mês (candles e resultado)'],['cats','Categorias (plano, stop e mapa)'],['saude','Saúde financeira'],['beneficios','Benefícios'],['ultimos','Últimos lançamentos'],['fecha','Fechamento do mês (avulso)'],['spread','Dívida × aplicação (avulso)'],['kpis','Indicadores do mês'],['plano','Plano do mês'],['contas','Contas'],['dre','Resultado do mês'],['agenda','Próximos 15 dias'],['credito','Crédito'],['gastos','Gastos por categoria'],['planejado','Pagamentos planejados'],['fluxo6','Evolução'],['quinzenas','Quinzenas e acerto'],['patrimonio','Patrimônio']];
 /* layout v4: Início enxuto (8 seções). Migra a personalização anterior: mantém a ordem, recolhe as seções que foram unificadas */
 const OFF4=['orcamento','mes','fecha','spread','kpis','dre','plano','gastos','agenda','planejado','contas','credito','fluxo6','quinzenas','patrimonio'];
 let LAY=(()=>{try{const v4=JSON.parse(localStorage.getItem('pt-ini4')||'null');if(v4)return v4;const v3=JSON.parse(localStorage.getItem('pt-ini3')||'null');if(v3){const off=[...new Set([...(v3.off||[]),...OFF4])].filter(k=>k!=='acoes');return {order:[],off}}}catch(e){}return null})()||{order:[],off:OFF4.slice()};
@@ -3347,7 +3352,10 @@ function iniResolver(X){
   const hz=`<div class="seg rvhz" role="group" aria-label="Horizonte">${[7,15,30].map(n=>`<button type="button" data-rvh="${n}" aria-pressed="${RVH===n}">${n}d</button>`).join('')}</div>`;
   const rcv=RVT==='receber',nE=ent.length+(acV?1:0);
   const tabs=`<div class="seg rvtab" role="tablist" aria-label="Pagar ou receber"><button type="button" role="tab" data-rvt="pagar" aria-pressed="${!rcv}">A pagar${pend.length?` <span class="rvc">${pend.length}</span>`:''}</button><button type="button" role="tab" data-rvt="receber" aria-pressed="${rcv}">A receber${nE?` <span class="rvc ${atrE.length?'neg':''}">${nE}</span>`:''}</button></div>`;
-  const head=`<div class="ch"><h2>Para resolver</h2>${hz}</div>${tabs}`;
+  let AI={need:[],sug:[]};try{AI=acoesItens(X)}catch(e){}
+  const inH=AI.need.length?`<div class="rvneed"><span class="rvinh">Precisa de você · ${AI.need.length}</span>${AI.need.map(acxRow).join('')}</div>`:'';
+  const sgH=AI.sug.length?`<div class="rvsg"><span class="rvinh">Sugestões</span>${AI.sug.map(acxRow).join('')}</div>`:'';
+  const head=`<div class="ch"><h2>Para resolver</h2>${hz}</div>${inH}${tabs}`;
   const dd=d=>{const n=diffD(t,d);return n<0?`${-n}d atrás`:n===0?'hoje':n===1?'amanhã':`em ${n}d`};
   const row=(x,act,pos)=>{const late=x.d<t,today0=x.d===t;return `<button type="button" class="rvr ${late?'late':today0?'now':''}" data-rv="${esc(x.nav)}"><span class="rvd"><b>${pad(+x.d.slice(8))}</b><small>${MES[+x.d.slice(5,7)-1]}</small></span><span class="lxm"><b>${esc(x.t)}</b><small>${late||today0?`<span class="${late?'neg':'warn'}">${dd(x.d)}</span> · `:dd(x.d)+' · '}${esc(x.s||'')}${(()=>{const o=String(x.nav).startsWith('l:')&&(S.lanc.find(l=>'l:'+l.id===x.nav)||{}).obs;return o?` · <i class="rvob">${esc(o)}</i>`:''})()}</small></span><span class="rvv"><b class="n ${pos?'pos':''}">${pos?'+':''}${brl0(Math.abs(x.v))}</b><small>${act} ›</small></span></button>`};
   const N=RVH>7?10:6;
@@ -3355,12 +3363,12 @@ function iniResolver(X){
     const actR=x=>x.k==='abt'?'Ver':x.atr?'Confirmar':'Recebi';
     return `<div class="card rsv2">${head}<p class="rvsum"><b class="n pos">${brl0(totE)}</b> a receber em ${RVH} dias${atrE.length?` · <span class="neg">${atrE.length} sem confirmação</span>`:''}</p>
       ${acH}${ent.length?`<div class="rvl">${moreH(ent.slice(0,N).map(x=>row(x,actR(x),1)),3,'rvr')}</div>${ent.length>N?`<button class="lk" type="button" data-go="relatorios" data-rp="fluxo">e mais ${ent.length-N} · ver fluxo ›</button>`:''}`:acH?'':`<div class="okall0"><span class="oki">${ic('in')}</span><div><strong>Nada previsto para entrar</strong><small>Nenhuma receita prevista nos próximos ${RVH} dias. Receitas fixas cadastradas em Recorrentes aparecem aqui.</small></div></div>`}
-      ${recAtr.length?`<p class="note rvnt">Receita prevista que passou da data e não foi confirmada não entra na projeção do caixa. Toque para confirmar o que entrou ou ajustar a data.</p>`:''}</div>`}
+      ${recAtr.length?`<p class="note rvnt">Receita prevista que passou da data e não foi confirmada não entra na projeção do caixa. Toque para confirmar o que entrou ou ajustar a data.</p>`:''}${sgH}</div>`}
   const act=x=>x.k==='pend'?'Pagar':x.k==='fat'?'Ver fatura':x.k==='gab'?'Abrir':x.k==='ac'?'Acertar':'Ver';
-  if(!pend.length)return `<div class="card rsv2">${head}${opH}${opH?'':`<div class="okall0"><span class="oki">${ic('check')}</span><div><strong>Tudo em dia</strong><small>Nada vencido e nada a pagar nos próximos ${RVH} dias.</small></div></div>`}</div>`;
+  if(!pend.length)return `<div class="card rsv2">${head}${opH}${opH?'':`<div class="okall0"><span class="oki">${ic('check')}</span><div><strong>Tudo em dia</strong><small>Nada vencido e nada a pagar nos próximos ${RVH} dias.</small></div></div>`}${sgH}</div>`;
   return `<div class="card rsv2">${head}<p class="rvsum"><b class="n">${brl0(tot)}</b> a pagar em ${RVH} dias${atr.length?` · <span class="neg">${atr.length} em atraso</span>`:''}</p>
     ${opH}<div class="rvl">${moreH(pend.slice(0,N).map(x=>row(x,act(x))),3,'rvp')}</div>
-    ${pend.length>N?`<button class="lk" type="button" data-go="relatorios" data-rp="fluxo">e mais ${pend.length-N} · ver fluxo ›</button>`:''}</div>`;
+    ${pend.length>N?`<button class="lk" type="button" data-go="relatorios" data-rp="fluxo">e mais ${pend.length-N} · ver fluxo ›</button>`:''}${sgH}</div>`;
 }
 function wireIni4(el){
   el.querySelectorAll('[data-qa]').forEach(b=>b.onclick=()=>{const k=b.dataset.qa;if(k==='sim')openSimCompra();else if(k==='despesa')openLanc({tipo:'despesa'});else if(k==='receita')openLanc({tipo:'receita',conta:(S.contas.find(a=>a.tipo==='corrente'&&a.dono===ME())||S.contas[0]||{}).id,categoria:'Salário'});else if(k==='transf')openLanc({tipo:'transf',conta:(S.contas.find(a=>a.tipo==='corrente'&&a.dono===ME())||S.contas[0]||{}).id});else if(k==='gab'){const r=S.reps.find(isAcRep);if(r){RSEL=r.id;RP='rel';ROFF=0}else RP='salvos';go('relatorios')}else openSmartImport()});
@@ -3489,16 +3497,17 @@ function openRecPend(){const draw=sh=>{const me=ME(),L=recPendAnt(me),ymL=y=>`${
   sh.querySelectorAll('[data-rpn]').forEach(b=>b.onclick=()=>go(async()=>{const x=L[+b.dataset.rpn],n=Object.assign({},x.r);delete n.id;n.pula=[...new Set([...(x.r.pula||[]),x.ym])];try{await S.db.doc('recorrentes/'+x.r.id).set(n);toast('Marcado: não houve em '+ymL(x.ym))}catch(e){toast(writeErr(e))}}))};
   openSheet(`<h2>Contas fixas sem confirmação</h2><p class="note">De meses anteriores. Diga o que aconteceu com cada uma: assim os atrasos e as projeções ficam certos.</p><div id="rpx"></div>`,draw)}
 document.addEventListener('click',e=>{if(e.target.closest&&e.target.closest('[data-rpend]'))openRecPend()});
-function iniAcoes(X){const {me,t}=X,L=X.L||caixaLivre(me),A=[];
-  const late=L.out.filter(x=>x.late);if(late.length)A.push({p:1,cor:'crit',ic:'alert',t:`${late.length} conta${late.length===1?'':'s'} em atraso · ${brl0(-sum(late,x=>x.v))}`,s:'dar baixa no que já foi pago ou pagar agora',a:'data-apagar="1"'});
+/* "Para fazer agora" foi unificado em "Para resolver": um lugar só para o que pede ação.
+   Atrasos e faturas perto do vencimento já aparecem na lista a pagar, então não se repetem aqui. */
+function iniAcoes(){return ''}
+function acoesItens(X){const {me,t}=X,L=X.L||caixaLivre(me),A=[];
   {let rp=[];try{rp=recPendAnt(me)}catch(e){}if(rp.length)A.push({p:1.5,cor:'warn',ic:'calcheck',t:`${rp.length} conta${rp.length===1?'':'s'} fixa${rp.length===1?'':'s'} de meses anteriores sem confirmação`,s:'pagou, não houve, ou já lançou sem vincular?',a:'data-rpend="1"'})}
   if(L.livre<0)A.push({p:2,cor:'crit',ic:'alert',t:`O caixa fica negativo em ${fdate(L.ate).slice(0,5)}`,s:`faltam ${brl0(-L.livre)} · veja o que dá para adiar`,a:'data-go="carteira"'});
-  L.out.filter(x=>x.k==='fat'&&!x.late&&diffD(t,x.e)<=3).forEach(x=>A.push({p:3,cor:'warn',ic:'card',t:`${esc(x.t)} vence ${diffD(t,x.e)===0?'hoje':diffD(t,x.e)===1?'amanhã':'em '+diffD(t,x.e)+' dias'}`,s:brl(-x.v),a:`data-acfat="${esc(String(x.nav||'').slice(4))}"`}));
   let g=0;try{g=guardSug(me).v}catch(e){}if(g>=50&&L.livre>=0)A.push({p:4,cor:'good',ic:'spark',t:`Guardar ${brl0(g)}`,s:'cabe com segurança nos próximos 30 dias',a:`data-guardar="${g}"`});
   const nr=assinRevisar(me);if(nr)A.push({p:5,cor:'warn',ic:'card',t:`${nr} assinatura${nr===1?'':'s'} para revisar`,s:'valor mudou ou cobrança não apareceu',a:'data-go="cartoes"'});
   try{if(ntfOk()&&!NTF().on&&Notification.permission!=='denied'&&LS('pt-ntfask','')!=='x')A.push({p:9,cor:'good',ic:'bell',t:'Ligar avisos no celular',s:'vencimentos, caixa que vai faltar, entrada que não caiu',a:'data-ntfon="1"'})}catch(e){}
-  if(!A.length)return '';const sh=A.sort((a,b)=>a.p-b.p).slice(0,3);
-  return `<div class="card acx"><div class="acxh"><b>Para fazer agora</b>${A.length>3?`<small>+${A.length-3}</small>`:''}</div>${sh.map(x=>`<button type="button" class="acxr ${x.cor}" ${x.a}><span class="acxi">${ic(x.ic)}</span><span class="acxm"><b>${x.t}</b><small>${x.s}</small></span><span class="go">›</span></button>`).join('')}</div>`}
+  A.sort((a,b)=>a.p-b.p);return {need:A.filter(x=>x.p!==4&&x.p<9),sug:A.filter(x=>x.p===4||x.p>=9)}}
+const acxRow=x=>`<button type="button" class="acxr ${x.cor}" ${x.a}><span class="acxi">${ic(x.ic)}</span><span class="acxm"><b>${x.t}</b><small>${x.s}</small></span><span class="go">›</span></button>`;
 document.addEventListener('click',async e=>{const b=e.target.closest&&e.target.closest('[data-ntfon]');if(!b)return;try{let p=Notification.permission;if(p!=='granted')p=await Notification.requestPermission();
   if(p!=='granted'){LSset('pt-ntfask','x');toast('Sem permissão: dá para ligar depois em Ajustes › Lembretes');renderView();return}const n=NTF();n.on=true;LSset('pt-ntf',JSON.stringify(n));await ntfSync(true);toast('Avisos ligados');renderView()}catch(err){toast('Não deu para ligar os avisos aqui')}});
 document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-acfat]');if(!b)return;const [cid,ym]=b.dataset.acfat.split('|'),c=card(cid);if(c&&ym)openPagFat(c,ym)});
@@ -5028,7 +5037,7 @@ function vInicio(){
   if(nx&&!SETUPX)h+=`<div class="setup"><span class="sp">${setup.map(s=>`<i class="${s[0]?'on':''}"></i>`).join('')}</span><button class="lk" type="button" data-setup="${nx[2]}">${ok}/${setup.length} · ${nx[1]} ›</button><button class="sx2" type="button" id="stx" aria-label="Ocultar">×</button></div>`;
   const X={me,t,ym,saldo:realBal(me,t),M:mesCalc(ym,me),F:mesFluxo(ym,me)};
   const B={rotina:iniRotina,margem:iniGastoMini,ticker:iniTicker,mesx:iniMesX,cats:iniCats,hero:X=>{X.L=X.L||caixaLivre(X.me);return iniHero(X)},acoes:X=>{X.L=X.L||caixaLivre(X.me);return iniAcoes(X)},alertas:iniResolver,ultimos:iniUltimos,spread:iniSpread,contas:iniContas,beneficios:iniBen,mes:()=>mesCard(me),agenda:iniAgenda,credito:()=>creditoDash(true),gastos:iniGastos2,planejado:iniPlan,fluxo6:iniEvo,kpis:iniKpis,orcamento:()=>'',plano:iniPlano,dre:iniDre,saude:iniSaude,fecha:iniFecha,quinzenas:iniQuin,patrimonio:iniPat};
-  const CORE=SIMPLES?['ticker','hero','acoes','alertas','margem','ultimos']:['ticker','hero','acoes','rotina','alertas','margem','ultimos'];let ha='';
+  const CORE=SIMPLES?['ticker','hero','alertas','margem','ultimos']:['ticker','hero','rotina','alertas','margem','ultimos'];let ha='';
   layOrder().forEach(k=>{if((LAY.off||[]).includes(k))return;if(SIMPLES&&!CORE.includes(k))return;let x='';try{x=B[k](X)||''}catch(e){console.error('início/'+k,e)}if(CORE.includes(k))h+=x;else ha+=x});
   if(ha)h+=`<details class="anl" ${ANLO?'open':''}><summary><span><b>Análises do mês</b><small>candles, categorias, saúde e o que mais estiver ligado</small></span>${ic('down','chev')}</summary><div class="anlb">${ha}</div></details>`;
   h+=SIMPLES?`<button class="custom" type="button" data-o5="prefs">${ic('eye')}<span>Modo simples · mostrar tudo</span></button>`:`<button class="custom" type="button" id="pers">${ic('edit')}<span>Personalizar início</span></button>`;
