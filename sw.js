@@ -1,7 +1,7 @@
 /* Patrimônio — service worker: abre o app sem internet.
    Os dados ficam no cache do Firestore (IndexedDB); aqui só guardamos o "casco" do app e as bibliotecas. */
-const V = 'pt-shell-v14';
-const SHELL = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './icon.svg', './apple-touch-icon.png'];
+const V = 'pt-shell-v15';
+const SHELL = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './icon.svg', './apple-touch-icon.png', './badge-96.png', './ntf-venc.png', './ntf-rec.png', './ntf-alerta.png'];
 const LIBS = /^https:\/\/(www\.gstatic\.com\/firebasejs\/|cdnjs\.cloudflare\.com\/|fonts\.googleapis\.com\/|fonts\.gstatic\.com\/)/;
 
 self.addEventListener('install', e => {
@@ -62,13 +62,13 @@ async function lembrar() {
   const contas = novos.filter(x => x.v), outros = novos.filter(x => !x.v);
   const quando = n => n === 0 ? 'hoje' : n === 1 ? 'amanhã' : `em ${n} dias`;
   /* formato "um por conta": cada vencimento num aviso próprio */
-  if (L.fm === 'c') { for (const x of contas) await self.registration.showNotification((x.r ? 'A receber ' : 'Vence ') + quando(x.n), { body: `${x.t} · ${brl(x.v)}`, icon: 'icon-192.png', badge: 'icon-192.png', tag: 'pt-venc-' + x.id, data: { url: './#inicio' } }); contas.length = 0 }
+  if (L.fm === 'c') { for (const x of contas) await self.registration.showNotification((x.r ? 'A receber ' : 'Vence ') + quando(x.n), { body: `${x.t} · ${brl(x.v)}`, icon: x.r ? 'ntf-rec.png' : 'ntf-venc.png', badge: 'badge-96.png', tag: 'pt-venc-' + x.id, data: { url: './#inicio' } }); contas.length = 0 }
   if (contas.length) {
     const hj = contas.filter(x => x.n === 0), tot = contas.reduce((a, x) => a + (x.r ? 0 : x.v), 0), mx = Math.max(...contas.map(x => x.n));
     await self.registration.showNotification(contas.length === 1 ? (contas[0].r ? 'A receber ' : 'Vence ') + quando(contas[0].n) : `${contas.length} vencimentos ${hj.length === contas.length ? 'hoje' : hj.length ? 'hoje e nos próximos dias' : mx === 1 ? 'amanhã' : 'nos próximos dias'}`,
-      { body: contas.slice(0, 4).map(x => `${x.t} · ${brl(x.v)}${contas.length > 1 ? ' (' + quando(x.n) + ')' : ''}`).join('\n') + (contas.length > 4 ? `\n+${contas.length - 4}` : '') + (tot && contas.length > 1 ? `\nTotal ${brl(tot)}` : ''), icon: 'icon-192.png', badge: 'icon-192.png', tag: 'pt-venc', data: { url: './#inicio' } });
+      { body: contas.slice(0, 4).map(x => `${x.t} · ${brl(x.v)}${contas.length > 1 ? ' (' + quando(x.n) + ')' : ''}`).join('\n') + (contas.length > 4 ? `\n+${contas.length - 4}` : '') + (tot && contas.length > 1 ? `\nTotal ${brl(tot)}` : ''), icon: contas.every(x => x.r) ? 'ntf-rec.png' : 'ntf-venc.png', badge: 'badge-96.png', tag: 'pt-venc', data: { url: './#inicio' } });
   }
-  for (const x of outros) await self.registration.showNotification(x.t, { body: x.info || '', icon: 'icon-192.png', badge: 'icon-192.png', tag: 'pt-' + x.id, data: { url: x.url || './#inicio' } });
+  for (const x of outros) await self.registration.showNotification(x.t, { body: x.info || '', icon: /^(cx|fcx|asr|rnx)\|/.test(x.id) ? 'ntf-alerta.png' : 'icon-192.png', badge: 'badge-96.png', tag: 'pt-' + x.id, data: { url: x.url || './#inicio' } });
   novos.forEach(x => ja[x.k] = t);
   Object.keys(ja).forEach(k => { if (ja[k] < t.slice(0, 8) + '01' && ja[k] < t) { const d = new Date(ja[k]); if (Date.now() - d > 40 * 864e5) delete ja[k] } });
   await c.put('./__avisados.json', new Response(JSON.stringify(ja), { headers: { 'content-type': 'application/json' } }));
