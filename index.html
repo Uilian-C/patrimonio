@@ -2508,6 +2508,30 @@ svg.dch{text-transform:none;letter-spacing:0}
 .ntt{display:grid;gap:6px;padding:8px 0}.nttl{display:grid;font-size:15px;color:var(--ink)}.nttl small{font-size:12px;color:var(--muted)}
 .ntch{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.ntch button{min-height:40px;border-radius:10px;border:1px solid var(--line);background:none;color:var(--muted);font:inherit;font-size:13.5px;font-weight:600;padding:0 4px}
 .ntch button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink,#1b1b1b)}.nth{margin-top:12px}.nth .seg{margin-top:6px}
+
+/* ===== Lembretes ===== */
+#lbx{min-width:0;max-width:100%}#lbx *{min-width:0}.lbhb{flex-wrap:wrap}.lbtst{margin-top:10px}
+.lbh{border:1px solid var(--line);border-radius:18px;padding:14px;background:var(--sunk)}.lbh.on{border-color:color-mix(in srgb,var(--accent) 40%,var(--line))}
+.lbhr{display:flex;align-items:center;gap:12px}.lbht{display:grid;flex:1;min-width:0}.lbht b{font-size:16px}.lbht small{font-size:12.5px;color:var(--muted)}
+.lbhb{display:flex;align-items:center;gap:10px;margin-top:12px;padding-top:12px;border-top:1px solid var(--hair)}
+.lbtm{display:flex;align-items:center;gap:8px;flex:1;min-width:0;font-size:14.5px;color:var(--ink)}.lbtm .ic{width:18px;height:18px;color:var(--muted);flex:none}.lbtm>span{white-space:nowrap}
+.lbtm input{margin-left:auto;min-width:0;max-width:150px;font:inherit;font-size:16px;font-weight:650;font-family:var(--f-num);border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink);padding:6px 8px;min-height:40px}
+.lbs{margin-top:18px}.lbt{font-size:11.5px;font-weight:650;letter-spacing:.07em;text-transform:uppercase;color:var(--faint);margin:0 0 6px}
+.lbr{border-bottom:1px solid var(--hair)}.lbr:last-child{border-bottom:0}
+.lbrh{display:flex;align-items:center;gap:10px;width:100%;min-height:56px;padding:8px 0;border:0;background:none;color:inherit;font:inherit;text-align:left;cursor:pointer}
+.lbrn{display:grid;flex:1;min-width:0}.lbrn b{font-size:15px;font-weight:600}.lbrn small{font-size:12px;color:var(--muted)}
+.lbrv{font-size:13px;font-weight:600;color:var(--accent);text-align:right;max-width:46%}.lbrv.off{color:var(--faint);font-weight:500}
+.lbcv{width:16px;height:16px;flex:none;color:var(--faint);transition:transform .25s}.lbr.open .lbcv{transform:rotate(180deg)}
+.lbrb{padding:0 0 14px}.lbrb .flab{display:block;margin-bottom:6px}
+.lbch{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.lbch button{min-height:40px;border-radius:999px;border:1px solid var(--line);background:none;color:var(--muted);font:inherit;font-size:13.5px;font-weight:600}
+.lbch button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink,#1b1b1b)}
+.lbrb .lk{margin-top:10px}.lbmin select{font:inherit;font-size:13.5px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink);padding:6px 8px;min-height:38px;max-width:46%}
+.lbadd{color:var(--accent)}.lbadd .ic{width:20px;height:20px;flex:none}.lbadd .lbrn b{color:var(--accent)}
+.lbcd{display:flex;align-items:center;gap:8px;width:100%;padding:10px 0;border:0;border-top:1px solid var(--hair);background:none;color:var(--faint);font:inherit;text-align:left}.lbcd>span{display:grid;flex:1;min-width:0}.lbcd b{color:var(--ink);font-weight:600;font-size:14.5px}.lbcd small{font-size:12px;color:var(--muted)}
+.lbonc{padding:0;flex:none}.lbo2{min-height:56px;padding:6px 0;border-bottom:1px solid var(--hair)}.lbo2:last-child{border-bottom:0}
+.lbpd{padding:8px 0;border-bottom:1px solid var(--hair)}.lbpd:last-child{border-bottom:0}.lbpdd{display:block;font-size:13px;font-weight:650;color:var(--ink);margin-bottom:4px}.lbpdd small{font-weight:500;color:var(--muted);margin-left:4px}
+.lbpi{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:4px 0}.lbpi>span{display:grid;min-width:0;font-size:14px}.lbpi small{font-size:12px;color:var(--muted)}.lbpi b{font-size:14px;white-space:nowrap}
+.lbnone{margin:6px 0}.lbft{margin-top:18px}
 </style>
 <div id="fbgate" hidden><div class="bx"><svg class="lg" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="139 90 228 332"><g transform="translate(-5 0)"><rect x="186" y="100" width="12" height="312" rx="6" fill="currentColor" opacity=".55"/><rect x="164" y="150" width="56" height="210" rx="16" fill="currentColor"/><path d="M244 150h38a70 70 0 0 1 0 140h-38z" fill="#E2BA6E"/></g></svg><h1>Patrimônio</h1><p id="fbmsg">Entre com a sua conta Google para ver as finanças da casa.</p><button type="button" id="fblogin">Entrar com Google</button></div></div>
 <script type="module">
@@ -3443,7 +3467,7 @@ function iniAcoes(X){const {me,t}=X,L=X.L||caixaLivre(me),A=[];
   if(!A.length)return '';const sh=A.sort((a,b)=>a.p-b.p).slice(0,3);
   return `<div class="card acx"><div class="acxh"><b>Para fazer agora</b>${A.length>3?`<small>+${A.length-3}</small>`:''}</div>${sh.map(x=>`<button type="button" class="acxr ${x.cor}" ${x.a}><span class="acxi">${ic(x.ic)}</span><span class="acxm"><b>${x.t}</b><small>${x.s}</small></span><span class="go">›</span></button>`).join('')}</div>`}
 document.addEventListener('click',async e=>{const b=e.target.closest&&e.target.closest('[data-ntfon]');if(!b)return;try{let p=Notification.permission;if(p!=='granted')p=await Notification.requestPermission();
-  if(p!=='granted'){LSset('pt-ntfask','x');toast('Sem permissão: dá para ligar depois em Preferências');renderView();return}const n=NTF();n.on=true;LSset('pt-ntf',JSON.stringify(n));await ntfSync(true);toast('Avisos ligados');renderView()}catch(err){toast('Não deu para ligar os avisos aqui')}});
+  if(p!=='granted'){LSset('pt-ntfask','x');toast('Sem permissão: dá para ligar depois em Ajustes › Lembretes');renderView();return}const n=NTF();n.on=true;LSset('pt-ntf',JSON.stringify(n));await ntfSync(true);toast('Avisos ligados');renderView()}catch(err){toast('Não deu para ligar os avisos aqui')}});
 document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-acfat]');if(!b)return;const [cid,ym]=b.dataset.acfat.split('|'),c=card(cid);if(c&&ym)openPagFat(c,ym)});
 function iniHero(X){
   const {me,t,ym,saldo}=X,ents=agendaPessoal(me,dayIn(ymAdd(ym,2),31)).filter(x=>(x.k==='rec'||x.k==='pendr'||(x.k==='agd'&&x.v>0))&&x.d>t),E=ents[0];
@@ -4305,18 +4329,22 @@ zoomAp();
 /* lembrete por item: '' = padrão do app, 0/1/3 = dias de antecedência (sempre com aviso no dia), 'x' = não avisar */
 /* lembretes: cada tipo de vencimento tem seus momentos (3 dias antes, 1 dia antes, no dia — qualquer combinação);
    cada conta, cartão ou pendente pode ter os seus próprios. '' = segue o tipo, 'x' = não avisar, '3,0' = 3 dias antes e no dia */
-const NTTIPOS=[['c','Contas a pagar','contas fixas, pendentes e impostos'],['f','Faturas de cartão',''],['p','Parcelas e dívidas',''],['r','Receitas previstas','salário, repasses']];
-const NTMOM=[[3,'3 dias antes'],[1,'1 dia antes'],[0,'No dia']];
-const NTHORAS=[7,8,9,10,12,18];
-const momTxt=a=>!a||!a.length?'não avisar':a.slice().sort((x,y)=>y-x).map(d=>d===0?'no dia':d===1?'1 dia antes':d+' dias antes').join(' e ');
-/* lê preferência antiga (um número só) e converte: 0 = no dia; 1/3 = antes e no dia */
+const NTTIPOS=[['c','Contas a pagar','contas fixas, pendentes e impostos','home'],['f','Faturas de cartão','vencimento de cada fatura','card'],['p','Parcelas e dívidas','empréstimos e financiamentos','scale'],['r','Receitas previstas','salário, repasses, aluguéis','down']];
+const NTMOM=[[7,'1 semana'],[5,'5 dias'],[3,'3 dias'],[2,'2 dias'],[1,'1 dia'],[0,'No dia']];
+const momTxt=a=>!a||!a.length?'sem aviso':a.slice().sort((x,y)=>y-x).map(d=>d===0?'no dia':d===1?'1 dia antes':d===7?'1 semana antes':d+' dias antes').join(', ').replace(/, ([^,]*)$/,' e $1');
 const momDe=v=>{if(v===undefined||v===null||v==='')return null;if(v==='x')return [];if(Array.isArray(v))return v.map(Number);if(typeof v==='number')return v?[v,0]:[0];return String(v).split(',').filter(z=>z!=='').map(Number)};
 const NTMO=N=>{const base=N.a===undefined?[1,0]:momDe(+N.a),m=N.mo||{};const o={};NTTIPOS.forEach(([k])=>{o[k]=Array.isArray(m[k])?m[k].map(Number):k==='r'?[0]:base.slice()});return o};
-const LEMBO=[['','Padrão do tipo'],['0','No dia'],['1','1 dia antes'],['1,0','1 dia antes e no dia'],['3','3 dias antes'],['3,0','3 dias antes e no dia'],['3,1,0','3 dias, 1 dia antes e no dia'],['x','Não avisar']];
+/* horário: 'HH:MM' (ou número antigo de horas) → minutos do dia */
+const ntfHM=N=>{const h=N.h;if(h===undefined||h===null||h==='')return 480;if(typeof h==='number')return h*60;const [a,b]=String(h).split(':');return (+a||0)*60+(+b||0)};
+const hmTxt=m=>String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0');
+const LEMBO=[['','Padrão do tipo'],['0','No dia'],['1','1 dia antes'],['1,0','1 dia antes e no dia'],['3,0','3 dias antes e no dia'],['3,1,0','3 dias, 1 dia antes e no dia'],['7,1,0','1 semana, 1 dia antes e no dia'],['x','Não avisar']];
 const lembNorm=v=>{const m=momDe(v);return m===null?'':m.length?m.slice().sort((x,y)=>y-x).join(','):'x'};
-const lembOpts=(v,tp)=>{const cur=lembNorm(v),pad=NTMO(NTF())[tp||'c'];return LEMBO.map(([k,n])=>`<option value="${k}" ${cur===k?'selected':''}>${n}${k===''?' · '+momTxt(pad):''}</option>`).join('')};
+const lembOpts=(v,tp)=>{const cur=lembNorm(v),pad=NTMO(NTF())[tp||'c'],L=LEMBO.slice();if(cur&&!L.some(x=>x[0]===cur))L.splice(L.length-1,0,[cur,momTxt(momDe(cur)).replace(/^./,c=>c.toUpperCase())]);return L.map(([k,n])=>`<option value="${k}" ${cur===k?'selected':''}>${n}${k===''?' · '+momTxt(pad):''}</option>`).join('')};
 const lembSel=(id,v,tp)=>`<div class="field"><label for="${id}">Lembrete no celular</label><select id="${id}">${lembOpts(v,tp)}</select></div>`;
 const lembVal=v=>v===''||v===undefined?'':v;
+/* o que entra nos lembretes: mesma agenda das telas, com o momento de cada item */
+function ntfItens(N,me,t,ate){const MO=NTMO(N),min=+N.min||0,out=[];
+  agendaPessoal(me,ate,t).filter(x=>['fat','fix','div','pend','darf','pendr'].includes(x.k)&&x.d>=t).forEach(x=>{const tp=x.k==='fat'?'f':x.k==='div'?'p':x.v>0?'r':'c',own=lembDe(x),ds=own||MO[tp],v=r2(Math.abs(x.v));if(!ds.length)return;if(!own&&x.v<0&&v<min)return;out.push({id:x.k+'|'+(x.nav||x.t)+'|'+x.d,d:x.d,t:x.t,v,r:x.v>0,ds,tp,own:!!own})});return out}
 /* de onde vem a preferência de um item da agenda */
 function lembDe(x){const nv=x.nav||'',k=nv.split(':')[0],id=nv.slice(k.length+1).split('|')[0];const o=k==='rec'?S.recs.find(r=>r.id===id):k==='fat'?card(id):k==='dv'?(S.dividas||[]).find(d=>d.id===id):k==='l'?S.lanc.find(l=>l.id===id):null;let v=o?o.lemb:'';if((v===undefined||v===''||v===null)&&k==='l'&&o&&o.rec){const r=S.recs.find(z=>z.id===o.rec);v=r?r.lemb:''}return momDe(v)}
 const NTF=()=>{try{return JSON.parse(localStorage.getItem('pt-ntf')||'null')||{on:false,c:1,s:1,m:1}}catch(e){return {on:false,c:1,s:1,m:1}}};
@@ -4331,32 +4359,80 @@ function ntfDecisao(me){const t=today(),out=[],dd=d=>fdate(d).slice(0,5);let L=n
   L.ins.filter(x=>x.late&&(x.k==='rec'||x.k==='pendr')).forEach(x=>out.push({id:'rnx|'+x.nav+'|'+x.d,d:t,v:0,t:`${x.t} ainda não entrou`,info:`Previsto para ${dd(x.d)} · ${brl(x.v)}. Confirme quando cair.`,url:'./#inicio'}));
   return out}
 async function ntfSync(force){const N=NTF();if(!N.on||!ntfOk()||Notification.permission!=='granted'||!ready())return;if(!force&&Date.now()-NTFAT<30*60e3)return;NTFAT=Date.now();
-  try{const me=ME(),t=today(),ate=addD(t,3),its=[],MO=NTMO(N);
-    if(N.c)agendaPessoal(me,ate,t).filter(x=>['fat','fix','div','pend','darf','pendr'].includes(x.k)&&x.d>=t).forEach(x=>{const tp=x.k==='fat'?'f':x.k==='div'?'p':x.v>0?'r':'c',ds=lembDe(x)||MO[tp];if(!ds.length)return;its.push({id:x.k+'|'+(x.nav||x.t)+'|'+x.d,d:x.d,t:x.t,v:r2(Math.abs(x.v)),r:x.v>0,ds})});
+  try{const me=ME(),t=today(),ate=addD(t,7),its=ntfItens(N,me,t,ate);
     const sr=semRev(),R=ROT();if(N.s&&!(R[sr.k]||{}).em)its.push({id:'sem|'+sr.k,d:new Date(t+'T12:00:00').getDay()===0?t:addD(sr.fim,7),t:'Revisão da semana',v:0,info:'4 minutos para conferir a semana'});
     if(N.d!==0)ntfDecisao(me).forEach(x=>its.push(x));
     const ym=t.slice(0,7),ld=dayIn(ym,31);if(N.m)its.push({id:'mes|'+ym,d:ld,t:'Fechamento do mês',v:0,info:'feche o mês e veja o resultado'});
-    const data={gerado:new Date().toISOString(),hoje:t,h0:N.h===undefined?8:+N.h,h1:22,itens:its};const c=await caches.open('pt-dados');await c.put('./__lembretes.json',new Response(JSON.stringify(data),{headers:{'content-type':'application/json'}}));
+    const data={gerado:new Date().toISOString(),hoje:t,hm:ntfHM(N),h1:22,fm:N.fm||'r',itens:its};const c=await caches.open('pt-dados');await c.put('./__lembretes.json',new Response(JSON.stringify(data),{headers:{'content-type':'application/json'}}));
     const reg=await navigator.serviceWorker.ready;if(reg.periodicSync){try{const st=await navigator.permissions.query({name:'periodic-background-sync'});if(st.state==='granted')await reg.periodicSync.register('pt-lembretes',{minInterval:6*36e5})}catch(e){}}
     reg.active&&reg.active.postMessage({tipo:'lembretes'});
   }catch(e){}}
+/* ---------- Lembretes: tela própria ---------- */
+async function lembSalvaItem(kind,id,val){const col=kind==='card'?'cartoes':'recorrentes',o=(kind==='card'?S.cards:S.recs).find(x=>x.id===id);if(!o)return;const n=Object.assign({},o);delete n.id;if(val==='')delete n.lemb;else n.lemb=val;try{await save(col,id,n)}catch(e){toast(writeErr(e))}}
+function openLembretes(){let aberto=LS('pt-lbop','')||'',addOn=false;
+  const draw=sh=>{const N=NTF(),box=sh.querySelector('#lbx'),perm=ntfOk()?Notification.permission:'indisponível',on=N.on&&perm==='granted',MO=NTMO(N),hm=ntfHM(N),me=ME(),t=today();
+    const chips=(key,arr)=>`<div class="lbch" role="group">${NTMOM.map(([d,l])=>`<button type="button" data-lbm="${key}|${d}" aria-pressed="${arr.includes(d)}">${l}</button>`).join('')}</div>`;
+    const exc=[...S.recs.filter(r=>r.ativo!==false&&lembNorm(r.lemb)!=='').map(r=>({k:'rec',id:r.id,n:r.nome,sub:r.tipo==='receita'?'receita fixa':'conta fixa',m:momDe(r.lemb)})),...S.cards.filter(c=>c.ativo!==false&&lembNorm(c.lemb)!=='').map(c=>({k:'card',id:c.id,n:c.nome,sub:'fatura do cartão',m:momDe(c.lemb)}))];
+    const cand=[...S.recs.filter(r=>r.ativo!==false&&lembNorm(r.lemb)===''&&!r.parcelas).map(r=>({k:'rec',id:r.id,n:r.nome,sub:r.tipo==='receita'?'receita fixa':'conta fixa',tp:r.tipo==='receita'?'r':'c'})),...S.cards.filter(c=>c.ativo!==false&&lembNorm(c.lemb)==='').map(c=>({k:'card',id:c.id,n:c.nome,sub:'fatura do cartão',tp:'f'}))].sort((a,b)=>a.n.localeCompare(b.n));
+    /* próximos avisos: o que vai tocar nos próximos 7 dias */
+    let prev=[];if(on){try{prev=ntfItens(N,me,t,addD(t,14)).flatMap(x=>x.ds.map(d=>({dia:addD(x.d,-d),d,x}))).filter(z=>z.dia>=t&&z.dia<=addD(t,6)).sort((a,b)=>a.dia.localeCompare(b.dia)||b.x.v-a.x.v)}catch(e){}}
+    const diaTxt=d=>d===t?'Hoje':d===addD(t,1)?'Amanhã':['dom','seg','ter','qua','qui','sex','sáb'][new Date(d+'T12:00:00').getDay()]+', '+fdate(d).slice(0,5);
+    const quando=d=>d===0?'vence hoje':d===1?'vence amanhã':'vence em '+d+' dias';
+    const grp={};prev.forEach(z=>(grp[z.dia]=grp[z.dia]||[]).push(z));
+    box.innerHTML=`<section class="lbh ${on?'on':''}"><div class="lbhr"><span class="bk ${on?'bk-g':''}">${ic('bell')}</span><span class="lbht"><b>Avisos no celular</b><small>${perm==='granted'?(on?`ligados · a partir das ${hmTxt(hm)}`:'desligados'):perm==='denied'?'bloqueados no navegador: libere em Configurações › Apps › Chrome › Notificações':perm==='indisponível'?'indisponível neste navegador':'toque para permitir'}</small></span>
+        <label class="chk lbonc"><input type="checkbox" id="lb-on" ${on?'checked':''} ${perm==='indisponível'||perm==='denied'?'disabled':''} aria-label="Avisos no celular"></label></div>
+        ${on?`<div class="lbhb"><label class="lbtm">${ic('clock')}<span>A partir das</span><input type="time" id="lb-h" value="${hmTxt(hm)}" step="900"></label></div><button class="lk lbtst" type="button" id="lb-tst">Enviar um aviso de teste</button>`:''}</section>
+      ${on?`
+      <section class="lbs"><h3 class="lbt">Vencimentos</h3>
+        ${NTTIPOS.map(([k,n,sub,icn])=>`<div class="lbr ${aberto===k?'open':''}"><button type="button" class="lbrh" data-lbo="${k}" aria-expanded="${aberto===k}"><span class="lbrn"><b>${n}</b><small>${sub}</small></span><span class="lbrv ${MO[k].length?'':'off'}">${momTxt(MO[k])}</span><svg class="ic lbcv" aria-hidden="true"><use href="#i-down"/></svg></button>
+          <div class="lbrb" ${aberto===k?'':'hidden'}><span class="flab">Avisar antes do vencimento</span>${chips(k,MO[k])}</div></div>`).join('')}
+        <div class="lbr"><div class="lbrh lbmin"><span class="lbrn"><b>Ignorar contas pequenas</b><small>não avisa contas abaixo deste valor</small></span><select id="lb-min" aria-label="Valor mínimo">${[0,20,50,100,200,500].map(v=>`<option value="${v}" ${(+N.min||0)===v?'selected':''}>${v?'abaixo de '+brl0(v):'avisar todas'}</option>`).join('')}</select></div></div>
+      </section>
+      <section class="lbs"><h3 class="lbt">Formato</h3><div class="seg" id="lb-fm"><button type="button" data-lbf="r" aria-pressed="${(N.fm||'r')==='r'}">Um resumo</button><button type="button" data-lbf="c" aria-pressed="${N.fm==='c'}">Um por conta</button></div>
+        <p class="note">${(N.fm||'r')==='r'?'Um aviso só com tudo o que vence, valores e total.':'Cada conta chega como um aviso separado.'}</p></section>
+      <section class="lbs"><h3 class="lbt">Contas com aviso próprio</h3>
+        ${exc.length?exc.map(e=>{const key=e.k+':'+e.id;return `<div class="lbr ${aberto===key?'open':''}"><button type="button" class="lbrh" data-lbo="${key}" aria-expanded="${aberto===key}"><span class="lbrn"><b>${esc(e.n)}</b><small>${e.sub}</small></span><span class="lbrv ${e.m.length?'':'off'}">${momTxt(e.m)}</span><svg class="ic lbcv" aria-hidden="true"><use href="#i-down"/></svg></button>
+          <div class="lbrb" ${aberto===key?'':'hidden'}>${chips(key,e.m)}<button class="lk" type="button" data-lbpad="${key}">Voltar ao padrão do tipo</button></div></div>`}).join(''):'<p class="note lbnone">Nenhuma. Todas seguem o padrão do seu tipo.</p>'}
+        <div class="lbr ${addOn?'open':''}"><button type="button" class="lbrh lbadd" id="lb-add" aria-expanded="${addOn}">${ic('plus')}<span class="lbrn"><b>Personalizar uma conta</b><small>ex.: energia 3 dias antes</small></span></button>
+          <div class="lbrb lbcand" ${addOn?'':'hidden'}>${cand.length?cand.map(c=>`<button type="button" class="lbcd" data-lbadd="${c.k}:${c.id}:${c.tp}"><span><b>${esc(c.n)}</b><small>${c.sub} · hoje: ${momTxt(MO[c.tp])}</small></span>›</button>`).join(''):'<p class="note">Todas as contas fixas e cartões já têm aviso próprio.</p>'}</div></div>
+      </section>
+      <section class="lbs"><h3 class="lbt">Outros avisos</h3>
+        <label class="chk lbo2"><input type="checkbox" data-nt="d" ${N.d!==0?'checked':''}><span class="lbrn"><b>Alertas para decidir</b><small>caixa vai faltar, fatura sem cobertura, assinatura mudou de valor, entrada que não caiu</small></span></label>
+        <label class="chk lbo2"><input type="checkbox" data-nt="s" ${N.s?'checked':''}><span class="lbrn"><b>Revisão da semana</b><small>domingo</small></span></label>
+        <label class="chk lbo2"><input type="checkbox" data-nt="m" ${N.m?'checked':''}><span class="lbrn"><b>Fechamento do mês</b><small>último dia</small></span></label>
+      </section>
+      <section class="lbs"><h3 class="lbt">Próximos 7 dias</h3>
+        ${prev.length?Object.keys(grp).map(d=>`<div class="lbpd"><span class="lbpdd">${diaTxt(d)} <small>${hmTxt(hm)}</small></span>${grp[d].map(z=>`<div class="lbpi"><span>${esc(z.x.t)}<small>${z.x.r?(z.d===0?'cai hoje':z.d===1?'cai amanhã':'cai em '+z.d+' dias'):quando(z.d)}</small></span><b class="n ${z.x.r?'pos':''}">${z.x.r?'+':''}${brl(z.x.v)}</b></div>`).join('')}</div>`).join(''):'<p class="note lbnone">Nenhum aviso de vencimento nos próximos 7 dias com as escolhas atuais.</p>'}
+      </section>`:''}
+      <p class="note lbft">Funciona com o app instalado pelo Chrome no Android, mesmo fechado. O Chrome decide o minuto exato em que confere, então o aviso chega a partir do horário escolhido (nunca depois das 22h nem de madrugada). Lançamentos feitos em outro aparelho entram aqui quando você abrir o app. No iPhone, só com o app aberto.</p>`;
+    const sv=n=>{LSset('pt-ntf',JSON.stringify(n));ntfSync(true)};
+    const ob=sh.querySelector('#lb-on');if(ob)ob.onchange=async()=>{const n=NTF();if(ob.checked){let p=Notification.permission;if(p!=='granted')p=await Notification.requestPermission();if(p!=='granted'){ob.checked=false;toast('O navegador não permitiu notificações');draw(sh);return}n.on=true;n.c=1}else n.on=false;LSset('pt-ntf',JSON.stringify(n));if(n.on)ntfSync(true);draw(sh)};
+    const hi=sh.querySelector('#lb-h');if(hi)hi.onchange=()=>{const v=hi.value||'08:00',[a]=v.split(':');if(+a>=22){toast('Escolha antes das 22h');hi.value=hmTxt(ntfHM(NTF()));return}const n=NTF();n.h=v;sv(n);const sm=sh.querySelector('.lbht small');if(sm)sm.textContent='ligados · a partir das '+v;sh.querySelectorAll('.lbpdd small').forEach(x=>x.textContent=v)};
+    sh.querySelectorAll('[data-lbo]').forEach(b=>b.onclick=()=>{const k=b.dataset.lbo,r=b.closest('.lbr'),o=aberto!==k;
+      sh.querySelectorAll('.lbr.open').forEach(x=>{if(x!==r){x.classList.remove('open');const bb=x.querySelector('.lbrb');if(bb)bb.hidden=true;const hh=x.querySelector('.lbrh');hh&&hh.setAttribute('aria-expanded','false')}});
+      aberto=o?k:'';LSset('pt-lbop',aberto);flipH(r,()=>{r.classList.toggle('open',o);r.querySelector('.lbrb').hidden=!o;b.setAttribute('aria-expanded',String(o))})});
+    sh.querySelectorAll('[data-lbm]').forEach(b=>b.onclick=async()=>{const [key,d]=b.dataset.lbm.split('|'),on=b.getAttribute('aria-pressed')!=='true';b.setAttribute('aria-pressed',String(on));
+      const g=[...b.parentElement.querySelectorAll('[data-lbm]')].filter(x=>x.getAttribute('aria-pressed')==='true').map(x=>+x.dataset.lbm.split('|')[1]).sort((x,y)=>y-x);
+      const rv=b.closest('.lbr').querySelector('.lbrv');if(rv){rv.textContent=momTxt(g);rv.classList.toggle('off',!g.length)}
+      if(key.includes(':')){const [kind,id]=key.split(':');await lembSalvaItem(kind,id,g.length?g.join(','):'x');ntfSync(true)}else{const n=NTF(),M=NTMO(n);M[key]=g;n.mo=M;delete n.a;sv(n)}
+      clearTimeout(sh._pv);sh._pv=setTimeout(()=>{const st=sh.querySelector('.ivx').scrollTop;draw(sh);sh.querySelector('.ivx').scrollTop=st},900)});
+    sh.querySelectorAll('[data-lbpad]').forEach(b=>b.onclick=async()=>{const [kind,id]=b.dataset.lbpad.split(':');aberto='';await lembSalvaItem(kind,id,'');ntfSync(true);setTimeout(()=>draw(sh),250)});
+    const ad=sh.querySelector('#lb-add');if(ad)ad.onclick=()=>{addOn=!addOn;const r=ad.closest('.lbr');flipH(r,()=>{r.classList.toggle('open',addOn);r.querySelector('.lbrb').hidden=!addOn;ad.setAttribute('aria-expanded',String(addOn))})};
+    sh.querySelectorAll('[data-lbadd]').forEach(b=>b.onclick=async()=>{const [kind,id,tp]=b.dataset.lbadd.split(':'),M=NTMO(NTF());await lembSalvaItem(kind,id,M[tp].length?M[tp].join(','):'x');addOn=false;aberto=kind+':'+id;setTimeout(()=>draw(sh),250)});
+    const mn=sh.querySelector('#lb-min');if(mn)mn.onchange=()=>{const n=NTF();n.min=+mn.value;sv(n);setTimeout(()=>draw(sh),50)};
+    sh.querySelectorAll('[data-lbf]').forEach(b=>b.onclick=()=>{const n=NTF();n.fm=b.dataset.lbf;sv(n);sh.querySelectorAll('[data-lbf]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));const p=b.closest('.lbs').querySelector('.note');if(p)p.textContent=n.fm==='r'?'Um aviso só com tudo o que vence, valores e total.':'Cada conta chega como um aviso separado.'});
+    sh.querySelectorAll('[data-nt]').forEach(i=>i.onchange=()=>{const n=NTF();n[i.dataset.nt]=i.checked?1:0;sv(n)});
+    const ts=sh.querySelector('#lb-tst');if(ts)ts.onclick=async()=>{try{const reg=await navigator.serviceWorker.ready;await reg.showNotification('Patrimônio',{body:'Os lembretes estão funcionando neste aparelho.',icon:'icon-192.png',badge:'icon-192.png',tag:'pt-teste'})}catch(e){try{new Notification('Patrimônio',{body:'Os lembretes estão funcionando neste aparelho.'})}catch(_){toast('Não consegui mostrar o aviso aqui')}}};
+  };
+  openSheet(`<h2>Lembretes</h2><div id="lbx" class="ivx"></div>`,draw)}
 function openPrefs(){const draw=sh=>{const z=+LS('pt-zoom','1')||1,N=NTF(),box=sh.querySelector('#pfx'),perm=ntfOk()?Notification.permission:'indisponível';
     box.innerHTML=`<section class="ivs"><div class="ivsh"><h3>Tamanho do texto</h3><small>neste aparelho</small></div><div class="seg" id="pf-z">${ZOOMS.map(([v,n])=>`<button type="button" data-z="${v}" aria-pressed="${z===v}">${n}</button>`).join('')}</div></section>
       <section class="ivs"><div class="ivsh"><h3>Modo simples</h3><small>neste aparelho</small></div><label class="chk"><input type="checkbox" id="pf-s" ${SIMPLES?'checked':''}> Mostrar só o essencial</label><p class="note">No Início ficam o caixa, as ações rápidas, “Para resolver”, quanto pode gastar e os últimos lançamentos. No Decidir, só gastar e comprar. Nada é apagado — desligue para ver tudo de novo.</p></section>
-      <section class="ivs"><div class="ivsh"><h3>Lembretes no celular</h3><small>${perm==='granted'?'permitido':perm==='denied'?'bloqueado no navegador':perm==='indisponível'?'indisponível aqui':'ainda não permitido'}</small></div>
-        <label class="chk"><input type="checkbox" id="pf-n" ${N.on&&perm==='granted'?'checked':''} ${perm==='indisponível'?'disabled':''}> Avisar no celular</label>
-        <div class="pfn" ${N.on?'':'hidden'}><label class="chk"><input type="checkbox" data-nt="c" ${N.c?'checked':''}> Contas, faturas, parcelas e receitas previstas</label><div class="pfant" ${N.c?'':'hidden'}>${(()=>{const MO=NTMO(N);return NTTIPOS.map(([k,n,sub])=>`<div class="ntt" data-ntt="${k}"><span class="nttl">${n}${sub?`<small>${sub}</small>`:''}</span><div class="ntch">${NTMOM.map(([d,l])=>`<button type="button" data-ntm="${k}|${d}" aria-pressed="${MO[k].includes(d)}">${l}</button>`).join('')}</div></div>`).join('')})()}<p class="note">Toque para ligar ou desligar cada momento; pode escolher mais de um, ou nenhum. Uma conta específica pode ser diferente: escolha em <b>Lembrete no celular</b> ao editar a conta fixa, o cartão ou o lançamento pendente.</p>
-          <div class="nth"><span class="flab">Horário dos avisos</span><div class="seg" id="pf-h">${NTHORAS.map(h=>`<button type="button" data-nth="${h}" aria-pressed="${(N.h===undefined?8:+N.h)===h}">${h}h</button>`).join('')}</div><p class="note">Os avisos só aparecem entre <b id="pf-hn">${N.h===undefined?8:+N.h}h</b> e 22h. Se o celular conferir de madrugada, o aviso fica guardado para a primeira conferência depois desse horário.</p></div></div><label class="chk"><input type="checkbox" data-nt="s" ${N.s?'checked':''}> Revisão da semana (domingo)</label><label class="chk"><input type="checkbox" data-nt="m" ${N.m?'checked':''}> Fechamento do mês (último dia)</label><label class="chk"><input type="checkbox" data-nt="d" ${N.d!==0?'checked':''}> Alertas para decidir: caixa vai faltar, fatura sem cobertura, assinatura mudou de valor, entrada que não caiu</label>
-          <div class="btnrow"><button class="btn sm" type="button" id="pf-tst">Enviar aviso de teste</button></div></div>
-        <p class="note">Funciona com o app instalado pelo Chrome no Android: o próprio celular confere os vencimentos algumas vezes por dia, mesmo com o app fechado. O momento exato da conferência é o Chrome que decide (mais vezes quanto mais você usa o app), por isso o aviso chega dentro do horário escolhido, mas não num minuto exato. Os avisos saem do que estava no app na última vez que ele abriu. No iPhone, só com o app aberto.</p></section>`;
+      <section class="ivs"><button class="cxr" type="button" id="pf-lb"><span class="bk bk-g">${ic('bell')}</span><span class="cxm"><strong>Lembretes no celular</strong><small>${N.on&&perm==='granted'?'ligados · a partir das '+hmTxt(ntfHM(N)):'desligados'}</small></span><span class="go">›</span></button></section>`;
     sh.querySelectorAll('[data-z]').forEach(b=>b.onclick=()=>{LSset('pt-zoom',b.dataset.z);zoomAp();draw(sh)});
     sh.querySelector('#pf-s').onchange=e=>{SIMPLES=e.target.checked;LSset('pt-simples',SIMPLES?'1':'0');re();toast(SIMPLES?'Modo simples ligado':'Mostrando tudo')};
-    const nb=sh.querySelector('#pf-n');nb.onchange=async()=>{const n=NTF();if(nb.checked){let p=Notification.permission;if(p!=='granted')p=await Notification.requestPermission();if(p!=='granted'){nb.checked=false;toast('O navegador não permitiu notificações');return}n.on=true}else n.on=false;LSset('pt-ntf',JSON.stringify(n));if(n.on)ntfSync(true);draw(sh)};
-    sh.querySelectorAll('[data-nt]').forEach(i=>i.onchange=()=>{const n=NTF();n[i.dataset.nt]=i.checked?1:0;LSset('pt-ntf',JSON.stringify(n));ntfSync(true);if(i.dataset.nt==='c'){const pa=sh.querySelector('.pfant');if(pa)pa.hidden=!i.checked}});
-    sh.querySelectorAll('[data-ntm]').forEach(b=>b.onclick=()=>{const n=NTF(),[k,d]=b.dataset.ntm.split('|'),MO=NTMO(n),on=b.getAttribute('aria-pressed')!=='true';MO[k]=on?[...new Set(MO[k].concat(+d))].sort((x,y)=>y-x):MO[k].filter(z=>z!==+d);n.mo=MO;delete n.a;LSset('pt-ntf',JSON.stringify(n));b.setAttribute('aria-pressed',String(on));ntfSync(true)});
-    sh.querySelectorAll('[data-nth]').forEach(b=>b.onclick=()=>{const n=NTF();n.h=+b.dataset.nth;LSset('pt-ntf',JSON.stringify(n));sh.querySelectorAll('[data-nth]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));const t=sh.querySelector('#pf-hn');if(t)t.textContent=n.h+'h';ntfSync(true)});
-    const ts=sh.querySelector('#pf-tst');if(ts)ts.onclick=async()=>{try{const reg=await navigator.serviceWorker.ready;await reg.showNotification('Patrimônio',{body:'Os lembretes estão funcionando neste aparelho.',icon:'icon-192.png',badge:'icon-192.png',tag:'pt-teste'})}catch(e){try{new Notification('Patrimônio',{body:'Os lembretes estão funcionando neste aparelho.'})}catch(_){toast('Não consegui mostrar o aviso aqui')}}}};
-  openSheet(`<h2>Aparência e lembretes</h2><div id="pfx" class="ivx"></div>`,draw)}
+    sh.querySelector('#pf-lb').onclick=()=>openLembretes()};
+  openSheet(`<h2>Aparência</h2><div id="pfx" class="ivx"></div>`,draw)}
 /* ---------- retrospectiva da semana ---------- */
 function semGastos(me,ini,fim){const its=movs().filter(i=>i.tipo==='despesa'&&i.l.data>=ini&&i.l.data<=fim&&i.j===Math.min(Math.max(+i.l.parcela||1,1),i.N)&&!i.l.rec&&!i.l.divida&&!(i.l.ign&&i.l.ign.stats));
   const L=its.map(i=>({i,v:r2(share(i,me)*(i.N>1?i.N-(Math.max(+i.l.parcela||1,1))+1:1))})).filter(x=>x.v>0);return L}
@@ -4401,7 +4477,7 @@ function tourAuto(){if(TOURRUN||!ready()||LS('pt-tour','')||RO)return;TOURRUN=tr
 function openTour(){let i=0;const draw=sh=>{const [icn,t,d]=TOUR[i],fim=i===TOUR.length-1;
     sh.querySelector('#trx').innerHTML=`<div class="trs"><span class="tri">${ic(icn)}</span><b>${t}</b><p>${d}</p></div>
       <div class="trd">${TOUR.map((_,k)=>`<i class="${k===i?'on':''}"></i>`).join('')}</div>
-      ${fim?`<div class="trm"><p class="note">Como prefere começar? Dá para mudar depois em Ajustes › Aparência e lembretes.</p><div class="seg"><button type="button" data-tm="1" aria-pressed="${SIMPLES}">Só o essencial</button><button type="button" data-tm="0" aria-pressed="${!SIMPLES}">Tudo</button></div></div>`:''}
+      ${fim?`<div class="trm"><p class="note">Como prefere começar? Dá para mudar depois em Ajustes › Aparência.</p><div class="seg"><button type="button" data-tm="1" aria-pressed="${SIMPLES}">Só o essencial</button><button type="button" data-tm="0" aria-pressed="${!SIMPLES}">Tudo</button></div></div>`:''}
       <div class="btnrow"><button class="btn primary" type="button" id="tr-n">${fim?'Começar':'Próximo'}</button>${fim?'':'<button class="lk" type="button" id="tr-x">Pular</button>'}</div>`;
     sh.querySelector('#tr-n').onclick=()=>{if(fim){LSset('pt-tour','1');closeSheet();re()}else{i++;draw(sh)}};
     const x=sh.querySelector('#tr-x');if(x)x.onclick=()=>{LSset('pt-tour','1');closeSheet()};
@@ -5971,7 +6047,7 @@ function wirePainel(el){el.querySelectorAll('[data-relm]').forEach(b=>b.onclick=
   el.querySelectorAll('[data-pnimg]').forEach(b=>b.onclick=()=>snapExport(b.closest('.pnc'),'Painel de comando','painel-'+today(),b));
   el.querySelectorAll('[data-pna]').forEach(b=>b.onclick=()=>{const [t,v]=b.dataset.pna.split(':');if(t==='go')go(v);else if(t==='rp'){RP=v;vRel()}else if(v==='rec')openRevRec();else if(v==='inv')openInvestDash();else if(v==='spread')openSpread()})}
 /* ===================== Busca global ===================== */
-const ACOES_B=[['Tour do app','conhecer onde fica cada coisa ajuda',()=>openTour()],['Lançar por frase','escrever falar voz lançamento rápido',()=>openFrase()],['Retrospectiva da semana','resumo semana compartilhar',()=>openRetro()],['Aparência e lembretes','tamanho texto modo simples notificação lembrete',()=>openPrefs()],['Posso comprar?','simular compra parcelado à vista',()=>openSimCompra()],['Revisão da semana','rotina semanal',()=>openSemana()],['Fechar quinzena','rotina salário acerto',()=>openQuinzena()],['Fechar o mês','fechamento mensal',()=>openFechamento()],
+const ACOES_B=[['Tour do app','conhecer onde fica cada coisa ajuda',()=>openTour()],['Lançar por frase','escrever falar voz lançamento rápido',()=>openFrase()],['Retrospectiva da semana','resumo semana compartilhar',()=>openRetro()],['Lembretes','notificação aviso vencimento celular horário',()=>openLembretes()],['Aparência','tamanho texto modo simples',()=>openPrefs()],['Posso comprar?','simular compra parcelado à vista',()=>openSimCompra()],['Revisão da semana','rotina semanal',()=>openSemana()],['Fechar quinzena','rotina salário acerto',()=>openQuinzena()],['Fechar o mês','fechamento mensal',()=>openFechamento()],
   ['Revisar contas fixas','assinaturas recorrentes reajuste',()=>openRevRec()],['Saúde do trimestre','reserva spread limite',()=>openSaudeTri()],['Calendário do ano','sazonais ipva iptu',()=>openSazonais()],['Apoio ao IR','imposto de renda declaração',()=>openIR()],
   ['Painel de comando','indicadores metas saúde',()=>{RP='painel';go('relatorios')}],['Relatório por período','semana quinzena trimestre ano',()=>{RP='periodo';go('relatorios')}],['Investimentos','aplicações projeção carteira',()=>openInvestDash()],['Spread','dívida aplicação antecipar',()=>openSpread()],
   ['Colchão','reserva segurança',()=>openColchao()],['Cópias de segurança','backup restaurar',()=>openBackups()],['Ajuda','dúvidas faq glossário',()=>openAjuda()],['Novo lançamento','despesa receita transferência',()=>openLanc(null)],['Bloqueio do app','pin digital segurança',()=>openBloqueio()],['Organizar categorias','classificar outros',()=>openOrganizar()]];
@@ -7031,9 +7107,9 @@ const FAQ=[
  ['Atalhos e conforto',[
   ['Onde fica cada coisa?','Faça o <b>tour rápido</b>: em um minuto ele mostra o Início, o botão de lançar, o Decidir, os Relatórios e a Carteira — e deixa escolher entre ver só o essencial ou tudo.','tour','Fazer o tour'],
   ['Como lanço escrevendo uma frase ou falando?','Ao abrir um novo lançamento, toque em <b>Escrever ou falar o lançamento</b>. Escreva como fala — “mercado 182,40 no nubank ontem”, “tv 3.000 em 10x no itaú”, “almoço 86 dividido pix”, “recebi 1.200 freela” — ou toque no microfone. O app entende valor, parcelas, data, cartão ou conta, divisão e categoria (pelo seu histórico) e abre o lançamento preenchido para você conferir.','frase','Lançar por frase'],
-  ['Como recebo lembretes no celular?','Em <b>Carteira › Ajustes › Aparência e lembretes</b>, ligue “Avisar no celular” e permita as notificações. Com o app instalado pelo Chrome no Android, o celular confere algumas vezes por dia, mesmo com o app fechado, e avisa contas, faturas e parcelas que vencem hoje e amanhã, a revisão da semana e o fechamento do mês. No iPhone, só com o app aberto.','prefs','Ligar lembretes'],
+  ['Como recebo lembretes no celular?','Em <b>Carteira › Ajustes › Lembretes</b>, ligue “Avisos no celular” e permita as notificações. Com o app instalado pelo Chrome no Android, o celular confere algumas vezes por dia, mesmo com o app fechado, e avisa contas, faturas e parcelas que vencem hoje e amanhã, a revisão da semana e o fechamento do mês. No iPhone, só com o app aberto.','prefs','Ligar lembretes'],
   ['O que é a retrospectiva da semana?','Um resumo da semana que passou: quanto gastou contra a sua média, dia a dia, dias sem gastar, maior gasto, para onde foi o dinheiro e o ritmo do mês. Aparece um aviso na segunda-feira e dá para compartilhar como imagem.','retro','Ver retrospectiva'],
-  ['Posso deixar o app mais simples ou com letra maior?','Sim, em <b>Aparência e lembretes</b>: o <b>modo simples</b> deixa só o essencial no Início e no Decidir (nada é apagado), e o <b>tamanho do texto</b> tem Normal, Grande e Maior. As duas opções valem só para o aparelho em que você escolher.','prefs','Abrir aparência']]],
+  ['Posso deixar o app mais simples ou com letra maior?','Sim, em <b>Ajustes › Aparência</b>: o <b>modo simples</b> deixa só o essencial no Início e no Decidir (nada é apagado), e o <b>tamanho do texto</b> tem Normal, Grande e Maior. As duas opções valem só para o aparelho em que você escolher.','prefs','Abrir aparência']]],
  ['Casa, família e empresa',[
   ['O que é a visão da casa?','As duas pessoas somadas: caixa, entradas e saídas do mês, investimentos e patrimônio, com a tabela por pessoa ao lado. Compras comuns já estão divididas meio a meio, então nada é contado duas vezes; o acerto em aberto entre vocês não muda o total da casa.','casa','Abrir visão da casa'],
   ['Como acompanho o custo de um filho?','Cadastre o filho em <b>Carteira › Casa, família e empresa › Filhos e mesada</b> com uma etiqueta. Tudo que você lançar com essa etiqueta (escola, saúde, roupa, lazer) entra no custo dele: mês, média e ano. Se informar a mesada, ela vira uma conta fixa automática.','filhos','Abrir filhos'],
@@ -7067,7 +7143,7 @@ const FAQ=[
   ['As cores ficaram estranhas no celular, e agora?','Confira se o celular não está forçando modo escuro em apps (Configurações → Tela → Modo escuro) e se, no Chrome, “Escurecer sites” está desligado. O app já tem tema escuro próprio, que segue o do celular.']]]
 ];
 function openAjuda(q0){
-  const run={colchao:()=>openColchao(),sim:()=>openSimCompra(),org:()=>{closeSheet();location.hash='inicio';setTimeout(()=>{const b=$('#orgbtn');b?b.click():toast('Role até o fim do Início e toque em Organizar esta tela')},350)},pes:()=>openPessoas(),prem:()=>openPremissas(),bk:()=>openBackups(),rv:()=>openRV(),rvir:()=>openRVIR(),rvalvo:()=>openRVAlvo(),meta:()=>openMeta(),dvq:()=>openDividasPlano(),cen:()=>openCenarios(),relm:()=>openRelMes(),casa:()=>openCasa(),filhos:()=>openFilhos(),pj:()=>openPJ(),pontos:()=>openPontos(),assessor:()=>openAssessor(),frase:()=>openFrase(),tour:()=>openTour(),bv:()=>openBemVindo(),prefs:()=>openPrefs(),retro:()=>openRetro()};
+  const run={colchao:()=>openColchao(),sim:()=>openSimCompra(),org:()=>{closeSheet();location.hash='inicio';setTimeout(()=>{const b=$('#orgbtn');b?b.click():toast('Role até o fim do Início e toque em Organizar esta tela')},350)},pes:()=>openPessoas(),prem:()=>openPremissas(),bk:()=>openBackups(),rv:()=>openRV(),rvir:()=>openRVIR(),rvalvo:()=>openRVAlvo(),meta:()=>openMeta(),dvq:()=>openDividasPlano(),cen:()=>openCenarios(),relm:()=>openRelMes(),casa:()=>openCasa(),filhos:()=>openFilhos(),pj:()=>openPJ(),pontos:()=>openPontos(),assessor:()=>openAssessor(),frase:()=>openFrase(),tour:()=>openTour(),bv:()=>openBemVindo(),prefs:()=>openPrefs(),lemb:()=>openLembretes(),retro:()=>openRetro()};
   const norm=s=>String(s).normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
   openSheet(`<h2>Ajuda</h2><p class="note">Dúvidas comuns sobre o app. Toque numa pergunta para ver a resposta.</p>
     <div class="field faqs"><input id="fq-q" type="search" placeholder="Buscar: livre, acerto, offline…" autocomplete="off" value="${esc(q0||'')}"></div>
@@ -7358,7 +7434,8 @@ function vCart(){
     `<button class="cxr" type="button" id="edTags"><span class="bk bk-g">${I('<path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="8.5" r="1.2"/>')}</span><span class="cxm"><strong>Categorias e etiquetas</strong><small>${CATS.length} de despesa, ${CATR.length} de receita, ${cfg().tags.length} etiquetas</small></span>${'<span class="go">›</span>'}</button>
     <button class="cxr" type="button" data-fech=""><span class="bk bk-g">${ic('calcheck')}</span><span class="cxm"><strong>Fechamento do mês</strong><small>conferência, resultado e histórico de meses fechados</small></span><span class="go">›</span></button>
     <button class="cxr" type="button" data-org="1"><span class="bk bk-g">${ic('tag')}</span><span class="cxm"><strong>Regras de categorização</strong><small>organizar “Outros” e regras automáticas</small></span><span class="go">›</span></button>
-    <button class="cxr" type="button" data-o5="prefs"><span class="bk bk-g">${ic('bell')}</span><span class="cxm"><strong>Aparência e lembretes</strong><small>tamanho do texto, modo simples, avisos no celular</small></span><span class="go">›</span></button>
+    <button class="cxr" type="button" data-o5="lemb"><span class="bk bk-g">${ic('bell')}</span><span class="cxm"><strong>Lembretes</strong><small>${(()=>{const N=NTF();return N.on&&ntfOk()&&Notification.permission==='granted'?'ligados · a partir das '+hmTxt(ntfHM(N)):'avisos de vencimento no celular'})()}</small></span><span class="go">›</span></button>
+    <button class="cxr" type="button" data-o5="prefs"><span class="bk">${ic('eye')}</span><span class="cxm"><strong>Aparência</strong><small>tamanho do texto, modo simples</small></span><span class="go">›</span></button>
     <button class="cxr" type="button" id="bloq"><span class="bk bk-g">${ic('shield')}</span><span class="cxm"><strong>Bloqueio do app</strong><small>${(LK()||{}).h?'ligado neste aparelho':'PIN, digital ou rosto ao abrir'}</small></span><span class="go">›</span></button>
     <button class="cxr" type="button" id="ajuda"><span class="bk bk-g">${I('<circle cx="12" cy="12" r="8.5"/><path d="M9.6 9.4a2.5 2.5 0 0 1 4.8.9c0 1.7-2.4 2.1-2.4 3.6"/><circle cx="12" cy="17" r=".6"/>')}</span><span class="cxm"><strong>Ajuda</strong><small>dúvidas comuns e como aproveitar o app</small></span><span class="go">›</span></button>
     <button class="cxr" type="button" data-prem="1"><span class="bk bk-g">${ic('info')}</span><span class="cxm"><strong>Premissas do app</strong><small>como cada número é calculado</small></span><span class="go">›</span></button>

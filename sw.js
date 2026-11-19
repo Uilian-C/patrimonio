@@ -1,6 +1,6 @@
 /* Patrimônio — service worker: abre o app sem internet.
    Os dados ficam no cache do Firestore (IndexedDB); aqui só guardamos o "casco" do app e as bibliotecas. */
-const V = 'pt-shell-v13';
+const V = 'pt-shell-v14';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './icon.svg', './apple-touch-icon.png'];
 const LIBS = /^https:\/\/(www\.gstatic\.com\/firebasejs\/|cdnjs\.cloudflare\.com\/|fonts\.googleapis\.com\/|fonts\.gstatic\.com\/)/;
 
@@ -45,8 +45,8 @@ async function lembrar() {
   const L = await r.json(), vr = await c.match('./__avisados.json'), ja = vr ? await vr.json() : {};
   const t = hoje(), novos = [];
   /* janela de horário: fora dela não avisa nada — fica para a primeira conferência dentro do horário */
-  const h = new Date().getHours(), h0 = L.h0 === undefined ? 8 : +L.h0, h1 = L.h1 === undefined ? 22 : +L.h1;
-  if (h < h0 || h >= h1) return;
+  const now = new Date(), mm = now.getHours() * 60 + now.getMinutes(), hm = L.hm !== undefined ? +L.hm : (L.h0 === undefined ? 8 : +L.h0) * 60, h1 = L.h1 === undefined ? 22 : +L.h1;
+  if (mm < hm || now.getHours() >= h1) return;
   const dias = d => Math.round((new Date(d + 'T12:00:00') - new Date(t + 'T12:00:00')) / 864e5);
   /* vencimentos: avisa em cada momento escolhido (3 dias antes, 1 dia antes, no dia). Se o celular não conferiu
      no dia certo, o aviso de "3 dias antes" ainda sai no dia seguinte; os de véspera e do dia não atrasam. */
@@ -61,6 +61,8 @@ async function lembrar() {
   });
   const contas = novos.filter(x => x.v), outros = novos.filter(x => !x.v);
   const quando = n => n === 0 ? 'hoje' : n === 1 ? 'amanhã' : `em ${n} dias`;
+  /* formato "um por conta": cada vencimento num aviso próprio */
+  if (L.fm === 'c') { for (const x of contas) await self.registration.showNotification((x.r ? 'A receber ' : 'Vence ') + quando(x.n), { body: `${x.t} · ${brl(x.v)}`, icon: 'icon-192.png', badge: 'icon-192.png', tag: 'pt-venc-' + x.id, data: { url: './#inicio' } }); contas.length = 0 }
   if (contas.length) {
     const hj = contas.filter(x => x.n === 0), tot = contas.reduce((a, x) => a + (x.r ? 0 : x.v), 0), mx = Math.max(...contas.map(x => x.n));
     await self.registration.showNotification(contas.length === 1 ? (contas[0].r ? 'A receber ' : 'Vence ') + quando(contas[0].n) : `${contas.length} vencimentos ${hj.length === contas.length ? 'hoje' : hj.length ? 'hoje e nos próximos dias' : mx === 1 ? 'amanhã' : 'nos próximos dias'}`,

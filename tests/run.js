@@ -8,7 +8,7 @@ const { chromium } = require('playwright');
 const { fixture } = require('./fixture');
 
 const ROOT = path.join(__dirname, '..');
-const EXPOR = ('S ME today recV recVI lembDe openPrefs ymAdd addD dayIn lastDay realBal saldoConta scopeContas fracOf mesFluxo agendaPessoal patrimonio balanco dividasAll ' +
+const EXPOR = ('S ME today recV recVI lembDe openPrefs openLembretes ymAdd addD dayIn lastDay realBal saldoConta scopeContas fracOf mesFluxo agendaPessoal patrimonio balanco dividasAll ' +
   'acerto acertoLedger credGab gabId candlesCaixa saidasDia margemCalc planoCalc mesCalc catWatch catMesMap contaMov isCaixa movs ' +
   'parseFrase rvCalc rvIR divSim divLista ORD metaCalc cenBase cenProj baseMes casaCalc pjMes filhoCalc progRet retroCalc semRev ' +
   'openRV openRVIR openCenarios openDividasPlano openCasa openPJ openPontos openFilhos openRetro openPrefs openFrase openSimCompra ' +
@@ -52,7 +52,7 @@ window.__fbSair=()=>{};setTimeout(()=>window.__fbReady(api),0);})();</script>`;
       if (w === 390) { const sw = await p.evaluate(() => document.documentElement.scrollWidth); ok(sw <= 392, `largura ${v} (${esquema})`, `${sw}px`) }
     }
     if (w === 390 && esquema === 'light') {
-      for (const fn of ['openRV', 'openRVIR', 'openCenarios', 'openDividasPlano', 'openCasa', 'openPJ', 'openPontos', 'openFilhos', 'openRetro', 'openPrefs', 'openFrase', 'openSimCompra', 'openSemana', 'openAjuda', 'openRelMes', 'openMeta', 'openAssessor', 'openInvestDash', 'openSpread', 'openLanc', 'openTour', 'openBemVindo', 'openAPagar']) {
+      for (const fn of ['openRV', 'openRVIR', 'openCenarios', 'openDividasPlano', 'openCasa', 'openPJ', 'openPontos', 'openFilhos', 'openRetro', 'openPrefs', 'openLembretes', 'openFrase', 'openSimCompra', 'openSemana', 'openAjuda', 'openRelMes', 'openMeta', 'openAssessor', 'openInvestDash', 'openSpread', 'openLanc', 'openTour', 'openBemVindo', 'openAPagar']) {
         const r = await p.evaluate(fn => { try { window.__T[fn](); return '' } catch (e) { return e.message } }, fn); await p.waitForTimeout(250);
         const sw = await p.evaluate(() => { const o = document.querySelector('#overlay'); if (!o || o.hidden) return 0;
           /* a janela em si e as áreas que rolam na vertical não podem ficar mais largas que a tela (rolagem lateral interna, como tabelas, é permitida) */
@@ -195,11 +195,19 @@ window.__fbSair=()=>{};setTimeout(()=>window.__fbReady(api),0);})();</script>`;
         await T.S.db.collection('recorrentes').add({ tipo: 'despesa', nome: 'Luz teste', valor: 200, dia: 28, dono: me, conta: 'cc', categoria: 'Casa', lemb: 3, ativo: true }); await w(300);
         const r = T.S.recs.find(x => x.nome === 'Luz teste'), a = T.lembDe({ nav: `rec:${r.id}|${cm}` }), b = T.lembDe({ nav: 'rec:nao-existe|' + cm });
         await T.S.db.doc('recorrentes/' + r.id).delete();
-        localStorage.setItem('pt-ntf', JSON.stringify({ on: true, c: 1, s: 1, m: 1, d: 1 })); T.openPrefs(); await w(500);
-        const mk = document.querySelector('[data-ntm="f|1"]'); document.querySelector('[data-ntm="c|0"]').click(); await w(150); document.querySelector('[data-ntm="c|3"]').click(); await w(150); document.querySelector('[data-nth="9"]').click(); await w(150);
-        const same = document.querySelector('[data-ntm="f|1"]') === mk, pr = ['c', 'f'].map(k => [3, 1, 0].map(d => document.querySelector(`[data-ntm="${k}|${d}"]`).getAttribute('aria-pressed') === 'true' ? 1 : 0).join('')).join(' '), N = JSON.parse(localStorage.getItem('pt-ntf')), sv = JSON.stringify([N.mo.c, N.mo.f, N.mo.r, N.h]);
-        T.closeSheet(); localStorage.removeItem('pt-ntf'); await w(200); return { a, b, same, pr, sv } });
-      ok(JSON.stringify(lbx.a) === '[3,0]' && lbx.b === null && lbx.same && lbx.pr === '110 011' && lbx.sv === '[[3,1],[1,0],[0],9]', 'lembretes: momentos independentes por tipo, por conta e horário, sem redesenhar a tela', JSON.stringify(lbx));
+        try { Object.defineProperty(Notification, 'permission', { get: () => 'granted', configurable: true }) } catch (e) { }
+        localStorage.setItem('pt-ntf', JSON.stringify({ on: true, c: 1, s: 1, m: 1, d: 1 })); T.openLembretes(); await w(500);
+        if (!document.querySelector('#lb-on').checked) return { erro: 'permissão' };
+        document.querySelector('[data-lbo="c"]').click(); await w(350);
+        const mk = document.querySelector('[data-lbm="c|1"]'), aberto = !document.querySelector('[data-lbo="c"]').closest('.lbr').querySelector('.lbrb').hidden;
+        document.querySelector('[data-lbm="c|0"]').click(); await w(100); document.querySelector('[data-lbm="c|3"]').click(); await w(100);
+        const same = document.querySelector('[data-lbm="c|1"]') === mk, rv = document.querySelector('[data-lbo="c"] .lbrv').textContent;
+        const hi = document.querySelector('#lb-h'); hi.value = '09:30'; hi.dispatchEvent(new Event('change')); await w(100);
+        const fm = document.querySelector('[data-lbf="c"]'); fm.click(); await w(100);
+        const N = JSON.parse(localStorage.getItem('pt-ntf')), sv = JSON.stringify([N.mo.c, N.mo.f, N.mo.r, N.h, N.fm]), pr = rv + '|' + aberto;
+        await w(1000); const prevOk = !!document.querySelector('.lbs .lbpd,.lbs .lbnone');
+        T.closeSheet(); localStorage.removeItem('pt-ntf'); await w(200); return { a, b, same, pr, sv, prevOk } });
+      ok(JSON.stringify(lbx.a) === '[3,0]' && lbx.b === null && lbx.same && lbx.pr === '3 dias antes e 1 dia antes|true' && lbx.sv === '[[3,1],[1,0],[0],"09:30","c"]' && lbx.prevOk, 'lembretes: tela própria com momentos por tipo, horário livre, formato e prévia', JSON.stringify(lbx));
       const vr = await p.evaluate(async () => { const T = window.__T, me = T.ME(), cm = T.today().slice(0, 7), w = ms => new Promise(r => setTimeout(r, ms));
         const ref = await T.S.db.collection('recorrentes').add({ tipo: 'despesa', nome: 'Energia teste', valor: 250, dia: 28, dono: me, conta: 'cc', categoria: 'Casa', varia: true, ativo: true }); await w(300);
         const r = T.S.recs.find(x => x.nome === 'Energia teste'), v0 = T.recV(r), prox = T.ymAdd(cm, 1);
