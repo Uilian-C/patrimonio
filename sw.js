@@ -1,6 +1,6 @@
 /* Patrimônio — service worker: abre o app sem internet.
    Os dados ficam no cache do Firestore (IndexedDB); aqui só guardamos o "casco" do app e as bibliotecas. */
-const V = 'pt-shell-v11';
+const V = 'pt-shell-v12';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './icon.svg', './apple-touch-icon.png'];
 const LIBS = /^https:\/\/(www\.gstatic\.com\/firebasejs\/|cdnjs\.cloudflare\.com\/|fonts\.googleapis\.com\/|fonts\.gstatic\.com\/)/;
 
@@ -47,7 +47,7 @@ async function lembrar() {
   const t = hoje(), am = amanha(), novos = [], ant = L.ant === undefined ? 1 : +L.ant;
   const dias = d => Math.round((new Date(d + 'T12:00:00') - new Date(t + 'T12:00:00')) / 864e5);
   /* contas: um aviso antes (conforme a antecedência escolhida) e outro no dia; demais avisos só no dia */
-  (L.itens || []).forEach(x => { if (!x) return; if (x.v) { const n = dias(x.d); if (n === 0 && !ja[x.id + '|0'] && !ja[x.id]) novos.push(Object.assign({}, x, { k: x.id + '|0', n })); else if (n > 0 && n <= ant && !ja[x.id + '|a'] && !ja[x.id]) novos.push(Object.assign({}, x, { k: x.id + '|a', n })) } else if (!ja[x.id] && x.d === t) novos.push(Object.assign({}, x, { k: x.id })) });
+  (L.itens || []).forEach(x => { if (!x) return; if (x.v) { const n = dias(x.d); if (n === 0 && !ja[x.id + '|0'] && !ja[x.id]) novos.push(Object.assign({}, x, { k: x.id + '|0', n })); else if (n > 0 && n <= (x.a !== undefined ? +x.a : ant) && !ja[x.id + '|a'] && !ja[x.id]) novos.push(Object.assign({}, x, { k: x.id + '|a', n })) } else if (!ja[x.id] && x.d === t) novos.push(Object.assign({}, x, { k: x.id })) });
   const contas = novos.filter(x => x.v), outros = novos.filter(x => !x.v);
   const quando = n => n === 0 ? 'hoje' : n === 1 ? 'amanhã' : `em ${n} dias`;
   if (contas.length) {

@@ -8,7 +8,7 @@ const { chromium } = require('playwright');
 const { fixture } = require('./fixture');
 
 const ROOT = path.join(__dirname, '..');
-const EXPOR = ('S ME today recV recVI ymAdd addD dayIn lastDay realBal saldoConta scopeContas fracOf mesFluxo agendaPessoal patrimonio balanco dividasAll ' +
+const EXPOR = ('S ME today recV recVI lembDe openPrefs ymAdd addD dayIn lastDay realBal saldoConta scopeContas fracOf mesFluxo agendaPessoal patrimonio balanco dividasAll ' +
   'acerto acertoLedger credGab gabId candlesCaixa saidasDia margemCalc planoCalc mesCalc catWatch catMesMap contaMov isCaixa movs ' +
   'parseFrase rvCalc rvIR divSim divLista ORD metaCalc cenBase cenProj baseMes casaCalc pjMes filhoCalc progRet retroCalc semRev ' +
   'openRV openRVIR openCenarios openDividasPlano openCasa openPJ openPontos openFilhos openRetro openPrefs openFrase openSimCompra ' +
@@ -191,6 +191,15 @@ window.__fbSair=()=>{};setTimeout(()=>window.__fbReady(api),0);})();</script>`;
         await T.S.db.doc('config/app').set(Object.assign({}, T.S.cfg, { padrao: P0 })); await w(300);
         const pos = (t, n) => t.indexOf(n); return { a: [pos(a, cd.nome), pos(a, ct.nome)], b: [pos(b, cd.nome), pos(b, ct.nome)], cn: cd.nome, an: ct.nome } });
       ok(pdx.a[0] === 0 && pdx.a[1] < 0 && pdx.b[1] === 0 && pdx.b[0] < 0, 'lançamento: conta padrão para despesas abre na conta em vez do cartão', JSON.stringify(pdx));
+      const lbx = await p.evaluate(async () => { const T = window.__T, me = T.ME(), w = ms => new Promise(r => setTimeout(r, ms)), cm = T.today().slice(0, 7);
+        await T.S.db.collection('recorrentes').add({ tipo: 'despesa', nome: 'Luz teste', valor: 200, dia: 28, dono: me, conta: 'cc', categoria: 'Casa', lemb: 3, ativo: true }); await w(300);
+        const r = T.S.recs.find(x => x.nome === 'Luz teste'), a = T.lembDe({ nav: `rec:${r.id}|${cm}` }), b = T.lembDe({ nav: 'rec:nao-existe|' + cm });
+        await T.S.db.doc('recorrentes/' + r.id).delete();
+        localStorage.setItem('pt-ntf', JSON.stringify({ on: true, c: 1, s: 1, m: 1, d: 1 })); T.openPrefs(); await w(500);
+        const mk = document.querySelector('[data-ant="1"]'); document.querySelector('[data-ant="3"]').click(); await w(200);
+        const same = document.querySelector('[data-ant="1"]') === mk, pr = [...document.querySelectorAll('[data-ant]')].map(x => x.getAttribute('aria-pressed')).join(','), sv = JSON.parse(localStorage.getItem('pt-ntf')).a;
+        T.closeSheet(); localStorage.removeItem('pt-ntf'); await w(200); return { a, b, same, pr, sv } });
+      ok(lbx.a === 3 && lbx.b === '' && lbx.same && lbx.pr === 'false,false,true' && lbx.sv === 3, 'lembretes: antecedência por conta e troca sem redesenhar a tela', JSON.stringify(lbx));
       const vr = await p.evaluate(async () => { const T = window.__T, me = T.ME(), cm = T.today().slice(0, 7), w = ms => new Promise(r => setTimeout(r, ms));
         const ref = await T.S.db.collection('recorrentes').add({ tipo: 'despesa', nome: 'Energia teste', valor: 250, dia: 28, dono: me, conta: 'cc', categoria: 'Casa', varia: true, ativo: true }); await w(300);
         const r = T.S.recs.find(x => x.nome === 'Energia teste'), v0 = T.recV(r), prox = T.ymAdd(cm, 1);
