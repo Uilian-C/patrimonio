@@ -8,7 +8,7 @@ const { chromium } = require('playwright');
 const { fixture } = require('./fixture');
 
 const ROOT = path.join(__dirname, '..');
-const EXPOR = ('S ME today ymAdd addD dayIn lastDay realBal saldoConta scopeContas fracOf mesFluxo agendaPessoal patrimonio balanco dividasAll ' +
+const EXPOR = ('S ME today recV recVI ymAdd addD dayIn lastDay realBal saldoConta scopeContas fracOf mesFluxo agendaPessoal patrimonio balanco dividasAll ' +
   'acerto acertoLedger credGab gabId candlesCaixa saidasDia margemCalc planoCalc mesCalc catWatch catMesMap contaMov isCaixa movs ' +
   'parseFrase rvCalc rvIR divSim divLista ORD metaCalc cenBase cenProj baseMes casaCalc pjMes filhoCalc progRet retroCalc semRev ' +
   'openRV openRVIR openCenarios openDividasPlano openCasa openPJ openPontos openFilhos openRetro openPrefs openFrase openSimCompra ' +
@@ -182,6 +182,14 @@ window.__fbSair=()=>{};setTimeout(()=>window.__fbReady(api),0);})();</script>`;
         location.hash = 'inicio'; await w(200); location.hash = 'decidir'; await w(600); const card = (document.querySelector('.szc') || {}).innerText || '';
         return { L: L && { ym: L.ym, tot: L.tot, m: L.m, porMes: L.porMes }, prev, exp: [prox, T.ymAdd(cm, 3)], dg: Math.round((g1 - g0) * 100) / 100, card: card.slice(0, 120) } });
       ok(sz.L && sz.L.tot === 1200 && sz.L.ym === sz.exp[0] && sz.L.m === 2 && sz.L.porMes === 600 && JSON.stringify(sz.prev) === JSON.stringify(sz.exp) && Math.abs(sz.dg - 600) < .02 && /IPVA teste/.test(sz.card), 'despesas do ano: só nos meses escolhidos, separar por mês e meta de guardar', JSON.stringify(sz));
+      const vr = await p.evaluate(async () => { const T = window.__T, me = T.ME(), cm = T.today().slice(0, 7), w = ms => new Promise(r => setTimeout(r, ms));
+        const ref = await T.S.db.collection('recorrentes').add({ tipo: 'despesa', nome: 'Energia teste', valor: 250, dia: 28, dono: me, conta: 'cc', categoria: 'Casa', varia: true, ativo: true }); await w(300);
+        const r = T.S.recs.find(x => x.nome === 'Energia teste'), v0 = T.recV(r), prox = T.ymAdd(cm, 1);
+        const ids = []; for (const [k, v] of [[-3, 200], [-2, 300], [-1, 310], [-4, 900]]) { const y = T.ymAdd(cm, k); const d = await T.S.db.collection('lanc').add({ tipo: 'despesa', conta: 'cc', data: T.dayIn(y, 28), valor: v, desc: 'Energia teste', categoria: 'Casa', rec: r.id, recYm: y, tags: [], divisao: 'pessoal', criadoEm: new Date().toISOString() }); ids.push(d && d.id) } await w(400);
+        const I = T.recVI(T.S.recs.find(x => x.nome === 'Energia teste')), pv = T.recPrevistos(prox, prox).find(x => x.r.nome === 'Energia teste'), ag = T.agendaPessoal(me, T.dayIn(prox, 31)).find(x => x.t === 'Energia teste' && x.d.startsWith(prox));
+        for (const id of ids) if (id) await T.S.db.doc('lanc/' + id).delete(); await T.S.db.doc('recorrentes/' + r.id).delete(); await w(300);
+        return { v0, I, pv: pv && { v: pv.valor, varia: pv.varia }, ag: ag && { v: ag.v, s: ag.s } } });
+      ok(vr.v0 === 250 && vr.I.n === 3 && vr.I.v === 270 && vr.pv && vr.pv.v === 270 && vr.pv.varia && vr.ag && vr.ag.v === -270 && /≈ valor varia · média de 3 meses/.test(vr.ag.s), 'recorrência com valor que varia: prevê pela média dos 3 últimos pagamentos', JSON.stringify(vr));
       const rp = await p.evaluate(async () => { const T = window.__T, me = T.ME(), cm = T.today().slice(0, 7), w = ms => new Promise(r => setTimeout(r, ms)), m1 = T.ymAdd(cm, -1), m2 = T.ymAdd(cm, -2);
         await T.S.db.collection('recorrentes').add({ tipo: 'despesa', nome: 'Academia', valor: 120, dia: 5, dono: me, conta: 'cc', categoria: 'Saúde', inicio: m2, ativo: true });
         await T.S.db.collection('lanc').add({ tipo: 'despesa', conta: 'cc', data: T.dayIn(m1, 6), valor: 120, desc: 'Smart Fit', categoria: 'Saúde', tags: [], divisao: 'pessoal', criadoEm: new Date().toISOString() }); await w(300);
