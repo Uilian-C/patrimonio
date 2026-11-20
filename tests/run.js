@@ -8,7 +8,7 @@ const { chromium } = require('playwright');
 const { fixture } = require('./fixture');
 
 const ROOT = path.join(__dirname, '..');
-const EXPOR = ('S ME today openLancView openCardDet closeAll confirmRec repararOrfaos openLanFiltros recV recVI lembDe openPrefs openLembretes ymAdd addD dayIn lastDay realBal saldoConta scopeContas fracOf mesFluxo agendaPessoal patrimonio balanco dividasAll ' +
+const EXPOR = ('S ME today openRepDet rdCmp rdItems openLancView openCardDet closeAll confirmRec repararOrfaos openLanFiltros recV recVI lembDe openPrefs openLembretes ymAdd addD dayIn lastDay realBal saldoConta scopeContas fracOf mesFluxo agendaPessoal patrimonio balanco dividasAll ' +
   'acerto acertoLedger credGab gabId candlesCaixa saidasDia margemCalc planoCalc mesCalc catWatch catMesMap contaMov isCaixa movs ' +
   'parseFrase rvCalc rvIR divSim divLista ORD metaCalc cenBase cenProj baseMes casaCalc pjMes filhoCalc progRet retroCalc semRev ' +
   'openRV openRVIR openCenarios openDividasPlano openCasa openPJ openPontos openFilhos openRetro openPrefs openFrase openSimCompra ' +
@@ -224,6 +224,18 @@ window.__fbSair=()=>{};setTimeout(()=>window.__fbReady(api),0);})();</script>`;
       const pvx = await p.evaluate(async () => { const T = window.__T, w = ms => new Promise(r => setTimeout(r, ms)); location.hash = 'relatorios'; await w(400); const tb = document.querySelector('[data-rp="fluxo"]'); tb && tb.click(); await w(600);
         const c = document.querySelector('.card.pvc'); if (!c) return null; return { tot: c.querySelectorAll('.pvs>div').length, g: [...c.querySelectorAll('.pvgh>span:first-child')].map(x => x.textContent), r: c.querySelectorAll('.pvr').length, b: c.querySelectorAll('.pvr [data-cf],.pvr [data-cfl]').length, sw: document.documentElement.scrollWidth - innerWidth, sub: (c.querySelector('.pvr .pvm small') || {}).textContent } });
       ok(pvx && pvx.tot >= 2 && pvx.g.length >= 1 && pvx.r > 0 && pvx.r === pvx.b && pvx.sw <= 1 && /·/.test(pvx.sub), 'previstos para confirmar: totais, grupos por prazo e linhas com tipo, prazo e origem', JSON.stringify(pvx));
+      { const rc = await p.evaluate(() => { const T = window.__T, ym = T.today().slice(0, 7), SB = ['A', 'B', 'C'];
+          T.S.lanc.forEach(l => { if (l.categoria === 'Mercado') l.subcategoria = SB[(l.desc || '').length % 3] });
+          const gk = x => x.l.subcategoria || 'Sem subcategoria', its = T.rdItems('cat', 'Mercado', ym, 'caixa'), C = T.rdCmp('cat', 'Mercado', ym, 'caixa', its, gk);
+          T.openRepDet('cat', 'Mercado', ym, 'caixa'); const o = document.querySelector('#overlay'), sh = o.querySelector('.sheet');
+          const somaDrv = C.drv.reduce((a, x) => a + x.d, 0); T.S.lanc.forEach(l => { if (l.categoria === 'Mercado') delete l.subcategoria });
+          return { tem: !!o.querySelector('.rcmp'), barras: o.querySelectorAll('[data-rdm]').length, fecha: Math.abs(somaDrv - C.d) < .01, sw: sh.scrollWidth - sh.clientWidth } });
+        ok(rc.tem && rc.barras === 6 && rc.fecha && rc.sw <= 1, 'categoria: comparação com o mês anterior, quem puxou (soma fecha) e 6 barras', JSON.stringify(rc));
+        const prevYm = await p.evaluate(() => { const g = [...document.querySelectorAll('#overlay [data-rdm]')]; return g[g.length - 2].dataset.rdm });
+        await p.evaluate(ym => document.querySelector(`#overlay [data-rdm="${ym}"]`).dispatchEvent(new MouseEvent('click', { bubbles: true })), prevYm); await p.waitForTimeout(300);
+        const cab = await p.evaluate(() => document.querySelector('#overlay .dph b').textContent);
+        ok(/\d{4}/.test(cab) && !cab.startsWith(['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'][new Date().getMonth()]), 'categoria: tocar numa barra troca o mês comparado', cab);
+        await p.evaluate(() => window.__T.closeAll()); await p.waitForTimeout(200) }
       const arx = await p.evaluate(async () => { const w = ms => new Promise(r => setTimeout(r, ms)); location.hash = 'lanc'; await w(200); location.hash = 'inicio'; await w(600);
         const b = [...document.querySelectorAll('#v-inicio .rvneed [data-asrev]')][0]; if (!b) return { sem: true }; const txt = b.innerText.replace(/\n/g, ' | '); b.click(); await w(500);
         const sh = document.querySelector('#overlay:not([hidden]) .sheet') || document.querySelector('.sheet'), r = { txt, tit: /Assinaturas para revisar/.test(document.querySelector('#overlay').innerText) ? 'Assinaturas para revisar' : '', n: sh.querySelectorAll('.arv').length, why: sh.querySelectorAll('.arvi').length, act: sh.querySelectorAll('.arva button').length }; window.__T.closeSheet(); await w(200); return r });
