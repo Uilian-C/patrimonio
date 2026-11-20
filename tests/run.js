@@ -8,7 +8,7 @@ const { chromium } = require('playwright');
 const { fixture } = require('./fixture');
 
 const ROOT = path.join(__dirname, '..');
-const EXPOR = ('S ME today confirmRec repararOrfaos openLanFiltros recV recVI lembDe openPrefs openLembretes ymAdd addD dayIn lastDay realBal saldoConta scopeContas fracOf mesFluxo agendaPessoal patrimonio balanco dividasAll ' +
+const EXPOR = ('S ME today openLancView openCardDet closeAll confirmRec repararOrfaos openLanFiltros recV recVI lembDe openPrefs openLembretes ymAdd addD dayIn lastDay realBal saldoConta scopeContas fracOf mesFluxo agendaPessoal patrimonio balanco dividasAll ' +
   'acerto acertoLedger credGab gabId candlesCaixa saidasDia margemCalc planoCalc mesCalc catWatch catMesMap contaMov isCaixa movs ' +
   'parseFrase rvCalc rvIR divSim divLista ORD metaCalc cenBase cenProj baseMes casaCalc pjMes filhoCalc progRet retroCalc semRev ' +
   'openRV openRVIR openCenarios openDividasPlano openCasa openPJ openPontos openFilhos openRetro openPrefs openFrase openSimCompra ' +
@@ -246,6 +246,18 @@ window.__fbSair=()=>{};setTimeout(()=>window.__fbReady(api),0);})();</script>`;
         const out = { cart: l && l.cartao === c.id, semConta: l && !l.conta, parc: l && l.parcelas === 1, orfCart: o && o.cartao === c.id };
         for (const x of [l, o]) if (x) await T.S.db.doc('lanc/' + x.id).delete(); await T.S.db.doc('recorrentes/' + r.id).delete(); await w(300); return out });
       ok(crx.cart && crx.semConta && crx.parc && crx.orfCart, 'assinatura de cartão: confirmar lança na fatura do cartão e conserta as que ficaram sem cartão', JSON.stringify(crx));
+      const vol = await p.evaluate(async () => { const T = window.__T, w = ms => new Promise(r => setTimeout(r, ms)), c = T.S.cards[0];
+        location.hash = 'cartoes'; await w(400); T.openCardDet(c); await w(500); const t0 = document.querySelector('#overlay .sheet').getAttribute('aria-label');
+        T.openLanc({ tipo: 'despesa', cartao: c.id, valor: 61, desc: 'Volta teste', data: T.today(), categoria: 'Outros' }); await w(500);
+        document.querySelector('#lsv').click(); await w(1200);
+        const ov = document.querySelector('#overlay'), t1 = ov.hidden ? '(fechado)' : ov.querySelector('.sheet').getAttribute('aria-label'), vw = location.hash;
+        const l = T.S.lanc.find(x => x.desc === 'Volta teste'); if (l) await T.S.db.doc('lanc/' + l.id).delete(); T.closeAll(); await w(300); return { t0, t1, vw, salvo: !!l } });
+      ok(vol.salvo && vol.t1 === vol.t0 && vol.vw === '#cartoes', 'salvar um lançamento aberto a partir do cartão volta para o cartão', JSON.stringify(vol));
+      const lvw = await p.evaluate(async () => { const T = window.__T, w = ms => new Promise(r => setTimeout(r, ms)), c = T.S.contas[0];
+        const ref = await T.S.db.collection('lanc').add({ tipo: 'despesa', conta: c.id, data: T.today(), valor: 10, desc: 'Ver teste', categoria: 'Outros', tags: [], divisao: 'pessoal', criadoEm: new Date().toISOString() }); await w(300);
+        T.openLancView(T.S.lanc.find(x => x.id === ref.id)); await w(400); T.openLanc(Object.assign({}, T.S.lanc.find(x => x.id === ref.id), { valor: 23 }), { edit: true }); await w(500); const iv = 1; document.querySelector('#lsv').click(); await w(1200);
+        const ov = document.querySelector('#overlay'), ab = !ov.hidden, tx = ov.hidden ? '' : ov.innerText; await T.S.db.doc('lanc/' + ref.id).delete(); T.closeAll(); await w(200); return { aberto: ab, novo: /23,00/.test(tx), velho: /10,00/.test(tx), inp: !!iv, tx: tx.slice(0, 120) } });
+      ok(lvw.aberto && lvw.novo && !lvw.velho, 'editar a partir do detalhe volta ao detalhe já com o valor novo', JSON.stringify(lvw));
       const vr = await p.evaluate(async () => { const T = window.__T, me = T.ME(), cm = T.today().slice(0, 7), w = ms => new Promise(r => setTimeout(r, ms));
         const ref = await T.S.db.collection('recorrentes').add({ tipo: 'despesa', nome: 'Energia teste', valor: 250, dia: 28, dono: me, conta: 'cc', categoria: 'Casa', varia: true, ativo: true }); await w(300);
         const r = T.S.recs.find(x => x.nome === 'Energia teste'), v0 = T.recV(r), prox = T.ymAdd(cm, 1);

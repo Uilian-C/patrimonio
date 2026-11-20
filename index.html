@@ -7590,12 +7590,15 @@ function moreH(items,n,k){if(items.length<=n)return items.join('');const r=items
 let sheetState=false,STACK=[],CUR=null;
 function renderSheet(e,dir){const o=$('#overlay');o.hidden=false;const m=e.html.match(/^\s*<h2>([\s\S]*?)<\/h2>/),title=m?m[1]:'',body=m?e.html.slice(m[0].length):e.html;
   o.innerHTML=`<div class="scrim" data-close></div><div class="sheet ${e.small?'small':''} ${dir?'s-'+dir:''}" role="dialog" aria-modal="true" aria-label="${esc(title.replace(/<[^>]+>/g,''))}"><div class="sheet-bar"><button class="sb-b" type="button" data-back aria-label="${STACK.length?'Voltar':'Fechar'}">${ic(STACK.length?'back':'close')}</button><span class="sb-t">${title}</span>${e.act?`<button class="sb-b sb-a" type="button" data-act aria-label="${esc(e.act.label)}">${ic(e.act.icon)}</button>`:'<span class="sb-s"></span>'}</div><div class="sheet-in">${body}</div></div>`;
-  o.querySelector('[data-close]').onclick=()=>closeSheet();o.querySelector('[data-back]').onclick=()=>backSheet();const ab=o.querySelector('[data-act]');if(ab)ab.onclick=()=>e.act.fn();
+  o.querySelector('[data-close]').onclick=()=>closeAll();o.querySelector('[data-back]').onclick=()=>backSheet();const ab=o.querySelector('[data-act]');if(ab)ab.onclick=()=>e.act.fn();
   const sh=o.querySelector('.sheet');e.mount&&e.mount(sh);const f=sh.querySelector('form .btnrow:last-of-type');if(f&&f.querySelector('.primary'))f.classList.add('stick')}
 function openSheet(html,mount,small,act){const e={html,mount,small:!!small,act};if(CUR&&!CUR.small&&!$('#overlay').hidden)STACK.push(CUR);CUR=e;renderSheet(e,STACK.length?'fwd':'');
   if(!sheetState){try{history.pushState({sheet:1},'');sheetState=true}catch(e){}}}
-function backSheet(){if(STACK.length){CUR=STACK.pop();renderSheet(CUR,'bk')}else closeSheet()}
-function closeSheet(fromPop){const o=$('#overlay');STACK=[];CUR=null;if(o.hidden)return;o.hidden=true;o.innerHTML='';if(sheetState){sheetState=false;if(fromPop!==true){try{history.back()}catch(e){}}}}
+function backSheet(){if(STACK.length){const prev=STACK.pop();if(prev.re){CUR=null;prev.re();return}CUR=prev;renderSheet(CUR,'bk')}else closeAll()}
+/* concluir uma tela: se ela foi aberta a partir de outra (ex.: lançamento a partir do cartão), volta para a de origem, já atualizada.
+   closeSheet(true) (navegação/voltar do sistema) e closeAll() fecham tudo. */
+function closeSheet(fromPop){if(fromPop!==true&&STACK.length&&!$('#overlay').hidden){const prev=STACK.pop();try{if(prev.re){CUR=null;prev.re();return}CUR=prev;renderSheet(prev,'bk');return}catch(e){console.error('voltar à tela de origem',e)}}closeAll(fromPop)}
+function closeAll(fromPop){const o=$('#overlay');STACK=[];CUR=null;if(o.hidden)return;o.hidden=true;o.innerHTML='';if(sheetState){sheetState=false;if(fromPop!==true){try{history.back()}catch(e){}}}}
 window.addEventListener('popstate',()=>{if($('#overlay').hidden){sheetState=false;return}if(STACK.length){backSheet();try{history.pushState({sheet:1},'')}catch(e){}}else closeSheet(true)});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')backSheet()});
 const opts=(a,sel)=>a.map(v=>{const [val,lab]=Array.isArray(v)?v:[v,v];return `<option value="${esc(val)}" ${String(val)===String(sel)?'selected':''}>${esc(lab)}</option>`}).join('');
@@ -8145,6 +8148,8 @@ function openLancView(l){
     sh.querySelector('#lv-dp').onclick=()=>{const d=Object.assign({},l);['id','pend','pagoEm','criadoEm','atualizadoEm','anexos','origem','rec','recYm','divida','dn'].forEach(f=>delete d[f]);d.data=today();openLanc(d)};
     sh.querySelector('#lv-del').onclick=()=>delLancUndo(l);
   },false,{icon:'edit',label:'Editar',fn:()=>openLanc(l,{edit:true})});
+  /* ao voltar de uma edição, mostra o lançamento com os dados novos (ou sai, se foi excluído) */
+  if(CUR)CUR.re=()=>{const f=S.lanc.find(x=>x.id===l.id);if(f)openLancView(f);else closeSheet()};
 }
 
 /* ---------- séries (recorrências e compras parceladas): alterar só esta, esta e as próximas, ou todas ---------- */
