@@ -5062,7 +5062,7 @@ function vInicio(){
   const x=$('#stx');if(x)x.onclick=()=>{SETUPX=true;LSset('pt-setup','x');vInicio()};
   el.querySelectorAll('[data-mym]').forEach(b=>b.onclick=()=>{MYM=ymAdd(MYM,+b.dataset.mym);vInicio()});
   el.querySelectorAll('[data-st]').forEach(b=>b.onclick=()=>{RP='fluxo';go('relatorios')});
-  el.querySelectorAll('[data-ag]').forEach(b=>b.onclick=()=>{const [k,v]=b.dataset.ag.split(/:(.*)/s);if(k==='fat'){const [c,y]=v.split('|');LF={ym:y,card:c,div:'todos',tag:'',q:''};go('lanc')}else if(k==='dv')openDividaDet(S.dividas.find(d=>d.id===v));else if(k==='ac')openAcerto(v);else if(k==='ab'){const d=S.acertos.find(a=>a.id===v);if(d)openAbater(0,'',null,{doc:d})}else if(k==='rvir')openRVIR();else if(k==='gab'){GWSEL=v;RP='salvos';go('relatorios')}else if(k==='rec'){const [id]=v.split('|');openRec(S.recs.find(r=>r.id===id))}else if(k==='l'){const l=S.lanc.find(l=>l.id===v);l&&l.pend?openPagar(l):openLanc(l)}});
+  el.querySelectorAll('[data-ag]').forEach(b=>b.onclick=()=>{const [k,v]=b.dataset.ag.split(/:(.*)/s);if(k==='fat'){const [c,y]=v.split('|');LF={ym:y,card:'c:'+c,div:'todos',tag:'',q:''};go('lanc')}else if(k==='dv')openDividaDet(S.dividas.find(d=>d.id===v));else if(k==='ac')openAcerto(v);else if(k==='ab'){const d=S.acertos.find(a=>a.id===v);if(d)openAbater(0,'',null,{doc:d})}else if(k==='rvir')openRVIR();else if(k==='gab'){GWSEL=v;RP='salvos';go('relatorios')}else if(k==='rec'){const [id]=v.split('|');openRec(S.recs.find(r=>r.id===id))}else if(k==='l'){const l=S.lanc.find(l=>l.id===v);l&&l.pend?openPagar(l):openLanc(l)}});
   el.querySelectorAll('[data-ct]').forEach(b=>b.onclick=()=>openContaDet(conta(b.dataset.ct)));
   el.querySelectorAll('[data-pends]').forEach(b=>b.onclick=openPendentes);
   el.querySelectorAll('[data-spread]').forEach(b=>b.onclick=openSpread);
@@ -5550,7 +5550,7 @@ function wireIni(el){
 }
 function wireCommon(el){
   el.querySelectorAll('[data-ac]').forEach(b=>b.onclick=()=>openAcerto(b.dataset.ac));
-  el.querySelectorAll('[data-fat]').forEach(b=>b.onclick=()=>{const [c,ym]=b.dataset.fat.split('|');LF={ym,card:c,div:'todos',tag:'',q:''};go('lanc')});
+  el.querySelectorAll('[data-fat]').forEach(b=>b.onclick=()=>{const [c,ym]=b.dataset.fat.split('|');LF={ym,card:'c:'+c,div:'todos',tag:'',q:''};go('lanc')});
   el.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{if(b.dataset.rp==='cartoes')return go('cartoes');if(b.dataset.rp)RP=b.dataset.rp;go(b.dataset.go)});
   el.querySelectorAll('[data-dv]').forEach(b=>b.onclick=()=>openDividaDet(S.dividas.find(d=>d.id===b.dataset.dv)));
   el.querySelectorAll('[data-card2]').forEach(b=>b.onclick=()=>openCard(card(b.dataset.card2)));
@@ -5615,10 +5615,12 @@ function creditoDash(compact){
 }
 /* ---------- LANÇAMENTOS ---------- */
 let LF={ym:null,card:'',div:'todos',tag:'',q:''};
+/* origem do filtro: 'c:id' = só o cartão, 'a:id' = só a conta; sem prefixo (antigo) = qualquer um com esse id */
+const lfOrg=v=>{v=v||'';return v.startsWith('c:')?{k:'c',id:v.slice(2)}:v.startsWith('a:')?{k:'a',id:v.slice(2)}:{k:'',id:v}};
 const LPER={mes:'Mês',m3:'Últimos 3 meses',m12:'Últimos 12 meses',ano:'Ano',tudo:'Tudo'},LORD={data:'Mais recentes',antigo:'Mais antigos',vmaior:'Maior valor',vmenor:'Menor valor',nome:'Descrição A–Z'};
 const lfYms=()=>{const p=LF.per||'mes',y=LF.ym;if(p==='mes')return null;if(p==='m3')return [ymAdd(y,-2),y];if(p==='m12')return [ymAdd(y,-11),y];if(p==='ano')return [y.slice(0,4)+'-01',y.slice(0,4)+'-12'];return ['0000-00','9999-99']};
 let LVIEW=LS('pt-lv','extrato');
-const lfActive=()=>[LF.per&&LF.per!=='mes'&&['per',LPER[LF.per]],LF.cat&&['cat',LF.cat],(LF.vmin||LF.vmax)&&['val',`${LF.vmin?brl0(LF.vmin):'R$ 0'} a ${LF.vmax?brl0(LF.vmax):'∞'}`],LF.ord&&LF.ord!=='data'&&['ord',LORD[LF.ord]],LF.tipo&&['tipo',{despesa:'Despesas',receita:'Receitas',outros:'Transferências e ajustes'}[LF.tipo]],LF.div&&LF.div!=='todos'&&['div',{comum:'Comum',pessoal:'Pessoal',parc:'Parcelados',rec:'Receitas'}[LF.div]],LF.sit&&['sit',{pago:'Efetivados',pend:'Em aberto',prev:'Previstos',atr:'Em atraso'}[LF.sit]],LF.prevOff===true&&['prevOff','Sem previstos'],LF.card&&['card',(card(LF.card)?cardName(card(LF.card)):(conta(LF.card)||{}).nome)||'Origem'],LF.tag&&['tag','#'+LF.tag]].filter(Boolean);
+const lfActive=()=>[LF.per&&LF.per!=='mes'&&['per',LPER[LF.per]],LF.cat&&['cat',LF.cat],(LF.vmin||LF.vmax)&&['val',`${LF.vmin?brl0(LF.vmin):'R$ 0'} a ${LF.vmax?brl0(LF.vmax):'∞'}`],LF.ord&&LF.ord!=='data'&&['ord',LORD[LF.ord]],LF.tipo&&['tipo',{despesa:'Despesas',receita:'Receitas',outros:'Transferências e ajustes'}[LF.tipo]],LF.div&&LF.div!=='todos'&&['div',{comum:'Comum',pessoal:'Pessoal',parc:'Parcelados',rec:'Receitas'}[LF.div]],LF.sit&&['sit',{pago:'Efetivados',pend:'Em aberto',prev:'Previstos',atr:'Em atraso'}[LF.sit]],LF.prevOff===true&&['prevOff','Sem previstos'],LF.card&&['card',(()=>{const O=lfOrg(LF.card);return (O.k!=='a'&&card(O.id)?cardName(card(O.id)):(conta(O.id)||{}).nome)||'Origem'})()],LF.tag&&['tag','#'+LF.tag]].filter(Boolean);
 function lancItems(view){
   const ym=LF.ym,t=today(),out=[],R=lfYms(),inR=m=>R?(m>=R[0]&&m<=R[1]):m===ym;
   movs().forEach(i=>{const inMes=inR(view==='extrato'?i.cym:i.ym);if(!inMes)return;if(R&&i.proj&&(i.cym||i.ym)>t.slice(0,7)&&LF.per==='tudo')return;
@@ -5630,7 +5632,7 @@ function lancItems(view){
   if(LF.tipo)r=r.filter(x=>x.kind===LF.tipo);
   if(LF.div==='comum')r=r.filter(x=>x.i&&x.i.comum);else if(LF.div==='pessoal')r=r.filter(x=>x.i&&x.kind==='despesa'&&!x.i.comum);else if(LF.div==='parc')r=r.filter(x=>x.i&&x.i.N>1);else if(LF.div==='rec')r=r.filter(x=>x.kind==='receita');
   if(LF.sit==='pend')r=r.filter(x=>x.pend||x.prev||(x.isC&&!fatPaga(x.i.c.id,x.i.ym)));else if(LF.sit==='pago')r=r.filter(x=>!x.pend&&!x.prev&&!(x.isC&&!fatPaga(x.i.c.id,x.i.ym)));else if(LF.sit==='prev')r=r.filter(x=>x.prev||x.pend);
-  if(LF.card)r=r.filter(x=>(x.i&&((x.i.c&&x.i.c.id===LF.card)||(x.i.a&&x.i.a.id===LF.card)))||(!x.i&&(x.l.conta===LF.card||x.l.destino===LF.card||x.l.cartao===LF.card)));
+  if(LF.card){const O=lfOrg(LF.card),C=O.k!=='a',A=O.k!=='c',id=O.id;r=r.filter(x=>(x.i&&((C&&x.i.c&&x.i.c.id===id)||(A&&x.i.a&&x.i.a.id===id)))||(!x.i&&((A&&(x.l.conta===id||x.l.destino===id))||(C&&x.l.cartao===id))))}
   if(LF.tag)r=r.filter(x=>(x.l.tags||[]).includes(LF.tag));
   if(LF.cat)r=r.filter(x=>(x.l.categoria||'Outros')===LF.cat);
   if(LF.vmin)r=r.filter(x=>Math.abs(x.v)>=+LF.vmin);if(LF.vmax)r=r.filter(x=>Math.abs(x.v)<=+LF.vmax);
@@ -5649,7 +5651,7 @@ function lrow(x,showD){
 function vLanc(){
   const el=$('#v-lanc');if(!ready()){el.innerHTML=loading();return}
   if(!LF.ym)LF.ym=today().slice(0,7);
-  if(LF.card&&LF.fromNav!==false&&card(LF.card)){LVIEW='origem';LF.fromNav=false}
+  if(LF.card&&LF.fromNav!==false&&lfOrg(LF.card).k!=='a'&&card(lfOrg(LF.card).id)){LVIEW='origem';LF.fromNav=false}
   const view=LVIEW,its=lancItems(view),t=today();
   const ent=sum(its.filter(x=>x.kind==='receita'),x=>x.v),sai=-sum(its.filter(x=>x.kind==='despesa'),x=>x.v),af=lfActive(),entP=sum(its.filter(x=>x.kind==='receita'&&(x.prev||x.pend)),x=>x.v),saiP=-sum(its.filter(x=>x.kind==='despesa'&&(x.prev||x.pend)),x=>x.v);
   let h=`<div class="lxh">
@@ -5713,7 +5715,7 @@ function openLanFiltros(){
       grp('Divisão','div',[['todos','Todas'],['comum','Comum',ic('couple','lic')],['pessoal','Pessoal',ic('user','lic')],['parc','Parcelados',ic('split','lic')]])+
       grp('Situação','sit',[['','Todas'],['atr','Em atraso',ic('alert','lic')],['pago','Efetivados',ic('checkc','lic')],['pend','Em aberto',ic('pending','lic')],['prev','Previstos',ic('calendar','lic')]])+
       `<label class="orgm" style="margin:4px 0 10px"><input type="checkbox" id="lf-pv" ${T.prevOff===true?'':'checked'}> Mostrar receitas e contas fixas previstas (salário, recorrências)</label>`+
-      `<div class="lfg"><span class="lsl">Origem</span><div class="pk">${[['','Todas',`<span class="bk bk-g">${ic('wallet')}</span>`],...S.cards.filter(c=>c.ativo!==false).map(c=>[c.id,cardName(c),cardGlyph(c)]),...S.contas.filter(a=>a.ativo!==false&&(!a.tipo||a.tipo==='corrente'||a.tipo==='dinheiro'||a.tipo==='beneficio')).map(a=>[a.id,a.nome,bankBadge(a,a.tipo)])].map(([v,n,b])=>`<button type="button" class="pki" data-fk="card" data-fv="${esc(v)}" aria-pressed="${(T.card||'')===v}">${b}<span>${esc(n)}</span></button>`).join('')}</div></div>`+
+      `<div class="lfg"><span class="lsl">Origem</span><div class="pk">${[['','Todas',`<span class="bk bk-g">${ic('wallet')}</span>`],...S.cards.filter(c=>c.ativo!==false).map(c=>['c:'+c.id,cardName(c),cardGlyph(c)]),...S.contas.filter(a=>a.ativo!==false&&(!a.tipo||a.tipo==='corrente'||a.tipo==='dinheiro'||a.tipo==='beneficio')).map(a=>['a:'+a.id,a.nome,bankBadge(a,a.tipo)])].map(([v,n,b])=>`<button type="button" class="pki" data-fk="card" data-fv="${esc(v)}" aria-pressed="${(T.card||'')===v}">${b}<span>${esc(n)}</span></button>`).join('')}</div></div>`+
       (cfg().tags.length?grp('Etiqueta','tag',[['','Todas'],...cfg().tags.map(x=>[x.nome,'#'+x.nome])]):'');
     sh.querySelectorAll('[data-fk]').forEach(b=>b.onclick=()=>{T[b.dataset.fk]=b.dataset.fv;draw(sh)});
     const pv=sh.querySelector('#lf-pv');pv.onchange=()=>T.prevOff=!pv.checked;const va=sh.querySelector('#lf-a'),vb=sh.querySelector('#lf-b');va.oninput=()=>T.vmin=va.value;vb.oninput=()=>T.vmax=vb.value;
@@ -8579,7 +8581,7 @@ function reviewSmart(out,files){
           await S.db.collection('lanc').add(d);n++;p.textContent=`Salvando ${n} de ${on.length}…`}
         if(Math.abs(adj)>=.01)await S.db.collection('lanc').add({tipo:'ajuste',conta:id,data:R.saldo.d,valor:adj,desc:'Ajuste pelo extrato',categoria:'',origem:orig,criadoEm:now});
         closeSheet();toast(`${n} lançamento${n===1?'':'s'} importado${n===1?'':'s'}`);
-        if(C){LF={ym:R.fat,card:id,div:'todos',tag:'',q:''};go('lanc')}else{LF={ym:(on[0]||{data:t}).data.slice(0,7),card:id,div:'todos',tag:'',q:'',fromNav:false};LVIEW='extrato';go('lanc')}}
+        if(C){LF={ym:R.fat,card:'c:'+id,div:'todos',tag:'',q:''};go('lanc')}else{LF={ym:(on[0]||{data:t}).data.slice(0,7),card:'a:'+id,div:'todos',tag:'',q:'',fromNav:false};LVIEW='extrato';go('lanc')}}
       catch(err){b.disabled=false;p.textContent=`${n} salvos antes do erro. ${writeErr(err)}`}};
   });
 }
@@ -8633,7 +8635,7 @@ function reviewImport(its,cid,fat,notas){
     sh.querySelector('#rv-ok').onclick=async()=>{const on=its.filter(i=>i.on),b=sh.querySelector('#rv-ok'),p=sh.querySelector('#rv-p');if(!on.length){toast('Nada selecionado');return}
       b.disabled=true;let n=0;const now=new Date().toISOString();
       try{for(const i of on){await S.db.collection('lanc').add({tipo:i.tipo,desc:i.desc,cartao:cid,conta:'',data:i.data,valor:i.valor,parcelas:i.parcelas,parcela:Math.min(i.parcela,i.parcelas),divisao:i.divisao,categoria:i.categoria,tags:i.tags,fatura:fat,obs:i.estorno?'estorno':'',origem:notas?'anotacoes':'fatura',criadoEm:now,atualizadoEm:now});n++;p.textContent=`Salvando ${n} de ${on.length}…`}
-        closeSheet();toast(`${n} lançamentos importados`);LF={ym:fat,card:cid,div:'todos',tag:'',q:''};go('lanc')}
+        closeSheet();toast(`${n} lançamentos importados`);LF={ym:fat,card:'c:'+cid,div:'todos',tag:'',q:''};go('lanc')}
       catch(err){b.disabled=false;p.textContent=`${n} salvos antes do erro. ${writeErr(err)}`}};
   });
 }

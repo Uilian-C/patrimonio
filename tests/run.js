@@ -8,7 +8,7 @@ const { chromium } = require('playwright');
 const { fixture } = require('./fixture');
 
 const ROOT = path.join(__dirname, '..');
-const EXPOR = ('S ME today recV recVI lembDe openPrefs openLembretes ymAdd addD dayIn lastDay realBal saldoConta scopeContas fracOf mesFluxo agendaPessoal patrimonio balanco dividasAll ' +
+const EXPOR = ('S ME today openLanFiltros recV recVI lembDe openPrefs openLembretes ymAdd addD dayIn lastDay realBal saldoConta scopeContas fracOf mesFluxo agendaPessoal patrimonio balanco dividasAll ' +
   'acerto acertoLedger credGab gabId candlesCaixa saidasDia margemCalc planoCalc mesCalc catWatch catMesMap contaMov isCaixa movs ' +
   'parseFrase rvCalc rvIR divSim divLista ORD metaCalc cenBase cenProj baseMes casaCalc pjMes filhoCalc progRet retroCalc semRev ' +
   'openRV openRVIR openCenarios openDividasPlano openCasa openPJ openPontos openFilhos openRetro openPrefs openFrase openSimCompra ' +
@@ -228,6 +228,15 @@ window.__fbSair=()=>{};setTimeout(()=>window.__fbReady(api),0);})();</script>`;
         const b = [...document.querySelectorAll('#v-inicio .rvneed [data-asrev]')][0]; if (!b) return { sem: true }; const txt = b.innerText.replace(/\n/g, ' | '); b.click(); await w(500);
         const sh = document.querySelector('#overlay:not([hidden]) .sheet') || document.querySelector('.sheet'), r = { txt, tit: /Assinaturas para revisar/.test(document.querySelector('#overlay').innerText) ? 'Assinaturas para revisar' : '', n: sh.querySelectorAll('.arv').length, why: sh.querySelectorAll('.arvi').length, act: sh.querySelectorAll('.arva button').length }; window.__T.closeSheet(); await w(200); return r });
       ok(arx.sem || (arx.tit === 'Assinaturas para revisar' && arx.n >= 1 && arx.why >= 1 && arx.act >= 1), 'precisa de você: assinatura abre direto na revisão, com motivo e ação', JSON.stringify(arx));
+      const dup = await p.evaluate(async () => { const T = window.__T, me = T.ME(), w = ms => new Promise(r => setTimeout(r, ms)), d = T.today();
+        await T.S.db.doc('contas/dupx').set({ nome: 'Banco Dup', tipo: 'corrente', dono: me, saldoIni: 0, ativo: true }); await T.S.db.doc('cartoes/dupx').set({ nome: 'Cartão Dup', dono: me, limite: 1000, fecha: 5, vence: 12, ativo: true }); await w(300);
+        const a = await T.S.db.collection('lanc').add({ tipo: 'despesa', conta: 'dupx', data: d, valor: 11, desc: 'Na conta dup', categoria: 'Outros', tags: [], divisao: 'pessoal', criadoEm: new Date().toISOString() });
+        const c = await T.S.db.collection('lanc').add({ tipo: 'despesa', cartao: 'dupx', data: d, valor: 22, desc: 'No cartão dup', categoria: 'Outros', tags: [], divisao: 'pessoal', parcelas: 1, parcela: 1, criadoEm: new Date().toISOString() }); await w(300);
+        const run = async v => { location.hash = 'lanc'; await w(400); T.openLanFiltros(); await w(400); const b = document.querySelector(`.sheet [data-fv="${v}"]`); if (!b) return 'sem botão'; b.click(); await w(150);
+          const pr = [...document.querySelectorAll('.sheet [data-fk="card"][aria-pressed="true"]')].map(x => x.dataset.fv); document.querySelector('#lfa').click(); await w(500); const tx = document.querySelector('#v-lanc').innerText; return { pr, conta: /Na conta dup/.test(tx), cartao: /No cartão dup/.test(tx) } };
+        const rc = await run('c:dupx'), ra = await run('a:dupx'); T.openLanFiltros(); await w(300); document.querySelector('#lfc').click(); await w(300);
+        for (const r of [a, c]) if (r && r.id) await T.S.db.doc('lanc/' + r.id).delete(); await T.S.db.doc('contas/dupx').delete(); await T.S.db.doc('cartoes/dupx').delete(); await w(300); return { rc, ra } });
+      ok(dup.rc.pr && dup.rc.pr.join() === 'c:dupx' && dup.rc.cartao && !dup.rc.conta && dup.ra.pr.join() === 'a:dupx' && dup.ra.conta && !dup.ra.cartao, 'lançamentos: filtrar o cartão não traz a conta do mesmo banco (e vice-versa)', JSON.stringify(dup));
       const vr = await p.evaluate(async () => { const T = window.__T, me = T.ME(), cm = T.today().slice(0, 7), w = ms => new Promise(r => setTimeout(r, ms));
         const ref = await T.S.db.collection('recorrentes').add({ tipo: 'despesa', nome: 'Energia teste', valor: 250, dia: 28, dono: me, conta: 'cc', categoria: 'Casa', varia: true, ativo: true }); await w(300);
         const r = T.S.recs.find(x => x.nome === 'Energia teste'), v0 = T.recV(r), prox = T.ymAdd(cm, 1);
