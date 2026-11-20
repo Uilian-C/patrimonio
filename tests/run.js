@@ -8,7 +8,7 @@ const { chromium } = require('playwright');
 const { fixture } = require('./fixture');
 
 const ROOT = path.join(__dirname, '..');
-const EXPOR = ('S ME today openLanFiltros recV recVI lembDe openPrefs openLembretes ymAdd addD dayIn lastDay realBal saldoConta scopeContas fracOf mesFluxo agendaPessoal patrimonio balanco dividasAll ' +
+const EXPOR = ('S ME today confirmRec repararOrfaos openLanFiltros recV recVI lembDe openPrefs openLembretes ymAdd addD dayIn lastDay realBal saldoConta scopeContas fracOf mesFluxo agendaPessoal patrimonio balanco dividasAll ' +
   'acerto acertoLedger credGab gabId candlesCaixa saidasDia margemCalc planoCalc mesCalc catWatch catMesMap contaMov isCaixa movs ' +
   'parseFrase rvCalc rvIR divSim divLista ORD metaCalc cenBase cenProj baseMes casaCalc pjMes filhoCalc progRet retroCalc semRev ' +
   'openRV openRVIR openCenarios openDividasPlano openCasa openPJ openPontos openFilhos openRetro openPrefs openFrase openSimCompra ' +
@@ -237,6 +237,15 @@ window.__fbSair=()=>{};setTimeout(()=>window.__fbReady(api),0);})();</script>`;
         const rc = await run('c:dupx'), ra = await run('a:dupx'); T.openLanFiltros(); await w(300); document.querySelector('#lfc').click(); await w(300);
         for (const r of [a, c]) if (r && r.id) await T.S.db.doc('lanc/' + r.id).delete(); await T.S.db.doc('contas/dupx').delete(); await T.S.db.doc('cartoes/dupx').delete(); await w(300); return { rc, ra } });
       ok(dup.rc.pr && dup.rc.pr.join() === 'c:dupx' && dup.rc.cartao && !dup.rc.conta && dup.ra.pr.join() === 'a:dupx' && dup.ra.conta && !dup.ra.cartao, 'lançamentos: filtrar o cartão não traz a conta do mesmo banco (e vice-versa)', JSON.stringify(dup));
+      const crx = await p.evaluate(async () => { const T = window.__T, me = T.ME(), w = ms => new Promise(r => setTimeout(r, ms)), c = T.S.cards[0], ym = T.today().slice(0, 7);
+        const ref = await T.S.db.collection('recorrentes').add({ tipo: 'despesa', nome: 'Assin cartão teste', valor: 33.3, dia: 3, dono: me, cartao: c.id, categoria: 'Assinaturas', ativo: true }); await w(300);
+        const r = T.S.recs.find(x => x.nome === 'Assin cartão teste'); const lr = await T.confirmRec(r, ym); await w(300);
+        const l = T.S.lanc.find(x => x.rec === r.id && x.recYm === ym);
+        const orf = await T.S.db.collection('lanc').add({ tipo: 'despesa', conta: '', data: T.today(), valor: 9.9, desc: 'Órfão teste', rec: r.id, recYm: T.ymAdd(ym, -1), tags: [], divisao: 'pessoal', criadoEm: new Date().toISOString() }); await w(300);
+        await T.repararOrfaos(); await w(300); const o = T.S.lanc.find(x => x.desc === 'Órfão teste');
+        const out = { cart: l && l.cartao === c.id, semConta: l && !l.conta, parc: l && l.parcelas === 1, orfCart: o && o.cartao === c.id };
+        for (const x of [l, o]) if (x) await T.S.db.doc('lanc/' + x.id).delete(); await T.S.db.doc('recorrentes/' + r.id).delete(); await w(300); return out });
+      ok(crx.cart && crx.semConta && crx.parc && crx.orfCart, 'assinatura de cartão: confirmar lança na fatura do cartão e conserta as que ficaram sem cartão', JSON.stringify(crx));
       const vr = await p.evaluate(async () => { const T = window.__T, me = T.ME(), cm = T.today().slice(0, 7), w = ms => new Promise(r => setTimeout(r, ms));
         const ref = await T.S.db.collection('recorrentes').add({ tipo: 'despesa', nome: 'Energia teste', valor: 250, dia: 28, dono: me, conta: 'cc', categoria: 'Casa', varia: true, ativo: true }); await w(300);
         const r = T.S.recs.find(x => x.nome === 'Energia teste'), v0 = T.recV(r), prox = T.ymAdd(cm, 1);

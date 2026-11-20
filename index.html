@@ -2572,6 +2572,7 @@ svg.dch{text-transform:none;letter-spacing:0}
 
 .arv{border:1px solid var(--line);border-radius:16px;padding:12px;margin-top:10px}.arvh{display:flex;align-items:center;gap:10px}.arvh .cxm{flex:1;min-width:0}
 .arvi{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:8px;font-size:13.5px;color:var(--muted)}.arva{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.arv.arok{border-color:color-mix(in srgb,var(--good) 50%,var(--line))}.arokt{display:inline-flex;align-items:center;gap:6px;color:var(--good);font-weight:600;font-size:14px}.arokt .ic{width:16px;height:16px}
 </style>
 <div id="fbgate" hidden><div class="bx"><svg class="lg" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="139 90 228 332"><g transform="translate(-5 0)"><rect x="186" y="100" width="12" height="312" rx="6" fill="currentColor" opacity=".55"/><rect x="164" y="150" width="56" height="210" rx="16" fill="currentColor"/><path d="M244 150h38a70 70 0 0 1 0 140h-38z" fill="#E2BA6E"/></g></svg><h1>Patrimônio</h1><p id="fbmsg">Entre com a sua conta Google para ver as finanças da casa.</p><button type="button" id="fblogin">Entrar com Google</button></div></div>
 <script type="module">
@@ -3488,7 +3489,7 @@ function openAssinRevisar(){const me=ME();
         ${f.map(([k,txt])=>`<div class="arvi ${k}"><span class="pill warn">${{reaj:'Valor mudou',dup:'Repetida',nl:'Cobrança não apareceu'}[k]}</span><span>${k==='reaj'?`cadastrado ${brl(+r.valor||0)}, ${txt}`:k==='dup'?txt:`${txt} na fatura e não foi lançada`}</span></div>`).join('')}
         <div class="arva">${f.some(z=>z[0]==='reaj')&&ul?`<button class="btn sm" type="button" data-arup="${esc(r.id)}|${+ul.valor||0}">Atualizar para ${brl(+ul.valor||0)}</button>`:''}${f.some(z=>z[0]==='nl')&&nx?`<button class="btn sm" type="button" data-arcf="${esc(r.id)}|${nx.ym}">Lançar cobrança</button>`:''}<button class="btn sm ghost" type="button" data-ared="${esc(r.id)}">Editar ou encerrar</button></div></div>`}).join('');
     box.querySelectorAll('[data-arup]').forEach(b=>b.onclick=async()=>{const [id,v]=b.dataset.arup.split('|'),r=S.recs.find(x=>x.id===id);if(!r)return;const n=Object.assign({},r);delete n.id;n.valor=+v;try{await save('recorrentes',id,n);toastOk('Assinatura atualizada',`${r.nome} · agora ${brl(+v)}`);setTimeout(()=>draw(sh),300)}catch(e){toast(writeErr(e))}});
-    box.querySelectorAll('[data-arcf]').forEach(b=>b.onclick=()=>{const [id,ym]=b.dataset.arcf.split('|');confirmRec(S.recs.find(r=>r.id===id),ym)});
+    box.querySelectorAll('[data-arcf]').forEach(b=>b.onclick=async()=>{const [id,ym]=b.dataset.arcf.split('|');b.disabled=true;const card0=b.closest('.arv');await confirmRec(S.recs.find(r=>r.id===id),ym);if(card0){card0.classList.add('arok');card0.querySelector('.arva').innerHTML=`<span class="arokt">${ic('check')} Lançada na fatura</span>`}setTimeout(()=>draw(sh),1400)});
     box.querySelectorAll('[data-ared]').forEach(b=>b.onclick=()=>openRec(S.recs.find(r=>r.id===b.dataset.ared)))};
   openSheet(`<h2>Assinaturas para revisar</h2><div id="arx"></div>`,draw)}
 document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-asrev]');if(b)openAssinRevisar()});
@@ -3502,7 +3503,7 @@ function recPendAnt(me){const t=today(),cm=t.slice(0,7),hi=(histIni()||'').slice
     /* lançamento parecido no mesmo mês, sem vínculo: provável que seja este */
     const cand=S.lanc.filter(l=>!l.rec&&(l.tipo||'despesa')===(r.tipo==='receita'?'receita':'despesa')&&(l.data||'').slice(0,7)===ym&&(r.cartao?l.cartao===r.cartao:true)&&(Math.abs((+l.valor||0)-recV(r))<=Math.max(recV(r)*(r.varia?.4:.15),2)||(key3(l.desc||'')&&key3(l.desc||'')===key3(r.nome)))).sort((a,b)=>Math.abs(a.valor-r.valor)-Math.abs(b.valor-r.valor))[0];
     out.push({r,ym,d,v:recV(r),cand})}});return out.sort((a,b)=>a.d.localeCompare(b.d))}
-async function confirmRecX(r,ym){if(r.cartao){try{await S.db.collection('lanc').add({tipo:'despesa',cartao:r.cartao,data:recDia(r,ym),valor:r.valor,desc:recNome(r,ym),categoria:r.categoria||'',subcategoria:r.subcategoria||'',divisao:r.divisao||'pessoal',rec:r.id,recYm:ym,parcelas:1,parcela:1,tags:r.tags||[],criadoEm:new Date().toISOString()});toast(recNome(r,ym)+' confirmado')}catch(err){toast(writeErr(err))}}else await confirmRec(r,ym)}
+async function confirmRecX(r,ym){return confirmRec(r,ym)}
 function openRecPend(){const draw=sh=>{const me=ME(),L=recPendAnt(me),ymL=y=>`${MESL[+y.slice(5)-1].toLowerCase()}/${y.slice(2,4)}`;
   sh.querySelector('#rpx').innerHTML=L.length?L.map((x,i)=>`<div class="rpi"><div class="rpih"><span><b>${esc(x.r.nome)}</b><small>${ymL(x.ym)} · previsto ${fdate(x.d).slice(0,5)}${x.r.cartao&&card(x.r.cartao)?' · '+esc(card(x.r.cartao).nome):''}</small></span><b class="n ${x.r.tipo==='receita'?'pos':''}">${brl(x.v)}</b></div>
     ${x.cand?`<button type="button" class="btn sm primary rpb" data-rpl="${i}">É este: ${esc(x.cand.desc||'lançamento')} · ${fdate(x.cand.data).slice(0,5)} · ${brl(+x.cand.valor||0)}</button>`:''}
@@ -5474,10 +5475,11 @@ function openPagar(l){if(l)openPagarG({l,desc:l.desc,v:+l.valor||0,due:l.venc||l
 /* ajusta só uma ocorrência de recorrência: vira um lançamento pendente com valor/data próprios, ou é pulada */
 function openAjustePrev(pv){const r=pv.r,rc=r.tipo==='receita';
   openSheet(`<h2>Ajustar previsão</h2><p class="note">${esc(pv.nome)} · só ${MES[+pv.ym.slice(5)-1].toLowerCase()}/${pv.ym.slice(2,4)}. A recorrência continua igual nos outros meses.</p>
-    <form class="form" id="fap" novalidate><div class="f2"><div class="field"><label for="ap-d">${rc?'Nova data prevista':'Novo vencimento'}</label><input id="ap-d" type="date" value="${pv.date}"></div><div class="field"><label for="ap-v">Valor previsto (R$)</label><input id="ap-v" type="number" inputmode="decimal" step="0.01" value="${+r.valor||0}"></div></div>
+    <form class="form" id="fap" novalidate><div class="f2"><div class="field"><label for="ap-d">${rc?'Nova data prevista':'Novo vencimento'}</label><input id="ap-d" type="date" value="${pv.date}"></div><div class="field"><label for="ap-v">Valor previsto (R$)</label><input id="ap-v" type="number" inputmode="decimal" step="0.01" value="${recV(r)}"></div></div>
     <div class="field"><label for="ap-o">Observação <span class="opt">opcional</span></label><textarea id="ap-o" rows="2" maxlength="300" placeholder="Ex.: férias caem dia 17"></textarea></div>
     <div class="btnrow"><button class="btn primary" type="submit">Salvar previsão</button><button class="btn" type="button" id="ap-x">${rc?'Não vai entrar este mês':'Não vai sair este mês'}</button></div></form>`,sh=>{
     sh.querySelector('#fap').onsubmit=async ev=>{ev.preventDefault();const d=sh.querySelector('#ap-d').value,v=r2(parseFloat(sh.querySelector('#ap-v').value));if(!d||!(v>0)){toast('Informe data e valor');return}
+      if(r.cartao&&!rc){try{const n=Object.assign(recLancDoc(r,pv.ym),{data:d,valor:v,desc:pv.nome}),o=sh.querySelector('#ap-o').value.trim();if(o)n.obs=o;await S.db.collection('lanc').add(n);closeSheet();toast(`Cobrança lançada na fatura · ${brl(v)} em ${fdate(d).slice(0,5)}`)}catch(err){toast(writeErr(err))}return}
       try{await S.db.collection('lanc').add({tipo:r.tipo||'despesa',pend:true,conta:r.conta||contaPadrao(),data:d,valor:v,desc:pv.nome,categoria:r.categoria||'',subcategoria:r.subcategoria||'',divisao:r.divisao||'pessoal',tags:r.tags||[],para:r.para||'',rec:r.id,recYm:pv.ym,criadoEm:new Date().toISOString(),...(sh.querySelector('#ap-o').value.trim()?{obs:sh.querySelector('#ap-o').value.trim()}:{})});closeSheet();toast(`Previsão ajustada · ${brl(v)} em ${fdate(d).slice(0,5)}`)}catch(err){toast(writeErr(err))}};
     confirmBtn(sh.querySelector('#ap-x'),'Toque de novo para confirmar',async()=>{try{const n=Object.assign({},r);delete n.id;n.pula=[...new Set([...(r.pula||[]),pv.ym])];await S.db.doc('recorrentes/'+r.id).set(n);closeSheet();toast('Ocorrência retirada da previsão')}catch(err){toast(writeErr(err))}})})}
 function openPagarG(x){
@@ -7755,8 +7757,15 @@ function openPrevista(id){
       try{await S.db.collection('lanc').add({tipo:'receita',conta:sel,data:d,valor:v,desc:nome,categoria:r.categoria||'Outras receitas',subcategoria:r.subcategoria||'',divisao:'pessoal',rec:r.id,recYm:ym,tags:r.tags||[],criadoEm:new Date().toISOString()});closeSheet();toast('Recebimento confirmado')}catch(err){toast(writeErr(err))}};
   });
 }
+/* confirmar uma conta fixa: no cartão, a cobrança entra na fatura do cartão; na conta, sai da conta. Uma regra só. */
+function recLancDoc(r,ym){const base={desc:recNome(r,ym),data:recDia(r,ym),valor:recV(r),categoria:r.categoria||'',subcategoria:r.subcategoria||'',divisao:r.divisao||'pessoal',rec:r.id,recYm:ym,tags:r.tags||[],criadoEm:new Date().toISOString()};
+  return r.cartao&&r.tipo!=='receita'?Object.assign(base,{tipo:'despesa',cartao:r.cartao,conta:'',parcelas:1,parcela:1}):Object.assign(base,{tipo:r.tipo||'despesa',conta:r.conta||''})}
 async function confirmRec(r,ym){if(!r)return;
-  try{await S.db.collection('lanc').add({tipo:r.tipo,conta:r.conta||'',data:recDia(r,ym),valor:r.valor,desc:recNome(r,ym),categoria:r.categoria||'',subcategoria:r.subcategoria||'',divisao:'pessoal',rec:r.id,recYm:ym,tags:r.tags||[],criadoEm:new Date().toISOString()});toast(recNome(r,ym)+' confirmado')}catch(err){toast(writeErr(err))}}
+  try{const d=recLancDoc(r,ym),ref=await S.db.collection('lanc').add(d);toastOk(r.tipo==='receita'?'Recebimento confirmado':'Cobrança lançada',`${d.desc} · ${brl(d.valor)}${d.cartao&&card(d.cartao)?' · '+card(d.cartao).nome:''}`,ref&&ref.id?'Desfazer':'',async()=>{await S.db.doc('lanc/'+ref.id).delete();toast('Desfeito')});return ref}catch(err){toast(writeErr(err))}}
+/* conserta lançamentos de assinatura de cartão criados sem cartão (versão anterior): ficavam fora da fatura e dos filtros */
+async function repararOrfaos(){try{const L=S.lanc.filter(l=>l.rec&&!l.conta&&!l.cartao&&l.tipo!=='receita');let n=0;
+  for(const l of L){const r=S.recs.find(x=>x.id===l.rec);if(!r||!r.cartao)continue;const d=Object.assign({},l);delete d.id;Object.assign(d,{tipo:'despesa',cartao:r.cartao,conta:'',parcelas:1,parcela:1});await save('lanc',l.id,d);n++}
+  if(n)toast(`${n} cobrança${n>1?'s':''} de assinatura ${n>1?'voltaram':'voltou'} para a fatura do cartão`)}catch(e){console.error('reparo',e)}}
 function openPessoas(){
   const C=cfg();
   openSheet(`<h2>Pessoas e quinzenas</h2><form class="form" id="fpz" novalidate>${C.pessoas.map((p,i)=>`<div class="f2"><div class="field"><label for="p-${i}">Nome ${i+1}</label><input id="p-${i}" value="${esc(p.nome)}"></div><div class="field"><label for="p-i${i}">Inicial</label><input id="p-i${i}" maxlength="2" value="${esc(p.ini||p.nome[0])}"></div></div>`).join('')}
@@ -8843,7 +8852,7 @@ const tm=setTimeout(()=>{if(!ready())live('Sem conexão')},10000);
   window.__syncUI=syncUI;window.__syncErr=e=>toast(writeErr(e));window.__bkErr=e=>{if(e&&e.code==='permission-denied')BKOFF=true};
   addEventListener('offline',()=>{syncUI();toast('Sem internet — pode lançar normalmente, sincroniza quando voltar')});
   addEventListener('online',()=>{syncUI();if(window.__fbPend)toast('Internet de volta — enviando o que foi lançado');bkAuto()});
-  const mark=()=>{if(ready()){clearTimeout(tm);syncUI();bkAuto()}};
+  const mark=()=>{if(ready()){clearTimeout(tm);syncUI();bkAuto();if(!window.__rep){window.__rep=1;setTimeout(repararOrfaos,1200)}}};
   const col=(name,key,ok)=>db.collection(name).onSnapshot(s=>{EPO++;S[key]=s.docs.map(d=>Object.assign({id:d.id},d.data()));S.ok[ok]=1;mark();re()},err);
   db.doc('config/app').onSnapshot(s=>{EPO++;S.cfg=s.exists?s.data():null;applyCats();S.ok.c=1;mark();re()},err);
   db.doc('config/rv').onSnapshot(s=>{EPO++;S.rv=s.exists?(s.data()||{}):{};re()},()=>{});
