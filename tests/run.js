@@ -8,7 +8,7 @@ const { chromium } = require('playwright');
 const { fixture } = require('./fixture');
 
 const ROOT = path.join(__dirname, '..');
-const EXPOR = ('S ME today openRepDet rdCmp rdItems openLancView openCardDet closeAll confirmRec repararOrfaos openLanFiltros recV recVI lembDe openPrefs openLembretes ymAdd addD dayIn lastDay realBal saldoConta scopeContas fracOf mesFluxo agendaPessoal patrimonio balanco dividasAll ' +
+const EXPOR = ('S ME today toastOk delLancUndo fbWrap openRepDet rdCmp rdItems openLancView openCardDet closeAll confirmRec repararOrfaos openLanFiltros recV recVI lembDe openPrefs openLembretes ymAdd addD dayIn lastDay realBal saldoConta scopeContas fracOf mesFluxo agendaPessoal patrimonio balanco dividasAll ' +
   'acerto acertoLedger credGab gabId candlesCaixa saidasDia margemCalc planoCalc mesCalc catWatch catMesMap contaMov isCaixa movs ' +
   'parseFrase rvCalc rvIR divSim divLista ORD metaCalc cenBase cenProj baseMes casaCalc pjMes filhoCalc progRet retroCalc semRev ' +
   'openRV openRVIR openCenarios openDividasPlano openCasa openPJ openPontos openFilhos openRetro openPrefs openFrase openSimCompra ' +
@@ -236,6 +236,16 @@ window.__fbSair=()=>{};setTimeout(()=>window.__fbReady(api),0);})();</script>`;
         const cab = await p.evaluate(() => document.querySelector('#overlay .dph b').textContent);
         ok(/\d{4}/.test(cab) && !cab.startsWith(['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'][new Date().getMonth()]), 'categoria: tocar numa barra troca o mês comparado', cab);
         await p.evaluate(() => window.__T.closeAll()); await p.waitForTimeout(200) }
+      { const fb = await p.evaluate(async () => { const T = window.__T, w = ms => new Promise(r => setTimeout(r, ms)), tt = () => { const t = document.querySelector('#toast'); return t.hidden ? '' : t.innerText };
+          const g = () => document.dispatchEvent(new Event('pointerdown')); document.querySelector('#toast').hidden = true; await w(3300);
+          g(); const l = T.S.lanc[0], k = Object.assign({}, l); delete k.id; T.S.db.doc('lanc/' + l.id).set(k); const topo = document.querySelector('#livet').textContent; await w(600); const a = tt();
+          await w(3300); g(); const d = T.S.lanc[1], n0 = T.S.lanc.length; T.S.db.doc('lanc/' + d.id).delete(); await w(600); const b = tt(); document.querySelector('#toast .tact').click(); await w(400);
+          const volta = T.S.lanc.some(x => x.id === d.id) && T.S.lanc.length === n0;
+          await w(3300); g(); T.S.db.doc('lanc/' + l.id).set(k); T.toastOk('Pagamento realizado'); await w(600); const c = tt();
+          await w(4300); document.querySelector('#toast').hidden = true; T.S.db.doc('lanc/' + l.id).set(k); await w(600); const auto = tt();
+          return { topo, a, b, volta, c, auto } });
+        ok(fb.topo === 'Salvando…' && /Alterações salvas/.test(fb.a) && /Lançamento excluído/.test(fb.b) && /Desfazer/.test(fb.b) && fb.volta && /Pagamento realizado/.test(fb.c) && !/salv/i.test(fb.auto),
+          'gravação nunca em silêncio: salvar/excluir dão retorno, Desfazer restaura, sem duplicar retorno da tela e sem aviso em gravação automática', JSON.stringify(fb)) }
       const arx = await p.evaluate(async () => { const w = ms => new Promise(r => setTimeout(r, ms)); location.hash = 'lanc'; await w(200); location.hash = 'inicio'; await w(600);
         const b = [...document.querySelectorAll('#v-inicio .rvneed [data-asrev]')][0]; if (!b) return { sem: true }; const txt = b.innerText.replace(/\n/g, ' | '); b.click(); await w(500);
         const sh = document.querySelector('#overlay:not([hidden]) .sheet') || document.querySelector('.sheet'), r = { txt, tit: /Assinaturas para revisar/.test(document.querySelector('#overlay').innerText) ? 'Assinaturas para revisar' : '', n: sh.querySelectorAll('.arv').length, why: sh.querySelectorAll('.arvi').length, act: sh.querySelectorAll('.arva button').length }; window.__T.closeSheet(); await w(200); return r });

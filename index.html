@@ -2608,6 +2608,17 @@ svg.dch{text-transform:none;letter-spacing:0}
 .rdc:has(.rdb-s) .rdb-b{opacity:.2}
 .rdb:focus-visible .rdb-b{stroke:var(--accent);stroke-width:2}
 .rdb.sel text:not(.neg):not(.pos){font-weight:750}
+
+/* retorno de gravação */
+.live.sv #livet{color:var(--ink);font-weight:600}
+.live.sv i{background:var(--accent)!important;animation:svp 1s ease-in-out infinite}
+.live.svd i{background:var(--good)!important;animation:none}
+@keyframes svp{50%{opacity:.35}}
+.svok{display:inline-flex;align-items:center;gap:3px;margin-left:8px;font-size:11.5px;font-weight:650;color:var(--good);white-space:nowrap;animation:svin .2s ease-out;transition:opacity .35s}
+.svok .ic{width:13px;height:13px;stroke-width:2.6}
+.svok.out{opacity:0}
+@keyframes svin{from{opacity:0;transform:translateX(-4px)}}
+@media (prefers-reduced-motion:reduce){.live.sv i,.svok{animation:none}}
 </style>
 <div id="fbgate" hidden><div class="bx"><svg class="lg" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="139 90 228 332"><g transform="translate(-5 0)"><rect x="186" y="100" width="12" height="312" rx="6" fill="currentColor" opacity=".55"/><rect x="164" y="150" width="56" height="210" rx="16" fill="currentColor"/><path d="M244 150h38a70 70 0 0 1 0 140h-38z" fill="#E2BA6E"/></g></svg><h1>Patrimônio</h1><p id="fbmsg">Entre com a sua conta Google para ver as finanças da casa.</p><button type="button" id="fblogin">Entrar com Google</button></div></div>
 <script type="module">
@@ -2756,7 +2767,7 @@ const ymL=ym=>MES[+ym.slice(5)-1]+'/'+ym.slice(2,4);
 const norm=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
 const LS=(k,d)=>{try{return localStorage.getItem(k)||d}catch(e){return d}};
 const LSset=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};
-function toast(m){const t=$('#toast');t.classList.remove('tok');t.textContent=m;t.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>t.hidden=true,2600)}
+function toast(m){FBK.at=Date.now();const t=$('#toast');t.classList.remove('tok');t.textContent=m;t.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>t.hidden=true,2600)}
 function writeErr(e){const c=e&&e.code;if(c==='not_granted'||c==='revoked')return 'Sua conta só pode ver este app.';if(c==='conflict')return 'Outra pessoa alterou ao mesmo tempo. Tente de novo.';if(c==='ro')return 'Modo leitura: este acesso só visualiza, não altera.';return 'Não consegui salvar. Verifique a conexão e tente de novo.'}
 
 const CATS=['Mercado','Casa','Contas da casa','Restaurante','Delivery','Transporte','Combustível','Saúde','Farmácia','Educação','Lazer','Viagem','Assinaturas','Compras','Vestuário','Pets','Presentes','Eventos','Obra','Serviços','Pix a pessoas','Impostos e taxas','Dívidas','Outros'];
@@ -6810,6 +6821,48 @@ function openDebtReport(key){
 
 
 
+
+/* =================== RETORNO DE GRAVAÇÃO: nada salva ou exclui em silêncio ===================
+   Toda gravação feita a partir de um toque passa por aqui. Se a própria tela já confirmou (toast, "Pagamento realizado"…), não repete.
+   Senão: lançamentos e cadastros ganham um aviso ("Lançamento salvo", "Excluído · Desfazer"); ajustes ganham um "✓ Salvo" ao lado do que mudou.
+   O indicador do topo pisca "Salvo" em toda gravação. Cópias de segurança e reparos automáticos seguem silenciosos. */
+const FBK={at:0,gest:0,ops:[],t:0,el:null,elAt:0};
+const COLK={lanc:'lanc',recorrentes:'recs',dividas:'dividas',contas:'contas',cartoes:'cards',acertos:'acertos',relatorios:'reps'};
+const FBN={lanc:['Lançamento salvo','lançamentos salvos','Lançamento excluído','lançamentos excluídos'],recorrentes:['Recorrência salva','recorrências salvas','Recorrência excluída','recorrências excluídas'],
+  dividas:['Dívida salva','dívidas salvas','Dívida excluída','dívidas excluídas'],contas:['Conta salva','contas salvas','Conta excluída','contas excluídas'],cartoes:['Cartão salvo','cartões salvos','Cartão excluído','cartões excluídos'],
+  acertos:['Acerto salvo','acertos salvos','Acerto excluído','acertos excluídos']};
+['pointerdown','keydown'].forEach(ev=>document.addEventListener(ev,()=>{FBK.gest=Date.now()},true));
+document.addEventListener('change',e=>{const t=e.target;if(t&&t.matches&&t.matches('input,select,textarea')){FBK.el=t;FBK.elAt=Date.now()}},true);
+function fbNote(kind,path,prev){
+  const c=String(path).split('/')[0];if(/^(backups|meta)$/.test(c))return;
+  if(Date.now()-FBK.gest>4000)return;/* gravação automática (reparo, sincronização) */
+  if(!FBK.ops.length)FBK.t0=Date.now();FBK.ops.push({kind,c,path,prev});
+  const L=$('#live');if(L){$('#livet').textContent='Salvando…';L.classList.add('on','sv')}
+  clearTimeout(FBK.t);FBK.t=setTimeout(fbFlush,420)}
+function fbFlush(){
+  const ops=FBK.ops;FBK.ops=[];if(!ops.length)return;
+  const L=$('#live');if(L){$('#livet').textContent=navigator.onLine?'Salvo':'Salvo no aparelho';L.classList.add('svd');clearTimeout(fbFlush.t);fbFlush.t=setTimeout(()=>{L.classList.remove('sv','svd');window.__syncUI&&window.__syncUI()},1800)}
+  if(ops.every(o=>o.c==='config')){fbInline();return}/* ajustes: "✓ Salvo" ao lado do que mudou */
+  if(FBK.at>=FBK.t0-800)return;/* a tela já deu o retorno */
+  const off=navigator.onLine?'':'sem internet · envia quando conectar';
+  const dels=ops.filter(o=>o.kind==='del'),sets=ops.filter(o=>o.kind!=='del'),main=(dels.length>=sets.length?dels:sets)[0].c,N=FBN[main];
+  if(dels.length&&!sets.length){
+    const prev=dels.filter(o=>o.prev),t=N?(dels.length>1?`${dels.length} ${N[3]}`:N[2]):(dels.length>1?`${dels.length} itens excluídos`:'Excluído');
+    try{navigator.vibrate&&navigator.vibrate([10,40,10])}catch(e){}
+    if(prev.length===dels.length)toastAct(t,'Desfazer',async()=>{for(const o of prev){const k=Object.assign({},o.prev);delete k.id;await S.db.doc(o.path).set(k)}toastOk(prev.length>1?'Restaurados':'Restaurado')});
+    else toast(t);FBK.at=Date.now();return}
+  const nw=sets.filter(o=>o.kind==='add').length,t=N?(sets.length>1?`${sets.length} ${N[1]}`:nw?N[0]:'Alterações salvas'):(sets.length>1?`${sets.length} itens salvos`:'Salvo');
+  toastOk(t,off);
+}
+function fbInline(){let el=FBK.el;if(el&&!el.isConnected&&el.id)el=document.getElementById(el.id);if(!el||Date.now()-FBK.elAt>2500||!el.isConnected)return;
+  const host=el.closest('label,.fld,.lrow,.prow,.row,.field')||el.parentElement;if(!host)return;
+  host.querySelectorAll(':scope > .svok').forEach(x=>x.remove());const b=document.createElement('span');b.className='svok';b.setAttribute('role','status');b.innerHTML=`${ic('check')}Salvo`;host.appendChild(b);setTimeout(()=>b.classList.add('out'),1500);setTimeout(()=>b.remove(),1900)}
+function fbWrap(db){
+  const find=p=>{const [c,id]=String(p).split('/'),k=COLK[c];return k&&Array.isArray(S[k])?S[k].find(x=>x.id===id):null};
+  return Object.assign({},db,{
+    collection:n=>{const c=db.collection(n);return Object.assign({},c,{add:d=>{fbNote('add',n+'/');return c.add(d)}})},
+    doc:p=>{const d=db.doc(p);return Object.assign({},d,{set:(x,o)=>{fbNote('set',p);return d.set(x,o)},delete:()=>{fbNote('del',p,find(p));return d.delete()},...(d.update?{update:x=>{fbNote('set',p);return d.update(x)}}:{})})}});
+}
 /* =================== DETALHE DE UMA LINHA DE RELATÓRIO =================== */
 /* comparação com o mês anterior: variação total, mesmo período (mês em andamento) e o que puxou para cima/baixo */
 function rdCmp(mode,key,ym,reg,its,gk){
@@ -8275,15 +8328,15 @@ function catPorHorario(){const t=today(),ini=addD(t,-90),h=new Date().getHours()
   const top=Object.entries(c).sort((a,b)=>b[1]-a[1])[0];return top&&top[1]>=3?top[0]:''}
 /* aviso com ação (desfazer) */
 /* confirmação de dinheiro que saiu ou entrou: verde, com ícone, detalhe e desfazer */
-function toastOk(tit,sub,lab,fn){const t=$('#toast');t.classList.add('tok');
+function toastOk(tit,sub,lab,fn){FBK.at=Date.now();const t=$('#toast');t.classList.add('tok');
   t.innerHTML=`<span class="tkic"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11"/><path d="M7 12.5l3.2 3.2L17 9"/></svg></span><span class="tktx"><b>${esc(tit)}</b>${sub?`<small>${esc(sub)}</small>`:''}</span>${lab?`<button type="button" class="tact">${esc(lab)}</button>`:''}`;
   t.setAttribute('role','status');t.hidden=false;clearTimeout(toast.t);try{navigator.vibrate&&navigator.vibrate(18)}catch(e){}
   const b=t.querySelector('.tact');if(b)b.onclick=async()=>{t.hidden=true;try{await fn()}catch(e){toast(writeErr(e))}};toast.t=setTimeout(()=>{t.hidden=true;t.classList.remove('tok')},lab?5200:3200)}
 /* momento de confirmação dentro do formulário antes de fechar */
-function sheetOk(sh,tit,sub){return new Promise(res=>{const o=document.createElement('div');o.className='shok';o.setAttribute('role','status');
+function sheetOk(sh,tit,sub){FBK.at=Date.now();return new Promise(res=>{const o=document.createElement('div');o.className='shok';o.setAttribute('role','status');
   o.innerHTML=`<div class="shokc"><svg viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="24"/><path d="M15 27l7.5 7.5L37.5 19"/></svg></div><b>${esc(tit)}</b>${sub?`<small>${esc(sub)}</small>`:''}`;
   (sh.closest&&sh.closest('.sheet')||sh).appendChild(o);try{navigator.vibrate&&navigator.vibrate(18)}catch(e){}setTimeout(res,RMO?200:820)})}
-function toastAct(m,lab,fn){const t=$('#toast');t.classList.remove('tok');t.innerHTML=`<span>${esc(m)}</span><button type="button" class="tact">${esc(lab)}</button>`;t.hidden=false;clearTimeout(toast.t);
+function toastAct(m,lab,fn){FBK.at=Date.now();const t=$('#toast');t.classList.remove('tok');t.innerHTML=`<span>${esc(m)}</span><button type="button" class="tact">${esc(lab)}</button>`;t.hidden=false;clearTimeout(toast.t);
   t.querySelector('.tact').onclick=async()=>{t.hidden=true;try{await fn()}catch(e){toast(writeErr(e))}};toast.t=setTimeout(()=>t.hidden=true,6000)}
 async function delLancUndo(l){const keep=Object.assign({},l);delete keep.id;try{await S.db.doc('lanc/'+l.id).delete();closeSheet();toastAct('Lançamento excluído','Desfazer',async()=>{await S.db.doc('lanc/'+l.id).set(keep);toast('Restaurado')})}catch(err){toast(writeErr(err))}}
 const LBROWF=(st,sub)=>`<div class="llb"><label for="l-lb">${ic('bell')}<span>Lembrete no celular<small>${sub}</small></span></label><select id="l-lb" class="lsel">${lembOpts(st.lemb,st.tipo==='receita'?'r':'c')}</select></div>`;
@@ -8934,8 +8987,8 @@ const tm=setTimeout(()=>{if(!ready())live('Sem conexão')},10000);
 (async()=>{
   const C=window.claude,db=C&&C.use?await C.use('db'):null;
   if(!db){clearTimeout(tm);live('Sem acesso');$('#fab').hidden=true;$('#v-inicio').innerHTML='<div class="card empty"><strong>Dados indisponíveis</strong>Abra este link com a conta que recebeu acesso.</div>';return}
-  S.db=db;const err=()=>live('Erro ao ler');
-  const syncUI=()=>{if(!ready())return;const n=window.__fbPend||0,L=$('#live');if(!navigator.onLine){live(n?'Offline · '+n+' a enviar':'Offline · salvo no aparelho');L&&L.classList.add('off')}else{L&&L.classList.remove('off');n?live('Enviando '+n):live('Ao vivo',true)}};
+  S.db=fbWrap(db);const err=()=>live('Erro ao ler');
+  const syncUI=()=>{if(!ready())return;if($('#live').classList.contains('sv'))return;const n=window.__fbPend||0,L=$('#live');if(!navigator.onLine){live(n?'Offline · '+n+' a enviar':'Offline · salvo no aparelho');L&&L.classList.add('off')}else{L&&L.classList.remove('off');n?live('Enviando '+n):live('Ao vivo',true)}};
   window.__syncUI=syncUI;window.__syncErr=e=>toast(writeErr(e));window.__bkErr=e=>{if(e&&e.code==='permission-denied')BKOFF=true};
   addEventListener('offline',()=>{syncUI();toast('Sem internet — pode lançar normalmente, sincroniza quando voltar')});
   addEventListener('online',()=>{syncUI();if(window.__fbPend)toast('Internet de volta — enviando o que foi lançado');bkAuto()});
