@@ -8,7 +8,7 @@ const { chromium } = require('playwright');
 const { fixture } = require('./fixture');
 
 const ROOT = path.join(__dirname, '..');
-const EXPOR = ('S ME today openMenu toastOk delLancUndo fbWrap openRepDet rdCmp rdItems openLancView openCardDet closeAll confirmRec repararOrfaos openLanFiltros recV recVI lembDe openPrefs openLembretes ymAdd addD dayIn lastDay realBal saldoConta scopeContas fracOf mesFluxo agendaPessoal patrimonio balanco dividasAll ' +
+const EXPOR = ('S ME today acertoCaminho acertoLedger vRel openMenu toastOk delLancUndo fbWrap openRepDet rdCmp rdItems openLancView openCardDet closeAll confirmRec repararOrfaos openLanFiltros recV recVI lembDe openPrefs openLembretes ymAdd addD dayIn lastDay realBal saldoConta scopeContas fracOf mesFluxo agendaPessoal patrimonio balanco dividasAll ' +
   'acerto acertoLedger credGab gabId candlesCaixa saidasDia margemCalc planoCalc mesCalc catWatch catMesMap contaMov isCaixa movs ' +
   'parseFrase rvCalc rvIR divSim divLista ORD metaCalc cenBase cenProj baseMes casaCalc pjMes filhoCalc progRet retroCalc semRev ' +
   'openRV openRVIR openCenarios openDividasPlano openCasa openPJ openPontos openFilhos openRetro openPrefs openFrase openSimCompra ' +
@@ -246,6 +246,14 @@ window.__fbSair=()=>{};setTimeout(()=>window.__fbReady(api),0);})();</script>`;
           return { topo, a, b, volta, c, auto } });
         ok(fb.topo === 'Salvando…' && /Alterações salvas/.test(fb.a) && /Lançamento excluído/.test(fb.b) && /Desfazer/.test(fb.b) && fb.volta && /Pagamento realizado/.test(fb.c) && !/salv/i.test(fb.auto),
           'gravação nunca em silêncio: salvar/excluir dão retorno, Desfazer restaura, sem duplicar retorno da tela e sem aviso em gravação automática', JSON.stringify(fb)) }
+      { const cm = await p.evaluate(async () => { const T = window.__T, t = T.today(), w = ms => new Promise(r => setTimeout(r, ms));
+          const fut = T.S.cards.map(c => c).find(c => { const k = T.movs().find(i => i.src === 'card' && i.c.id === c.id); return true });
+          const a0 = T.acertoCaminho().tot; let id = null;
+          for (const c of T.S.cards) { const r = await T.S.db.collection('lanc').add({ tipo: 'despesa', desc: 'Teste a caminho', valor: 100, data: t, cartao: c.id, divisao: 'comum', categoria: 'Outros', parcelas: 1 }); await w(150);
+            const m = T.movs().find(i => i.l.id === r.id); const cur = T.acertoLedger().its.some(x => x.l.id === r.id), cam = T.acertoCaminho().its.some(x => x.l.id === r.id);
+            await T.S.db.doc('lanc/' + r.id).delete(); await w(100); if (!cur && !cam) return { erro: 'compra comum sumiu', due: m && m.due, per: m && m.per } }
+          return { ok: true } });
+        ok(cm.ok, 'acerto: compra comum nova aparece já (em aberto ou "a caminho" até a fatura vencer)', JSON.stringify(cm)) }
       const arx = await p.evaluate(async () => { const w = ms => new Promise(r => setTimeout(r, ms)); location.hash = 'lanc'; await w(200); location.hash = 'inicio'; await w(600);
         const b = [...document.querySelectorAll('#v-inicio .rvneed [data-asrev]')][0]; if (!b) return { sem: true }; const txt = b.innerText.replace(/\n/g, ' | '); b.click(); await w(500);
         const sh = document.querySelector('#overlay:not([hidden]) .sheet') || document.querySelector('.sheet'), r = { txt, tit: /Assinaturas para revisar/.test(document.querySelector('#overlay').innerText) ? 'Assinaturas para revisar' : '', n: sh.querySelectorAll('.arv').length, why: sh.querySelectorAll('.arvi').length, act: sh.querySelectorAll('.arva button').length }; window.__T.closeSheet(); await w(200); return r });
