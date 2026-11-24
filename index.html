@@ -2619,6 +2619,22 @@ svg.dch{text-transform:none;letter-spacing:0}
 .svok.out{opacity:0}
 @keyframes svin{from{opacity:0;transform:translateX(-4px)}}
 @media (prefers-reduced-motion:reduce){.live.sv i,.svok{animation:none}}
+
+/* lançar: menu compacto do + */
+#fabm{position:fixed;inset:0;z-index:60;pointer-events:none}
+.fbm-s{position:absolute;inset:0;background:rgba(0,0,0,.18);opacity:0;transition:opacity .16s;pointer-events:auto}
+#fabm.on .fbm-s{opacity:1}
+.fbm{position:absolute;display:grid;justify-items:end;gap:8px;pointer-events:auto}
+.fbm-i{display:inline-flex;align-items:center;gap:9px;height:42px;padding:0 16px 0 13px;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink);font:inherit;font-size:14.5px;font-weight:600;white-space:nowrap;box-shadow:0 10px 24px -14px rgba(0,0,0,.45);cursor:pointer;
+  opacity:0;transform:translateY(8px) scale(.96);transition:opacity .16s var(--d,0ms),transform .2s cubic-bezier(.2,.8,.2,1) var(--d,0ms)}
+#fabm.on .fbm-i{opacity:1;transform:none}
+.fbm-i svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;color:var(--muted)}
+.fbm-i.pri{background:var(--fab-bg,var(--accent));color:var(--fab-ink,var(--accent-ink));border-color:transparent}
+.fbm-i.pri svg{color:currentColor}
+.fbm-i:active{transform:scale(.97)}
+#fab svg{transition:transform .2s cubic-bezier(.2,.8,.2,1)}
+#fab.open svg{transform:rotate(45deg)}
+@media (prefers-reduced-motion:reduce){.fbm-i,.fbm-s,#fab svg{transition:none}}
 </style>
 <div id="fbgate" hidden><div class="bx"><svg class="lg" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="139 90 228 332"><g transform="translate(-5 0)"><rect x="186" y="100" width="12" height="312" rx="6" fill="currentColor" opacity=".55"/><rect x="164" y="150" width="56" height="210" rx="16" fill="currentColor"/><path d="M244 150h38a70 70 0 0 1 0 140h-38z" fill="#E2BA6E"/></g></svg><h1>Patrimônio</h1><p id="fbmsg">Entre com a sua conta Google para ver as finanças da casa.</p><button type="button" id="fblogin">Entrar com Google</button></div></div>
 <script type="module">
@@ -8503,13 +8519,21 @@ function openLanc(l,opts){
 }
 
 function openMenu(){
-  const I=(p)=>`<span class="mic"><svg viewBox="0 0 24 24">${p}</svg></span>`;
-  openSheet(`<h2>Adicionar</h2><div class="menu">
-    <button class="mi" type="button" data-mm="manual">${I('<path d="M12 5v14M5 12h14"/>')}<span><strong>Lançamento</strong><small>Despesa, receita ou transferência</small></span><span class="go">›</span></button>
-    <button class="mi" type="button" data-mm="frase">${I('<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/>')}<span><strong>Por frase ou voz</strong><small>“mercado 120 no nubank ontem” — o app preenche</small></span><span class="go">›</span></button>
-    <button class="mi" type="button" data-mm="smart">${I('<path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5"/><path d="M12 10.5l.9 2.6 2.6.9-2.6.9-.9 2.6-.9-2.6-2.6-.9 2.6-.9z"/>')}<span><strong>${S.sample?'Ler documento':'Importar extrato'}</strong><small>${S.sample?'PDF, extrato, fatura, print ou foto: o app identifica e lança':'Arquivo OFX ou CSV do banco: o app classifica e marca o que já existe'}</small></span><span class="go">›</span></button>
-  </div>`,sh=>sh.querySelectorAll('[data-mm]').forEach(b=>b.onclick=()=>{const k=b.dataset.mm;if(k==='manual')openLanc(null);else if(k==='frase')openFrase();else if(k==='smart')openSmartImport();else openImport(k)}),true);
+  /* lançar: menu compacto preso ao botão + (3 atalhos de uma linha), sem folha de tela cheia */
+  const old=$('#fabm');if(old){fabmClose();return}
+  const fab=$('#fab'),r=fab.getBoundingClientRect(),I=p=>`<svg viewBox="0 0 24 24" aria-hidden="true">${p}</svg>`;
+  const it=[['manual','Lançamento',I('<path d="M12 5v14M5 12h14"/>')],['frase','Por voz ou frase',I('<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/>')],
+    ['smart',S.sample?'Ler documento':'Importar extrato',I('<path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5"/>')]];
+  const w=document.createElement('div');w.id='fabm';w.innerHTML=`<div class="fbm-s" data-fbx></div><div class="fbm" role="menu" aria-label="Lançar" style="right:${Math.max(innerWidth-r.right,12)}px;bottom:${innerHeight-r.top+10}px">${it.map(([k,t,i],n)=>`<button type="button" role="menuitem" class="fbm-i ${n?'':'pri'}" data-mm="${k}" style="--d:${(it.length-1-n)*35}ms">${i}<span>${t}</span></button>`).join('')}</div>`;
+  document.body.appendChild(w);fab.classList.add('open');fab.setAttribute('aria-expanded','true');
+  requestAnimationFrame(()=>w.classList.add('on'));w.querySelector('.fbm-i').focus({preventScroll:true});
+  w.querySelector('[data-fbx]').onclick=fabmClose;
+  w.querySelectorAll('[data-mm]').forEach(b=>b.onclick=()=>{const k=b.dataset.mm;fabmClose(true);if(k==='manual')openLanc(null);else if(k==='frase')openFrase();else if(k==='smart')openSmartImport()});
+  fabmClose.k=e=>{if(e.key==='Escape'){e.preventDefault();fabmClose()}};document.addEventListener('keydown',fabmClose.k,true);
+  addEventListener('hashchange',fabmClose,{once:true});
 }
+function fabmClose(now){const w=$('#fabm');if(!w)return;const fab=$('#fab');fab.classList.remove('open');fab.setAttribute('aria-expanded','false');document.removeEventListener('keydown',fabmClose.k,true);
+  if(now===true||RMO){w.remove();return}w.classList.remove('on');setTimeout(()=>w.remove(),160)}
 
 /* ---------- importação com IA ---------- */
 async function pdfText(file){
