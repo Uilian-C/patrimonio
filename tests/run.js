@@ -8,7 +8,7 @@ const { chromium } = require('playwright');
 const { fixture } = require('./fixture');
 
 const ROOT = path.join(__dirname, '..');
-const EXPOR = ('S ME today repRun repRange repDef repTrf repChart acertoS0 acertoCaminho acertoLedger vRel openMenu toastOk delLancUndo fbWrap openRepDet rdCmp rdItems openLancView openCardDet closeAll confirmRec repararOrfaos openLanFiltros recV recVI lembDe openPrefs openLembretes ymAdd addD dayIn lastDay realBal saldoConta scopeContas fracOf mesFluxo agendaPessoal patrimonio balanco dividasAll ' +
+const EXPOR = ('S ME today repFunnel repRun repRange repDef repTrf repChart acertoS0 acertoCaminho acertoLedger vRel openMenu toastOk delLancUndo fbWrap openRepDet rdCmp rdItems openLancView openCardDet closeAll confirmRec repararOrfaos openLanFiltros recV recVI lembDe openPrefs openLembretes ymAdd addD dayIn lastDay realBal saldoConta scopeContas fracOf mesFluxo agendaPessoal patrimonio balanco dividasAll ' +
   'acerto acertoLedger credGab gabId candlesCaixa saidasDia margemCalc planoCalc mesCalc catWatch catMesMap contaMov isCaixa movs ' +
   'parseFrase rvCalc rvIR divSim divLista ORD metaCalc cenBase cenProj baseMes casaCalc pjMes filhoCalc progRet retroCalc semRev ' +
   'openRV openRVIR openCenarios openDividasPlano openCasa openPJ openPontos openFilhos openRetro openPrefs openFrase openSimCompra ' +
@@ -270,9 +270,14 @@ window.__fbSair=()=>{};setTimeout(()=>window.__fbReady(api),0);})();</script>`;
               if (Tr.gr.length && !eq(sg, Tr.tot)) bad.push(tag + ' Σgrupos ' + sg + '≠transferir ' + Tr.tot);
               if (!eq(Tr.openPer + Tr.prevV + Tr.ab, Tr.tot)) bad.push(tag + ' transferir≠período+anteriores+abatimento');
               if (!eq(Tr.openPer, X.its.filter(x => !x.paid && x.kind !== 'abat').reduce((a, x) => a + X.sg(x), 0))) bad.push(tag + ' aberto do período inconsistente');
-              if (Tr.prev.some(x => x.ref >= R.ini)) bad.push(tag + ' anterior dentro do período') } }
+              if (Tr.prev.some(x => x.ref >= R.ini)) bad.push(tag + ' anterior dentro do período') }
+            const F = T.repFunnel(D, R, X), sgr = F.gr.reduce((q, g) => q + g[1], 0);
+            if (!eq(F.tot, F.paid + F.open)) bad.push(tag + ' funil: total≠pago+aberto');
+            if (F.gr.length && !eq(sgr, F.tot)) bad.push(tag + ' funil: Σgrupos ' + sgr + '≠total ' + F.tot);
+            if (!eq(F.tot, F.per + F.prevV)) bad.push(tag + ' funil: total≠período+anteriores');
+            if (!eq(F.open + F.ab, F.trf)) bad.push(tag + ' funil: aberto+abatimento≠final') }
           return bad });
-        ok(!inv.length, 'relatórios: total = pago + aberto, Σ barras = total, Σ grupos = transferir = período + anteriores (vários filtros e meses)', inv.slice(0, 5).join('; ')) }
+        ok(!inv.length, 'relatórios: total = pago + aberto, Σ barras = total, Σ grupos = transferir = período + anteriores e funil (total → pago → aberto → transferir) fecha (vários filtros e meses)', inv.slice(0, 5).join('; ')) }
       const arx = await p.evaluate(async () => { const w = ms => new Promise(r => setTimeout(r, ms)); location.hash = 'lanc'; await w(200); location.hash = 'inicio'; await w(600);
         const b = [...document.querySelectorAll('#v-inicio .rvneed [data-asrev]')][0]; if (!b) return { sem: true }; const txt = b.innerText.replace(/\n/g, ' | '); b.click(); await w(500);
         const sh = document.querySelector('#overlay:not([hidden]) .sheet') || document.querySelector('.sheet'), r = { txt, tit: /Assinaturas para revisar/.test(document.querySelector('#overlay').innerText) ? 'Assinaturas para revisar' : '', n: sh.querySelectorAll('.arv').length, why: sh.querySelectorAll('.arvi').length, act: sh.querySelectorAll('.arva button').length }; window.__T.closeSheet(); await w(200); return r });

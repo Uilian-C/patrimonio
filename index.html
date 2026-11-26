@@ -2661,6 +2661,22 @@ svg.dch{text-transform:none;letter-spacing:0}
 .trgk{display:block;font-size:11.5px;color:var(--muted);margin-top:8px}
 .rgprev b{color:var(--warn)}
 .trl span{gap:12px;align-items:baseline}.trl span b{flex:none;white-space:nowrap}
+
+/* funil do relatório */
+.fnl{display:grid;gap:6px;margin:12px 0 14px;padding-left:14px;border-left:2px solid var(--rc,var(--accent))}
+.fk{font-size:13px;color:var(--muted);font-weight:550}
+.fbig{font-size:34px;font-weight:600;letter-spacing:-.045em;line-height:1.05}
+.fbar{height:10px;border-radius:6px;background:color-mix(in srgb,var(--warn) 35%,var(--sunk));overflow:hidden;margin:6px 0 4px}
+.fbar i{display:block;height:100%;background:var(--good);border-radius:6px 0 0 6px}
+.frw{display:grid;grid-template-columns:1fr auto 44px;gap:10px;align-items:baseline;font-size:14px}
+.frw span{display:inline-flex;align-items:center;gap:8px;color:var(--muted)}
+.frw small{font-size:12px;color:var(--muted);text-align:right}.frw b{text-align:right;white-space:nowrap}
+.fd{width:9px;height:9px;border-radius:3px;background:var(--muted);flex:none}.fd.pg{background:var(--good)}.fd.op{background:color-mix(in srgb,var(--warn) 70%,var(--sunk))}.fd.ab{background:var(--accent)}
+.frw.fend{padding-top:6px;border-top:1px solid var(--line);font-size:16px}.frw.fend span{color:var(--ink);font-weight:650}.frw.fend b{font-size:19px;font-weight:700}
+.frw.fend.ok b{color:var(--muted)}
+.fsub{display:grid;grid-template-columns:1fr auto;gap:2px 10px;font-size:12px;color:var(--muted)}.fsub.ftop{margin:-2px 0 2px}.fsub b{color:var(--muted);font-weight:600}
+.trg.fg span{min-width:104px}.trg.fg em{font-style:normal;font-size:11px;color:var(--muted)}
+.fmeta{font-size:12px;color:var(--muted);display:flex;flex-wrap:wrap;gap:4px 6px;align-items:center;margin-top:4px}
 </style>
 <div id="fbgate" hidden><div class="bx"><svg class="lg" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="139 90 228 332"><g transform="translate(-5 0)"><rect x="186" y="100" width="12" height="312" rx="6" fill="currentColor" opacity=".55"/><rect x="164" y="150" width="56" height="210" rx="16" fill="currentColor"/><path d="M244 150h38a70 70 0 0 1 0 140h-38z" fill="#E2BA6E"/></g></svg><h1>Patrimônio</h1><p id="fbmsg">Entre com a sua conta Google para ver as finanças da casa.</p><button type="button" id="fblogin">Entrar com Google</button></div></div>
 <script type="module">
@@ -5973,6 +5989,27 @@ function acertoDashHTML(r){
   </div>`;
 }
 let REXS=LS('pt-rexs')||'per';const REXO=[['per','Este período'],['m3','Últimos 3 meses'],['m6','Últimos 6 meses'],['m12','Últimos 12 meses'],['ano','Ano até aqui'],['tudo','Tudo']];
+
+/* funil do relatório: parte do total (período + pendentes anteriores que entram), desce para pago, em aberto e, se for transferência, abatimento e o valor a transferir */
+function repFunnel(D,R,X){
+  const sg=X.sg,T=D.trf?repTrf(D,R,X):null,prev=T?T.prev:[],its=X.its.filter(x=>x.kind!=='abat'),all=its.concat(prev);
+  const tot=r2(sum(all,sg)),paid=r2(sum(its.filter(x=>x.paid),sg)),open=r2(tot-paid),ab=T?T.ab:r2(sum(X.its.filter(x=>x.kind==='abat'&&!x.paid),sg));
+  const g={};all.forEach(x=>{const k=repGroupKey(D,x)||(D.grp==='nenhum'?x.cat:'Sem grupo'),z=g[k]=g[k]||{t:0,p:0};z.t+=sg(x);if(x.paid)z.p+=sg(x)});
+  return {tot,paid,open,ab,trf:T?T.tot:r2(open+ab),per:r2(sum(its,sg)),prevV:r2(sum(prev,sg)),prevN:prev.length,n:all.length,gr:Object.entries(g).map(([k,z])=>[k,r2(z.t),r2(z.p)]).filter(z=>Math.abs(z[1])>.005).sort((x,y)=>y[1]-x[1])}}
+function repFunnelHTML(D,R,X,r,Pv,late){
+  const F=repFunnel(D,R,X),dn=esc(r.destino||''),gn=esc(P(gabId()).nome.split(' ')[0]||''),pf=F.tot>.005?Math.min(Math.max(F.paid/F.tot,0),1):0,dlt=X.tot-Pv.tot;
+  const lastLab=D.trf?(F.trf<-.005?(dn?dn+' te devolve':'A receber'):F.trf<.005?'Nada a transferir':'Transferir'+(dn?' para '+dn:'')):(F.open<-.005?`${gn} devolve`:F.open<.005?'Tudo pago':'Em aberto');
+  const lastV=D.trf?F.trf:F.open;
+  return `<div class="fnl">
+    <span class="fk">Total${F.prevN?' (com pendentes de antes do período)':''}</span><div class="fbig n">${F.tot<0?'−':''}${brl(Math.abs(F.tot))}</div>
+    ${F.prevN?`<div class="fsub ftop"><span>do período ${esc(R.lab)}</span><b class="n">${brl(F.per)}</b><span>de antes do período · ${F.prevN} ite${F.prevN===1?'m':'ns'} em aberto</span><b class="n">${brl(F.prevV)}</b></div>`:''}
+    <div class="fbar" role="img" aria-label="${pctf(pf)} pago"><i style="width:${pf*100}%"></i></div>
+    <div class="frw"><span><i class="fd pg"></i>Pago</span><b class="n pos">${brl(F.paid)}</b><small class="n">${pctf(pf)}</small></div>
+    ${D.trf&&F.ab<-.005?`<div class="frw"><span><i class="fd"></i>Em aberto</span><b class="n">${brl(F.open)}</b><small></small></div><div class="frw"><span><i class="fd ab"></i>Abatimento</span><b class="n pos">−${brl(Math.abs(F.ab))}</b><small></small></div>`:''}
+    <div class="frw fend ${lastV<.005&&lastV>-.005?'ok':''}"><span><i class="fd op"></i>${lastLab}</span><b class="n">${brl(Math.abs(lastV))}</b><small></small></div>
+    ${F.gr.length>1?`<small class="trgk">por ${esc((GRPL[D.grp]||'categoria').toLowerCase())} · soma ${brl(F.tot)}</small><div class="trg fg">${F.gr.map(([k,t,p])=>`<span><small>${esc(k)}</small><b class="n">${t<0?'−':''}${brl(Math.abs(t))}</b><em class="n">${Math.abs(p)>.005?(Math.abs(t-p)<.005?'quitado':'pago '+brl0(p)):'nada pago'}</em></span>`).join('')}</div>`:''}
+    <div class="fmeta">${X.its.length} ite${X.its.length===1?'m':'ns'} no período${late?` · <span class="pill crit">${late} em atraso</span>`:''} · <span class="pill ${dlt>0?'warn':'ok'}">${Pv.tot>.005||Pv.its.length?`${dlt>=0?'+':'−'}${brl0(Math.abs(dlt))} vs período anterior`:'sem período anterior'}</span></div>
+  </div>`}
 function repDashHTML(r){
   if(isAcRep(r))return acertoDashHTML(r);
   const D=repDef(r),R=repRange(D,ROFF),X=repRun(D,R),Pv=repRun(D,repRange(D,ROFF-1)),pp=X.tot>.005?Math.min(Math.max(X.paid/X.tot,0),1):0,dlt=X.tot-Pv.tot,gn=P(gabId()).nome.split(' ')[0];
@@ -5984,14 +6021,8 @@ function repDashHTML(r){
     <div class="rdt"><button type="button" class="rbk" data-rback aria-label="Voltar aos relatórios salvos">‹ Salvos</button><div><h2>${esc(r.nome)}</h2>${r.desc?`<small>${esc(r.desc)}</small>`:''}</div><button type="button" class="rdeb" id="rdedit" aria-label="Editar relatório">${ic('edit')}</button></div>
     <div class="mnav rmn"><button class="navb" type="button" data-roff="-1" aria-label="Período anterior">‹</button><b>${esc(R.lab)}</b><button class="navb" type="button" data-roff="1" aria-label="Próximo período">›</button></div>
     <button type="button" class="rpf" id="rdcfg">${ic('filter')}<span>${esc(repSummary(D))}</span>${ic('chev','chev')}</button>
-    ${D.trf?(()=>{const T=repTrf(D,R,X),dn=esc(r.destino||'');return `<div class="trf ${T.tot<-.005?'inv':T.tot<.005?'ok':''}"><span class="k">${T.tot<-.005?(dn?dn+' te devolve':'A receber'):T.tot<.005?'Nada a transferir':'Transferir'+(dn?' para '+dn:'')}</span><div class="big n">${brl(Math.abs(T.tot))}</div>
-      <div class="trl">${Math.abs(T.prevV)>.005||T.ab<-.005?`<span>Em aberto no período<b class="n">${brl(T.openPer)}</b></span>`:''}${T.ab<-.005?`<span>Abatimento (veja a composição)<b class="n pos">−${brl(Math.abs(T.ab))}</b></span>`:''}${Math.abs(T.prevV)>.005?`<span>+ Pendente de antes do período · ${T.prev.length} ite${T.prev.length===1?'m':'ns'}<b class="n ${T.prevV>0?'neg':'pos'}">${T.prevV<0?'−':''}${brl(Math.abs(T.prevV))}</b></span>`:''}</div>
-      ${T.gr.length>1?`<small class="trgk">por grupo · soma ${brl(Math.abs(T.tot))}</small><div class="trg">${T.gr.map(([k,v])=>`<span><small>${esc(k)}</small><b class="n">${v<0?'−':''}${brl(Math.abs(v))}</b></span>`).join('')}</div>`:''}</div>`})():''}
+    ${repFunnelHTML(D,R,X,r,Pv,late)}
     ${D.trf&&gabId()&&(D.orig||[]).includes('acerto')?(()=>{const C=credGab();return C.cred>.005?`<div class="abl"><span>Crédito de compras comuns<small>${esc(gn)} te deve ${brl(C.cred)} acumulado${(()=>{const M=acertoCaminho();return M.tot>.005?` · +${brl(M.tot)} a caminho`:''})()} · só abate quando você aplicar</small></span><button class="btn sm" type="button" id="rd-ab">Abater</button></div>`:''})():''}
-    <div class="gbh ${D.trf?'slim':''}"><div><span class="k">${D.trf?'Neste período':X.open>.005?'Em aberto no período':X.open<-.005?`${esc(gn)} devolve`:'Tudo pago'}</span>${D.trf?'':`<div class="big n">${brl(Math.abs(X.open>.005||X.open<-.005?X.open:X.tot))}</div>`}
-      <span class="gmsum2">total <b class="n">${brl(X.tot)}</b> = pago <b class="n pos">${brl(X.paid)}</b> + em aberto <b class="n">${brl(X.open)}</b> · ${X.its.length} ite${X.its.length===1?'m':'ns'}</span>
-      ${late?`<span class="pill crit">${late} em atraso</span> `:''}<span class="pill ${dlt>0?'warn':'ok'}">${Pv.tot>.005||Pv.its.length?`${dlt>=0?'+':'−'}${brl0(Math.abs(dlt))} vs período anterior`:'sem período anterior'}</span></div>
-      ${X.tot<=.005&&!X.its.length?'':`<span class="ring lg ${pp>=1?'ok':''}" style="--p:${pp*100}" title="pago no período">${pp>=1?`<b class="rck">${ic('check')}</b>`:`<b class="n">${pctf(pp)}<small>pago</small></b>`}</span>`}</div>
     ${repChart(D,X,R)}
   </div>
   <div class="card">
