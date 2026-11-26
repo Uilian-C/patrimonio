@@ -8,7 +8,7 @@ const { chromium } = require('playwright');
 const { fixture } = require('./fixture');
 
 const ROOT = path.join(__dirname, '..');
-const EXPOR = ('S ME today acertoS0 acertoCaminho acertoLedger vRel openMenu toastOk delLancUndo fbWrap openRepDet rdCmp rdItems openLancView openCardDet closeAll confirmRec repararOrfaos openLanFiltros recV recVI lembDe openPrefs openLembretes ymAdd addD dayIn lastDay realBal saldoConta scopeContas fracOf mesFluxo agendaPessoal patrimonio balanco dividasAll ' +
+const EXPOR = ('S ME today repRun repRange repDef repTrf repChart acertoS0 acertoCaminho acertoLedger vRel openMenu toastOk delLancUndo fbWrap openRepDet rdCmp rdItems openLancView openCardDet closeAll confirmRec repararOrfaos openLanFiltros recV recVI lembDe openPrefs openLembretes ymAdd addD dayIn lastDay realBal saldoConta scopeContas fracOf mesFluxo agendaPessoal patrimonio balanco dividasAll ' +
   'acerto acertoLedger credGab gabId candlesCaixa saidasDia margemCalc planoCalc mesCalc catWatch catMesMap contaMov isCaixa movs ' +
   'parseFrase rvCalc rvIR divSim divLista ORD metaCalc cenBase cenProj baseMes casaCalc pjMes filhoCalc progRet retroCalc semRev ' +
   'openRV openRVIR openCenarios openDividasPlano openCasa openPJ openPontos openFilhos openRetro openPrefs openFrase openSimCompra ' +
@@ -254,6 +254,25 @@ window.__fbSair=()=>{};setTimeout(()=>window.__fbReady(api),0);})();</script>`;
             await T.S.db.doc('lanc/' + r.id).delete(); await w(100); if (!cur && !cam) return { erro: 'compra comum sumiu', due: m && m.due, per: m && m.per } }
           return { ok: true } });
         ok(cm.ok, 'acerto: compra comum nova aparece já (em aberto ou "a caminho" até a fatura vencer)', JSON.stringify(cm)) }
+      { const inv = await p.evaluate(() => { const T = window.__T, bad = [], eq = (a, b) => Math.abs(a - b) < .011;
+          const cats = [...new Set(T.S.lanc.filter(l => l.tipo === 'despesa').map(l => l.categoria))];
+          const defs = [{ per: 'meses', n: 15, ref: 'lanc', grp: 'subcategoria', vis: 'barras', trf: true, carry: true, cats: cats.slice(0, 2) },
+            { per: 'mes', ref: 'venc', grp: 'categoria', vis: 'barras', trf: true, carry: true },
+            { per: 'meses', n: 3, ref: 'efet', grp: 'conta', vis: 'barras', trf: false },
+            { per: 'mes', ref: 'venc', grp: 'nenhum', vis: 'barras', trf: true, carry: false, orig: ['desp', 'rec'] }];
+          for (const [j, d] of defs.entries()) for (const off of [-2, -1, 0, 1]) { const D = T.repDef({ def: d }), R = T.repRange(D, off), X = T.repRun(D, R), tag = j + '@' + off;
+            if (!eq(X.tot, X.paid + X.open)) bad.push(tag + ' total≠pago+aberto');
+            const div = document.createElement('div'); div.innerHTML = T.repChart(D, X, R); const rows = [...div.querySelectorAll('.rb2>div:not(.rbl):not(.rbt)')];
+            const num = t => { const m = t.replace(/[^\d,−-]/g, '').replace(/\./g, '').replace(',', '.'); return (t.includes('−') ? -1 : 1) * parseFloat(m.replace('−', '')) };
+            if (rows.length && !rows[rows.length - 1].querySelector('span').textContent.startsWith('Outros')) { const sb = rows.reduce((a, r) => a + num(r.querySelector('b').textContent), 0); if (!eq(sb, X.tot)) bad.push(tag + ' Σbarras ' + sb + '≠total ' + X.tot) }
+            const rbt = div.querySelector('.rbt b'); if (rbt && !eq(num(rbt.textContent), X.tot)) bad.push(tag + ' rodapé≠total');
+            if (D.trf) { const Tr = T.repTrf(D, R, X), sg = Tr.gr.reduce((a, g) => a + g[1], 0);
+              if (Tr.gr.length && !eq(sg, Tr.tot)) bad.push(tag + ' Σgrupos ' + sg + '≠transferir ' + Tr.tot);
+              if (!eq(Tr.openPer + Tr.prevV + Tr.ab, Tr.tot)) bad.push(tag + ' transferir≠período+anteriores+abatimento');
+              if (!eq(Tr.openPer, X.its.filter(x => !x.paid && x.kind !== 'abat').reduce((a, x) => a + X.sg(x), 0))) bad.push(tag + ' aberto do período inconsistente');
+              if (Tr.prev.some(x => x.ref >= R.ini)) bad.push(tag + ' anterior dentro do período') } }
+          return bad });
+        ok(!inv.length, 'relatórios: total = pago + aberto, Σ barras = total, Σ grupos = transferir = período + anteriores (vários filtros e meses)', inv.slice(0, 5).join('; ')) }
       const arx = await p.evaluate(async () => { const w = ms => new Promise(r => setTimeout(r, ms)); location.hash = 'lanc'; await w(200); location.hash = 'inicio'; await w(600);
         const b = [...document.querySelectorAll('#v-inicio .rvneed [data-asrev]')][0]; if (!b) return { sem: true }; const txt = b.innerText.replace(/\n/g, ' | '); b.click(); await w(500);
         const sh = document.querySelector('#overlay:not([hidden]) .sheet') || document.querySelector('.sheet'), r = { txt, tit: /Assinaturas para revisar/.test(document.querySelector('#overlay').innerText) ? 'Assinaturas para revisar' : '', n: sh.querySelectorAll('.arv').length, why: sh.querySelectorAll('.arvi').length, act: sh.querySelectorAll('.arva button').length }; window.__T.closeSheet(); await w(200); return r });

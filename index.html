@@ -2649,6 +2649,18 @@ svg.dch{text-transform:none;letter-spacing:0}
 .exsc{display:flex;align-items:center;gap:10px;margin:10px 0 6px;font-size:13px;color:var(--muted)}
 .exsc label{white-space:nowrap}
 .exsc select{flex:1;min-width:0;max-width:260px;padding:8px 10px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;font-size:13.5px}
+
+/* barras: total com o pago destacado na mesma barra */
+.rb2 div{gap:3px 8px}
+.rb2 i{position:relative;height:9px;background:color-mix(in srgb,var(--rc,var(--accent)) 30%,transparent);overflow:hidden}
+.rb2 i u{position:absolute;inset:0 auto 0 0;border-radius:9px;background:var(--rc,var(--accent))}
+.rb2 small{grid-column:1/-1;font-size:11.5px;color:var(--muted)}
+.rbl{display:flex!important;gap:14px;font-size:11.5px;color:var(--muted)}.rbl span{display:inline-flex;align-items:center;gap:5px}
+.rbl i{display:inline-block;width:12px;height:8px;border-radius:3px;background:color-mix(in srgb,var(--rc,var(--accent)) 30%,transparent)}.rbl i.pg{background:var(--rc,var(--accent))}
+.rbt{border-top:1px solid var(--line);padding-top:8px;font-weight:600}
+.trgk{display:block;font-size:11.5px;color:var(--muted);margin-top:8px}
+.rgprev b{color:var(--warn)}
+.trl span{gap:12px;align-items:baseline}.trl span b{flex:none;white-space:nowrap}
 </style>
 <div id="fbgate" hidden><div class="bx"><svg class="lg" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="139 90 228 332"><g transform="translate(-5 0)"><rect x="186" y="100" width="12" height="312" rx="6" fill="currentColor" opacity=".55"/><rect x="164" y="150" width="56" height="210" rx="16" fill="currentColor"/><path d="M244 150h38a70 70 0 0 1 0 140h-38z" fill="#E2BA6E"/></g></svg><h1>Patrimônio</h1><p id="fbmsg">Entre com a sua conta Google para ver as finanças da casa.</p><button type="button" id="fblogin">Entrar com Google</button></div></div>
 <script type="module">
@@ -5433,7 +5445,7 @@ async function chartSnap(root){try{const sv=root&&root.querySelector('svg.rch');
     const vb=sv.viewBox.baseVal,w=vb&&vb.width||340,h=vb&&vb.height||130;cl.setAttribute('width',w*3);cl.setAttribute('height',h*3);cl.setAttribute('xmlns','http://www.w3.org/2000/svg');
     const url='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(new XMLSerializer().serializeToString(cl));const img=await new Promise((ok,ko)=>{const i=new Image();i.onload=()=>ok(i);i.onerror=ko;i.src=url});
     const cv=document.createElement('canvas');cv.width=w*3;cv.height=h*3;const c=cv.getContext('2d');c.fillStyle='#fff';c.fillRect(0,0,cv.width,cv.height);c.drawImage(img,0,0);cv.toDataURL();return {cv,ar:h/w}}
-  const rb=root&&root.querySelector('.rbars');if(rb)return {bars:[...rb.children].map(d=>[d.querySelector('span').textContent,d.querySelector('b').textContent,parseFloat(d.querySelector('i').style.width)||0])}}catch(e){}return null}
+  const rb=root&&root.querySelector('.rbars');if(rb)return {bars:[...rb.children].filter(d=>!d.matches('.rbl,.rbt')).map(d=>[d.querySelector('span').textContent,d.querySelector('b').textContent,parseFloat(d.querySelector('i').style.width)||0])}}catch(e){}return null}
 /* resumo do repasse: itens − abatimento = transferir */
 function s0Res(S0){const it=S0.items.filter(x=>!x.abat),ab=S0.items.filter(x=>x.abat);if(!ab.length)return null;
   const pend=r2(sum(it.filter(x=>!x.paid),x=>x.v)),pg=r2(sum(it.filter(x=>x.paid),x=>x.v)),abv=r2(sum(ab.filter(x=>!x.paid),x=>x.v)),abp=r2(sum(ab.filter(x=>x.paid),x=>x.v));
@@ -5898,8 +5910,11 @@ function repChart(D,X,R){
     for(let i=0;i<n;i++){const d=addD(R.ini,i);a+=by[d]||0;b+=bp[d]||0;pts.push([a,b])}
     const W=340,H=136,B=H-18,T=22,mx=Math.max(...pts.map(p=>Math.max(p[0],p[1])),1),xs=i=>6+i*(W-12)/Math.max(n-1,1),ys=v=>B-v/mx*(B-T),ti=Math.min(Math.max(diffD(R.ini,today()),0),n-1);
     return `<svg class="rch" viewBox="0 0 ${W} ${H}" role="img" aria-label="Evolução diária"><polyline points="${pts.map((p,i)=>xs(i)+','+ys(p[0])).join(' ')}" fill="none" stroke="var(--accent)" stroke-width="2" stroke-dasharray="4 3"/><polyline points="${pts.map((p,i)=>xs(i)+','+ys(p[1])).join(' ')}" fill="none" stroke="var(--good)" stroke-width="2.2"/>${today()>=R.ini&&today()<=R.fim?`<line x1="${xs(ti)}" x2="${xs(ti)}" y1="${T}" y2="${B}" stroke="var(--line)" stroke-dasharray="2 3"/>`:''}${cvT(W-6,ys(pts[n-1][0])-7,kn(pts[n-1][0]),'end','mu')}${pts[ti][1]>.5?cvT(Math.min(Math.max(xs(ti),20),W-60),Math.min(ys(pts[ti][1])+15,B-3),kn(pts[ti][1]),'middle','pos'):''}<text x="6" y="${H-3}">${fdate(R.ini).slice(0,5)}</text><text x="${W-6}" y="${H-3}" text-anchor="end">${fdate(R.fim).slice(0,5)}</text></svg><div class="key"><span><i style="background:var(--accent)"></i>acumulado previsto</span><span><i style="background:var(--good)"></i>acumulado pago</span></div>`}
-  if(D.vis==='barras'){const g={},k=x=>D.grp==='nenhum'?x.cat:repGroupKey(D,x);X.its.forEach(x=>{g[k(x)]=(g[k(x)]||0)+X.sg(x)});const e=Object.entries(g).sort((a,b)=>b[1]-a[1]).slice(0,8),mx=Math.max(...e.map(z=>Math.abs(z[1])),1);
-    return `<div class="rbars">${e.map(([n,v])=>`<div><span>${esc(n)}</span><b class="n">${v<0?'−':''}${brl0(Math.abs(v))}</b><i style="width:${Math.abs(v)/mx*100}%"></i></div>`).join('')}</div>`}
+  if(D.vis==='barras'){const g={},k=x=>D.grp==='nenhum'?x.cat:repGroupKey(D,x);X.its.forEach(x=>{const z=g[k(x)]=g[k(x)]||{t:0,p:0,n:0};z.t+=X.sg(x);z.n++;if(x.paid)z.p+=X.sg(x)});
+    const all=Object.entries(g).sort((a,b)=>b[1].t-a[1].t),e=all.slice(0,8),rest=all.slice(8),mx=Math.max(...e.map(z=>Math.abs(z[1].t)),1);
+    if(rest.length)e.push([`Outros (${rest.length})`,{t:sum(rest,z=>z[1].t),p:sum(rest,z=>z[1].p),n:sum(rest,z=>z[1].n)}]);
+    return `<div class="rbars rb2"><div class="rbl"><span><i class="pg"></i>pago</span><span><i></i>em aberto</span></div>${e.map(([n,z])=>{const v=z.t,pf=Math.abs(v)>.005?Math.min(Math.max(z.p/v,0),1):0;return `<div><span>${esc(n)}</span><b class="n">${v<0?'−':''}${brl(Math.abs(v))}</b><i style="width:${Math.min(Math.abs(v)/mx,1)*100}%"><u style="width:${pf*100}%"></u></i><small>${Math.abs(z.p)>.005?`pago ${brl(z.p)}${Math.abs(v-z.p)>.005?` · em aberto ${brl(v-z.p)}`:' · quitado'}`:'nada pago ainda'} · ${z.n} ite${z.n===1?'m':'ns'}</small></div>`}).join('')}
+      <div class="rbt"><span>Soma</span><b class="n">${brl(X.tot)}</b><small>pago ${brl(X.paid)} · em aberto ${brl(X.open)}</small></div></div>`}
   return '';
 }
 function repListHTML(){
@@ -5970,17 +5985,18 @@ function repDashHTML(r){
     <div class="mnav rmn"><button class="navb" type="button" data-roff="-1" aria-label="Período anterior">‹</button><b>${esc(R.lab)}</b><button class="navb" type="button" data-roff="1" aria-label="Próximo período">›</button></div>
     <button type="button" class="rpf" id="rdcfg">${ic('filter')}<span>${esc(repSummary(D))}</span>${ic('chev','chev')}</button>
     ${D.trf?(()=>{const T=repTrf(D,R,X),dn=esc(r.destino||'');return `<div class="trf ${T.tot<-.005?'inv':T.tot<.005?'ok':''}"><span class="k">${T.tot<-.005?(dn?dn+' te devolve':'A receber'):T.tot<.005?'Nada a transferir':'Transferir'+(dn?' para '+dn:'')}</span><div class="big n">${brl(Math.abs(T.tot))}</div>
-      <div class="trl">${T.pos>.005&&(T.neg<-.005||T.ab<-.005||Math.abs(T.prevV)>.005)?`<span>Itens em aberto<b class="n">${brl(T.pos-Math.max(T.prevV,0))}</b></span>`:''}${T.neg<-.005?`<span>Estornos e créditos<b class="n pos">−${brl(Math.abs(T.neg))}</b></span>`:''}${T.ab<-.005?`<span>Abatimento (veja a composição)<b class="n pos">−${brl(Math.abs(T.ab))}</b></span>`:''}${Math.abs(T.prevV)>.005?`<span>Inclui pendente de meses anteriores<b class="n ${T.prevV>0?'neg':'pos'}">${T.prevV<0?'−':''}${brl(Math.abs(T.prevV))}</b></span>`:''}</div>
-      ${T.gr.length>1?`<div class="trg">${T.gr.map(([k,v])=>`<span><small>${esc(k)}</small><b class="n">${v<0?'−':''}${brl(Math.abs(v))}</b></span>`).join('')}</div>`:''}</div>`})():''}
+      <div class="trl">${Math.abs(T.prevV)>.005||T.ab<-.005?`<span>Em aberto no período<b class="n">${brl(T.openPer)}</b></span>`:''}${T.ab<-.005?`<span>Abatimento (veja a composição)<b class="n pos">−${brl(Math.abs(T.ab))}</b></span>`:''}${Math.abs(T.prevV)>.005?`<span>+ Pendente de antes do período · ${T.prev.length} ite${T.prev.length===1?'m':'ns'}<b class="n ${T.prevV>0?'neg':'pos'}">${T.prevV<0?'−':''}${brl(Math.abs(T.prevV))}</b></span>`:''}</div>
+      ${T.gr.length>1?`<small class="trgk">por grupo · soma ${brl(Math.abs(T.tot))}</small><div class="trg">${T.gr.map(([k,v])=>`<span><small>${esc(k)}</small><b class="n">${v<0?'−':''}${brl(Math.abs(v))}</b></span>`).join('')}</div>`:''}</div>`})():''}
     ${D.trf&&gabId()&&(D.orig||[]).includes('acerto')?(()=>{const C=credGab();return C.cred>.005?`<div class="abl"><span>Crédito de compras comuns<small>${esc(gn)} te deve ${brl(C.cred)} acumulado${(()=>{const M=acertoCaminho();return M.tot>.005?` · +${brl(M.tot)} a caminho`:''})()} · só abate quando você aplicar</small></span><button class="btn sm" type="button" id="rd-ab">Abater</button></div>`:''})():''}
     <div class="gbh ${D.trf?'slim':''}"><div><span class="k">${D.trf?'Neste período':X.open>.005?'Em aberto no período':X.open<-.005?`${esc(gn)} devolve`:'Tudo pago'}</span>${D.trf?'':`<div class="big n">${brl(Math.abs(X.open>.005||X.open<-.005?X.open:X.tot))}</div>`}
-      <span class="gmsum2">total <b class="n">${brl0(X.tot)}</b> · pago <b class="n pos">${brl0(X.paid)}</b> · ${X.its.length} ite${X.its.length===1?'m':'ns'}</span>
+      <span class="gmsum2">total <b class="n">${brl(X.tot)}</b> = pago <b class="n pos">${brl(X.paid)}</b> + em aberto <b class="n">${brl(X.open)}</b> · ${X.its.length} ite${X.its.length===1?'m':'ns'}</span>
       ${late?`<span class="pill crit">${late} em atraso</span> `:''}<span class="pill ${dlt>0?'warn':'ok'}">${Pv.tot>.005||Pv.its.length?`${dlt>=0?'+':'−'}${brl0(Math.abs(dlt))} vs período anterior`:'sem período anterior'}</span></div>
       ${X.tot<=.005&&!X.its.length?'':`<span class="ring lg ${pp>=1?'ok':''}" style="--p:${pp*100}" title="pago no período">${pp>=1?`<b class="rck">${ic('check')}</b>`:`<b class="n">${pctf(pp)}<small>pago</small></b>`}</span>`}</div>
     ${repChart(D,X,R)}
   </div>
   <div class="card">
     ${X.its.some(x=>x.payable&&!x.paid)?`<div class="gpd"><label for="gpd">Pago em</label><input id="gpd" type="date" value="${today()}"><span>✓ marca rápido · toque no item para ver ou editar</span></div>`:''}
+    ${(()=>{if(!D.trf)return '';const T=repTrf(D,R,X);return T.prev.length?`<div class="rgh rgprev"><b>Pendentes de antes do período</b><span class="n">${brl(T.prevV)}</span></div><p class="note">Entram no “Transferir” porque ainda não foram pagos. Desligue em Editar › “Somar o que ficou em aberto nos meses anteriores”.</p><div class="gl">${moreH(T.prev.sort((a,b)=>a.ref.localeCompare(b.ref)).map(x=>`<div class="gli"><span class="gck gx" aria-hidden="true">${x.kind==='card'?ic('card'):''}</span><button type="button" class="glb" ${x.l?`data-rpl="${esc(x.l.id)}"`:''}>${catBubble(x.cat,'sm')}<span class="glm"><b>${esc(descSemParc(x.desc))} ${parcBadge(x.desc)}</b><small>${fdate(x.ref).slice(0,5)} · ${repStatus(x)}</small></span><b class="n">${brl(Math.abs(x.v))}</b><span class="go">›</span></button></div>`),5,'rgprev')}</div>`:''})()}
     ${X.its.length?GK.map(k=>`${gLab(k)?`<div class="rgh ${k==='Abatimento'?'rgab':''}"><b>${esc(gLab(k))}</b><span class="n">${sum(grps[k],X.sg)<0?'−':''}${brl0(Math.abs(sum(grps[k],X.sg)))}</span></div>`:''}<div class="gl">${grps[k].map(row).join('')}</div>`).join(''):'<p class="note" style="padding:12px 0">Nenhum lançamento com estes filtros neste período.</p>'}
     <div class="gtot"><span>Pago <b class="n pos">${brl(X.paid)}</b></span><span>Em aberto <b class="n ${X.open>.005?'neg':''}">${brl(X.open)}</b></span><span>Total <b class="n">${brl(X.tot)}</b></span></div>
     <div class="exsc"><label for="rexs">Exportar</label><select id="rexs">${REXO.map(([v,l])=>`<option value="${v}" ${REXS===v?'selected':''}>${l}</option>`).join('')}</select></div>
@@ -5991,8 +6007,8 @@ function repDashHTML(r){
 function repTrf(D,R,X){const its=X.its.filter(x=>!x.paid);let prev=[];
   if(D.carry){const R0={ini:addD(R.ini,-366),fim:addD(R.ini,-1)};prev=repRun(Object.assign({},D,{sit:'pend'}),R0).its.filter(x=>!x.paid)}
   const sg=X.sg,all=its.concat(prev).filter(x=>x.kind!=='abat'),ab=r2(sum(its.filter(x=>x.kind==='abat'),sg)),t0=sum(all,sg),abE=Math.max(ab,-Math.max(t0,0)),tot=r2(t0+abE),pos=r2(sum(all.filter(x=>sg(x)>0),sg)),neg=r2(sum(all.filter(x=>sg(x)<0),sg)),gr={};
-  its.filter(x=>x.kind!=='abat').forEach(x=>{const k=repGroupKey(D,x)||'';gr[k]=(gr[k]||0)+sg(x)});
-  return {tot,pos,neg,ab:r2(abE),prev,prevV:r2(sum(prev,sg)),gr:Object.entries(gr).filter(([k,v])=>Math.abs(v)>.005)}}
+  all.forEach(x=>{const k=repGroupKey(D,x)||'Sem grupo';gr[k]=(gr[k]||0)+sg(x)});if(abE<-.005)gr['Abatimento']=abE;
+  return {tot,pos,neg,ab:r2(abE),prev,prevV:r2(sum(prev,sg)),openPer:r2(sum(its.filter(x=>x.kind!=='abat'),sg)),gr:Object.entries(gr).filter(([k,v])=>Math.abs(v)>.005).sort((a,b)=>b[1]-a[1])}}
 const repS0=(r,X,R,T)=>({title:repDef(r).trf?('Transferir'+(r.destino?' para '+r.destino:'')):r.nome,lab:`${r.nome} · ${R.lab}`,w:R.fim,items:X.its.map(x=>({desc:x.kind==='abat'?'Abatimento · '+x.sub2:x.desc,v:X.sg(x),paid:x.paid,pagoEm:x.de,due:x.dv,cat:x.kind==='abat'?'Abatimento':x.cat,tags:x.tags,acerto:x.acerto,comp:x.comp,abat:x.kind==='abat'})).concat(T&&T.prev.length?T.prev.map(x=>({desc:x.desc+' (pendente de '+ymS(x.ref.slice(0,7))+')',v:X.sg(x),paid:false,due:x.dv,cat:x.cat,tags:x.tags,acerto:x.acerto})):[]),tot:X.tot+(T?T.prevV:0),paid:X.paid,open:T?T.tot:X.open});
 async function repPay(x,paid,day,nome){
   if(x.kind==='acerto')return gabSetPaid({acerto:x.acerto,rel:nome},paid,day);
@@ -6049,6 +6065,7 @@ function wireRep(el){
   el.querySelectorAll('[data-ro]').forEach(b=>b.onclick=()=>{const x=X.its[+b.dataset.ro];
     if(x.kind==='acerto'||x.kind==='acitem')openAcerto(x.acerto);else if(x.kind==='prev')openPagarG({prev:x.prev,desc:x.desc,v:x.v,due:x.dv,paid:false,cat:x.cat});else if(x.kind==='div')openDividaDet(x.d);else if(x.l){x.l.pend?openPagar(x.l):openLancView?openLancView(x.l):openLanc(x.l)}});
   el.querySelectorAll('[data-racq]').forEach(b=>b.onclick=()=>openAcerto(b.dataset.racq));
+  el.querySelectorAll('[data-rpl]').forEach(b=>b.onclick=()=>{const l=S.lanc.find(z=>z.id===b.dataset.rpl);if(l)openLancView(l)});
   el.querySelectorAll('[data-rab]').forEach(b=>b.onclick=()=>{const d=S.acertos.find(a=>a.id===b.dataset.rab);if(d)openAbater(0,'',()=>renderView(),{doc:d})});
   const abIds=()=>X.its.filter(x=>x.kind==='abat'&&!x.paid).map(x=>x.abat.id),PK=x=>x.payable&&(x.kind==='lanc'||x.kind==='prev'||x.kind==='acerto');
   const all=el.querySelector('#rpall');if(all)all.onclick=async()=>{all.disabled=true;try{for(const x of X.its.filter(x=>x.payable&&!x.paid&&(x.kind==='lanc'||x.kind==='prev'||x.kind==='acerto')))await repPay(x,true,day(),r.nome);await abatPagar(abIds(),day());toast('Pago em '+fdate(day()).slice(0,5))}catch(err){toast(writeErr(err));all.disabled=false}};
