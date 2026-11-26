@@ -2645,6 +2645,10 @@ svg.dch{text-transform:none;letter-spacing:0}
 .cds.cam{border:1px dashed color-mix(in srgb,var(--accent) 40%,var(--line));border-radius:var(--r-md,12px);padding:10px 12px;margin-bottom:8px}
 .cds.cam .note{margin:2px 0 6px;font-size:12px}
 .camh{display:flex;justify-content:space-between;gap:8px;font-size:12px;font-weight:650;color:var(--muted);padding:6px 0 2px}.camh b{color:var(--ink)}
+
+.exsc{display:flex;align-items:center;gap:10px;margin:10px 0 6px;font-size:13px;color:var(--muted)}
+.exsc label{white-space:nowrap}
+.exsc select{flex:1;min-width:0;max-width:260px;padding:8px 10px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;font-size:13.5px}
 </style>
 <div id="fbgate" hidden><div class="bx"><svg class="lg" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="139 90 228 332"><g transform="translate(-5 0)"><rect x="186" y="100" width="12" height="312" rx="6" fill="currentColor" opacity=".55"/><rect x="164" y="150" width="56" height="210" rx="16" fill="currentColor"/><path d="M244 150h38a70 70 0 0 1 0 140h-38z" fill="#E2BA6E"/></g></svg><h1>Patrimônio</h1><p id="fbmsg">Entre com a sua conta Google para ver as finanças da casa.</p><button type="button" id="fblogin">Entrar com Google</button></div></div>
 <script type="module">
@@ -5950,9 +5954,10 @@ function acertoDashHTML(r){
     ${ACTAB==='aberto'?camHTML+(ab.length?byM(ab).map(([m,g])=>`<section class="cds"><div class="cdsh"><h3>${MESL[+m.slice(5)-1]} ${m.slice(0,4)}</h3><small class="n">${brl(sum(g,x=>x.rest))}</small></div><div class="cdd">${g.map(x=>row(x,x.rest,x.quit.length?`parcialmente abatido, faltam ${brl(x.rest)}`:'')).join('')}</div></section>`).join(''):'<p class="note">Nada em aberto: tudo foi abatido.</p>')
       :(L.abs.length?`<section class="cds"><div class="cdsh"><h3>Abatimentos e composição</h3><small class="n">${brl(L.quit)}</small></div><div class="cdd">${L.abs.slice().reverse().map(abRow).join('')}</div></section>
         ${byM(qt).reverse().map(([m,g])=>`<section class="cds"><div class="cdsh"><h3>${MESL[+m.slice(5)-1]} ${m.slice(0,4)} · quitado</h3><small class="n">${brl(sum(g,x=>sum(x.quit,q=>q.v)))}</small></div><div class="cdd">${g.map(x=>row(x,sum(x.quit,q=>q.v),'quitado em '+x.quit.map(q=>fdate(q.d).slice(0,5)).join(', '))).join('')}</div></section>`).join('')}`:'<p class="note">Nenhum abatimento ainda. Quando você abater num repasse, as compras quitadas aparecem aqui.</p>')}
-    ${expBtns('acx')}
+    <div class="exsc"><label for="acxs">O que exportar</label><select id="acxs">${ACXO.map(([v,l])=>`<option value="${v}" ${ACXS===v?'selected':''}>${l}</option>`).join('')}</select></div>${expBtns('acx')}
   </div>`;
 }
+let REXS=LS('pt-rexs')||'per';const REXO=[['per','Este período'],['m3','Últimos 3 meses'],['m6','Últimos 6 meses'],['m12','Últimos 12 meses'],['ano','Ano até aqui'],['tudo','Tudo']];
 function repDashHTML(r){
   if(isAcRep(r))return acertoDashHTML(r);
   const D=repDef(r),R=repRange(D,ROFF),X=repRun(D,R),Pv=repRun(D,repRange(D,ROFF-1)),pp=X.tot>.005?Math.min(Math.max(X.paid/X.tot,0),1):0,dlt=X.tot-Pv.tot,gn=P(gabId()).nome.split(' ')[0];
@@ -5978,6 +5983,7 @@ function repDashHTML(r){
     ${X.its.some(x=>x.payable&&!x.paid)?`<div class="gpd"><label for="gpd">Pago em</label><input id="gpd" type="date" value="${today()}"><span>✓ marca rápido · toque no item para ver ou editar</span></div>`:''}
     ${X.its.length?GK.map(k=>`${gLab(k)?`<div class="rgh ${k==='Abatimento'?'rgab':''}"><b>${esc(gLab(k))}</b><span class="n">${sum(grps[k],X.sg)<0?'−':''}${brl0(Math.abs(sum(grps[k],X.sg)))}</span></div>`:''}<div class="gl">${grps[k].map(row).join('')}</div>`).join(''):'<p class="note" style="padding:12px 0">Nenhum lançamento com estes filtros neste período.</p>'}
     <div class="gtot"><span>Pago <b class="n pos">${brl(X.paid)}</b></span><span>Em aberto <b class="n ${X.open>.005?'neg':''}">${brl(X.open)}</b></span><span>Total <b class="n">${brl(X.tot)}</b></span></div>
+    <div class="exsc"><label for="rexs">Exportar</label><select id="rexs">${REXO.map(([v,l])=>`<option value="${v}" ${REXS===v?'selected':''}>${l}</option>`).join('')}</select></div>
     <div class="gact">${X.its.some(x=>x.payable&&!x.paid&&(x.kind==='lanc'||x.kind==='prev'||x.kind==='acerto'))?`<button class="btn primary" type="button" id="rpall">${ic('check')} Pagar em aberto</button>`:X.its.some(x=>x.kind==='acitem'&&!x.paid)?`<button class="btn primary" type="button" data-racq="${esc(X.its.find(x=>x.kind==='acitem'&&!x.paid).acerto)}">${ic('check')} Acertar quinzena</button>`:''}<button class="btn" type="button" id="gtx">Texto</button><button class="btn" type="button" id="gim">Imagem</button><button class="btn" type="button" id="gpf">PDF</button></div>
   </div>`;
 }
@@ -6010,11 +6016,16 @@ function lancS0(){const its=lancItems(LVIEW),t=today(),af=lfActive();const lab=(
   const items=its.slice().sort((a,b)=>(a.d||'').localeCompare(b.d||'')).map(x=>({desc:(x.l.desc||'Lançamento')+(af.length?'':''),v:x.v,paid:!x.pend&&!x.proj&&(x.d||'')<=t,pagoEm:x.d,pagoLab:'em',due:x.d,cat:x.l.categoria||'',tags:x.l.tags||[]}));
   const ent=sum(items.filter(x=>x.v>0),x=>x.v),sai=-sum(items.filter(x=>x.v<0),x=>x.v);
   return {title:'Lançamentos · '+lab+(af.length?' · '+af.map(a=>a[1]).join(', '):''),lab:'Lançamentos · '+lab,w:t,items,tot:r2(ent-sai),paid:r2(ent),paidLab:'Entradas',open:r2(-sai),openLab:'Saídas'}}
-function acertoS0(){const L=acertoLedger(),gn=P(gabId()).nome.split(' ')[0],ab=ACTAB==='aberto';
-  const items=ab?L.its.filter(x=>Math.abs(x.rest)>.005).map(x=>({desc:x.desc+` (total ${brl(x.total)})`,v:x.rest,paid:false,due:x.d,cat:x.cat,tags:[]}))
-    :L.abs.slice().reverse().map(a=>({desc:(abForma(a.doc)==='entrada'?'Entrada na conta':'Abatido na transferência')+' · '+abStat(a.doc),v:a.v,paid:abForma(a.doc)==='entrada'||!!a.doc.pago,pagoEm:a.doc.pagoEm||a.d,pagoLab:'em',due:a.d,cat:'Abatimento',tags:[],abat:true,
-      comp:L.its.filter(x=>x.quit.some(z=>z.ab===a.id)).map(x=>({desc:x.desc,d:x.d,v:r2(sum(x.quit.filter(z=>z.ab===a.id),z=>z.v))}))}));
-  return {title:ab?`${gn} te deve (em aberto)`:'Acerto quitado · abatimentos e composição',lab:'Acerto · '+(ab?'em aberto':'quitado'),w:today(),items,tot:r2(sum(items,x=>x.v)),paid:ab?0:r2(sum(items,x=>x.v)),paidLab:'Abatido',open:ab?r2(L.open):r2(Math.max(L.open,0)),openLab:'Em aberto'}}
+let ACXS=LS('pt-acxs')||'aberto';
+const ACXO=[['aberto','Em aberto'],['caminho','Em aberto + a caminho'],['quitado','Quitado'],['tudo','Tudo']];
+function acertoS0(){const L=acertoLedger(),gn=P(gabId()).nome.split(' ')[0],sc=ACXS,wantA=sc!=='quitado',wantC=sc==='caminho'||sc==='tudo',wantQ=sc==='quitado'||sc==='tudo';
+  const A=wantA?L.its.filter(x=>Math.abs(x.rest)>.005).map(x=>({desc:x.desc+` (total ${brl(x.total)})`,v:x.rest,paid:false,due:x.d,cat:x.cat,tags:[]})):[];
+  const C=wantC?acertoCaminho().its.map(x=>({desc:`${x.desc} (total ${brl(x.total)} · entra no acerto em ${fdate(x.entra).slice(0,5)})`,v:x.v,paid:false,due:x.d,cat:x.cat,tags:[]})):[];
+  const Qt=wantQ?L.abs.slice().reverse().map(a=>({desc:(abForma(a.doc)==='entrada'?'Entrada na conta':'Abatido na transferência')+' · '+abStat(a.doc),v:a.v,paid:abForma(a.doc)==='entrada'||!!a.doc.pago,pagoEm:a.doc.pagoEm||a.d,pagoLab:'em',due:a.d,cat:'Abatimento',tags:[],abat:true,
+      comp:L.its.filter(x=>x.quit.some(z=>z.ab===a.id)).map(x=>({desc:x.desc,d:x.d,v:r2(sum(x.quit.filter(z=>z.ab===a.id),z=>z.v))}))})):[];
+  const items=A.concat(C,Qt),open=r2(sum(A,x=>x.v)+sum(C,x=>x.v)),paid=r2(sum(Qt,x=>x.v));
+  const title={aberto:`${gn} te deve (em aberto)`,caminho:`${gn} te deve · em aberto + a caminho`,quitado:'Acerto quitado · abatimentos e composição',tudo:`Acerto completo · em aberto, a caminho e quitado`}[sc];
+  return {title,lab:'Acerto · '+(ACXO.find(o=>o[0]===sc)||ACXO[0])[1].toLowerCase(),w:today(),items,tot:r2(open+paid),paid,paidLab:'Abatido',open,openLab:sc==='caminho'||sc==='tudo'?'Em aberto + a caminho':'Em aberto'}}
 function wireRep(el){
   el.querySelectorAll('[data-rsel]').forEach(b=>b.onclick=()=>{RSEL=b.dataset.rsel;LSset('pt-rsel',RSEL);ROFF=0;RP='rel';vRel()});
   const nw=el.querySelector('#rnew');if(nw)nw.onclick=()=>openRepEdit(null);
@@ -6031,7 +6042,7 @@ function wireRep(el){
     const ed=q('#ac-ed');if(ed)ed.onclick=()=>openAbatMassa([...ACSEL].filter(k=>!k.startsWith('q:')),done);
     const un=q('#ac-un');if(un)confirmBtn(un,'Toque de novo para desfazer',async()=>{try{const n=await abatDesfazer([...ACSEL].filter(k=>!k.startsWith('q:')),[...ACSEL].filter(k=>k.startsWith('q:')).map(k=>k.slice(2)));toast(n+' compra'+(n===1?'':'s')+' de volta para em aberto');done()}catch(err){toast(writeErr(err));un.disabled=false}});
     el.querySelectorAll('[data-abe]').forEach(b=>b.onclick=()=>{const d=S.acertos.find(a=>a.id===b.dataset.abe);if(d)openAbater(0,'',()=>renderView(),{doc:d})});
-    document.querySelectorAll('body>.acsel').forEach(x=>x.remove());const bar=el.querySelector('.acsel');if(bar)document.body.appendChild(bar)}wireExp(el,'acx',acertoS0,'acerto-'+ACTAB+'-'+today());el.querySelectorAll('.rdash .cdi[data-l]').forEach(b=>b.onclick=()=>openLanc(S.lanc.find(l=>l.id===b.dataset.l)));{const a2=el.querySelector('#ac-ab');if(a2)a2.onclick=()=>openAbater(credGab().cred,'',()=>renderView())}
+    document.querySelectorAll('body>.acsel').forEach(x=>x.remove());const bar=el.querySelector('.acsel');if(bar)document.body.appendChild(bar)}wireExp(el,'acx',acertoS0,'acerto-'+ACXS+'-'+today());{const q=el.querySelector('#acxs');if(q)q.onchange=()=>{ACXS=q.value;LSset('pt-acxs',ACXS)}}el.querySelectorAll('.rdash .cdi[data-l]').forEach(b=>b.onclick=()=>openLanc(S.lanc.find(l=>l.id===b.dataset.l)));{const a2=el.querySelector('#ac-ab');if(a2)a2.onclick=()=>openAbater(credGab().cred,'',()=>renderView())}
   {const ab=el.querySelector('#rd-ab');if(ab)ab.onclick=()=>{const D=repDef(r),R=repRange(D,ROFF),X=repRun(D,R),T=repTrf(D,R,X);openAbater(Math.max(T.tot,0),D.acQ&&D.acQ!=='ambas'?D.acQ:'',()=>renderView())}}
   const day=()=>{const v=el.querySelector('#gpd');return v&&v.value||today()};
   el.querySelectorAll('[data-rk2]').forEach(c=>c.onclick=async()=>{const x=X.its[+c.dataset.rk2],to=!x.paid;if(!to&&x.kind==='prev')return;c.disabled=true;c.parentElement.classList.toggle('on',to);try{await repPay(x,to,day(),r.nome);if(to&&!X.its.some(y=>y!==x&&PK(y)&&!y.paid))await abatPagar(abIds(),day());toast(to?'Marcado como pago':'Voltou para em aberto')}catch(err){toast(writeErr(err));c.parentElement.classList.toggle('on',!to);c.disabled=false}});
@@ -6041,11 +6052,16 @@ function wireRep(el){
   el.querySelectorAll('[data-rab]').forEach(b=>b.onclick=()=>{const d=S.acertos.find(a=>a.id===b.dataset.rab);if(d)openAbater(0,'',()=>renderView(),{doc:d})});
   const abIds=()=>X.its.filter(x=>x.kind==='abat'&&!x.paid).map(x=>x.abat.id),PK=x=>x.payable&&(x.kind==='lanc'||x.kind==='prev'||x.kind==='acerto');
   const all=el.querySelector('#rpall');if(all)all.onclick=async()=>{all.disabled=true;try{for(const x of X.its.filter(x=>x.payable&&!x.paid&&(x.kind==='lanc'||x.kind==='prev'||x.kind==='acerto')))await repPay(x,true,day(),r.nome);await abatPagar(abIds(),day());toast('Pago em '+fdate(day()).slice(0,5))}catch(err){toast(writeErr(err));all.disabled=false}};
-  const S0=repS0(r,X,R,D.trf?repTrf(D,R,X):null),RS={lines:[],ending:[],nextWs:[]};
+  const RS={lines:[],ending:[],nextWs:[]};let S0,RX=R;
+  const mkS0=()=>{const n={per:1,m3:3,m6:6,m12:12}[REXS];let RR=R;
+    if(REXS==='tudo'||REXS==='ano'||(n&&n>1)){const a=REXS==='tudo'?(histIni()||R.ini):REXS==='ano'?R.fim.slice(0,4)+'-01-01':repRange(Object.assign({},D,{per:'mes'}),mdiff(today().slice(0,7),R.fim.slice(0,7))-(n-1)).ini;
+      RR={ini:a<R.ini?a:R.ini,fim:R.fim,ym:R.ym,lab:`${fdate(a<R.ini?a:R.ini)} – ${fdate(R.fim)}`}}
+    const XX=RR===R?X:repRun(D,RR);RX=RR;S0=repS0(r,XX,RR,D.trf?repTrf(D,RR,XX):null);return S0};mkS0();
+  {const q=el.querySelector('#rexs');if(q)q.onchange=()=>{REXS=q.value;LSset('pt-rexs',REXS);mkS0()}}
   (el.querySelector('#gtx')||{}).onclick=async()=>{const RZ=s0Res(S0),li=x=>`${x.paid?'✓':'•'} ${x.desc} · ${x.v<0?'−':''}${brl(Math.abs(x.v))}${x.paid&&x.pagoEm?' (pago '+fdate(x.pagoEm).slice(0,5)+')':x.due?' (vence '+fdate(x.due).slice(0,5)+')':''}`+compTxt(x);
-    const t=`${S0.title} · ${r.nome} · ${R.lab}\n\n`+(RZ?'RESUMO\n'+RZ.L.map(([l,v])=>`${l}: ${v<0?'−':''}${brl(Math.abs(v))}`).join('\n')+'\n\nA TRANSFERIR\n'+RZ.it.map(li).join('\n')+'\n\nABATIMENTO\n'+RZ.ab.map(li).join('\n'):S0.items.map(li).join('\n')+`\n\nTotal ${brl(S0.tot)}\nPago ${brl(S0.paid)}\n${D.trf?S0.title:'Em aberto'}: ${brl(S0.open)}`);
+    const t=`${S0.title} · ${r.nome} · ${RX.lab}\n\n`+(RZ?'RESUMO\n'+RZ.L.map(([l,v])=>`${l}: ${v<0?'−':''}${brl(Math.abs(v))}`).join('\n')+'\n\nA TRANSFERIR\n'+RZ.it.map(li).join('\n')+'\n\nABATIMENTO\n'+RZ.ab.map(li).join('\n'):S0.items.map(li).join('\n')+`\n\nTotal ${brl(S0.tot)}\nPago ${brl(S0.paid)}\n${D.trf?S0.title:'Em aberto'}: ${brl(S0.open)}`);
     try{if(navigator.share&&/Mobi/i.test(navigator.userAgent))await navigator.share({text:t});else{await navigator.clipboard.writeText(t);toast('Texto copiado')}}catch(e){try{await navigator.clipboard.writeText(t);toast('Texto copiado')}catch(e2){toast('Não consegui copiar')}}};
-  (el.querySelector('#gim')||{}).onclick=async e=>{const b=e.currentTarget;b.disabled=true;try{RS.chart=await chartSnap(el);const blob=await gabPNG(S0,RS);const fn=`${norm(r.nome).replace(/ /g,'-')||'relatorio'}-${R.ym}.png`;if(S.downloads)await S.downloads.save({filename:fn,data:blob});else window.open(URL.createObjectURL(blob),'_blank')}catch(err){if(!(err&&(err.code==='cancelled'||err.code==='declined')))toast('Não consegui gerar a imagem.')}finally{b.disabled=false}};
+  (el.querySelector('#gim')||{}).onclick=async e=>{const b=e.currentTarget;b.disabled=true;try{RS.chart=await chartSnap(el);const blob=await gabPNG(S0,RS);const fn=`${norm(r.nome).replace(/ /g,'-')||'relatorio'}-${REXS==='per'?R.ym:RX.ini+'_'+RX.fim}.png`;if(S.downloads)await S.downloads.save({filename:fn,data:blob});else window.open(URL.createObjectURL(blob),'_blank')}catch(err){if(!(err&&(err.code==='cancelled'||err.code==='declined')))toast('Não consegui gerar a imagem.')}finally{b.disabled=false}};
   (el.querySelector('#gpf')||{}).onclick=async e=>{const b=e.currentTarget;RS.chart=await chartSnap(el);gabPDF(S0,b,RS)};
 }
 /* editor de relatório */
