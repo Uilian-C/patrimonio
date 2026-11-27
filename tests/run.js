@@ -8,7 +8,7 @@ const { chromium } = require('playwright');
 const { fixture } = require('./fixture');
 
 const ROOT = path.join(__dirname, '..');
-const EXPOR = ('S ME today repFunnel repRun repRange repDef repTrf repChart acertoS0 acertoCaminho acertoLedger vRel openMenu toastOk delLancUndo fbWrap openRepDet rdCmp rdItems openLancView openCardDet closeAll confirmRec repararOrfaos openLanFiltros recV recVI lembDe openPrefs openLembretes ymAdd addD dayIn lastDay realBal saldoConta scopeContas fracOf mesFluxo agendaPessoal patrimonio balanco dividasAll ' +
+const EXPOR = ('S ME today openMercado mktCalc mktLoad repFunnel repRun repRange repDef repTrf repChart acertoS0 acertoCaminho acertoLedger vRel openMenu toastOk delLancUndo fbWrap openRepDet rdCmp rdItems openLancView openCardDet closeAll confirmRec repararOrfaos openLanFiltros recV recVI lembDe openPrefs openLembretes ymAdd addD dayIn lastDay realBal saldoConta scopeContas fracOf mesFluxo agendaPessoal patrimonio balanco dividasAll ' +
   'acerto acertoLedger credGab gabId candlesCaixa saidasDia margemCalc planoCalc mesCalc catWatch catMesMap contaMov isCaixa movs ' +
   'parseFrase rvCalc rvIR divSim divLista ORD metaCalc cenBase cenProj baseMes casaCalc pjMes filhoCalc progRet retroCalc semRev ' +
   'openRV openRVIR openCenarios openDividasPlano openCasa openPJ openPontos openFilhos openRetro openPrefs openFrase openSimCompra ' +

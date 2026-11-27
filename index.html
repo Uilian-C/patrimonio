@@ -2677,6 +2677,23 @@ svg.dch{text-transform:none;letter-spacing:0}
 .fsub{display:grid;grid-template-columns:1fr auto;gap:2px 10px;font-size:12px;color:var(--muted)}.fsub.ftop{margin:-2px 0 2px}.fsub b{color:var(--muted);font-weight:600}
 .trg.fg span{min-width:104px}.trg.fg em{font-style:normal;font-size:11px;color:var(--muted)}
 .fmeta{font-size:12px;color:var(--muted);display:flex;flex-wrap:wrap;gap:4px 6px;align-items:center;margin-top:4px}
+
+/* índices do mercado */
+.mkx{display:grid;gap:12px}
+.mkst{display:grid;gap:4px;font-size:12px;color:var(--muted)}
+.mkst span{display:flex;align-items:center;gap:7px}.mkst i{width:8px;height:8px;border-radius:50%;background:var(--muted);flex:none}
+.mkst .ok i{background:var(--good)}.mkst .er i{background:var(--crit)}.mkst .er{color:var(--crit)}
+.mxr{display:grid;grid-template-columns:1fr auto;gap:2px 10px;padding:12px 14px;border-radius:12px;background:var(--sunk)}
+.mxr span{font-weight:600}.mxr small{display:block;font-weight:400;font-size:11.5px;color:var(--muted)}.mxr b{font-size:18px}.mxr em{grid-column:1/-1;font-style:normal;font-size:12px;color:var(--muted)}
+.mkc{display:grid;gap:6px;padding:12px 0;border-top:1px solid var(--line)}
+.mxh{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.mxh span{display:grid}.mxh small{font-size:11.5px;color:var(--muted)}.mxh strong{font-size:20px;font-weight:650;white-space:nowrap}
+.mksp{width:100%;height:34px;display:block}
+.mkg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.mkg div{display:grid;gap:1px}.mkg small{font-size:11px;color:var(--muted)}.mkg b{font-size:14px;font-weight:600}
+.mkg .pos{color:var(--good)}.mkg .neg{color:var(--crit)}.mkg .mu{color:var(--muted)}
+.mke{color:var(--muted)}.mke small{display:block}
+.mxn{margin:0;font-size:12px}.mxn .pos{color:var(--good)}.mxn .neg{color:var(--crit)}
 </style>
 <div id="fbgate" hidden><div class="bx"><svg class="lg" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="139 90 228 332"><g transform="translate(-5 0)"><rect x="186" y="100" width="12" height="312" rx="6" fill="currentColor" opacity=".55"/><rect x="164" y="150" width="56" height="210" rx="16" fill="currentColor"/><path d="M244 150h38a70 70 0 0 1 0 140h-38z" fill="#E2BA6E"/></g></svg><h1>Patrimônio</h1><p id="fbmsg">Entre com a sua conta Google para ver as finanças da casa.</p><button type="button" id="fblogin">Entrar com Google</button></div></div>
 <script type="module">
@@ -3890,6 +3907,52 @@ async function rvIbovLoad(){const D=rvD(),ib=D.ibov||{},t=today();if(IBTRY||ib[t
     (x.historicalDataPrice||[]).forEach(h=>{if(h&&h.close>0&&h.date){const d=new Date(h.date*1000).toISOString().slice(0,10);add[d]=Math.round(h.close)}});
     if(x.regularMarketPrice>0)add[t]=Math.round(x.regularMarketPrice);
     if(Object.keys(add).length)await rvSave({ibov:Object.assign({},ib,add)})}catch(e){}}
+
+/* =================== ÍNDICES DO MERCADO (independem da carteira) ===================
+   Ibovespa (brapi, usa a sua chave), dólar PTAX, Selic, CDI e IPCA (Banco Central). Guarda no aparelho; renova a cada 30 min (brapi) ou 1x por dia (BC). */
+let MKT=(()=>{try{return JSON.parse(localStorage.getItem('pt-mkt')||'{}')}catch(e){return {}}})(),MKTRUN=false;
+const mktSave=()=>{try{localStorage.setItem('pt-mkt',JSON.stringify(MKT))}catch(e){}};
+const bcbDt=d=>d.slice(8,10)+'/'+d.slice(5,7)+'/'+d.slice(0,4),bcbIso=x=>x.slice(6,10)+'-'+x.slice(3,5)+'-'+x.slice(0,2);
+async function bcbSerie(c,dias){const r=await fetch(`https://api.bcb.gov.br/dados/serie/bcdata.sgs.${c}/dados?formato=json&dataInicial=${bcbDt(addD(today(),-dias))}&dataFinal=${bcbDt(today())}`);if(!r.ok)throw new Error('bc');const js=await r.json();return js.map(x=>[bcbIso(x.data),+x.valor]).filter(x=>isFinite(x[1]))}
+async function mktLoad(force){if(MKTRUN||!navigator.onLine)return false;MKTRUN=true;const t=today(),now=Date.now(),st=MKT.st||{};let mud=false;
+  const ok=k=>{st[k]={ok:1,t:now};mud=true},er=(k,e)=>{st[k]={ok:0,t:now,e:(e&&e.message)||'rede'};mud=true};
+  if(force||!MKT.ibov||now-(MKT.ibov.t||0)>18e5){try{let x;try{x=await rvFetch('^BVSP','range=1y&interval=1d')}catch(e){x=await rvFetch('^BVSP','range=3mo&interval=1d')}
+      const h=(x.historicalDataPrice||[]).filter(z=>z&&z.close>0&&z.date).map(z=>[new Date(z.date*1000).toISOString().slice(0,10),+z.close]);const ib=Object.entries(rvD().ibov||{}).map(([d,v])=>[d,+v]);
+      const m={};ib.concat(h).forEach(([d,v])=>{m[d]=v});if(x.regularMarketPrice>0)m[t]=+x.regularMarketPrice;
+      MKT.ibov={t:now,v:+x.regularMarketPrice,vp:+x.regularMarketChangePercent||0,h:Object.entries(m).sort((a,b)=>a[0].localeCompare(b[0]))};ok('brapi')}catch(e){er('brapi',e)}}
+  if(force||MKT.bc!==t){try{const [dol,sel,cdi,ipca]=await Promise.all([bcbSerie(1,400),bcbSerie(432,400),bcbSerie(12,400),bcbSerie(433,500)]);
+      MKT.dol=dol;MKT.sel=sel;MKT.cdi=cdi;MKT.ipca=ipca;MKT.bc=t;ok('bc')}catch(e){er('bc',e)}}
+  MKT.st=st;MKTRUN=false;if(mud)mktSave();return mud}
+/* variação de uma série diária [data,valor] entre o último ponto e o ponto mais próximo antes de d */
+function mktVar(h,dias){if(!h||h.length<2)return null;const last=h[h.length-1],alvo=addD(last[0],-dias);let b=null;for(const x of h){if(x[0]<=alvo)b=x;else break}if(!b&&h[0][0]<=addD(alvo,10))b=h[0];return b&&b[1]?{v:last[1]/b[1]-1,de:b[0]}:null}
+function mktCalc(){const M=MKT,o={};
+  if(M.ibov&&M.ibov.h&&M.ibov.h.length){const h=M.ibov.h;o.ibov={v:M.ibov.v||h[h.length-1][1],d:M.ibov.vp/100,m:mktVar(h,30),a:mktVar(h,365),s:h.slice(-90).map(x=>x[1]),t:M.ibov.t}}
+  if(M.dol&&M.dol.length){const h=M.dol,l=h[h.length-1],p=h[h.length-2];o.dol={v:l[1],em:l[0],d:p?l[1]/p[1]-1:null,m:mktVar(h,30),a:mktVar(h,365),s:h.slice(-90).map(x=>x[1])}}
+  if(M.sel&&M.sel.length){const h=M.sel,l=h[h.length-1],a=mktVar(h,365);let mudou=null;for(let i=h.length-1;i>0;i--){if(h[i][1]!==h[i-1][1]){mudou={d:h[i][0],de:h[i-1][1]};break}}o.sel={v:l[1],mud:mudou}}
+  if(M.cdi&&M.cdi.length){const h=M.cdi,l=h[h.length-1],acc=dias=>{const a=addD(l[0],-dias);return h.filter(x=>x[0]>a).reduce((f,x)=>f*(1+x[1]/100),1)-1};o.cdi={aa:Math.pow(1+l[1]/100,252)-1,m:acc(30),a:acc(365),em:l[0]}}
+  if(M.ipca&&M.ipca.length){const h=M.ipca,l=h[h.length-1],u12=h.slice(-12);o.ipca={v:l[1]/100,ym:l[0].slice(0,7),a:u12.length===12?u12.reduce((f,x)=>f*(1+x[1]/100),1)-1:null,s:h.slice(-12).map(x=>x[1])}}
+  if(o.sel&&o.ipca&&o.ipca.a!=null)o.real=(1+o.sel.v/100)/(1+o.ipca.a)-1;
+  return o}
+function mktStatus(){const st=MKT.st||{},b=st.brapi,c=st.bc,tok=(rvD().tok||'').trim();
+  const bm=!b?'ainda não consultada':b.ok?`ok · ${tok?'com a sua chave':'sem chave'} · ${hAgo(b.t)}`:{chave:'a fonte pediu chave — confira a chave em Renda variável › Fonte das cotações',limite:'limite de consultas do plano atingido',ticker:'índice não disponível no seu plano',rede:'sem resposta'}[b.e]||'sem resposta';
+  return {b:!!(b&&b.ok),c:!!(c&&c.ok),html:`<div class="mkst"><span class="${b&&b.ok?'ok':b?'er':''}"><i></i>brapi (Ibovespa): ${esc(bm)}</span><span class="${c&&c.ok?'ok':c?'er':''}"><i></i>Banco Central (dólar, Selic, CDI, IPCA): ${c?c.ok?'ok · '+hAgo(c.t):'sem resposta':'ainda não consultado'}</span></div>`}}
+function hAgo(t){const m=Math.round((Date.now()-t)/6e4);return m<1?'agora':m<60?`há ${m} min`:m<1440?`há ${Math.round(m/60)} h`:`há ${Math.round(m/1440)} d`}
+function openMercado(){
+  const pv=(x,dig)=>x==null?'<span class="mu">—</span>':`<span class="${x.v!=null?(x.v>=0?'pos':'neg'):(x>=0?'pos':'neg')}">${(x.v!=null?x.v:x)>=0?'+':'−'}${Math.abs((x.v!=null?x.v:x)*100).toLocaleString('pt-BR',{minimumFractionDigits:dig==null?1:dig,maximumFractionDigits:dig==null?1:dig})}%</span>`;
+  const pp=(v,d)=>v==null?'—':(v*100).toLocaleString('pt-BR',{minimumFractionDigits:d==null?2:d,maximumFractionDigits:d==null?2:d})+'%';
+  const draw=sh=>{const o=mktCalc(),S=mktStatus(),box=sh.querySelector('#mkx');
+    const card=(nm,sub,val,linhas,spk,col)=>`<div class="mkc"><div class="mxh"><span><b>${nm}</b><small>${sub}</small></span><strong class="n">${val}</strong></div>${spk&&spk.length>2?sparkL(spk,col,300,34).replace('<svg','<svg class="mksp"'):''}<div class="mkg">${linhas.map(([k,v])=>`<div><small>${k}</small><b class="n">${v}</b></div>`).join('')}</div></div>`;
+    box.innerHTML=`${S.html}
+      ${o.real!=null?`<div class="mxr"><span>Juro real <small>Selic − IPCA 12m</small></span><b class="n">${pp(o.real,1)} a.a.</b><em>${o.real>.06?'alto: renda fixa pós e IPCA+ pagam bem acima da inflação':o.real>.03?'moderado':'baixo: renda fixa rende pouco acima da inflação'}</em></div>`:''}
+      ${o.ibov?card('Ibovespa','pontos · '+hAgo(o.ibov.t),o.ibov.v.toLocaleString('pt-BR',{maximumFractionDigits:0}),[['Dia',pv(o.ibov.d)],['30 dias',pv(o.ibov.m)],['12 meses',pv(o.ibov.a)]],o.ibov.s,o.ibov.d>=0?'var(--good)':'var(--crit)'):`<div class="mkc mke"><b>Ibovespa</b><small>${S.b?'sem histórico ainda':'sem dados — veja o status acima'}</small></div>`}
+      ${o.dol?card('Dólar','PTAX · '+fdate(o.dol.em).slice(0,5),'R$ '+o.dol.v.toLocaleString('pt-BR',{minimumFractionDigits:4,maximumFractionDigits:4}),[['Dia',pv(o.dol.d)],['30 dias',pv(o.dol.m)],['12 meses',pv(o.dol.a)]],o.dol.s,'var(--accent)'):''}
+      ${o.sel||o.cdi?card('Selic e CDI','juros',o.sel?pp(o.sel.v/100)+' a.a.':'—',[['Selic',o.sel?pp(o.sel.v/100):'—'],['CDI 30 dias',o.cdi?pp(o.cdi.m):'—'],['CDI 12 meses',o.cdi?pp(o.cdi.a):'—']],null)+(o.sel&&o.sel.mud?`<p class="note mxn">Última mudança da Selic em ${fdate(o.sel.mud.d)}: de ${pp(o.sel.mud.de/100)} para ${pp(o.sel.v/100)}.</p>`:''):''}
+      ${o.ipca?card('IPCA','inflação · '+ymS(o.ipca.ym),pp(o.ipca.v)+' no mês',[['Mês',pp(o.ipca.v)],['12 meses',o.ipca.a!=null?pp(o.ipca.a):'—'],['Meta',`3,00%`]],o.ipca.s,'var(--warn)'):''}
+      ${o.ibov&&o.cdi&&o.ibov.a&&o.cdi.a!=null?`<p class="note mxn">Em 12 meses: Ibovespa ${pv(o.ibov.a)} contra CDI ${pv(o.cdi.a)}${o.ipca&&o.ipca.a!=null?` e inflação ${pv(o.ipca.a)}`:''}.</p>`:''}
+      <p class="note mxn">Ibovespa com atraso de cerca de 30 min (brapi). Dólar PTAX, Selic, CDI e IPCA do Banco Central. Informação para acompanhar, não recomendação de investimento.</p>
+      <div class="btnrow"><button class="btn sm" type="button" id="mk-up">Atualizar agora</button></div>`;
+    box.querySelector('#mk-up').onclick=async e=>{const b=e.currentTarget;b.disabled=true;b.textContent='Buscando…';await mktLoad(true);draw(sh);const S2=mktStatus();toast(S2.b&&S2.c?'Índices atualizados':S2.c?'Banco Central ok · brapi sem resposta':'Sem resposta das fontes')}};
+  openSheet(`<h2>Índices do mercado</h2><div id="mkx" class="mkx"></div>`,sh=>{draw(sh);mktLoad().then(m=>{if(m&&sh.isConnected)draw(sh)})})}
 /* ---- posições, resultado e vendas (preço médio com custos) ---- */
 function rvCalc(me,ate){const D=rvD(),hj=!ate||ate>=today(),ops=(D.ops||[]).filter(o=>o&&o.tk&&fracOf(o.dono||ME(),me)>0&&(hj||(o.d||'')<=ate)).slice().sort((a,b)=>(a.d||'').localeCompare(b.d||'')||(a.t==='c'?-1:1));
   const P={},V=[],F=[];const pos=tk=>P[tk]||(P[tk]={tk,tipo:rvTipo(tk),q:0,custo:0,inv:0,vend:0,real:0,prov:0,prov12:0,ini:null,ops:0});
@@ -3969,7 +4032,7 @@ function rvCard(me){const D=rvD(),R=rvCalc(me);
       ${R.ab.length>5?`<button type="button" class="lk" data-rvall="1">mais ${R.ab.length-5} ›</button>`:''}</div>
     ${B&&R.v>0?`<div class="sfx"><div class="sfh"><b>Ganho contra o mesmo dinheiro em…</b><span>desde ${fdate(B.d0)}</span></div>${rvBenchBars(B)}</div>`:''}
     ${A.alvo?`<div class="sfx"><div class="sfh"><b>Alocação</b><span>atual × alvo</span></div>${rvAlocBar(A)}${sug?`<p class="rvsug">Próximo aporte de <b class="n">${brl0(APM)}</b>: ${sug.map(s=>`<b>${RVCL[s.k]}</b> <span class="n">${brl0(s.v)}</span>`).join(' · ')}</p>`:'<p class="rvsug">Defina "Aportar por mês" acima para o app sugerir onde colocar.</p>'}</div>`:`<button type="button" class="lk" data-rvalvo="1">Definir alocação-alvo e receber sugestão de aporte ›</button>`}
-    <div class="btnrow"><button class="btn sm" type="button" data-rvop="c">${ic('plus')} Compra</button><button class="btn sm" type="button" data-rvop="v">Venda</button><button class="btn sm" type="button" data-rvprov="1">Provento</button></div>
+    <div class="btnrow"><button class="btn sm" type="button" data-rvop="c">${ic('plus')} Compra</button><button class="btn sm" type="button" data-rvop="v">Venda</button><button class="btn sm" type="button" data-rvprov="1">Provento</button><button class="btn sm" type="button" data-mkt="1">Índices</button></div>
   </div>`}
 function rvAlocBar(A){const ks=Object.keys(RVCL).filter(k=>(A.at[k]||0)>0||(+((A.alvo||{})[k])||0)>0);
   return `<div class="rval">${ks.map(k=>{const p=A.T?A.at[k]/A.T:0,al=(+((A.alvo||{})[k])||0)/100,d=p-al;return `<div class="rvar"><span><i style="background:${RVCOR[k]}"></i>${RVCL[k]}</span><span class="rvat"><i style="width:${Math.min(p*100,100).toFixed(1)}%;background:${RVCOR[k]}"></i>${al?`<u style="left:${Math.min(al*100,100).toFixed(1)}%"></u>`:''}</span><em class="n">${pctf(p)}${al?` <small class="${Math.abs(d)<.02?'':d<0?'pos':'warn'}">alvo ${pctf(al)}</small>`:''}</em></div>`}).join('')}</div>`}
@@ -3977,6 +4040,7 @@ function wireRV(el,rr){
   el.querySelectorAll('[data-rvop]').forEach(b=>b.onclick=()=>openRVOp({t:b.dataset.rvop,tk:b.dataset.tk||''}));
   el.querySelectorAll('[data-rvprov]').forEach(b=>b.onclick=()=>openRVProv({tk:b.dataset.tk||''}));
   el.querySelectorAll('[data-rvall]').forEach(b=>b.onclick=()=>openRV());
+  el.querySelectorAll('[data-mkt]').forEach(b=>b.onclick=()=>openMercado());
   el.querySelectorAll('[data-rvtk]').forEach(b=>b.onclick=()=>openRVAtivo(b.dataset.rvtk));
   el.querySelectorAll('[data-rvir]').forEach(b=>b.onclick=()=>openRVIR());
   el.querySelectorAll('[data-rvalvo]').forEach(b=>b.onclick=()=>openRVAlvo());
@@ -3995,7 +4059,7 @@ function openRV(){const draw=sh=>{const me=ME(),R=rvCalc(me),D=rvD(),B=rvBench(R
         <button class="lk" type="button" id="rv-alvo">${A.alvo?'Ajustar alocação-alvo ›':'Definir alocação-alvo ›'}</button></section>
       <section class="ivs"><div class="ivsh"><h3>Imposto de renda</h3><small>operações comuns</small></div>${rvIRResumo(IR)}<button class="lk" type="button" data-rvir="1">Ver mês a mês ›</button></section>`
       :`<div class="empty"><strong>Nenhuma operação ainda</strong>Registre compras (e vendas) com quantidade, preço e data — como na nota de corretagem. O app calcula preço médio, resultado e IR.</div>`}
-      <div class="btnrow"><button class="btn primary sm" type="button" data-rvop="c">${ic('plus')} Compra</button><button class="btn sm" type="button" data-rvop="v">Venda</button><button class="btn sm" type="button" data-rvprov="1">Provento</button><button class="btn sm" type="button" id="rv-up">Atualizar cotações</button></div>
+      <div class="btnrow"><button class="btn primary sm" type="button" data-rvop="c">${ic('plus')} Compra</button><button class="btn sm" type="button" data-rvop="v">Venda</button><button class="btn sm" type="button" data-rvprov="1">Provento</button><button class="btn sm" type="button" id="rv-up">Atualizar cotações</button><button class="btn sm" type="button" data-mkt="1">Índices do mercado</button></div>
       <details class="ivs rvcfg"><summary>Fonte das cotações</summary>
         <p class="note">Cotações da <b>brapi.dev</b> com atraso de cerca de 30 minutos. Sem chave, só PETR4, VALE3, ITUB4 e MGLU3 respondem; crie uma chave grátis em brapi.dev e cole aqui para todos os ativos. Sem internet ou sem resposta, vale a cotação que você informar no ativo (ou o preço médio).</p>
         <div class="field"><label for="rv-tok">Chave da brapi (opcional)</label><input id="rv-tok" autocomplete="off" value="${esc(D.tok||'')}" placeholder="cole a chave"></div>
