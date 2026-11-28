@@ -5219,12 +5219,12 @@ let HUBK='',HUBT=0;
 function hubSnap(X){const {me,t,F}=X,lim=addD(t,30),r=v=>Math.round((+v||0)*100)/100;
   const cartoes=S.cards.filter(c=>c.ativo!==false).map(c=>{let st={};try{st=cardStats(c)}catch(e){}const ciclos=[];let pv='';
     for(let k=0;k<=75;k++){const d=addD(t,k);let due='';try{due=dayIn(baseDue({data:d},c),c.vencimento)}catch(e){}if(due&&due!==pv){ciclos.push({de:d,due});pv=due}}
-    let nome=c.nome;try{nome=cardName(c)}catch(e){}return {nome,cor:c.cor||'',disp:r(st.disp),lim:+c.limite||0,ciclos}});
+    let nome=c.nome;try{nome=cardName(c)}catch(e){}return {id:c.id,nome,cor:c.cor||'',disp:r(st.disp),lim:+c.limite||0,ciclos}});
   const rows=[],seen=new Set(),AG=agendaPessoal(me,lim);
   AG.filter(x=>x.v<0).forEach(x=>{seen.add(x.nav+x.d);rows.push(x)});(F.venc||[]).forEach(x=>{if(!seen.has(x.nav+x.d))rows.push(x)});
-  const pagar=rows.filter(x=>!(x.k==='pend'&&isGab(S.lanc.find(l=>'l:'+l.id===x.nav)||{}))).sort((a,b)=>a.d.localeCompare(b.d)||a.v-b.v).slice(0,40).map(x=>({d:x.d,t:x.t,s:x.s||'',v:r(-x.v),k:x.k||''}));
-  const ym=t.slice(0,7);let rA=[];try{rA=recPrevistos(ym,ym).filter(x=>x.tipo==='receita'&&x.dono===me&&x.date<t).map(x=>({d:x.date,t:x.nome,s:'não confirmada',v:r(x.valor)}))}catch(e){}
-  const receber=rA.concat(AG.filter(x=>x.v>0).map(x=>({d:x.d,t:x.t,s:x.s||'',v:r(x.v)}))).filter((x,i,A)=>A.findIndex(y=>y.d===x.d&&y.t===x.t)===i).sort((a,b)=>a.d.localeCompare(b.d)).slice(0,30);
+  const pagar=rows.filter(x=>!(x.k==='pend'&&isGab(S.lanc.find(l=>'l:'+l.id===x.nav)||{}))).sort((a,b)=>a.d.localeCompare(b.d)||a.v-b.v).slice(0,40).map(x=>({d:x.d,t:x.t,s:x.s||'',v:r(-x.v),k:x.k||'',n:x.nav||''}));
+  const ym=t.slice(0,7);let rA=[];try{rA=recPrevistos(ym,ym).filter(x=>x.tipo==='receita'&&x.dono===me&&x.date<t).map(x=>({d:x.date,t:x.nome,s:'não confirmada',v:r(x.valor),n:`rec:${x.r.id}|${x.ym}`}))}catch(e){}
+  const receber=rA.concat(AG.filter(x=>x.v>0).map(x=>({d:x.d,t:x.t,s:x.s||'',v:r(x.v),n:x.nav||''}))).filter((x,i,A)=>A.findIndex(y=>y.d===x.d&&y.t===x.t)===i).sort((a,b)=>a.d.localeCompare(b.d)).slice(0,30);
   let stops=[];try{stops=stopStatus(me).filter(x=>x.st!=='ok').sort((a,b)=>b.pct-a.pct).slice(0,4).map(x=>({c:x.c,st:x.st,disp:r(x.disp),lim:r(x.lim),pct:Math.round(x.pct*100)/100,proj:r(x.proj),dia:r(x.dia)}))}catch(e){}
   let rotina=null;try{const D=new DOMParser().parseFromString(iniRotina(X),'text/html'),m=D.querySelector('.rtm');
     rotina={t:m&&m.querySelector('strong')?m.querySelector('strong').textContent.trim():'',s:m&&m.querySelector('small')?m.querySelector('small').textContent.trim():'',p:m?[...m.querySelectorAll('.fcb i')].map(i=>i.classList.contains('on')?1:0):[],chips:[...D.querySelectorAll('.rtc')].map(c=>({t:c.textContent.trim(),ok:c.classList.contains('ok')}))}}catch(e){}
@@ -5236,13 +5236,17 @@ function hubSnap(X){const {me,t,F}=X,lim=addD(t,30),r=v=>Math.round((+v||0)*100)
   return {dia:t,cartoes,pagar,receber,stops,rotina,bolso}}
 function hubPub(X){if(!S.db0||RO||(S.db&&S.db.__ro))return;clearTimeout(HUBT);HUBT=setTimeout(()=>{try{const o=hubSnap(X),k=JSON.stringify(o);if(k===HUBK)return;HUBK=k;
   Promise.resolve(S.db0.doc('hub/radar').set(Object.assign({v:1,em:new Date().toISOString()},o))).catch(()=>{HUBK=''})}catch(e){}},2500)}
+/* link direto vindo do app Radar: ?pt=rv:<item> | cd:<cartão> | plano | rot */
+let PTD=new URLSearchParams(location.search).get('pt');
+function ptDeep(){if(!PTD)return;const v=PTD;PTD=null;try{history.replaceState(history.state,'',location.pathname+location.hash)}catch(e){}
+  setTimeout(()=>{try{const [k,x]=v.split(/:(.*)/s);if(k==='rv')rvGo(x);else if(k==='cd'){const c=card(x);c&&openCardDet(c)}else if(k==='plano')openPlano();else if(k==='rot'){const b=document.querySelector('#v-inicio .rtm');b&&b.click()}}catch(e){}},350)}
 function vInicio(){
   const el=$('#v-inicio');if(!ready()){el.innerHTML=loading();return}
   const me=ME(),t=today(),ym=t.slice(0,7);let h='';
   const setup=[[S.contas.length>0,'Cadastre suas contas','conta'],[S.cards.length>0,'Cadastre os cartões','card'],[S.recs.some(r=>r.tipo==='receita'),'Informe seu salário e adiantamento','rec'],[S.lanc.some(l=>l.cartao),'Importe a primeira fatura','import']];
   const ok=setup.filter(s=>s[0]).length,nx=setup.find(s=>!s[0]);
   if(nx&&!SETUPX)h+=`<div class="setup"><span class="sp">${setup.map(s=>`<i class="${s[0]?'on':''}"></i>`).join('')}</span><button class="lk" type="button" data-setup="${nx[2]}">${ok}/${setup.length} · ${nx[1]} ›</button><button class="sx2" type="button" id="stx" aria-label="Ocultar">×</button></div>`;
-  const X={me,t,ym,saldo:realBal(me,t),M:mesCalc(ym,me),F:mesFluxo(ym,me)};try{hubPub(X)}catch(e){}
+  const X={me,t,ym,saldo:realBal(me,t),M:mesCalc(ym,me),F:mesFluxo(ym,me)};try{hubPub(X)}catch(e){}try{ptDeep()}catch(e){}
   const B={rotina:iniRotina,margem:iniGastoMini,ticker:iniTicker,mesx:iniMesX,cats:iniCats,hero:X=>{X.L=X.L||caixaLivre(X.me);return iniHero(X)},acoes:X=>{X.L=X.L||caixaLivre(X.me);return iniAcoes(X)},alertas:iniResolver,ultimos:iniUltimos,spread:iniSpread,contas:iniContas,beneficios:iniBen,mes:()=>mesCard(me),agenda:iniAgenda,credito:()=>creditoDash(true),gastos:iniGastos2,planejado:iniPlan,fluxo6:iniEvo,kpis:iniKpis,orcamento:()=>'',plano:iniPlano,dre:iniDre,saude:iniSaude,fecha:iniFecha,quinzenas:iniQuin,patrimonio:iniPat};
   const CORE=SIMPLES?['ticker','hero','alertas','margem','ultimos']:['ticker','hero','rotina','alertas','margem','ultimos'];let ha='';
   layOrder().forEach(k=>{if((LAY.off||[]).includes(k))return;if(SIMPLES&&!CORE.includes(k))return;let x='';try{x=B[k](X)||''}catch(e){console.error('início/'+k,e)}if(CORE.includes(k))h+=x;else ha+=x});
