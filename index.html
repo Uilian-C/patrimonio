@@ -5228,7 +5228,12 @@ function hubSnap(X){const {me,t,F}=X,lim=addD(t,30),r=v=>Math.round((+v||0)*100)
   let stops=[];try{stops=stopStatus(me).filter(x=>x.st!=='ok').sort((a,b)=>b.pct-a.pct).slice(0,4).map(x=>({c:x.c,st:x.st,disp:r(x.disp),lim:r(x.lim),pct:Math.round(x.pct*100)/100,proj:r(x.proj),dia:r(x.dia)}))}catch(e){}
   let rotina=null;try{const D=new DOMParser().parseFromString(iniRotina(X),'text/html'),m=D.querySelector('.rtm');
     rotina={t:m&&m.querySelector('strong')?m.querySelector('strong').textContent.trim():'',s:m&&m.querySelector('small')?m.querySelector('small').textContent.trim():'',p:m?[...m.querySelectorAll('.fcb i')].map(i=>i.classList.contains('on')?1:0):[],chips:[...D.querySelectorAll('.rtc')].map(c=>({t:c.textContent.trim(),ok:c.classList.contains('ok')}))}}catch(e){}
-  return {dia:t,cartoes,pagar,receber,stops,rotina}}
+  let bolso=null;try{const Pt=patrimonio(me,null),cs=S.cards.filter(c=>c.ativo!==false),cm=t.slice(0,7);
+    const pf=movs().filter(i=>i.src==='card'&&cs.includes(i.c)&&i.N>1&&i.tipo==='despesa'&&i.ym>cm&&!fatPaga(i.c.id,i.ym));
+    const assin=sum(S.recs.filter(x=>x.ativo!==false&&x.cartao&&cs.some(c=>c.id===x.cartao)&&x.tipo!=='receita'&&(!x.fim||x.fim>=cm)),x=>recV(x));
+    let cv=0;try{cv=custoVida(me).v}catch(e){}
+    bolso={res:r(Pt.res),rf:r((Pt.inv||0)-(Pt.rv||0)),rv:r(Pt.rv),div:r(Pt.div),parc:r(sum(pf,i=>i.valor)),assin:r(assin),cv:r(cv)}}catch(e){}
+  return {dia:t,cartoes,pagar,receber,stops,rotina,bolso}}
 function hubPub(X){if(!S.db0||RO||(S.db&&S.db.__ro))return;clearTimeout(HUBT);HUBT=setTimeout(()=>{try{const o=hubSnap(X),k=JSON.stringify(o);if(k===HUBK)return;HUBK=k;
   Promise.resolve(S.db0.doc('hub/radar').set(Object.assign({v:1,em:new Date().toISOString()},o))).catch(()=>{HUBK=''})}catch(e){}},2500)}
 function vInicio(){
