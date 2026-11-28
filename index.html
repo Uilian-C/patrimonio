@@ -2694,6 +2694,50 @@ svg.dch{text-transform:none;letter-spacing:0}
 .mkg .pos{color:var(--good)}.mkg .neg{color:var(--crit)}.mkg .mu{color:var(--muted)}
 .mke{color:var(--muted)}.mke small{display:block}
 .mxn{margin:0;font-size:12px}.mxn .pos{color:var(--good)}.mxn .neg{color:var(--crit)}
+
+/* =================== TABLET E COMPUTADOR =================== */
+/* tablet em pé (≥ 700px): conteúdo mais largo, folhas centralizadas */
+@media (min-width:700px) and (max-width:999.98px){
+  main,.top .in{max-width:860px}
+  #v-relatorios .rgrid{grid-template-columns:repeat(auto-fill,minmax(250px,1fr))}
+}
+/* tablet deitado e computador (≥ 1000px): menu lateral, conteúdo em 2 colunas, folhas como painel à direita */
+@media (min-width:1000px){
+  body{padding-left:236px}
+  nav.tabs{top:0!important;bottom:0!important;left:0!important;right:auto!important;width:236px!important;display:flex!important;flex-direction:column;align-items:stretch;gap:2px!important;
+    padding:22px 14px calc(18px + env(safe-area-inset-bottom,0px)) max(14px,env(safe-area-inset-left,0px))!important;border-top:0!important;border-right:1px solid var(--sep)!important;background:var(--bg)!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+  nav.tabs::before{order:-2;content:"Patrimônio";font-size:19px;font-weight:700;letter-spacing:-.03em;color:var(--ink);padding:2px 12px 18px}
+  nav.tabs a{display:flex!important;flex-direction:row;justify-items:start;align-items:center;gap:12px!important;padding:10px 12px!important;font-size:14.5px!important;font-weight:550!important;border-radius:10px!important}
+  nav.tabs a:hover{background:color-mix(in srgb,var(--ink) 6%,transparent)!important}
+  nav.tabs a[aria-current="page"]{background:color-mix(in srgb,var(--accent) 14%,transparent)!important}
+  nav.tabs a[aria-current="page"]::after{display:none}
+  nav.tabs a svg,nav.tabs a svg.ic{width:20px!important;height:20px!important;transform:none!important}
+  nav.tabs .tl-s{display:none!important}nav.tabs .tl-l{display:inline!important}
+  nav.tabs .fab{order:-1;width:100%!important;height:44px!important;border-radius:12px!important;display:flex!important;align-items:center;justify-content:center;gap:8px;margin:0 0 16px}
+  nav.tabs .fab::after{content:"Lançar";font-size:15px;font-weight:650;color:var(--fab-ink,var(--accent-ink))}
+  nav.tabs .fab svg.ic{width:19px!important;height:19px!important}
+  nav.tabs .fab.open svg{transform:rotate(45deg)}
+  nav.tabs::after{content:"N  novo lançamento\A /  buscar\A 1–5  seções";white-space:pre;margin-top:auto;padding:12px;font-size:11px;line-height:1.7;color:var(--faint);font-family:ui-monospace,monospace}
+  .top .in,main{max-width:1180px}
+  main{padding-left:28px!important;padding-right:28px!important;padding-bottom:56px!important}
+  .top{padding-left:28px;padding-right:28px}
+  .toast{left:calc(50% + 118px)!important;bottom:28px!important}
+  /* colunas: cada cartão inteiro numa coluna (sem quebrar) */
+  #v-inicio:not([hidden]),#v-cartoes:not([hidden]),#v-carteira:not([hidden]),#v-decidir:not([hidden]){display:block!important;column-count:2;column-gap:18px}
+  #v-inicio>*,#v-cartoes>*,#v-carteira>*,#v-decidir>*{break-inside:avoid;margin:0 0 14px!important;width:100%}
+  #v-inicio>.tkw{column-span:all}
+  #v-decidir>h3.dch{break-after:avoid;margin-top:6px!important}
+  #v-relatorios .rgrid{grid-template-columns:repeat(auto-fill,minmax(270px,1fr))!important}
+  #v-lanc:not([hidden]){max-width:900px;margin:0 auto}
+  /* folhas: painel lateral direito, mantendo a tela visível */
+  .sheet{left:auto!important;right:0!important;top:0!important;bottom:0!important;transform:none!important;width:min(580px,46vw)!important;max-height:none!important;border-radius:18px 0 0 18px!important;animation:sideIn .24s cubic-bezier(.2,.8,.2,1)!important;box-shadow:-24px 0 60px -30px rgba(0,0,0,.6)}
+  .sheet.small{top:auto!important;bottom:0!important;border-radius:18px 0 0 0!important}
+  .scrim{background:rgba(8,10,12,.28)!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+  @keyframes sideIn{from{transform:translateX(40px);opacity:.3}to{transform:none;opacity:1}}
+}
+@media (min-width:1500px){#v-inicio,#v-decidir{column-count:3}#v-inicio>.hero{column-span:none}}
+@media (hover:hover){.lxd:hover,.rcard:hover{filter:brightness(1.06)}}
+@media (min-width:1000px) and (prefers-reduced-motion:reduce){.sheet{animation:none!important}}
 </style>
 <div id="fbgate" hidden><div class="bx"><svg class="lg" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="139 90 228 332"><g transform="translate(-5 0)"><rect x="186" y="100" width="12" height="312" rx="6" fill="currentColor" opacity=".55"/><rect x="164" y="150" width="56" height="210" rx="16" fill="currentColor"/><path d="M244 150h38a70 70 0 0 1 0 140h-38z" fill="#E2BA6E"/></g></svg><h1>Patrimônio</h1><p id="fbmsg">Entre com a sua conta Google para ver as finanças da casa.</p><button type="button" id="fblogin">Entrar com Google</button></div></div>
 <script type="module">
@@ -3908,6 +3952,25 @@ async function rvIbovLoad(){const D=rvD(),ib=D.ibov||{},t=today();if(IBTRY||ib[t
     if(x.regularMarketPrice>0)add[t]=Math.round(x.regularMarketPrice);
     if(Object.keys(add).length)await rvSave({ibov:Object.assign({},ib,add)})}catch(e){}}
 
+
+/* atalhos: N novo lançamento · / buscar · 1–5 seções (fora de campos de texto) */
+document.addEventListener('keydown',e=>{if(e.ctrlKey||e.metaKey||e.altKey||e.repeat)return;const t=e.target,tag=(t&&t.tagName)||'';if(/INPUT|TEXTAREA|SELECT/.test(tag)||(t&&t.isContentEditable))return;
+  if(!$('#overlay').hidden||$('#fabm'))return;const k=e.key;
+  if(k==='n'||k==='N'){e.preventDefault();openLanc(null)}
+  else if(k==='/'){const b=$('#topsr');if(b){e.preventDefault();b.click()}}
+  else if(/^[1-5]$/.test(k)){const v=['inicio','lanc','cartoes','carteira','relatorios'][+k-1];e.preventDefault();location.hash=v}});
+/* preferências que seguem você entre celular, tablet e computador (gravadas no banco, por pessoa) */
+const UIK={'pt-apm':v=>{APM=+v||0},'pt-ceno':v=>{try{CENO=JSON.parse(v)}catch(e){}},'pt-ini4':v=>{try{LAY=JSON.parse(v)}catch(e){}},'pt-reg':v=>{RREG=v},'pt-simples':v=>{SIMPLES=v==='1'},
+  'pt-ntf':v=>{try{const r=JSON.parse(v),l=NTF();return JSON.stringify(Object.assign({},r,{on:l.on}))}catch(e){}},'pt-rexs':v=>{REXS=v},'pt-acxs':v=>{ACXS=v}};
+let UIT=(()=>{try{return JSON.parse(localStorage.getItem('pt-uit')||'{}')}catch(e){return {}}})(),UIQ={},UITM=0,UIAPLY=false;
+{const _set=Storage.prototype.setItem;Storage.prototype.setItem=function(k,v){_set.call(this,k,v);if(this===localStorage&&!UIAPLY&&Object.prototype.hasOwnProperty.call(UIK,k)){UIT[k]=Date.now();UIQ[k]={v:String(v),t:UIT[k]};_set.call(this,'pt-uit',JSON.stringify(UIT));clearTimeout(UITM);UITM=setTimeout(uiPush,800)}}}
+async function uiPush(){const me=ME(),db=S.db0;if(!me||!db||!Object.keys(UIQ).length)return;const q=UIQ;UIQ={};const cur=(S.ui||{})[me]||{};try{await db.doc('config/ui').set(Object.assign({},S.ui||{},{[me]:Object.assign({},cur,q)}))}catch(e){Object.assign(UIQ,q)}}
+function uiApply(){const me=ME();if(!me||!S.ui)return;const R=S.ui[me]||{};let mud=false;
+  for(const k of Object.keys(UIK)){const lv=localStorage.getItem(k);if(lv!=null&&!R[k]&&!UIQ[k])UIQ[k]={v:lv,t:UIT[k]||1}}if(Object.keys(UIQ).length){clearTimeout(UITM);UITM=setTimeout(uiPush,1500)}
+  UIAPLY=true;
+  try{for(const [k,o] of Object.entries(R)){if(!UIK[k]||!o||o.t<=(UIT[k]||0))continue;let v=o.v;const r=UIK[k](v);if(typeof r==='string')v=r;localStorage.setItem(k,v);UIT[k]=o.t;mud=true}
+    if(mud)localStorage.setItem('pt-uit',JSON.stringify(UIT))}finally{UIAPLY=false}
+  if(mud)re()}
 /* =================== ÍNDICES DO MERCADO (independem da carteira) ===================
    Ibovespa (brapi, usa a sua chave), dólar PTAX, Selic, CDI e IPCA (Banco Central). Guarda no aparelho; renova a cada 30 min (brapi) ou 1x por dia (BC). */
 let MKT=(()=>{try{return JSON.parse(localStorage.getItem('pt-mkt')||'{}')}catch(e){return {}}})(),MKTRUN=false;
@@ -8696,7 +8759,8 @@ function openMenu(){
   const fab=$('#fab'),r=fab.getBoundingClientRect(),I=p=>`<svg viewBox="0 0 24 24" aria-hidden="true">${p}</svg>`;
   const it=[['manual','Lançamento',I('<path d="M12 5v14M5 12h14"/>')],['frase','Por voz ou frase',I('<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/>')],
     ['smart',S.sample?'Ler documento':'Importar extrato',I('<path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5"/>')]];
-  const w=document.createElement('div');w.id='fabm';w.innerHTML=`<div class="fbm-s" data-fbx></div><div class="fbm" role="menu" aria-label="Lançar" style="right:${Math.max(innerWidth-r.right,12)}px;bottom:${innerHeight-r.top+10}px">${it.map(([k,t,i],n)=>`<button type="button" role="menuitem" class="fbm-i ${n?'':'pri'}" data-mm="${k}" style="--d:${(it.length-1-n)*35}ms">${i}<span>${t}</span></button>`).join('')}</div>`;
+  const top=r.top<innerHeight/2,pos=top?`left:${Math.round(r.left)}px;top:${Math.round(r.bottom+8)}px;justify-items:start`:`right:${Math.max(innerWidth-r.right,12)}px;bottom:${innerHeight-r.top+10}px`;
+  const w=document.createElement('div');w.id='fabm';w.innerHTML=`<div class="fbm-s" data-fbx></div><div class="fbm" role="menu" aria-label="Lançar" style="${pos}">${it.map(([k,t,i],n)=>`<button type="button" role="menuitem" class="fbm-i ${n?'':'pri'}" data-mm="${k}" style="--d:${(it.length-1-n)*35}ms">${i}<span>${t}</span></button>`).join('')}</div>`;
   document.body.appendChild(w);fab.classList.add('open');fab.setAttribute('aria-expanded','true');
   requestAnimationFrame(()=>w.classList.add('on'));w.querySelector('.fbm-i').focus({preventScroll:true});
   w.querySelector('[data-fbx]').onclick=fabmClose;
@@ -9190,8 +9254,9 @@ const tm=setTimeout(()=>{if(!ready())live('Sem conexão')},10000);
   addEventListener('online',()=>{syncUI();if(window.__fbPend)toast('Internet de volta — enviando o que foi lançado');bkAuto()});
   const mark=()=>{if(ready()){clearTimeout(tm);syncUI();bkAuto();if(!window.__rep){window.__rep=1;setTimeout(repararOrfaos,1200)}}};
   const col=(name,key,ok)=>db.collection(name).onSnapshot(s=>{EPO++;S[key]=s.docs.map(d=>Object.assign({id:d.id},d.data()));S.ok[ok]=1;mark();re()},err);
-  db.doc('config/app').onSnapshot(s=>{EPO++;S.cfg=s.exists?s.data():null;applyCats();S.ok.c=1;mark();re()},err);
+  db.doc('config/app').onSnapshot(s=>{EPO++;S.cfg=s.exists?s.data():null;applyCats();S.ok.c=1;mark();uiApply();re()},err);
   db.doc('config/rv').onSnapshot(s=>{EPO++;S.rv=s.exists?(s.data()||{}):{};re()},()=>{});
+  db.doc('config/ui').onSnapshot(s=>{S.ui=s.exists?(s.data()||{}):{};uiApply()},()=>{});
   db.doc('meta/backups').onSnapshot(s=>{BKIDX=s.exists?s.data():{datas:{}};bkAuto()},e=>{if(e&&e.code==='permission-denied')BKOFF=true});
   col('cartoes','cards','k');col('contas','contas','n');col('lanc','lanc','l');col('dividas','dividas','d');col('recorrentes','recs','r');col('acertos','acertos','a');col('relatorios','reps','x');
   C.use('assets').then(a=>{S.assets=a});

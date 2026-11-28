@@ -8,7 +8,7 @@ const { chromium } = require('playwright');
 const { fixture } = require('./fixture');
 
 const ROOT = path.join(__dirname, '..');
-const EXPOR = ('S ME today openMercado mktCalc mktLoad repFunnel repRun repRange repDef repTrf repChart acertoS0 acertoCaminho acertoLedger vRel openMenu toastOk delLancUndo fbWrap openRepDet rdCmp rdItems openLancView openCardDet closeAll confirmRec repararOrfaos openLanFiltros recV recVI lembDe openPrefs openLembretes ymAdd addD dayIn lastDay realBal saldoConta scopeContas fracOf mesFluxo agendaPessoal patrimonio balanco dividasAll ' +
+const EXPOR = ('S ME today uiApply uiPush openMercado mktCalc mktLoad repFunnel repRun repRange repDef repTrf repChart acertoS0 acertoCaminho acertoLedger vRel openMenu toastOk delLancUndo fbWrap openRepDet rdCmp rdItems openLancView openCardDet closeAll confirmRec repararOrfaos openLanFiltros recV recVI lembDe openPrefs openLembretes ymAdd addD dayIn lastDay realBal saldoConta scopeContas fracOf mesFluxo agendaPessoal patrimonio balanco dividasAll ' +
   'acerto acertoLedger credGab gabId candlesCaixa saidasDia margemCalc planoCalc mesCalc catWatch catMesMap contaMov isCaixa movs ' +
   'parseFrase rvCalc rvIR divSim divLista ORD metaCalc cenBase cenProj baseMes casaCalc pjMes filhoCalc progRet retroCalc semRev ' +
   'openRV openRVIR openCenarios openDividasPlano openCasa openPJ openPontos openFilhos openRetro openPrefs openFrase openSimCompra ' +
@@ -254,6 +254,17 @@ window.__fbSair=()=>{};setTimeout(()=>window.__fbReady(api),0);})();</script>`;
             await T.S.db.doc('lanc/' + r.id).delete(); await w(100); if (!cur && !cam) return { erro: 'compra comum sumiu', due: m && m.due, per: m && m.per } }
           return { ok: true } });
         ok(cm.ok, 'acerto: compra comum nova aparece já (em aberto ou "a caminho" até a fatura vencer)', JSON.stringify(cm)) }
+      { const us = await p.evaluate(async () => { const T = window.__T, w = ms => new Promise(r => setTimeout(r, ms)), me = T.ME();
+          localStorage.setItem('pt-apm', '1234'); await w(1300); const sub = ((T.S.ui || {})[me] || {})['pt-apm'];
+          await T.S.db0.doc('config/ui').set({ [me]: { 'pt-apm': { v: '4321', t: Date.now() + 5000 } } }); await w(300);
+          const loc = localStorage.getItem('pt-apm'); localStorage.removeItem('pt-apm'); return { subiu: sub && sub.v, local: loc } });
+        ok(us.subiu === '1234' && us.local === '4321', 'preferências sincronizam entre aparelhos (sobe a mudança local; aplica a mais nova vinda de outro aparelho)', JSON.stringify(us)) }
+      { const pw = await b.newPage({ viewport: { width: 1138, height: 712 } }); await pw.addInitScript(() => { try { localStorage.setItem('pt-tour', '1') } catch (e) { } }); await pw.route(/fonts|gstatic|cdnjs|bcb\.gov|brapi/, r => r.abort());
+        await pw.goto('file://' + arq); await pw.waitForTimeout(1200); const res = [];
+        for (const v of ['inicio', 'lanc', 'cartoes', 'carteira', 'relatorios']) { await pw.evaluate(v => location.hash = v, v); await pw.waitForTimeout(300);
+          res.push(await pw.evaluate(v => { const vis = [...document.querySelectorAll('main>.view')].filter(e => getComputedStyle(e).display !== 'none').map(e => e.id); const n = document.querySelector('nav.tabs').getBoundingClientRect(); return { v, vis, nav: Math.round(n.width) + 'x' + Math.round(n.height), ov: document.documentElement.scrollWidth - innerWidth } }, v)) }
+        await pw.close();
+        ok(res.every(r => r.vis.length === 1 && r.vis[0] === 'v-' + r.v && r.nav.startsWith('236x') && r.ov <= 0), 'tablet/computador: menu lateral, uma seção por vez, sem rolagem lateral', JSON.stringify(res.filter(r => !(r.vis.length === 1 && r.vis[0] === 'v-' + r.v && r.nav.startsWith('236x') && r.ov <= 0)))) }
       { const inv = await p.evaluate(() => { const T = window.__T, bad = [], eq = (a, b) => Math.abs(a - b) < .011;
           const cats = [...new Set(T.S.lanc.filter(l => l.tipo === 'despesa').map(l => l.categoria))];
           const defs = [{ per: 'meses', n: 15, ref: 'lanc', grp: 'subcategoria', vis: 'barras', trf: true, carry: true, cats: cats.slice(0, 2) },

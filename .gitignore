@@ -1,0 +1,7 @@
+
+# capturas de tela de testes não entram no repositório
+/*.png
+!/apple-touch-icon.png
+!/badge-96.png
+!/icon-*.png
+!/ntf-*.png
